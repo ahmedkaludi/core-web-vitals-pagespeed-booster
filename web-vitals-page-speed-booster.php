@@ -22,7 +22,6 @@ define('WEBVITAL_PAGESPEED_BOOSTER_BASENAME', plugin_basename(__FILE__));
 
 $webVital_settings = array();
 function web_vital_defaultSettings(){
-    
 	global $webVital_settings;
 	if( empty($webVital_settings) || (is_array($webVital_settings) && count($webVital_settings)==0) ){
         $webVital_settings = get_option( 'webvital_settings', false ); 
@@ -34,8 +33,8 @@ add_action("plugins_loaded", "initiate_web_vital");
 function initiate_web_vital(){
 	if(is_admin()){
 		require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/admin-section.php";
+	}else{
+		require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/front-section.php";
 	}
-
-	require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/front-section.php";
 }
 
