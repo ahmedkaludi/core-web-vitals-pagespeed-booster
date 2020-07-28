@@ -7,7 +7,7 @@ class webVitalAdmin{
 	function init(){
 		add_action( 'admin_menu', array($this,'add_menu_links'));
 		add_action('admin_init',array($this, 'dashboard_section'));
-		add_action('wp_ajax_parse_style_css', array($this, 'front_css_addition'));
+		add_action('wp_ajax_parse_style_css', array($this, 'parse_style_css'));
 	}
 
 	function add_menu_links() {	
@@ -122,7 +122,7 @@ class webVitalAdmin{
 		<?php
 	}
 
-	function front_css_addition(){
+	function parse_style_css(){
 		if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vital-security-nonce')){
 			return json_encode(array());
 		}

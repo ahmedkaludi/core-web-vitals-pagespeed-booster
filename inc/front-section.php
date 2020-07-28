@@ -2,6 +2,7 @@
 add_action('wp', function(){ ob_start('web_vital_changes'); }, 990);
 
 function web_vital_changes($html){
+
 	$bkpHtml = $html;
 	$settings = web_vital_defaultSettings();
 	
@@ -64,9 +65,40 @@ function web_vital_changes($html){
 	
 		$html = preg_replace("/<\/body>/", $replaceAdd, $html);
 	}
-	
+
+	//Remove unused css
+	require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/style-sanitizer.php";
+	$tmpDoc = new DOMDocument();
+	libxml_use_internal_errors(true);
+	$tmpDoc->loadHTML($html);
+	$arg['allow_dirty_styles'] = false;
+	$obj = new webvital_Style_TreeShaking($tmpDoc, $arg);
+	$datatrack = $obj->sanitize();
+	$data = $obj->get_stylesheets();
+	$sheet = '';
+	foreach($data as $styles){
+		$sheet .= $styles;
+	}
+	$sheet = stripcslashes($sheet);
+	$css_reg = "/<link(.*?)rel=[\'|\"]stylesheet[\'|\"](.*?)href=[\'|\"](.*?)'(.*?)type=[\'|\"]text\/css[\'|\"](.*?)>/";
+	$html = preg_replace($css_reg, "", $html);
+	$css_style_reg = "/((<style>)|(<style type=.+))([\n;:a-zA-Z\-\!0-9\.\s,\{\}\(\)\[\]\#]*)(<\/style>)/";
+	$html = preg_replace($css_style_reg, "", $html);
+	$html = preg_replace("/<\/head>/", "<style type='text/css'>".$sheet."</style></head>", $html);
+
 	if(empty($html)){
 		$html = $bkpHtml."<!-- vital not work -->";
 	}
 	return $html;
 }
+
+
+function add_theme_scripts() {
+  wp_enqueue_script( 'web-vital-script', WEBVITAL_PAGESPEED_BOOSTER_URL . '/assets/wp-vital.js', array (), WEBVITAL_PAGESPEED_BOOSTER_VERSION, true);
+  $vitalVar = array(
+  				'ajax_url'=>admin_url( 'admin-ajax.php' ),
+  				'security_nonce'=>wp_create_nonce('web-vital-security-nonce')
+				);
+  wp_localize_script('web-vital-script', 'webvital', $vitalVar);
+}
+add_action( 'wp_enqueue_scripts', 'add_theme_scripts' );
