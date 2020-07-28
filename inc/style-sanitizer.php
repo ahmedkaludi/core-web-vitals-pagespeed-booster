@@ -1555,8 +1555,6 @@ class webvital_Style_TreeShaking{
 /**
  * Helper function 
  */
-
-
 function web_vital_get_proper_transient_name($transient){
 	global $post;
 	if( function_exists('ampforwp_is_home') && ampforwp_is_home()){
@@ -1591,7 +1589,7 @@ function web_vital_set_file_transient( $transient, $value, $expiration = 0 ) {
 		**/
 		if($value){
 			$upload_dir = wp_upload_dir(); 
-			$user_dirname = $upload_dir['basedir'] . '/' . 'wev_vital';
+			$user_dirname = $upload_dir['basedir'] . '/' . 'web_vital';
 			if(!file_exists($user_dirname)) wp_mkdir_p($user_dirname);
 			$content = $value;
 			$new_file = $user_dirname."/".$transient_option.".css";
@@ -1623,7 +1621,7 @@ function web_vital_style_get_file_transient( $transient ) {
 		if ( ! isset( $value ) ){
 			$value = '';
 			$upload_dir = wp_upload_dir(); 
-			$user_dirname = $upload_dir['basedir'] . '/' . 'wev_vital';
+			$user_dirname = $upload_dir['basedir'] . '/' . 'web_vital';
 			if(!file_exists($user_dirname)) wp_mkdir_p($user_dirname);
 			
 			$new_file = $user_dirname."/".$transient_option.".css";
