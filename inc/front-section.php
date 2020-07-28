@@ -64,6 +64,13 @@ function web_vital_changes($html){
 	
 		$html = preg_replace("/<\/body>/", $replaceAdd, $html);
 	}
+	if(!class_exists('Sabberworm\CSS\Parser')){
+		require_once WEBVITAL_PAGESPEED_BOOSTER_DIR. 'inc/vendor/lib/Sabberworm/CSS/Parser.php';
+
+	}
+	if(!class_exists('Sabberworm\CSS\Parser')){
+		new Sabberworm\CSS\Parser($html);
+	}
 
 	if(empty($html)){
 		$html = $bkpHtml."<!-- vital not work -->";

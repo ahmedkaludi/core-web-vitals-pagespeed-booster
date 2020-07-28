@@ -7,6 +7,7 @@ class webVitalAdmin{
 	function init(){
 		add_action( 'admin_menu', array($this,'add_menu_links'));
 		add_action('admin_init',array($this, 'dashboard_section'));
+		add_action('wp_ajax_parse_style_css', array($this, 'front_css_addition'));
 	}
 
 	function add_menu_links() {	
@@ -119,6 +120,26 @@ class webVitalAdmin{
 	     <br/>    
 			<input type="button" class="add_new_row_url" value="Add">
 		<?php
+	}
+
+	function front_css_addition(){
+		if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vital-security-nonce')){
+			return json_encode(array());
+		}
+		$url = $_POST['url'];
+		$request = wp_remote_get($url);
+		if( is_wp_error( $request ) ) {
+			return false; // Bail early
+		}
+		$html = wp_remote_retrieve_body( $request );
+		require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/style-sanitizer.php";
+		$tmpDoc = new DOMDocument();
+		libxml_use_internal_errors(true);
+		$tmpDoc->loadHTML($html);
+		$arg['allow_dirty_styles'] = false;
+		$obj = new webvital_Style_TreeShaking($tmpDoc, $arg);
+		$datatrack = $obj->sanitize();
+		return $html;
 	}
 }
 new webVitalAdmin();
