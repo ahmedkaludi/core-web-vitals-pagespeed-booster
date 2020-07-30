@@ -34,7 +34,7 @@ function web_vital_changes($html){
 		foreach ($settings['list_of_urls'] as $key => $value) {
 			$url = str_replace(array('/', '.', ' '), array('\\/', '\.', ''), $value);
 			$regex = '/<script[a-z=\"\',\[\]\s\-\.0-9]*src="'.$url.'"><\/script>/';
-			preg_match($regex, $html, $matches, PREG_UNMATCHED_AS_NULL);
+			preg_match($regex, $html, $matches);
 	
 			if(isset($matches[0])){
 				$str = $matches[0];
@@ -66,25 +66,26 @@ function web_vital_changes($html){
 		$html = preg_replace("/<\/body>/", $replaceAdd, $html);
 	}
 
-	//Remove unused css
-	require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/style-sanitizer.php";
-	$tmpDoc = new DOMDocument();
-	libxml_use_internal_errors(true);
-	$tmpDoc->loadHTML($html);
-	$arg['allow_dirty_styles'] = false;
-	$obj = new webvital_Style_TreeShaking($tmpDoc, $arg);
-	$datatrack = $obj->sanitize();
-	$data = $obj->get_stylesheets();
-	$sheet = '';
-	foreach($data as $styles){
-		$sheet .= $styles;
+		$html = str_replace('<body class="home blog wp-embed-responsive hfeed image-filters-enabled">', '<body class="home blog wp-embed-responsive hfeed image-filters-enabled"><img class="wp-smiley">', $html);
+	//if(false){
+	if(isset($settings['remove_unused_css']) && $settings['remove_unused_css']==1){
+
+		//Remove unused css
+		require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/other-css-sanitizer.php";
+		$tmpDoc = new DOMDocument();
+		libxml_use_internal_errors(true);
+		$tmpDoc->loadHTML($html);
+
+		$parser = new webvital_Style_TreeShaking_Other();
+		$sheet = $parser->sanitized($tmpDoc);
+
+		$css_reg = "/<link(.*?)rel=[\'|\"]stylesheet[\'|\"](.*?)href=[\'|\"](.*?)'(.*?)type=[\'|\"]text\/css[\'|\"](.*?)>/";
+		$html = preg_replace($css_reg, "", $html);
+		$css_style_reg = "/((<style>)|(<style type=.+))([\n;:a-zA-Z\-\!0-9\.\s,\{\}\(\)\[\]\#]*)(<\/style>)/";
+		$html = preg_replace($css_style_reg, "", $html);
+
+		$html = preg_replace("/<\/head>/", "<style type='text/css'>".$sheet."</style></head>", $html);
 	}
-	$sheet = stripcslashes($sheet);
-	$css_reg = "/<link(.*?)rel=[\'|\"]stylesheet[\'|\"](.*?)href=[\'|\"](.*?)'(.*?)type=[\'|\"]text\/css[\'|\"](.*?)>/";
-	$html = preg_replace($css_reg, "", $html);
-	$css_style_reg = "/((<style>)|(<style type=.+))([\n;:a-zA-Z\-\!0-9\.\s,\{\}\(\)\[\]\#]*)(<\/style>)/";
-	$html = preg_replace($css_style_reg, "", $html);
-	$html = preg_replace("/<\/head>/", "<style type='text/css'>".$sheet."</style></head>", $html);
 
 	if(empty($html)){
 		$html = $bkpHtml."<!-- vital not work -->";

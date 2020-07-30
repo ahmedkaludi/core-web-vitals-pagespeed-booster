@@ -75,8 +75,23 @@ class webVitalAdmin{
 			'webvital_dashboard_section',							// Page slug
 			'webvital_dashboard_section'							// Settings Section ID
 		);
+		add_settings_field(
+			'web_vital_setting_4',								// ID
+			esc_html__('Remove Unused css','web-vitals-page-speed-booster'),			// Title
+			array($this, 'remove_unused_css'),					// Callback
+			'webvital_dashboard_section',							// Page slug
+			'webvital_dashboard_section'							// Settings Section ID
+		);
 	}
 
+	function remove_unused_css(){
+		// Get Settings
+		$settings = web_vital_defaultSettings(); 
+		?>
+		<input type="checkbox" name="webvital_settings[remove_unused_css]" id="webvital_settings[remove_unused_css]" class="" <?php echo (isset( $settings['remove_unused_css'] ) &&  $settings['remove_unused_css'] == 1 ? 'checked="checked"' : ''); ?> value="1">
+	               
+		<?php
+	}
 	function lazy_load_callback(){
 		// Get Settings
 		$settings = web_vital_defaultSettings(); 

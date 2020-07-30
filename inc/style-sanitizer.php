@@ -259,7 +259,7 @@ class webvital_Style_TreeShaking{
 			if ( 'style' === $node_name ) {
 				$this->process_style_element( $element );
 			} elseif ( 'link' === $node_name ) {
-				return $this->process_link_element( $element );
+				$this->process_link_element( $element );
 				if ( $element->parentNode && 'head' !== $element->parentNode->nodeName ) {
 					$this->dom->head->appendChild( $element->parentNode->removeChild( $element ) );
 				}
@@ -287,20 +287,6 @@ class webvital_Style_TreeShaking{
 			$shake_css_duration += $pending_stylesheet['shake_time'];
 		}
 	}
-
-	/**
-	 * Get the priority of the stylesheet associated with the given element.
-	 *
-	 * As with hooks, lower priorities mean they should be included first.
-	 * The higher the priority value, the more likely it will be that the
-	 * stylesheet will be among those excluded due to STYLESHEET_TOO_LONG when
-	 * concatenated CSS reaches 75KB.
-	 *
-	 * @todo This will eventually need to be abstracted to not be CMS-specific, allowing for the prioritization scheme to be defined by configuration.
-	 *
-	 * @param DOMNode|DOMElement|DOMAttr $node Node.
-	 * @return int Priority.
-	 */
 	private function get_stylesheet_priority( DOMNode $node ) {
 		$print_priority_base = 100;
 		$admin_bar_priority  = 200;
@@ -1770,7 +1756,6 @@ class webvital_Style_TreeShaking{
 
 			// Create the style[amp-custom] element and add it to the <head>.
 			$this->amp_custom_style_element = $this->dom->createElement( 'style' );
-			$this->amp_custom_style_element->setAttribute( 'amp-custom', '' );
 			$this->amp_custom_style_element->appendChild( $this->dom->createTextNode( $css ) );
 			$this->dom->head->appendChild( $this->amp_custom_style_element );
 		}
