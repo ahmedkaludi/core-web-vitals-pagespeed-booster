@@ -2,6 +2,41 @@
 add_action('wp', function(){ ob_start('web_vital_changes'); }, 990);
 
 function web_vital_changes($html){
+	//$html = '<html><head><style>.a{color:red;}.b{font-size:20px;}#c .b{font-size:20px;}</style></head><body><div class="a">Hello</div><body></html>';
+	//return $html;
+	require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/style-sanitizer.php";
+		$tmpDoc = new DOMDocument();
+		libxml_use_internal_errors(true);
+		$tmpDoc->loadHTML($html);
+
+		$error_codes = [];
+		$args        = [
+			'validation_error_callback' => static function( $error ) use ( &$error_codes ) {
+				$error_codes[] = $error['code'];
+			},
+			'should_locate_sources'=>true,
+			'use_document_element'=>true,
+			'include_manifest_comment'=>false,
+		];
+
+		$parser = new webvital_Style_TreeShaking($tmpDoc,$args);
+		$sanitize = $parser->sanitize();
+		//return json_encode($sanitize);
+		$sheet = $parser->get_stylesheets();
+		//return json_encode($sheet,JSON_PRETTY_PRINT);
+		return $tmpDoc->saveHTML();
+		$data = '';
+		foreach ($sheet as $key => $value) {
+			$data .= $value;
+		}
+		$css_reg = "/<link(.*?)rel=[\'|\"]stylesheet[\'|\"](.*?)href=[\'|\"](.*?)'(.*?)(.*?)>/";
+		$html = preg_replace($css_reg, "", $html);
+		$css_style_reg = "/((<style>)|(<style type=.+))([\n;:a-zA-Z\-\!0-9\.\s,\{\}\(\)\[\]\#]*)(<\/style>)/";
+		$html = preg_replace($css_style_reg, "", $html);
+		$html = preg_replace("/<\/head>/", "<style type='text/css'>".$data."</style></head>", $html);
+		return $html;
+	
+	
 
 	$bkpHtml = $html;
 	$settings = web_vital_defaultSettings();
@@ -78,8 +113,8 @@ function web_vital_changes($html){
 
 		$parser = new webvital_Style_TreeShaking_Other();
 		$sheet = $parser->sanitized($tmpDoc);
-
-		$css_reg = "/<link(.*?)rel=[\'|\"]stylesheet[\'|\"](.*?)href=[\'|\"](.*?)'(.*?)type=[\'|\"]text\/css[\'|\"](.*?)>/";
+		
+		$css_reg = "/<link(.*?)rel=[\'|\"]stylesheet[\'|\"](.*?)href=[\'|\"](.*?)'(.*?)(.*?)>/";
 		$html = preg_replace($css_reg, "", $html);
 		$css_style_reg = "/((<style>)|(<style type=.+))([\n;:a-zA-Z\-\!0-9\.\s,\{\}\(\)\[\]\#]*)(<\/style>)/";
 		$html = preg_replace($css_style_reg, "", $html);

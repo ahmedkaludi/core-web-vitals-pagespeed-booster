@@ -41,6 +41,7 @@ class webvital_Style_TreeShaking_Other{
 			foreach ( $xpath->query( '//*[ ' . implode( ' or ', $predicates ) . ' ]' ) as $element ) {
 				$elements[] = $element;
 			}
+			
 			$rawStyleSheet = '';
 			foreach ( $elements as $element ) {
 				$node_name = strtolower( $element->nodeName );
@@ -78,7 +79,7 @@ class webvital_Style_TreeShaking_Other{
 			if ( $needs_preconnect_link ) {
 				return '';
 			}
-			$css_file_path = $this->get_validated_url_file_path( $href, array( 'css', 'less', 'scss', 'sass' ) );
+			$css_file_path = $href;//$this->get_validated_url_file_path( $href, array( 'css', 'less', 'scss', 'sass' ) );
 			$response = wp_remote_get($css_file_path);
 			if(wp_remote_retrieve_response_code($response)==200){
 				$styleSheet = wp_remote_retrieve_body($response);
@@ -250,5 +251,5 @@ function web_vital_style_get_file_transient( $transient ) {
 	}
 
 	
-	return apply_filters( "transient_{$transient}", json_decode($value, true), $transient );
+	return '';//apply_filters( "transient_{$transient}", json_decode($value, true), $transient );
 }
