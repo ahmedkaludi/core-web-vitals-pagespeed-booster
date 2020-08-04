@@ -162,8 +162,22 @@ class webvital_Style_TreeShaking_Other{
 			$parser_settings = Sabberworm\CSS\Settings::create();
 			$css_parser      = new Sabberworm\CSS\Parser( $styleSheet, $parser_settings );
 			$css_document    = $css_parser->parse();
-			
-																								
+			$count = 0;
+				foreach($css_document->getAllRuleSets() as $oRuleSet) {
+
+
+					$properties = $oRuleSet->getRules();
+
+
+					//if($count < 5){
+						//error_log($oRuleSet);
+						foreach ( $properties as $property ) {
+						error_log(json_encode($property->getRule()));
+					}
+					//}
+					$oRuleSet->removeRule('has-dark-gray-color');
+					$count++;
+				}																				
 			
 			$style = $css_document->render(Sabberworm\CSS\OutputFormat::createCompact());
 			return $style;
@@ -177,8 +191,13 @@ class webvital_Style_TreeShaking_Other{
 
 
 
-function web_vital_is_blog(){
-	return ( is_archive() || is_author() || is_category() || is_home() || is_single() || is_tag()) && 'post' == get_post_type();
+function web_vital_is_blog () {
+	if ( (is_archive()) || (is_author()) || (is_category()) || (is_home()) || (is_single()) || (is_tag()) ) {
+		return true;
+	}
+	else {
+		return false; 
+	}
 }
 function web_vital_get_proper_transient_name($transient){
 	global $post;

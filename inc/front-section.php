@@ -1,43 +1,6 @@
 <?php 
 add_action('wp', function(){ ob_start('web_vital_changes'); }, 990);
-
 function web_vital_changes($html){
-	//$html = '<html><head><style>.a{color:red;}.b{font-size:20px;}#c .b{font-size:20px;}</style></head><body><div class="a">Hello</div><body></html>';
-	//return $html;
-	require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/style-sanitizer.php";
-		$tmpDoc = new DOMDocument();
-		libxml_use_internal_errors(true);
-		$tmpDoc->loadHTML($html);
-
-		$error_codes = [];
-		$args        = [
-			'validation_error_callback' => static function( $error ) use ( &$error_codes ) {
-				$error_codes[] = $error['code'];
-			},
-			'should_locate_sources'=>true,
-			'use_document_element'=>true,
-			'include_manifest_comment'=>false,
-		];
-
-		$parser = new webvital_Style_TreeShaking($tmpDoc,$args);
-		$sanitize = $parser->sanitize();
-		//return json_encode($sanitize);
-		$sheet = $parser->get_stylesheets();
-		//return json_encode($sheet,JSON_PRETTY_PRINT);
-		return $tmpDoc->saveHTML();
-		$data = '';
-		foreach ($sheet as $key => $value) {
-			$data .= $value;
-		}
-		$css_reg = "/<link(.*?)rel=[\'|\"]stylesheet[\'|\"](.*?)href=[\'|\"](.*?)'(.*?)(.*?)>/";
-		$html = preg_replace($css_reg, "", $html);
-		$css_style_reg = "/((<style>)|(<style type=.+))([\n;:a-zA-Z\-\!0-9\.\s,\{\}\(\)\[\]\#]*)(<\/style>)/";
-		$html = preg_replace($css_style_reg, "", $html);
-		$html = preg_replace("/<\/head>/", "<style type='text/css'>".$data."</style></head>", $html);
-		return $html;
-	
-	
-
 	$bkpHtml = $html;
 	$settings = web_vital_defaultSettings();
 	
@@ -105,21 +68,26 @@ function web_vital_changes($html){
 	//if(false){
 	if(isset($settings['remove_unused_css']) && $settings['remove_unused_css']==1){
 
-		//Remove unused css
-		require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/other-css-sanitizer.php";
+		
+		//now filter
+		require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/style-sanitizer.php";
 		$tmpDoc = new DOMDocument();
 		libxml_use_internal_errors(true);
 		$tmpDoc->loadHTML($html);
+		$error_codes = [];
+		$args        = [
+			'validation_error_callback' => static function( $error ) use ( &$error_codes ) {
+				$error_codes[] = $error['code'];
+			},
+			'should_locate_sources'=>true,
+			'use_document_element'=>true,
+			'include_manifest_comment'=>false,
+		];
+		$parser = new webvital_Style_TreeShaking($tmpDoc,$args);
+		$sanitize = $parser->sanitize();
+		$sheet = $parser->get_stylesheets();
+		$html = $tmpDoc->saveHTML();
 
-		$parser = new webvital_Style_TreeShaking_Other();
-		$sheet = $parser->sanitized($tmpDoc);
-		
-		$css_reg = "/<link(.*?)rel=[\'|\"]stylesheet[\'|\"](.*?)href=[\'|\"](.*?)'(.*?)(.*?)>/";
-		$html = preg_replace($css_reg, "", $html);
-		$css_style_reg = "/((<style>)|(<style type=.+))([\n;:a-zA-Z\-\!0-9\.\s,\{\}\(\)\[\]\#]*)(<\/style>)/";
-		$html = preg_replace($css_style_reg, "", $html);
-
-		$html = preg_replace("/<\/head>/", "<style type='text/css'>".$sheet."</style></head>", $html);
 	}
 
 	if(empty($html)){
@@ -127,14 +95,3 @@ function web_vital_changes($html){
 	}
 	return $html;
 }
-
-
-function add_theme_scripts() {
-  wp_enqueue_script( 'web-vital-script', WEBVITAL_PAGESPEED_BOOSTER_URL . '/assets/wp-vital.js', array (), WEBVITAL_PAGESPEED_BOOSTER_VERSION, true);
-  $vitalVar = array(
-  				'ajax_url'=>admin_url( 'admin-ajax.php' ),
-  				'security_nonce'=>wp_create_nonce('web-vital-security-nonce')
-				);
-  wp_localize_script('web-vital-script', 'webvital', $vitalVar);
-}
-add_action( 'wp_enqueue_scripts', 'add_theme_scripts' );

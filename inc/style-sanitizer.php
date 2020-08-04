@@ -129,6 +129,7 @@ class webvital_Style_TreeShaking {
 		$this->dom = $dom;
 		$this->dom->xpath       = new DOMXPath( $dom );
 		$this->dom->head = $this->dom->getElementsByTagName( 'head' )->item( 0 );
+		$this->dom->body = $this->dom->getElementsByTagName( 'body' )->item( 0 );
 		if ( ! $this->dom->head ) {
 			$this->dom->head = $this->dom->createElement( 'head' );
 			$this->dom->documentElement->insertBefore( $this->dom->head, $this->dom->documentElement->firstChild );
@@ -706,6 +707,7 @@ class webvital_Style_TreeShaking {
 				'spec_name'          => self::STYLE_AMP_CUSTOM_SPEC_NAME,
 			]
 		);
+		//error_log("line no 710=> ".json_encode($parsed));
 
 		if ( $parsed['viewport_rules'] ) {
 			$this->create_meta_viewport( $element, $parsed['viewport_rules'] );
@@ -769,7 +771,7 @@ class webvital_Style_TreeShaking {
 				__( 'Response did not contain the expected text/css content type.', 'amp' )
 			);
 		}
-
+		error_log($url . " => ".$response);
 		return wp_remote_retrieve_body( $response );
 	}
 	private function get_parsed_stylesheet( $stylesheet, $options = [] ) {
@@ -796,6 +798,7 @@ class webvital_Style_TreeShaking {
 		$cache_key = md5( $stylesheet . wp_json_encode( $cache_impacting_options ) );
 
 		$parsed = web_vital_style_get_file_transient( $cache_group . '-' . $cache_key );
+		error_log("line 800: ".json_encode($parsed));
 
 		/*if ( $use_transients ) {
 			$parsed = get_transient( $cache_group . '-' . $cache_key );
@@ -933,6 +936,7 @@ class webvital_Style_TreeShaking {
 			}
 
 			$processed_css_list = $this->process_css_list( $css_document, $options );
+			error_log("line no 938=> ".json_encode($processed_css_list));
 
 			$validation_results = array_merge(
 				$validation_results,
@@ -962,11 +966,11 @@ class webvital_Style_TreeShaking {
 		$options = array_merge(
 			[
 				'allowed_at_rules'   => [],
-				'property_denylist'  => [
+				'property_blacklist' => [
 					'behavior',
 					'-moz-binding',
 				],
-				'property_allowlist' => [],
+				'property_whitelist' => [],
 				'validate_keyframes' => false,
 				'stylesheet_url'     => null,
 				'spec_name'          => null,
@@ -1129,7 +1133,7 @@ class webvital_Style_TreeShaking {
 			}
 		}
 
-		$sanitized = parent::should_sanitize_validation_error( $validation_error, $data );
+		$sanitized = array();//parent_should_sanitize_validation_error( $validation_error, $data );
 
 		$this->previous_should_sanitize_validation_error_results[] = compact( 'args', 'sanitized' );
 		return $sanitized;
@@ -1295,11 +1299,13 @@ class webvital_Style_TreeShaking {
 				return $results;
 			}
 		}
-		if ( ! empty( $options['property_allowlist'] ) ) {
+		
+		if ( ! empty( $options['property_whitelist'] ) ) {
+			error_log("white_list");
 			$properties = $ruleset->getRules();
 			foreach ( $properties as $property ) {
 				$vendorless_property_name = preg_replace( '/^-\w+-/', '', $property->getRule() );
-				if ( ! in_array( $vendorless_property_name, $options['property_allowlist'], true ) ) {
+				if ( ! in_array( $vendorless_property_name, $options['property_whitelist'], true ) ) {
 					$error     = [
 						'code'               => self::CSS_SYNTAX_INVALID_PROPERTY,
 						'css_property_name'  => $property->getRule(),
@@ -1315,7 +1321,7 @@ class webvital_Style_TreeShaking {
 				}
 			}
 		} else {
-			foreach ( $options['property_denylist'] as $illegal_property_name ) {
+			foreach ( $options['property_blacklist'] as $illegal_property_name ) {
 				$properties = $ruleset->getRules( $illegal_property_name );
 				foreach ( $properties as $property ) {
 					$error     = [
@@ -1333,11 +1339,9 @@ class webvital_Style_TreeShaking {
 				}
 			}
 		}
-
 		if ( $ruleset instanceof AtRuleSet && 'font-face' === $ruleset->atRuleName() ) {
 			$this->process_font_face_at_rule( $ruleset, $options );
 		}
-
 		$results = array_merge(
 			$results,
 			$this->transform_important_qualifiers( $ruleset, $css_list, $options )
@@ -1504,74 +1508,7 @@ class webvital_Style_TreeShaking {
 		return $results;
 	}
 	private function transform_important_qualifiers( RuleSet $ruleset, CSSList $css_list, $options ) {
-		$results = [];
-		$allow_transformation = (
-			$ruleset instanceof DeclarationBlock
-			&&
-			! ( $css_list instanceof KeyFrame )
-		);
-
-		$properties = $ruleset->getRules();
-		$importants = [];
-		foreach ( $properties as $property ) {
-			if ( $property->getIsImportant() ) {
-				if ( $allow_transformation ) {
-					$importants[] = $property;
-					$property->setIsImportant( false );
-					$ruleset->removeRule( $property->getRule() );
-				} else {
-					$error     = [
-						'code'               => self::CSS_SYNTAX_INVALID_IMPORTANT,
-						'type'               => 'css_error',
-						'css_property_name'  => $property->getRule(),
-						'css_property_value' => $property->getValue(),
-						'spec_name'          => $options['spec_name'],
-					];
-					$sanitized = $this->should_sanitize_validation_error( $error );
-					if ( $sanitized ) {
-						$property->setIsImportant( false );
-					}
-					$results[] = compact( 'error', 'sanitized' );
-				}
-			}
-		}
-		if ( ! $ruleset instanceof DeclarationBlock || ! $allow_transformation || empty( $importants ) ) {
-			return $results;
-		}
-		$important_ruleset = clone $ruleset;
-		$important_ruleset->setSelectors(
-			array_map(
-				static function( Selector $old_selector ) {
-					$specificity_multiplier = 5 + 1 + floor( $old_selector->getSpecificity() / 100 );
-					if ( $old_selector->getSpecificity() % 100 > 0 ) {
-						$specificity_multiplier++;
-					}
-					if ( $old_selector->getSpecificity() % 10 > 0 ) {
-						$specificity_multiplier++;
-					}
-					$selector_mod = str_repeat( ':not(#_)', $specificity_multiplier ); // Here "_" is just a short single-char ID.
-
-					$new_selector = $old_selector->getSelector();
-					if ( preg_match( '/^\s*(html|:root)\b/i', $new_selector, $matches ) ) {
-						$new_selector = substr( $new_selector, 0, strlen( $matches[0] ) ) . $selector_mod . substr( $new_selector, strlen( $matches[0] ) );
-					} else {
-						$new_selector = sprintf( ':root%s %s', $selector_mod, $new_selector );
-					}
-					return new Selector( $new_selector );
-				},
-				$ruleset->getSelectors()
-			)
-		);
-		$important_ruleset->setRules( $importants );
-
-		$i = array_search( $ruleset, $css_list->getContents(), true );
-		if ( false !== $i && method_exists( $css_list, 'splice' ) ) {
-			$css_list->splice( $i + 1, 0, [ $important_ruleset ] );
-		} else {
-			$css_list->append( $important_ruleset );
-		}
-
-		return $results;
+		return (array) $ruleset;
 	}
 	private function collect_inline_styles( DOMElement $element ) {
 		$attr_node = $element->getAttributeNode( 'style' );
@@ -1650,6 +1587,7 @@ class webvital_Style_TreeShaking {
 		];
 
 		$imported_font_urls = [];
+		error_log("finalize_styles: 1654=> ".json_encode($this->pending_stylesheets));
 		foreach ( $this->pending_stylesheets as $i => $pending_stylesheet ) {
 			foreach ( $pending_stylesheet['tokens'] as $j => $part ) {
 				if ( is_string( $part ) && 0 === strpos( $part, '@import' ) ) {
@@ -1670,11 +1608,11 @@ class webvital_Style_TreeShaking {
 		}
 		if ( $stylesheet_groups[ self::STYLE_AMP_CUSTOM_GROUP_INDEX ]['included_count'] > 0 ) {
 			$css = $stylesheet_groups[ self::STYLE_AMP_CUSTOM_GROUP_INDEX ]['import_front_matter'];
-
 			$css .= implode( '', $this->get_stylesheets() );
 			$css .= $stylesheet_groups[ self::STYLE_AMP_CUSTOM_GROUP_INDEX ]['source_map_comment'];
 			$this->amp_custom_style_element = $this->dom->createElement( 'style' );
-			$this->amp_custom_style_element->appendChild( $this->dom->createTextNode( $css ) );
+			//$this->amp_custom_style_element->appendChild( $this->dom->createTextNode( $css ) );
+			$this->amp_custom_style_element->appendChild( ( $css ) );
 			$this->dom->head->appendChild( $this->amp_custom_style_element );
 		}
 		foreach ( array_unique( $imported_font_urls ) as $imported_font_url ) {
