@@ -7,7 +7,7 @@ class webVitalAdmin{
 	function init(){
 		add_action( 'admin_menu', array($this,'add_menu_links'));
 		add_action('admin_init',array($this, 'dashboard_section'));
-		add_action('wp_ajax_parse_style_css', array($this, 'parse_style_css'));
+		add_action('wp_ajax_parse_clear_cached_css', array($this, 'parse_clear_cached_css'));
 	}
 
 	function add_menu_links() {	
@@ -45,7 +45,9 @@ class webVitalAdmin{
 		echo '<form action="options.php" method="post" enctype="multipart/form-data" class="web-vitals-settings-form">';
 		settings_fields( 'webvital_setting_dashboard_group' );
 		do_settings_sections( 'webvital_dashboard_section' );	// Page slug
+		echo "<div style='display:inline-block'><div style='float:left;'>";
 		submit_button( esc_html__('Save Settings', 'web-vitals-page-speed-booster') );
+		echo "</div><p><button type='button' id='web-vital-clear-cache' data-security='".wp_create_nonce('web-vital-cache-clear')."'>".esc_html__('Clear cache', 'web-vitals-page-speed-booster')."</button><span class='clear-cache-msg'></span></p>";
 		echo '</form>';
 	}
 
@@ -135,6 +137,26 @@ class webVitalAdmin{
 	     <br/>    
 			<input type="button" class="add_new_row_url" value="Add">
 		<?php
+	}
+
+	public function parse_clear_cached_css(){
+		if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vital-security-nonce')){
+			echo json_encode(array("status"=> 400, "msg"=>"Security verification failed, Refresh the page"));die;
+		}
+
+		$upload_dir = wp_upload_dir(); 
+		$user_dirname = $upload_dir['basedir'] . '/' . 'web_vital';
+		$dir_handle = opendir($user_dirname);
+		if (!$dir_handle){
+          echo json_encode(array("status"=> 400, "msg"=>"cache not found"));die;
+		}
+		while($file = readdir($dir_handle)) {
+			if (strpos($file, '.css')!==false){
+				unlink($user_dirname."/".$file);
+			}
+		}
+		closedir($dir_handle);
+		echo json_encode(array("status"=> 200, "msg"=>"CSS cleared"));die;
 	}
 
 	function parse_style_css(){

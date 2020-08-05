@@ -4,10 +4,11 @@ function web_vital_changes($html){
 	$bkpHtml = $html;
 	$settings = web_vital_defaultSettings();
 	
-	$re = '/<script(\s|\n)*async(\s|\n)*src="(https:|https|)\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js"><\/script>/';
-	$html = preg_replace($re, "", $html);
+	
 	$replaceJs ='';
 	if(isset($settings['lazy_load']) && $settings['lazy_load']==1){
+		$re = '/<script(\s|\n)*async(\s|\n)*src="(https:|https|)\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js"><\/script>/';
+		$html = preg_replace($re, "", $html);
 		$replace = '<script type="text/javascript">
 					function showDownloadJSAtOnload() {
 					var element = document.createElement("script");
@@ -23,6 +24,8 @@ function web_vital_changes($html){
 					$html = preg_replace("/<\/body>/", $replace, $html);
 	}
 	if(isset($settings['load_on_scroll']) && $settings['load_on_scroll']==1){
+		$re = '/<script(\s|\n)*async(\s|\n)*src="(https:|https|)\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js"><\/script>/';
+		$html = preg_replace($re, "", $html);
 		$replaceJs .= 'var e=document.createElement("script");e.type="text/javascript",e.async=!0,e.src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(e,a);';
 			//$html = preg_replace("/<\/body>/", $replace, $html);
 	}
@@ -64,11 +67,8 @@ function web_vital_changes($html){
 		$html = preg_replace("/<\/body>/", $replaceAdd, $html);
 	}
 
-		$html = str_replace('<body class="home blog wp-embed-responsive hfeed image-filters-enabled">', '<body class="home blog wp-embed-responsive hfeed image-filters-enabled"><img class="wp-smiley">', $html);
 	//if(false){
 	if(isset($settings['remove_unused_css']) && $settings['remove_unused_css']==1){
-
-		
 		//now filter
 		require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/style-sanitizer.php";
 		$tmpDoc = new DOMDocument();

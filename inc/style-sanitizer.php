@@ -707,7 +707,6 @@ class webvital_Style_TreeShaking {
 				'spec_name'          => self::STYLE_AMP_CUSTOM_SPEC_NAME,
 			]
 		);
-		//error_log("line no 710=> ".json_encode($parsed));
 
 		if ( $parsed['viewport_rules'] ) {
 			$this->create_meta_viewport( $element, $parsed['viewport_rules'] );
@@ -771,7 +770,6 @@ class webvital_Style_TreeShaking {
 				__( 'Response did not contain the expected text/css content type.', 'amp' )
 			);
 		}
-		error_log($url . " => ".$response);
 		return wp_remote_retrieve_body( $response );
 	}
 	private function get_parsed_stylesheet( $stylesheet, $options = [] ) {
@@ -798,7 +796,6 @@ class webvital_Style_TreeShaking {
 		$cache_key = md5( $stylesheet . wp_json_encode( $cache_impacting_options ) );
 
 		$parsed = web_vital_style_get_file_transient( $cache_group . '-' . $cache_key );
-		error_log("line 800: ".json_encode($parsed));
 
 		/*if ( $use_transients ) {
 			$parsed = get_transient( $cache_group . '-' . $cache_key );
@@ -807,7 +804,10 @@ class webvital_Style_TreeShaking {
 		}*/
 		if ( ! empty( $parsed['validation_results'] ) ) {
 			foreach ( $parsed['validation_results'] as $validation_result ) {
-				$sanitized = $this->should_sanitize_validation_error( $validation_result['error'] );
+				$sanitized = '';
+				if($validation_result['error']){
+					$sanitized = $this->should_sanitize_validation_error( $validation_result['error'] );
+				}
 				if ( $sanitized !== $validation_result['sanitized'] ) {
 					$parsed = null; // Change to sanitization of validation error detected, so cache cannot be used.
 					break;
@@ -936,7 +936,6 @@ class webvital_Style_TreeShaking {
 			}
 
 			$processed_css_list = $this->process_css_list( $css_document, $options );
-			error_log("line no 938=> ".json_encode($processed_css_list));
 
 			$validation_results = array_merge(
 				$validation_results,
@@ -1301,7 +1300,6 @@ class webvital_Style_TreeShaking {
 		}
 		
 		if ( ! empty( $options['property_whitelist'] ) ) {
-			error_log("white_list");
 			$properties = $ruleset->getRules();
 			foreach ( $properties as $property ) {
 				$vendorless_property_name = preg_replace( '/^-\w+-/', '', $property->getRule() );
@@ -1587,7 +1585,6 @@ class webvital_Style_TreeShaking {
 		];
 
 		$imported_font_urls = [];
-		error_log("finalize_styles: 1654=> ".json_encode($this->pending_stylesheets));
 		foreach ( $this->pending_stylesheets as $i => $pending_stylesheet ) {
 			foreach ( $pending_stylesheet['tokens'] as $j => $part ) {
 				if ( is_string( $part ) && 0 === strpos( $part, '@import' ) ) {
@@ -1611,8 +1608,7 @@ class webvital_Style_TreeShaking {
 			$css .= implode( '', $this->get_stylesheets() );
 			$css .= $stylesheet_groups[ self::STYLE_AMP_CUSTOM_GROUP_INDEX ]['source_map_comment'];
 			$this->amp_custom_style_element = $this->dom->createElement( 'style' );
-			//$this->amp_custom_style_element->appendChild( $this->dom->createTextNode( $css ) );
-			$this->amp_custom_style_element->appendChild( ( $css ) );
+			$this->amp_custom_style_element->appendChild( $this->dom->createTextNode( $css ) );
 			$this->dom->head->appendChild( $this->amp_custom_style_element );
 		}
 		foreach ( array_unique( $imported_font_urls ) as $imported_font_url ) {
