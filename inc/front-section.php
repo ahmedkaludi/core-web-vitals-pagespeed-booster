@@ -1,5 +1,6 @@
 <?php 
-add_action('wp', function(){ ob_start('web_vital_changes'); }, 990);
+//add_action('shutdown', function(){ ob_start('web_vital_changes'); }, 990);
+add_action('shutdown', function(){ ob_start('web_vital_changes'); }, 990);
 function web_vital_changes($html){
 	$bkpHtml = $html;
 	$settings = web_vital_defaultSettings();
@@ -80,13 +81,17 @@ function web_vital_changes($html){
 				$error_codes[] = $error['code'];
 			},
 			'should_locate_sources'=>true,
-			'use_document_element'=>true,
+			'use_document_element'=>false,
 			'include_manifest_comment'=>false,
 		];
 		$parser = new webvital_Style_TreeShaking($tmpDoc,$args);
 		$sanitize = $parser->sanitize();
 		$sheet = $parser->get_stylesheets();
+		$sheetData = '';
+		$sheetData .= implode( '', $sheet );
+
 		$html = $tmpDoc->saveHTML();
+		$html = str_replace("</head>", "<style>".$sheetData."</style></head>", $html);
 
 	}
 
