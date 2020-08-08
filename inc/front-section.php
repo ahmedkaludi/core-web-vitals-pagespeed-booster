@@ -67,7 +67,13 @@ function web_vital_changes($html){
 	
 		$html = preg_replace("/<\/body>/", $replaceAdd, $html);
 	}
-
+	
+	//lazyload for images
+	if(isset($settings['native_lazyload_image']) && $settings['native_lazyload_image']==1 && !empty($html)){
+		$replace = '<img loading="lazy" ';
+		$html = preg_replace("/<img/", $replace, $html);
+	}
+	
 	if(isset($settings['remove_unused_css']) && $settings['remove_unused_css']==1 && !empty($html)){
 		//now filter
 		try{
@@ -99,10 +105,23 @@ function web_vital_changes($html){
 		
 
 	}
-	$html .= json_encode($settings);
 
 	if(empty($html)){
 		$html = $bkpHtml."<!-- vital not work -->";
 	} 
 	return $html;
+}
+
+
+if(class_exists("WP_Rocket_Requirements_Check")){
+
+	function rocket_deactivate_lazyload_on_style_opt( $run_filter ) {
+			$settings = web_vital_defaultSettings();
+			if(isset($settings['remove_unused_css']) && $settings['remove_unused_css']==1 ){
+				$run_filter = false;
+			}
+		return $run_filter;
+	}
+	add_filter( 'do_rocket_lazyload', 'rocket_deactivate_lazyload_on_style_opt' );
+	add_filter( 'do_rocket_lazyload_iframes', 'rocket_deactivate_lazyload_on_style_opt' );
 }

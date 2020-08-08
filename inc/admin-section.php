@@ -84,8 +84,24 @@ class webVitalAdmin{
 			'webvital_dashboard_section',							// Page slug
 			'webvital_dashboard_section'							// Settings Section ID
 		);
+		
+		add_settings_field(
+			'web_vital_setting_5',								// ID
+			esc_html__('Image Native Lazy Load','web-vitals-page-speed-booster'),			// Title
+			array($this, 'native_lazyload_image'),					// Callback
+			'webvital_dashboard_section',							// Page slug
+			'webvital_dashboard_section'							// Settings Section ID
+		);
 	}
 
+	function native_lazyload_image(){
+		// Get Settings
+		$settings = web_vital_defaultSettings(); 
+		?>
+		<input type="checkbox" name="webvital_settings[native_lazyload_image]" id="webvital_settings[native_lazyload_image]" class="" <?php echo (isset( $settings['native_lazyload_image'] ) &&  $settings['native_lazyload_image'] == 1 ? 'checked="checked"' : ''); ?> value="1">
+	               
+		<?php
+	}
 	function remove_unused_css(){
 		// Get Settings
 		$settings = web_vital_defaultSettings(); 
