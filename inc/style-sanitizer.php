@@ -130,10 +130,10 @@ class webvital_Style_TreeShaking {
 		$this->dom->xpath       = new DOMXPath( $dom );
 		$this->dom->head = $this->dom->getElementsByTagName( 'head' )->item( 0 );
 		$this->dom->body = $this->dom->getElementsByTagName( 'body' )->item( 0 );
-		if ( ! $this->dom->head ) {
+		/* if ( ! $this->dom->head ) {
 			$this->dom->head = $this->dom->createElement( 'head' );
 			$this->dom->documentElement->insertBefore( $this->dom->head, $this->dom->documentElement->firstChild );
-		}
+		} */
 		$this->args = $args;
 		$this->style_keyframes_cdata_spec = array(
 					'css_spec' => array(
@@ -344,6 +344,7 @@ class webvital_Style_TreeShaking {
 				$col->removeAttribute( 'width' );
 			}
 		}
+		
 		foreach ( $elements as $element ) {
 			$node_name = strtolower( $element->nodeName );
 			if ( 'style' === $node_name ) {
@@ -355,7 +356,6 @@ class webvital_Style_TreeShaking {
 				}
 			}
 		}
-
 		$elements = [];
 		foreach ( $this->dom->xpath->query( "//*[ @style ]" ) as $element ) {
 			$elements[] = $element;
@@ -667,13 +667,11 @@ class webvital_Style_TreeShaking {
 				0 === $this->dom->xpath->query( '//link[ @rel = "preconnect" and @crossorigin and starts-with( @href, "https://fonts.gstatic.com" ) ]', $this->dom->head )->length
 			);
 			if ( $needs_preconnect_link ) {
-				$link = $dom->createElement( "link" );
-				self::add_attributes_to_node( $node, array(
-					'rel'         => 'preconnect',
-					'href'        => 'https://fonts.gstatic.com/',
-					'crossorigin' => '',
-				) );
-				$this->head->insertBefore( $link );
+				$link = $this->dom->createElement( "link" );
+				$link->setAttribute( 'rel', 'preconnect' );
+				$link->setAttribute( 'href', 'https://fonts.gstatic.com/' );
+				$link->setAttribute( 'crossorigin', '' );
+				$this->dom->head->insertBefore( $link );
 			}
 			return;
 		}
@@ -2134,7 +2132,7 @@ function web_vital_get_proper_transient_name($transient){
 	return $transient;
 }
 function web_vital_set_file_transient( $transient, $value, $expiration = 0 ) {
-
+	return $value;
 	$transient = web_vital_get_proper_transient_name($transient);
 	$expiration = (int) $expiration;
 

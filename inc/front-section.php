@@ -1,10 +1,9 @@
 <?php 
 //add_action('shutdown', function(){ ob_start('web_vital_changes'); }, 990);
-add_action('shutdown', function(){ ob_start('web_vital_changes'); }, 990);
+add_action('wp', function(){ ob_start('web_vital_changes'); }, 990);
 function web_vital_changes($html){
 	$bkpHtml = $html;
 	$settings = web_vital_defaultSettings();
-	
 	
 	$replaceJs ='';
 	if(isset($settings['lazy_load']) && $settings['lazy_load']==1){
@@ -25,8 +24,9 @@ function web_vital_changes($html){
 					$html = preg_replace("/<\/body>/", $replace, $html);
 	}
 	if(isset($settings['load_on_scroll']) && $settings['load_on_scroll']==1){
-		$re = '/<script(\s|\n)*async(\s|\n)*src="(https:|https|)\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js"><\/script>/';
+		$re = '/<script(\s|\n)*async(=""|)(\s|\n)*src="(https:|https|)\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js"><\/script>/';
 		$html = preg_replace($re, "", $html);
+		 
 		$replaceJs .= 'var e=document.createElement("script");e.type="text/javascript",e.async=!0,e.src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(e,a);';
 			//$html = preg_replace("/<\/body>/", $replace, $html);
 	}
@@ -68,35 +68,41 @@ function web_vital_changes($html){
 		$html = preg_replace("/<\/body>/", $replaceAdd, $html);
 	}
 
-	//if(false){
-	if(isset($settings['remove_unused_css']) && $settings['remove_unused_css']==1){
+	if(isset($settings['remove_unused_css']) && $settings['remove_unused_css']==1 && !empty($html)){
 		//now filter
-		require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/style-sanitizer.php";
-		$tmpDoc = new DOMDocument();
-		libxml_use_internal_errors(true);
-		$tmpDoc->loadHTML($html);
-		$error_codes = [];
-		$args        = [
-			'validation_error_callback' => static function( $error ) use ( &$error_codes ) {
-				$error_codes[] = $error['code'];
-			},
-			'should_locate_sources'=>true,
-			'use_document_element'=>false,
-			'include_manifest_comment'=>false,
-		];
-		$parser = new webvital_Style_TreeShaking($tmpDoc,$args);
-		$sanitize = $parser->sanitize();
-		$sheet = $parser->get_stylesheets();
-		$sheetData = '';
-		$sheetData .= implode( '', $sheet );
-
-		$html = $tmpDoc->saveHTML();
-		$html = str_replace("</head>", "<style>".$sheetData."</style></head>", $html);
+		try{
+			require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/style-sanitizer.php";
+			$tmpDoc = new DOMDocument();
+			libxml_use_internal_errors(true);
+			$tmpDoc->loadHTML($html);
+			$error_codes = [];
+			$args        = [
+				'validation_error_callback' => static function( $error ) use ( &$error_codes ) {
+					$error_codes[] = $error['code'];
+				},
+				'should_locate_sources'=>true,
+				'use_document_element'=>false,
+				'include_manifest_comment'=>false,
+			];
+			$parser = new webvital_Style_TreeShaking($tmpDoc,$args);
+			$sanitize = $parser->sanitize();
+			$sheet = $parser->get_stylesheets();
+			$sheetData = '';
+			$sheetData .= implode( '', $sheet );
+			
+			$html = $tmpDoc->saveHTML();
+			$html = str_replace("</head>", "<style>".$sheetData."</style></head>", $html);
+		}catch(Throwable $e){
+			$html .= json_encode($e);
+		}
+	
+		
 
 	}
+	$html .= json_encode($settings);
 
 	if(empty($html)){
 		$html = $bkpHtml."<!-- vital not work -->";
-	}
+	} 
 	return $html;
 }
