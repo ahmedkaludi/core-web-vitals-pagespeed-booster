@@ -803,10 +803,10 @@ class webvital_Style_TreeShaking {
 		if ( ! empty( $parsed['validation_results'] ) ) {
 			foreach ( $parsed['validation_results'] as $validation_result ) {
 				$sanitized = '';
-				if($validation_result['error']){
-					$sanitized = $this->should_sanitize_validation_error( $validation_result['error'] );
+				if(@$validation_result['error']){
+					$sanitized = $this->should_sanitize_validation_error( @$validation_result['error'] );
 				}
-				if ( $sanitized !== $validation_result['sanitized'] ) {
+				if ( $sanitized !== @$validation_result['sanitized'] ) {
 					$parsed = null; // Change to sanitization of validation error detected, so cache cannot be used.
 					break;
 				}
@@ -1121,7 +1121,7 @@ class webvital_Style_TreeShaking {
 			$data['node'] = $this->current_node;
 		}
 		if ( ! isset( $validation_error['sources'] ) ) {
-			$validation_error['sources'] = $this->current_sources;
+			@$validation_error['sources'] = $this->current_sources;
 		}
 		$args = compact( 'validation_error', 'data' );
 		foreach ( $this->previous_should_sanitize_validation_error_results as $result ) {

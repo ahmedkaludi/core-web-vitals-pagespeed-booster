@@ -92,6 +92,22 @@ class webVitalAdmin{
 			'webvital_dashboard_section',							// Page slug
 			'webvital_dashboard_section'							// Settings Section ID
 		);
+		add_settings_field(
+			'web_vital_setting_6',								// ID
+			esc_html__('Image convert to webp','web-vitals-page-speed-booster'),			// Title
+			array($this, 'image_convert_webp'),					// Callback
+			'webvital_dashboard_section',							// Page slug
+			'webvital_dashboard_section'							// Settings Section ID
+		);
+	}
+
+	function image_convert_webp(){
+		// Get Settings
+		$settings = web_vital_defaultSettings(); 
+		?>
+		<input type="checkbox" name="webvital_settings[image_convert_webp]" id="webvital_settings[image_convert_webp]" class="" <?php echo (isset( $settings['image_convert_webp'] ) &&  $settings['image_convert_webp'] == 1 ? 'checked="checked"' : ''); ?> value="1">
+	               
+		<?php
 	}
 
 	function native_lazyload_image(){
