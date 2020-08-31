@@ -31,6 +31,7 @@ function web_vital_defaultSettings(){
 
 add_action("plugins_loaded", "initiate_web_vital");
 function initiate_web_vital(){
+		require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/helper-section.php";
 	if(is_admin()){
 		require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/admin-section.php";
 	}else{
@@ -38,3 +39,4 @@ function initiate_web_vital(){
 	}
 }
 
+add_filter('wp_handle_upload', array('webVitalHelperSection', 'doUploadWithWebp'), 10, 2);

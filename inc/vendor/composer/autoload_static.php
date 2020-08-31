@@ -4,8 +4,30 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit1957b92c341a122e733e4c93880b1641
+class ComposerStaticInit8cc649ca1238d8fad15c0e7338cf29c3
 {
+    public static $prefixLengthsPsr4 = array (
+        'W' => 
+        array (
+            'WebPConvert\\' => 12,
+        ),
+        'I' => 
+        array (
+            'ImageMimeTypeGuesser\\' => 21,
+        ),
+    );
+
+    public static $prefixDirsPsr4 = array (
+        'WebPConvert\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/rosell-dk/webp-convert/src',
+        ),
+        'ImageMimeTypeGuesser\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/rosell-dk/image-mime-type-guesser/src',
+        ),
+    );
+
     public static $prefixesPsr0 = array (
         'S' => 
         array (
@@ -19,7 +41,9 @@ class ComposerStaticInit1957b92c341a122e733e4c93880b1641
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixesPsr0 = ComposerStaticInit1957b92c341a122e733e4c93880b1641::$prefixesPsr0;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit8cc649ca1238d8fad15c0e7338cf29c3::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit8cc649ca1238d8fad15c0e7338cf29c3::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit8cc649ca1238d8fad15c0e7338cf29c3::$prefixesPsr0;
 
         }, null, ClassLoader::class);
     }

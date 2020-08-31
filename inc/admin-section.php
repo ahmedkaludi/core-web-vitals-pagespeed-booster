@@ -8,6 +8,8 @@ class webVitalAdmin{
 		add_action( 'admin_menu', array($this,'add_menu_links'));
 		add_action('admin_init',array($this, 'dashboard_section'));
 		add_action('wp_ajax_parse_clear_cached_css', array($this, 'parse_clear_cached_css'));
+		add_action('wp_ajax_list_files_to_convert', array($this, 'get_list_convert_files'));
+		add_action('wp_ajax_webvital_webp_convert_file', array($this, 'webp_convert_file'));
 	}
 
 	function add_menu_links() {	
@@ -30,7 +32,8 @@ class webVitalAdmin{
 	}
 	function admin_script($hook){
 		if($hook!='toplevel_page_web-vitals-page-speed-booster'){return ;}
-		wp_enqueue_script( 'web-vital-admin-script', WEBVITAL_PAGESPEED_BOOSTER_URL . 'assets/admin-script.js', array('jquery'), WEBVITAL_PAGESPEED_BOOSTER_VERSION, true );
+		add_thickbox();
+		wp_enqueue_script( 'web-vital-admin-script', WEBVITAL_PAGESPEED_BOOSTER_URL . 'assets/admin-script.js', array('jquery'), WEBVITAL_PAGESPEED_BOOSTER_VERSION."&test", true );
 	}
 
 	function admin_interface_render(){
@@ -99,6 +102,20 @@ class webVitalAdmin{
 			'webvital_dashboard_section',							// Page slug
 			'webvital_dashboard_section'							// Settings Section ID
 		);
+		add_settings_field(
+			'web_vital_setting_7',								// ID
+			esc_html__('Bulk Image convert to webp','web-vitals-page-speed-booster'),			// Title
+			array($this, 'image_convert_webp_bulk'),					// Callback
+			'webvital_dashboard_section',							// Page slug
+			'webvital_dashboard_section'							// Settings Section ID
+		);
+	}
+
+	function image_convert_webp_bulk(){
+		$webp_nonce = wp_create_nonce('web-vital-security-nonce');
+		echo "<button type='button' class='bulk_convert_webp' data-nonce='".$webp_nonce."'>".esc_html__('Bulk convert to webp','web-vitals-page-speed-booster')."</button><span id='bulk_convert_message'></span>
+			<div style='display:none;'><div id='bulkconverUpload-wrap'><div class='bulkconverUpload'>".esc_html__('Please wait...','web-vitals-page-speed-booster')."</div></div></div>
+			";
 	}
 
 	function image_convert_webp(){
@@ -151,13 +168,13 @@ class webVitalAdmin{
 		if(isset($settings['list_of_urls'])){
 			foreach ($settings['list_of_urls'] as $key => $url_enter) {
 				$rows .= '<div class="ads_uri_row">
-					<input type="input" name="webvital_settings[list_of_urls][]" class="" value="'.$url_enter.'" placeholder="Ads script url">
+					<input type="input" name="webvital_settings[list_of_urls][]" class="" value="'.$url_enter.'" placeholder="'.esc_html__('Ads script url','web-vitals-page-speed-booster').'">
 					<span style="cursor: pointer;" class="remove_url_row"><span class="dashicons dashicons-no-alt"></span></span>
 				</div>';
 			}
 		}else{
 			$rows .= '<div class="ads_uri_row">
-					<input type="input" name="webvital_settings[list_of_urls][]" class="" value="" placeholder="Ads script url">
+					<input type="input" name="webvital_settings[list_of_urls][]" class="" value="" placeholder="'.esc_html__('Ads script url','web-vitals-page-speed-booster').'">
 					<span style="cursor: pointer;" class="remove_url_row"><span class="dashicons dashicons-no-alt"></span></span>
 				</div>';
 		}
@@ -191,24 +208,138 @@ class webVitalAdmin{
 		echo json_encode(array("status"=> 200, "msg"=>"CSS cleared"));die;
 	}
 
-	function parse_style_css(){
+	function get_list_convert_files(){
 		if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vital-security-nonce')){
-			return json_encode(array());
+			echo json_encode(array('status'=>500 ,"msg"=>'Request Security not verified'));die;
 		}
-		$url = $_POST['url'];
-		$request = wp_remote_get($url);
-		if( is_wp_error( $request ) ) {
-			return false; // Bail early
+		$listOpt = array();
+		$upload = wp_upload_dir();
+		$listOpt['root'] = $upload['basedir'];
+		$listOpt['filter'] = [
+                'only-converted' => false,
+                'only-unconverted' => true,
+                'image' => 3,
+                '_regexPattern'=> '#\.(jpe?g|png)$#'
+            ];
+       	$years = array(date("Y"),date("Y",strtotime("-1 year")),date("Y",strtotime("-2 year")),date("Y",strtotime("-3 year")),date("Y",strtotime("-4 year")),date("Y",strtotime("-6 year")) );
+
+       	$fileArray = array();
+       	foreach ($years as $key => $year) {
+       		$images = $this->getFilesListRecursively($year, $listOpt);
+       		$fileArray = array_merge($fileArray, $images);
+       	}
+		$sort = array();
+		foreach($fileArray as $keys=>$file){
+			$sort[$file[1]][] = $file[0];
 		}
-		$html = wp_remote_retrieve_body( $request );
-		require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/style-sanitizer.php";
-		$tmpDoc = new DOMDocument();
-		libxml_use_internal_errors(true);
-		$tmpDoc->loadHTML($html);
-		$arg['allow_dirty_styles'] = false;
-		$obj = new webvital_Style_TreeShaking($tmpDoc, $arg);
-		$datatrack = $obj->sanitize();
-		return $html;
+		krsort($sort);
+		$files = array();
+		foreach($sort as $asort){
+			foreach($asort as $file){
+				$files[] = $file;
+			}
+		}
+        $response['files'] = array_filter($files);
+
+        $response['status'] = 200;
+        $response['message'] = ($response['files'])? 'Files are available to convert': 'All files are converted';
+        $response['count'] = count($response['files']);
+        echo json_encode($response);die;
+	}
+
+	function getFilesListRecursively($currentDir, &$listOpt){
+		$dir = $listOpt['root'] . '/' . $currentDir;
+		$dir = $this->canonicalize($dir);
+		if (!@file_exists($dir) || !@is_dir($dir)) {
+            return [];
+        }
+        $fileIterator = new \FilesystemIterator($dir);
+        $results = [];
+        $filter = &$listOpt['filter'];
+        while ($fileIterator->valid()) {
+            $filename = $fileIterator->getFilename();
+			$filedate = $fileIterator->getCTime();
+            if (($filename != ".") && ($filename != "..")) {
+                if (@is_dir($dir . "/" . $filename)) {
+                    $results = array_merge($results, $this->getFilesListRecursively($currentDir . "/" . $filename, $listOpt));
+                } else {
+                    // its a file - check if its a jpeg or png
+					if (preg_match('#\.(jpe?g|png)$#', $filename)) {
+                        $addThis = true;
+
+                        if (($filter['only-converted']) || ($filter['only-unconverted'])) {
+
+                            $destinationPath = $listOpt['root']."/web-vital-webp";
+                            if(!is_dir($destinationPath)) { wp_mkdir_p($destinationPath); }
+                            
+                            $destination = str_replace($listOpt['root'], $destinationPath, $dir);
+                            $destination .= "/".$filename.'.webp';
+                            $webpExists = @file_exists($destination);
+                            
+
+                            if (!$webpExists && ($filter['only-converted'])) {
+                                $addThis = false;
+                            }
+                            if ($webpExists && ($filter['only-unconverted'])) {
+                                $addThis = false;
+                            }
+                        } else {
+                            $addThis = true;
+                        }
+                        if ($addThis) {
+                            $results[] = array($currentDir . "/" . $filename, $filedate);      // (we cut the leading "./" off with substr)
+                            //$results[] = substr($currentDir . "/", 2) . $filename;      // (we cut the leading "./" off with substr)
+                        }
+                    }
+                }
+            }
+            $fileIterator->next();
+        }
+        return $results;
+	}
+
+	function canonicalize($path){
+		$parts = explode('/', $path);
+
+	    // Remove parts containing just '.' (and the empty holes afterwards)
+	    $parts = array_values(array_filter($parts, function($var) {
+	        return ($var != '.');
+	    }));
+
+	      // Remove parts containing '..' and the preceding
+	      $keys = array_keys($parts, '..');
+	      foreach($keys as $keypos => $key) {
+	        array_splice($parts, $key - ($keypos * 2 + 1), 2);
+	      }
+	      return implode('/', $parts);
+	    
+	}
+
+	function webp_convert_file(){
+		if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vital-security-nonce')){
+			echo json_encode(array('status'=>500 ,"msg"=>'Request Security not verified'));die;
+		}
+		$filename = sanitize_text_field(stripslashes($_POST['filename']));
+		$filename = wp_unslash($_POST['filename']);
+
+		$upload = wp_upload_dir();
+		$destinationPath = $upload['basedir']."/web-vital-webp";
+		if(!is_dir($destinationPath)) { wp_mkdir_p($destinationPath); }
+		$destination = $destinationPath.'/'. $filename.".webp";
+
+		$source = $upload['basedir']."/".$filename;
+
+		try {
+			require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/vendor/autoload.php";
+			$convertOptions = [];
+			\WebPConvert\WebPConvert::convert($source, $destination, $convertOptions);
+		} catch (\WebpConvert\Exceptions\WebPConvertException $e) {
+            if(function_exists('error_log')){ error_log($e->getMessage()); }
+        } catch (\Exception $e) {
+        	$message = 'An exception was thrown!';
+            if(function_exists('error_log')){ error_log($e->getMessage()); }
+        }
+        echo json_encode(array('status'=>200 ,"msg"=>'File converted successfully'));die;
 	}
 }
 new webVitalAdmin();

@@ -1,7 +1,19 @@
 <?php 
 //add_action('shutdown', function(){ ob_start('web_vital_changes'); }, 990);
-add_action('wp', function(){ ob_start('web_vital_changes'); }, 990);
+add_action('wp', function(){
+	if (!is_admin() || (function_exists("wp_doing_ajax") && wp_doing_ajax()) || (defined( 'DOING_AJAX' ) && DOING_AJAX)) {
+        ob_start('web_vital_changes');
+    }
+  }, 990);
 function web_vital_changes($html){
+	// Don't do anything with the RSS feed.
+    if (is_feed() || 
+		is_preview() || 
+		(function_exists('is_customize_preview') && is_customize_preview()) ||
+		( class_exists('\Elementor\Plugin') && \Elementor\Plugin::$instance->preview->is_preview_mode() )
+		) {
+        return $html;
+    }
 	$bkpHtml = $html;
 	$settings = web_vital_defaultSettings();
 	
@@ -67,6 +79,70 @@ function web_vital_changes($html){
 	
 		$html = preg_replace("/<\/body>/", $replaceAdd, $html);
 	}
+
+	if(isset($settings['image_convert_webp']) && $settings['image_convert_webp']==1 && (strpos($_SERVER['HTTP_ACCEPT'], 'image/webp') !== false)){
+		$guessurl = site_url();
+		if ( ! $guessurl ) {
+			$guessurl = wp_guess_url();
+		}
+		$base_url    = untrailingslashit( $guessurl );
+		$upload = wp_upload_dir();
+
+		$tmpDoc = new DOMDocument();
+		libxml_use_internal_errors(true);
+		$tmpDoc->loadHTML($html);
+
+		$xpath = new DOMXPath( $tmpDoc );
+		$domImg = $xpath->query( '//img');
+		foreach ($domImg as $key => $element) {
+			$srcupdate = $element->getAttribute("src");
+			if(strpos($srcupdate, $base_url)!==false){
+				//test page exists or not
+				$srcupdatePath = str_replace($upload['baseurl'], $upload['basedir'].'/web-vital-webp', $srcupdate);
+				$srcupdatePath = "$srcupdatePath.webp";
+				if(file_exists($srcupdatePath)){
+					$srcupdate = str_replace($upload['baseurl'], $upload['baseurl'].'/web-vital-webp', $srcupdate);
+					$srcupdate .= '.webp';
+					$element->setAttribute("src", $srcupdate);	
+				}
+				
+			}
+			if($element->hasAttribute('srcset')){
+				$attrValue = $element->getAttribute("srcset");
+				
+				$srcsetArr = explode(',', $attrValue);
+				foreach ($srcsetArr as $i => $srcSetEntry) {
+					// $srcSetEntry is ie "image.jpg 520w", but can also lack width, ie just "image.jpg"
+					// it can also be ie "image.jpg 2x"
+					$srcSetEntry = trim($srcSetEntry);
+					$entryParts = preg_split('/\s+/', $srcSetEntry, 2);
+					if (count($entryParts) == 2) {
+						list($src, $descriptors) = $entryParts;
+					} else {
+						$src = $srcSetEntry;
+						$descriptors = null;
+					}
+
+					//$webpUrl = $this->replaceUrlOr($src, false);
+					if(strpos($src, $base_url)!==false){
+						//test page exists or not
+						$srcupdatePath = str_replace($upload['baseurl'], $upload['basedir'].'/web-vital-webp', $src);
+						$srcupdatePath = "$srcupdatePath.webp";
+						if(file_exists($srcupdatePath)){
+							$webpUrl = str_replace($upload['baseurl'], $upload['baseurl'].'/web-vital-webp', $src);
+							$webpUrl .= '.webp';
+						}else{ $webpUrl = $src; }
+					}else{ $webpUrl = $src; }
+					if ($webpUrl !== false) {
+						$srcsetArr[$i] = $webpUrl . (isset($descriptors) ? ' ' . $descriptors : '');
+					}
+				}
+				$newSrcsetArr = implode(', ', $srcsetArr);
+				$attrValue = $element->setAttribute("srcset", $newSrcsetArr);
+			}
+		}
+		$html = $tmpDoc->saveHTML();
+	}
 	//lazyload for images
 	if(isset($settings['native_lazyload_image']) && $settings['native_lazyload_image']==1 && !empty($html)){
 		$guessurl = site_url();
@@ -81,6 +157,16 @@ function web_vital_changes($html){
 
 		$xpath = new DOMXPath( $tmpDoc );
 		$domImg = $xpath->query( '//img');
+		$domIframe = $xpath->query( '//iframe');
+		
+		foreach($domIframe as $iframe){
+			$iframe->setAttribute("loading", "lazy");
+			$iframesrc = $iframe->getAttribute("src");
+			$iframe->setAttribute("data-src", $iframesrc);
+			$iframe->setAttribute("data-iframetest", "1");
+			$iframe->removeAttribute("src");
+		}
+		
 		/*foreach ( $domImg as $element ) {
 			$elements[] = $element;
 		}*/
@@ -88,12 +174,12 @@ function web_vital_changes($html){
 		foreach ($domImg as $key => $element) {
 			$element->setAttribute("loading", "lazy");
 			
-			$srcupdate = $element->getAttribute("src");
+			$srcupdate = $actualImage = $element->getAttribute("src");
 			if(strpos($srcupdate, $base_url)!==false){
 				if(!$appendlazyScript){ $appendlazyScript = true; }
 				$classupdate = $element->getAttribute("class");
 				$element->setAttribute("class", $classupdate." wvp-lazy");
-				$element->setAttribute("data-presrc", $srcupdate);
+				
 				//check queryUrl
 				$queryUrl = '';
 				if(strpos($srcupdate, "?")!==false){
@@ -102,22 +188,42 @@ function web_vital_changes($html){
 					$queryUrl = $srcbreak[1];
 				}
 				$srcbreak = explode("/", $srcupdate);
+				
+				
 
 				$fileExt = explode(".", $srcbreak[count($srcbreak)-1]);
+				$fileSizePosition = 2;
+				//if convert .webp is changed then there is proper size name will moved to -3 position
+				if(end($fileExt)=='webp'){
+					$fileSizePosition = 3;
+				}
 				//remove previous size
-				$fileName = $fileExt[count($fileExt)-2];
+				$fileName = $fileExt[count($fileExt)-$fileSizePosition];
 				if(strpos($fileName, "-")!==false){
 					$filesize = explode("-", $fileName);
-					$fileExt[count($fileExt)-2] = str_replace("-".end($filesize), "", $fileName);
+					$fileExt[count($fileExt)-$fileSizePosition] = str_replace("-".end($filesize), "", $fileName);
 				}
 
-				$fileExt[count($fileExt)-2] = $fileExt[count($fileExt)-2]."-150x150";
+				$fileExt[count($fileExt)-$fileSizePosition] = $fileExt[count($fileExt)-$fileSizePosition]."-150x150";
 				$fileExt = implode(".", $fileExt);
 
 				$srcbreak[count($srcbreak)-1] = $fileExt;
 				$srcbreak = implode("/", $srcbreak);
 				
-				$element->setAttribute("src",$srcbreak);
+				//check Image Available or not 
+				$upload = wp_upload_dir();
+				$srcupdatePath = str_replace($upload['baseurl'], $upload['basedir'], $srcbreak);
+				if(file_exists($srcupdatePath)){
+					$srcset = $element->getAttribute("srcset");
+					if($srcset){
+						$element->setAttribute("data-presrcset", $srcset);
+						$element->removeAttribute("srcset");
+					}
+					$element->setAttribute("src",$srcbreak);
+					$element->setAttribute("data-presrc", $actualImage);
+				}
+				
+				
 			}
 		}
 		$html = $tmpDoc->saveHTML();
@@ -209,18 +315,25 @@ function lazy_loader_script(){
 			        return Object.prototype.hasOwnProperty.call(obj, key);
 			      };
 			  function loadImage (el, fn) {
-			    var img = new Image()
-			      , src = el.getAttribute(\'data-presrc\');
-			    img.onload = function() {
-			    	console.log(src);
-			      if (!! el.parent)
-			        el.parent.replaceChild(img, el)
-			      else
-			        el.src = src;
-
-			      fn? fn() : null;
-			    }
-			    img.src = src;
+				var img = new Image()
+				  , src = el.getAttribute(\'data-presrc\')
+				  , srcset = el.getAttribute(\'data-presrcset\');
+				if(src){
+					img.onload = function() {
+					  if (!! el.parent){
+						el.parent.replaceChild(img, el)
+					  }else{
+						el.src = src;if(srcset){ el.srcset = srcset; }
+					  }
+					  fn? fn() : null;
+					}
+					img.src = src;
+					if(srcset){ img.srcset = srcset; }
+				}
+			  }
+			  function loadIframe (el, fn) {
+				var src = el.getAttribute(\'data-src\');
+			    el.setAttribute("src", src);
 			  }
 			  function elementInViewport(el) {
 			    var rect = el.getBoundingClientRect()
@@ -230,7 +343,9 @@ function lazy_loader_script(){
 			    && rect.top <= (window.innerHeight || document.documentElement.clientHeight)
 			    )
 			  }
-			    var images = new Array(), query = $q(\'img.wvp-lazy\'), processScroll = function(){
+			    var images = new Array(), query = $q(\'img.wvp-lazy\'),
+				iframe = new Array(), iframequery = $q(\'iframe\'),
+				webvitalprocessScroll = function(){
 			          for (var i = 0; i < images.length; i++) {
 			            if (elementInViewport(images[i])) {
 			              loadImage(images[i], function () {
@@ -238,13 +353,22 @@ function lazy_loader_script(){
 			              });
 			            }
 			          };
+					  for (var i = 0; i < iframe.length; i++) {
+			            if (elementInViewport(iframe[i])) {
+			              loadIframe(iframe[i], function () {
+			                iframe.splice(i, i);
+			              });
+			            }
+			          }; 
 			        };
 			    for (var i = 0; i < query.length; i++) {
 			      images.push(query[i]);
 			    };
-			    console.log(images);
-			    processScroll();
-			    addEventListener(\'scroll\',processScroll);
+				for (var i = 0; i < iframequery.length; i++) {
+			      iframe.push(iframequery[i]);
+			    };
+			    webvitalprocessScroll();
+			    addEventListener(\'scroll\',webvitalprocessScroll);
 			}(this);';
 return $lazyscript;
 }
