@@ -2,7 +2,7 @@
 /**
 Plugin Name: Web Vitals & PageSpeed Booster
 Plugin URI: https://wordpress.org/plugins/pwa-for-wp/
-Description: 
+Description: Optimizing for quality of user experience is key to the long-term success of any site. Web Vitals can help you quantify the experience of your site and identify opportunities to improve.
 Author: Magazine3
 Version: 1.0
 Author URI: 
