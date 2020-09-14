@@ -161,13 +161,13 @@ class Web_Vitals_Admin{
 		if(isset($settings['list_of_urls'])){
 			foreach ($settings['list_of_urls'] as $key => $url_enter) {
 				$rows .= '<div class="ads_uri_row">
-					<input type="input" name="webvitals_settings[list_of_urls][]" class="" value="'.$url_enter.'" placeholder="'.esc_html__('Ads script url','web-vitals-page-speed-booster').'">
+					<input type="input" name="webvitals_settings[list_of_urls][]" class="" value="'.$url_enter.'" placeholder="'.esc_attr__('Ads script url','web-vitals-page-speed-booster').'">
 					<span style="cursor: pointer;" class="remove_url_row"><span class="dashicons dashicons-no-alt"></span></span>
 				</div>';
 			}
 		}else{
 			$rows .= '<div class="ads_uri_row">
-					<input type="input" name="webvitals_settings[list_of_urls][]" class="" value="" placeholder="'.esc_html__('Ads script url','web-vitals-page-speed-booster').'">
+					<input type="input" name="webvitals_settings[list_of_urls][]" class="" value="" placeholder="'.esc_attr__('Ads script url','web-vitals-page-speed-booster').'">
 					<span style="cursor: pointer;" class="remove_url_row"><span class="dashicons dashicons-no-alt"></span></span>
 				</div>';
 		}
@@ -183,14 +183,14 @@ class Web_Vitals_Admin{
 
 	public function parse_clear_cached_css(){
 		if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vitals-security-nonce')){
-			echo json_encode(array("status"=> 400, "msg"=>"Security verification failed, Refresh the page"));die;
+			echo json_encode(array("status"=> 400, "msg"=>esc_html__("Security verification failed, Refresh the page", 'web-vitals-page-speed-booster') ));die;
 		}
 
 		$upload_dir = wp_upload_dir(); 
 		$user_dirname = $upload_dir['basedir'] . '/' . 'web_vital';
 		$dir_handle = opendir($user_dirname);
 		if (!$dir_handle){
-          echo json_encode(array("status"=> 400, "msg"=>"cache not found"));die;
+          echo json_encode(array("status"=> 400, "msg"=>esc_html__("cache not found", 'web-vitals-page-speed-booster') ));die;
 		}
 		while($file = readdir($dir_handle)) {
 			if (strpos($file, '.css')!==false){
@@ -198,12 +198,12 @@ class Web_Vitals_Admin{
 			}
 		}
 		closedir($dir_handle);
-		echo json_encode(array("status"=> 200, "msg"=>"CSS cleared"));die;
+		echo json_encode(array("status"=> 200, "msg"=>esc_html__("CSS cleared", 'web-vitals-page-speed-booster') ));die;
 	}
 
 	function get_list_convert_files(){
 		if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vitals-security-nonce')){
-			echo json_encode(array('status'=>500 ,"msg"=>'Request Security not verified'));die;
+			echo json_encode(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified', 'web-vitals-page-speed-booster' ) ) );die;
 		}
 		$listOpt = array();
 		$upload = wp_upload_dir();
@@ -235,7 +235,7 @@ class Web_Vitals_Admin{
         $response['files'] = array_filter($files);
 
         $response['status'] = 200;
-        $response['message'] = ($response['files'])? 'Files are available to convert': 'All files are converted';
+        $response['message'] = ($response['files'])? esc_html__('Files are available to convert', 'web-vitals-page-speed-booster'): esc_html__('All files are converted', 'web-vitals-page-speed-booster');
         $response['count'] = count($response['files']);
         echo json_encode($response);die;
 	}
@@ -310,7 +310,7 @@ class Web_Vitals_Admin{
 
 	function webp_convert_file(){
 		if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vitals-security-nonce')){
-			echo json_encode(array('status'=>500 ,"msg"=>'Request Security not verified'));die;
+			echo json_encode(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified' , 'web-vitals-page-speed-booster') ) );die;
 		}
 		$filename = sanitize_text_field(stripslashes($_POST['filename']));
 		$filename = wp_unslash($_POST['filename']);
@@ -332,7 +332,7 @@ class Web_Vitals_Admin{
         	$message = 'An exception was thrown!';
             if(function_exists('error_log')){ error_log($e->getMessage()); }
         }
-        echo json_encode(array('status'=>200 ,"msg"=>'File converted successfully'));die;
+        echo json_encode(array('status'=>200 ,"msg"=>esc_html__('File converted successfully', 'web-vitals-page-speed-booster') ));die;
 	}
 }
 $web_vitals_admin = new Web_Vitals_Admin();
