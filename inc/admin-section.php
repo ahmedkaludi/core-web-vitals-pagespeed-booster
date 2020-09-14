@@ -55,7 +55,7 @@ class webVitalAdmin{
 	}
 
 	function dashboard_section(){
-		register_setting( 'webvital_setting_dashboard_group', 'webvital_settings' );
+		register_setting( 'webvital_setting_dashboard_group', 'webvitals_settings' );
 
 		add_settings_section('webvital_dashboard_section', esc_html__('Web Vitals & PageSpeed Booster','web-vitals-page-speed-booster'), '__return_false', 'webvital_dashboard_section');
 		
@@ -122,7 +122,7 @@ class webVitalAdmin{
 		// Get Settings
 		$settings = web_vital_defaultSettings(); 
 		?>
-		<input type="checkbox" name="webvital_settings[image_convert_webp]" id="webvital_settings[image_convert_webp]" class="" <?php echo (isset( $settings['image_convert_webp'] ) &&  $settings['image_convert_webp'] == 1 ? 'checked="checked"' : ''); ?> value="1">
+		<input type="checkbox" name="webvitals_settings[image_convert_webp]" id="webvitals_settings[image_convert_webp]" class="" <?php echo (isset( $settings['image_convert_webp'] ) &&  $settings['image_convert_webp'] == 1 ? 'checked="checked"' : ''); ?> value="1">
 	               
 		<?php
 	}
@@ -131,7 +131,7 @@ class webVitalAdmin{
 		// Get Settings
 		$settings = web_vital_defaultSettings(); 
 		?>
-		<input type="checkbox" name="webvital_settings[native_lazyload_image]" id="webvital_settings[native_lazyload_image]" class="" <?php echo (isset( $settings['native_lazyload_image'] ) &&  $settings['native_lazyload_image'] == 1 ? 'checked="checked"' : ''); ?> value="1">
+		<input type="checkbox" name="webvitals_settings[native_lazyload_image]" id="webvitals_settings[native_lazyload_image]" class="" <?php echo (isset( $settings['native_lazyload_image'] ) &&  $settings['native_lazyload_image'] == 1 ? 'checked="checked"' : ''); ?> value="1">
 	               
 		<?php
 	}
@@ -139,7 +139,7 @@ class webVitalAdmin{
 		// Get Settings
 		$settings = web_vital_defaultSettings(); 
 		?>
-		<input type="checkbox" name="webvital_settings[remove_unused_css]" id="webvital_settings[remove_unused_css]" class="" <?php echo (isset( $settings['remove_unused_css'] ) &&  $settings['remove_unused_css'] == 1 ? 'checked="checked"' : ''); ?> value="1">
+		<input type="checkbox" name="webvitals_settings[remove_unused_css]" id="webvitals_settings[remove_unused_css]" class="" <?php echo (isset( $settings['remove_unused_css'] ) &&  $settings['remove_unused_css'] == 1 ? 'checked="checked"' : ''); ?> value="1">
 	               
 		<?php
 	}
@@ -147,7 +147,7 @@ class webVitalAdmin{
 		// Get Settings
 		$settings = web_vital_defaultSettings(); 
 		?>
-		<input type="checkbox" name="webvital_settings[lazy_load]" id="webvital_settings[lazy_load]" class="" <?php echo (isset( $settings['lazy_load'] ) &&  $settings['lazy_load'] == 1 ? 'checked="checked"' : ''); ?> value="1">
+		<input type="checkbox" name="webvitals_settings[lazy_load]" id="webvitals_settings[lazy_load]" class="" <?php echo (isset( $settings['lazy_load'] ) &&  $settings['lazy_load'] == 1 ? 'checked="checked"' : ''); ?> value="1">
 	               
 		<?php
 	}
@@ -156,7 +156,7 @@ class webVitalAdmin{
 		// Get Settings
 		$settings = web_vital_defaultSettings(); 
 		?>
-		<input type="checkbox" name="webvital_settings[load_on_scroll]" id="webvital_settings[load_on_scroll]" class="" <?php echo (isset( $settings['load_on_scroll'] ) &&  $settings['load_on_scroll'] == 1 ? 'checked="checked"' : ''); ?> value="1">
+		<input type="checkbox" name="webvitals_settings[load_on_scroll]" id="webvitals_settings[load_on_scroll]" class="" <?php echo (isset( $settings['load_on_scroll'] ) &&  $settings['load_on_scroll'] == 1 ? 'checked="checked"' : ''); ?> value="1">
 	               
 		<?php
 	}
@@ -168,13 +168,13 @@ class webVitalAdmin{
 		if(isset($settings['list_of_urls'])){
 			foreach ($settings['list_of_urls'] as $key => $url_enter) {
 				$rows .= '<div class="ads_uri_row">
-					<input type="input" name="webvital_settings[list_of_urls][]" class="" value="'.$url_enter.'" placeholder="'.esc_html__('Ads script url','web-vitals-page-speed-booster').'">
+					<input type="input" name="webvitals_settings[list_of_urls][]" class="" value="'.$url_enter.'" placeholder="'.esc_html__('Ads script url','web-vitals-page-speed-booster').'">
 					<span style="cursor: pointer;" class="remove_url_row"><span class="dashicons dashicons-no-alt"></span></span>
 				</div>';
 			}
 		}else{
 			$rows .= '<div class="ads_uri_row">
-					<input type="input" name="webvital_settings[list_of_urls][]" class="" value="" placeholder="'.esc_html__('Ads script url','web-vitals-page-speed-booster').'">
+					<input type="input" name="webvitals_settings[list_of_urls][]" class="" value="" placeholder="'.esc_html__('Ads script url','web-vitals-page-speed-booster').'">
 					<span style="cursor: pointer;" class="remove_url_row"><span class="dashicons dashicons-no-alt"></span></span>
 				</div>';
 		}

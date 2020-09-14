@@ -236,7 +236,7 @@ function web_vital_changes($html){
 	if(isset($settings['remove_unused_css']) && $settings['remove_unused_css']==1 && !empty($html)){
 		//now filter
 		try{
-			require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/style-sanitizer.php";
+			require_once WEB_VITALS_PAGESPEED_BOOSTER_DIR."/inc/style-sanitizer.php";
 			$tmpDoc = new DOMDocument();
 			libxml_use_internal_errors(true);
 			$tmpDoc->loadHTML($html);

@@ -1,6 +1,6 @@
 <?php
-class webVitalHelperSection{
-	static function converttoWebp($filename){
+class Web_Vital_Helper_Section{
+	static function convert_to_webp($filename){
 		$source = $filename;
 		$upload = wp_upload_dir();
 		$destinationPath = $upload['basedir']."/web-vital-webp";
@@ -19,7 +19,7 @@ class webVitalHelperSection{
 	}
 
 
-	static function doUploadWithWebp($filearray, $overrides = false, $ignore = false){
+	static function do_upload_with_webp($filearray, $overrides = false, $ignore = false){
 		if (isset($filearray['file'])) {
             try {
                 $filename = $filearray['file'];
@@ -30,7 +30,7 @@ class webVitalHelperSection{
 		        if (!in_array(@wp_get_image_mime($filename), $allowedMimeTypes)) {
 		            return false;
 		        }
-		        self::converttoWebp($filename);
+		        self::convert_to_webp($filename);
             } catch (Exception $e) {
             	if(function_exists('error_log')){ error_log($e->getMessage()); }
             }

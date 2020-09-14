@@ -14,29 +14,29 @@ License: GPL2+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define('WEBVITAL_PAGESPEED_BOOSTER_FILE',  __FILE__ );
-define('WEBVITAL_PAGESPEED_BOOSTER_DIR', plugin_dir_path( __FILE__ ));
-define('WEBVITAL_PAGESPEED_BOOSTER_URL', plugin_dir_url( __FILE__ ));
-define('WEBVITAL_PAGESPEED_BOOSTER_VERSION', '1.0');
-define('WEBVITAL_PAGESPEED_BOOSTER_BASENAME', plugin_basename(__FILE__));
+define('WEB_VITALS_PAGESPEED_BOOSTER_FILE',  __FILE__ );
+define('WEB_VITALS_PAGESPEED_BOOSTER_DIR', plugin_dir_path( __FILE__ ));
+define('WEB_VITALS_PAGESPEED_BOOSTER_URL', plugin_dir_url( __FILE__ ));
+define('WEB_VITALS_PAGESPEED_BOOSTER_VERSION', '1.0');
+define('WEB_VITALS_PAGESPEED_BOOSTER_BASENAME', plugin_basename(__FILE__));
 
-$webVital_settings = array();
-function web_vital_defaultSettings(){
-	global $webVital_settings;
-	if( empty($webVital_settings) || (is_array($webVital_settings) && count($webVital_settings)==0) ){
-        $webVital_settings = get_option( 'webvital_settings', false ); 
+$web_vitals_settings = array();
+function web_vitals_defaultSettings(){
+	global $web_vitals_settings;
+	if( empty($web_vitals_settings) || (is_array($web_vitals_settings) && count($web_vitals_settings)==0) ){
+        $web_vitals_settings = get_option( 'webvitals_settings', false ); 
     }
-   return $webVital_settings;
+   return $web_vitals_settings;
 }
 
-add_action("plugins_loaded", "initiate_web_vital");
-function initiate_web_vital(){
-		require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/helper-section.php";
+add_action("plugins_loaded", "initiate_web_vitals");
+function initiate_web_vitals(){
+	require_once WEB_VITALS_PAGESPEED_BOOSTER_DIR."/inc/helper-section.php";
+	add_filter('wp_handle_upload', array('Web_Vital_Helper_Section', 'do_upload_with_webp'), 10, 2);
 	if(is_admin()){
-		require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/admin-section.php";
+		require_once WEB_VITALS_PAGESPEED_BOOSTER_DIR."/inc/admin-section.php";
 	}else{
-		require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/front-section.php";
+		require_once WEB_VITALS_PAGESPEED_BOOSTER_DIR."/inc/front-section.php";
 	}
 }
 
-add_filter('wp_handle_upload', array('webVitalHelperSection', 'doUploadWithWebp'), 10, 2);
