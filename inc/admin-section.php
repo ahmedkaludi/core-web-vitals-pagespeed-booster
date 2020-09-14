@@ -46,8 +46,8 @@ class Web_Vitals_Admin{
 			settings_errors();
 		}
 		echo '<form action="options.php" method="post" enctype="multipart/form-data" class="web-vitals-settings-form">';
-		settings_fields( 'webvital_setting_dashboard_group' );
-		do_settings_sections( 'webvital_dashboard_section' );	// Page slug
+		settings_fields( 'web_vitals_setting_dashboard_group' );
+		do_settings_sections( 'web_vitals_dashboard_section' );	// Page slug
 		echo "<div style='display:inline-block'><div style='float:left;'>";
 		submit_button( esc_html__('Save Settings', 'web-vitals-page-speed-booster') );
 		echo "</div><p><button type='button' id='web-vital-clear-cache' data-security='".wp_create_nonce('web-vital-cache-clear')."'>".esc_html__('Clear cache', 'web-vitals-page-speed-booster')."</button><span class='clear-cache-msg'></span></p>";
@@ -55,57 +55,57 @@ class Web_Vitals_Admin{
 	}
 
 	function dashboard_section(){
-		register_setting( 'webvital_setting_dashboard_group', 'webvitals_settings' );
+		register_setting( 'web_vitals_setting_dashboard_group', 'webvitals_settings' );
 
-		add_settings_section('webvital_dashboard_section', esc_html__('Web Vitals & PageSpeed Booster','web-vitals-page-speed-booster'), '__return_false', 'webvital_dashboard_section');
+		add_settings_section('web_vitals_dashboard_section', esc_html__('Web Vitals & PageSpeed Booster','web-vitals-page-speed-booster'), '__return_false', 'web_vitals_dashboard_section');
 		
 		add_settings_field(
 			'web_vital_setting_2',								// ID
 			esc_html__('Ads Optimization','web-vitals-page-speed-booster'),			// Title
 			array($this, 'load_on_scroll'),					// Callback
-			'webvital_dashboard_section',							// Page slug
-			'webvital_dashboard_section'							// Settings Section ID
+			'web_vitals_dashboard_section',							// Page slug
+			'web_vitals_dashboard_section'							// Settings Section ID
 		);
 		add_settings_field(
 			'web_vital_setting_3',								// ID
 			esc_html__('Script URLs','web-vitals-page-speed-booster'),			// Title
 			array($this, 'list_of_urls'),					// Callback
-			'webvital_dashboard_section',							// Page slug
-			'webvital_dashboard_section'							// Settings Section ID
+			'web_vitals_dashboard_section',							// Page slug
+			'web_vitals_dashboard_section'							// Settings Section ID
 		);
 		add_settings_field(
 			'web_vital_setting_4',								// ID
 			esc_html__('Remove Unused css','web-vitals-page-speed-booster'),			// Title
 			array($this, 'remove_unused_css'),					// Callback
-			'webvital_dashboard_section',							// Page slug
-			'webvital_dashboard_section'							// Settings Section ID
+			'web_vitals_dashboard_section',							// Page slug
+			'web_vitals_dashboard_section'							// Settings Section ID
 		);
 		
 		add_settings_field(
 			'web_vital_setting_5',								// ID
 			esc_html__('Image Native Lazy Load','web-vitals-page-speed-booster'),			// Title
 			array($this, 'native_lazyload_image'),					// Callback
-			'webvital_dashboard_section',							// Page slug
-			'webvital_dashboard_section'							// Settings Section ID
+			'web_vitals_dashboard_section',							// Page slug
+			'web_vitals_dashboard_section'							// Settings Section ID
 		);
 		add_settings_field(
 			'web_vital_setting_6',								// ID
 			esc_html__('Image convert to webp','web-vitals-page-speed-booster'),			// Title
 			array($this, 'image_convert_webp'),					// Callback
-			'webvital_dashboard_section',							// Page slug
-			'webvital_dashboard_section'							// Settings Section ID
+			'web_vitals_dashboard_section',							// Page slug
+			'web_vitals_dashboard_section'							// Settings Section ID
 		);
 		add_settings_field(
 			'web_vital_setting_7',								// ID
 			esc_html__('Bulk Image convert to webp','web-vitals-page-speed-booster'),			// Title
 			array($this, 'image_convert_webp_bulk'),					// Callback
-			'webvital_dashboard_section',							// Page slug
-			'webvital_dashboard_section'							// Settings Section ID
+			'web_vitals_dashboard_section',							// Page slug
+			'web_vitals_dashboard_section'							// Settings Section ID
 		);
 	}
 
 	function image_convert_webp_bulk(){
-		$webp_nonce = wp_create_nonce('web-vital-security-nonce');
+		$webp_nonce = wp_create_nonce('web-vitals-security-nonce');
 		echo "<button type='button' class='bulk_convert_webp' data-nonce='".$webp_nonce."'>".esc_html__('Bulk convert to webp','web-vitals-page-speed-booster')."</button><span id='bulk_convert_message'></span>
 			<div style='display:none;'><div id='bulkconverUpload-wrap'><div class='bulkconverUpload'>".esc_html__('Please wait...','web-vitals-page-speed-booster')."</div></div></div>
 			";
@@ -182,7 +182,7 @@ class Web_Vitals_Admin{
 	}
 
 	public function parse_clear_cached_css(){
-		if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vital-security-nonce')){
+		if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vitals-security-nonce')){
 			echo json_encode(array("status"=> 400, "msg"=>"Security verification failed, Refresh the page"));die;
 		}
 
@@ -202,7 +202,7 @@ class Web_Vitals_Admin{
 	}
 
 	function get_list_convert_files(){
-		if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vital-security-nonce')){
+		if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vitals-security-nonce')){
 			echo json_encode(array('status'=>500 ,"msg"=>'Request Security not verified'));die;
 		}
 		$listOpt = array();
@@ -309,7 +309,7 @@ class Web_Vitals_Admin{
 	}
 
 	function webp_convert_file(){
-		if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vital-security-nonce')){
+		if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vitals-security-nonce')){
 			echo json_encode(array('status'=>500 ,"msg"=>'Request Security not verified'));die;
 		}
 		$filename = sanitize_text_field(stripslashes($_POST['filename']));
