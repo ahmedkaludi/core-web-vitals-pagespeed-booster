@@ -33,7 +33,7 @@ class webVitalAdmin{
 	function admin_script($hook){
 		if($hook!='toplevel_page_web-vitals-page-speed-booster'){return ;}
 		add_thickbox();
-		wp_enqueue_script( 'web-vital-admin-script', WEBVITAL_PAGESPEED_BOOSTER_URL . 'assets/admin-script.js', array('jquery'), WEBVITAL_PAGESPEED_BOOSTER_VERSION."&test", true );
+		wp_enqueue_script( 'web-vital-admin-script', WEB_VITALS_PAGESPEED_BOOSTER_URL . 'assets/admin-script.js', array('jquery'), WEB_VITALS_PAGESPEED_BOOSTER_VERSION."&test", true );
 	}
 
 	function admin_interface_render(){
@@ -59,13 +59,6 @@ class webVitalAdmin{
 
 		add_settings_section('webvital_dashboard_section', esc_html__('Web Vitals & PageSpeed Booster','web-vitals-page-speed-booster'), '__return_false', 'webvital_dashboard_section');
 		
-		/* add_settings_field(
-			'web_vital_setting_1',								// ID
-			'Ads lazyload',			// Title
-			array($this, 'lazy_load_callback'),					// Callback
-			'webvital_dashboard_section',							// Page slug
-			'webvital_dashboard_section'							// Settings Section ID
-		); */
 		add_settings_field(
 			'web_vital_setting_2',								// ID
 			esc_html__('Ads Optimization','web-vitals-page-speed-booster'),			// Title
@@ -330,7 +323,7 @@ class webVitalAdmin{
 		$source = $upload['basedir']."/".$filename;
 
 		try {
-			require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/vendor/autoload.php";
+			require_once WEB_VITALS_PAGESPEED_BOOSTER_DIR."/inc/vendor/autoload.php";
 			$convertOptions = [];
 			\WebPConvert\WebPConvert::convert($source, $destination, $convertOptions);
 		} catch (\WebpConvert\Exceptions\WebPConvertException $e) {

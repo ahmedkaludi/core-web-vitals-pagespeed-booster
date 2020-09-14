@@ -7,7 +7,7 @@ class Web_Vital_Helper_Section{
 		if(!is_dir($destinationPath)) { wp_mkdir_p($destinationPath); }
 		$destination = str_replace($upload['basedir'], $destinationPath, $filename).".webp";
 		try {
-			require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/vendor/autoload.php";
+			require_once WEB_VITALS_PAGESPEED_BOOSTER_DIR."/inc/vendor/autoload.php";
 			$convertOptions = [];
 			\WebPConvert\WebPConvert::convert($source, $destination, $convertOptions);
 		} catch (\WebpConvert\Exceptions\WebPConvertException $e) {

@@ -1,5 +1,5 @@
 <?php
-require_once WEBVITAL_PAGESPEED_BOOSTER_DIR."/inc/vendor/autoload.php";
+require_once WEB_VITALS_PAGESPEED_BOOSTER_DIR."/inc/vendor/autoload.php";
 
 
 use Sabberworm\CSS\RuleSet\DeclarationBlock;
