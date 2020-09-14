@@ -1,12 +1,13 @@
 <?php 
 //add_action('shutdown', function(){ ob_start('web_vital_changes'); }, 990);
-add_action('wp', function(){
-	if (!is_admin() || (function_exists("wp_doing_ajax") && wp_doing_ajax()) || (defined( 'DOING_AJAX' ) && DOING_AJAX)) {
-        ob_start('web_vital_changes');
+add_action('wp', 'web_vitals_initialize', 990);
+function web_vitals_initialize(){
+	if (!is_admin() || (function_exists('wp_doing_ajax') && wp_doing_ajax()) || (defined( 'DOING_AJAX' ) && DOING_AJAX)) {
+        ob_start('web_vitals_changes');
     }
-  }, 990);
-function web_vital_changes($html){
-	// Don't do anything with the RSS feed.
+  }
+function web_vitals_changes($html){
+	// Don't do anything with the RSS feed, Preview mode, customization, elementor preview
     if (is_feed() || 
 		is_preview() || 
 		(function_exists('is_customize_preview') && is_customize_preview()) ||
@@ -167,9 +168,6 @@ function web_vital_changes($html){
 			$iframe->removeAttribute("src");
 		}
 		
-		/*foreach ( $domImg as $element ) {
-			$elements[] = $element;
-		}*/
 		$appendlazyScript = false;
 		foreach ($domImg as $key => $element) {
 			$element->setAttribute("loading", "lazy");
@@ -228,7 +226,7 @@ function web_vital_changes($html){
 		}
 		$html = $tmpDoc->saveHTML();
 		if($appendlazyScript){
-			$lazyScript = "<script>".lazy_loader_script()."</script>";
+			$lazyScript = "<script>".web_vitals_lazy_loader_script()."</script>";
 			$html = str_replace("</body>", $lazyScript."</body>", $html);
 		}
 	}
@@ -271,7 +269,9 @@ function web_vital_changes($html){
 	return $html;
 }
 
-
+/**
+ * WP rocket compatibility
+ */
 if(class_exists("WP_Rocket_Requirements_Check")){
 
 	function rocket_deactivate_lazyload_on_style_opt( $run_filter ) {
@@ -287,7 +287,7 @@ if(class_exists("WP_Rocket_Requirements_Check")){
 
 
 
-function lazy_loader_script(){
+function web_vitals_lazy_loader_script(){
 	$lazyscript = '!function(window){
 			  var $q = function(q, res){
 			        if (document.querySelectorAll) {

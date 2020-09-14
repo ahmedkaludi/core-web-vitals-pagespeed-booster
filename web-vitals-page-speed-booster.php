@@ -29,7 +29,7 @@ function web_vitals_defaultSettings(){
    return $web_vitals_settings;
 }
 
-add_action("plugins_loaded", "initiate_web_vitals");
+add_action('plugins_loaded', 'initiate_web_vitals');
 function initiate_web_vitals(){
 	require_once WEB_VITALS_PAGESPEED_BOOSTER_DIR."/inc/helper-section.php";
 	add_filter('wp_handle_upload', array('Web_Vital_Helper_Section', 'do_upload_with_webp'), 10, 2);
