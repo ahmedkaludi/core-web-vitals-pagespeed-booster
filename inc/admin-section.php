@@ -1,5 +1,5 @@
 <?php
-class webVitalAdmin{
+class Web_Vitals_Admin{
 	function __construct(){
 		$this-> init();
 	}
@@ -335,4 +335,4 @@ class webVitalAdmin{
         echo json_encode(array('status'=>200 ,"msg"=>'File converted successfully'));die;
 	}
 }
-new webVitalAdmin();
+$web_vitals_admin = new Web_Vitals_Admin();
