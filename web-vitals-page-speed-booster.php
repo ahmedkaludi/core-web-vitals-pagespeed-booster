@@ -21,7 +21,7 @@ define('WEB_VITALS_PAGESPEED_BOOSTER_VERSION', '1.0');
 define('WEB_VITALS_PAGESPEED_BOOSTER_BASENAME', plugin_basename(__FILE__));
 
 $web_vitals_settings = array();
-function web_vitals_defaultSettings(){
+function web_vitals_default_settings(){
 	global $web_vitals_settings;
 	if( empty($web_vitals_settings) || (is_array($web_vitals_settings) && count($web_vitals_settings)==0) ){
         $web_vitals_settings = get_option( 'webvitals_settings', false ); 

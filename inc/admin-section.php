@@ -120,7 +120,7 @@ class webVitalAdmin{
 
 	function image_convert_webp(){
 		// Get Settings
-		$settings = web_vital_defaultSettings(); 
+		$settings = web_vitals_default_settings(); 
 		?>
 		<input type="checkbox" name="webvitals_settings[image_convert_webp]" id="webvitals_settings[image_convert_webp]" class="" <?php echo (isset( $settings['image_convert_webp'] ) &&  $settings['image_convert_webp'] == 1 ? 'checked="checked"' : ''); ?> value="1">
 	               
@@ -129,7 +129,7 @@ class webVitalAdmin{
 
 	function native_lazyload_image(){
 		// Get Settings
-		$settings = web_vital_defaultSettings(); 
+		$settings = web_vitals_default_settings(); 
 		?>
 		<input type="checkbox" name="webvitals_settings[native_lazyload_image]" id="webvitals_settings[native_lazyload_image]" class="" <?php echo (isset( $settings['native_lazyload_image'] ) &&  $settings['native_lazyload_image'] == 1 ? 'checked="checked"' : ''); ?> value="1">
 	               
@@ -137,7 +137,7 @@ class webVitalAdmin{
 	}
 	function remove_unused_css(){
 		// Get Settings
-		$settings = web_vital_defaultSettings(); 
+		$settings = web_vitals_default_settings(); 
 		?>
 		<input type="checkbox" name="webvitals_settings[remove_unused_css]" id="webvitals_settings[remove_unused_css]" class="" <?php echo (isset( $settings['remove_unused_css'] ) &&  $settings['remove_unused_css'] == 1 ? 'checked="checked"' : ''); ?> value="1">
 	               
@@ -145,7 +145,7 @@ class webVitalAdmin{
 	}
 	function lazy_load_callback(){
 		// Get Settings
-		$settings = web_vital_defaultSettings(); 
+		$settings = web_vitals_default_settings(); 
 		?>
 		<input type="checkbox" name="webvitals_settings[lazy_load]" id="webvitals_settings[lazy_load]" class="" <?php echo (isset( $settings['lazy_load'] ) &&  $settings['lazy_load'] == 1 ? 'checked="checked"' : ''); ?> value="1">
 	               
@@ -154,7 +154,7 @@ class webVitalAdmin{
 
 	function load_on_scroll(){
 		// Get Settings
-		$settings = web_vital_defaultSettings(); 
+		$settings = web_vitals_default_settings(); 
 		?>
 		<input type="checkbox" name="webvitals_settings[load_on_scroll]" id="webvitals_settings[load_on_scroll]" class="" <?php echo (isset( $settings['load_on_scroll'] ) &&  $settings['load_on_scroll'] == 1 ? 'checked="checked"' : ''); ?> value="1">
 	               
@@ -163,7 +163,7 @@ class webVitalAdmin{
 
 	function list_of_urls(){
 		// Get Settings
-		$settings = web_vital_defaultSettings(); 
+		$settings = web_vitals_default_settings(); 
 		$rows = '';
 		if(isset($settings['list_of_urls'])){
 			foreach ($settings['list_of_urls'] as $key => $url_enter) {

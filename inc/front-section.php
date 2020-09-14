@@ -16,7 +16,7 @@ function web_vitals_changes($html){
         return $html;
     }
 	$bkpHtml = $html;
-	$settings = web_vital_defaultSettings();
+	$settings = web_vitals_default_settings();
 	
 	$replaceJs ='';
 	if(isset($settings['lazy_load']) && $settings['lazy_load']==1){
@@ -275,7 +275,7 @@ function web_vitals_changes($html){
 if(class_exists("WP_Rocket_Requirements_Check")){
 
 	function rocket_deactivate_lazyload_on_style_opt( $run_filter ) {
-			$settings = web_vital_defaultSettings();
+			$settings = web_vitals_default_settings();
 			if(isset($settings['remove_unused_css']) && $settings['remove_unused_css']==1 ){
 				$run_filter = false;
 			}
