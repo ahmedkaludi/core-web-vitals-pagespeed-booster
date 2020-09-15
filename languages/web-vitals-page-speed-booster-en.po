@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2020-09-14 12:26+0530\n"
-"PO-Revision-Date: 2020-09-14 12:26+0530\n"
+"POT-Creation-Date: 2020-09-14 14:07+0530\n"
+"PO-Revision-Date: 2020-09-14 14:07+0530\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -35,40 +35,68 @@ msgstr ""
 msgid "Clear cache"
 msgstr ""
 
-#: inc/admin-section.php:71
+#: inc/admin-section.php:64
 msgid "Ads Optimization"
 msgstr ""
 
-#: inc/admin-section.php:78
+#: inc/admin-section.php:71
 msgid "Script URLs"
 msgstr ""
 
-#: inc/admin-section.php:85
+#: inc/admin-section.php:78
 msgid "Remove Unused css"
 msgstr ""
 
-#: inc/admin-section.php:93
+#: inc/admin-section.php:86
 msgid "Image Native Lazy Load"
 msgstr ""
 
-#: inc/admin-section.php:100
+#: inc/admin-section.php:93
 msgid "Image convert to webp"
 msgstr ""
 
-#: inc/admin-section.php:107
+#: inc/admin-section.php:100
 msgid "Bulk Image convert to webp"
 msgstr ""
 
-#: inc/admin-section.php:116
+#: inc/admin-section.php:109
 msgid "Bulk convert to webp"
 msgstr ""
 
-#: inc/admin-section.php:117
+#: inc/admin-section.php:110
 msgid "Please wait..."
 msgstr ""
 
-#: inc/admin-section.php:171 inc/admin-section.php:177
+#: inc/admin-section.php:164 inc/admin-section.php:170
 msgid "Ads script url"
+msgstr ""
+
+#: inc/admin-section.php:186
+msgid "Security verification failed, Refresh the page"
+msgstr ""
+
+#: inc/admin-section.php:193
+msgid "cache not found"
+msgstr ""
+
+#: inc/admin-section.php:201
+msgid "CSS cleared"
+msgstr ""
+
+#: inc/admin-section.php:206 inc/admin-section.php:313
+msgid "Request Security not verified"
+msgstr ""
+
+#: inc/admin-section.php:238
+msgid "Files are available to convert"
+msgstr ""
+
+#: inc/admin-section.php:238
+msgid "All files are converted"
+msgstr ""
+
+#: inc/admin-section.php:335
+msgid "File converted successfully"
 msgstr ""
 
 #: inc/style-sanitizer.php:754
