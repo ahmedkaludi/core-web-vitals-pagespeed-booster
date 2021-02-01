@@ -1,6 +1,12 @@
 <?php 
+/*
+ * Add action action and filers definition 
+ */
 //add_action('shutdown', function(){ ob_start('web_vital_changes'); }, 990);
 add_action('wp', 'web_vitals_initialize', 990);
+require_once WEB_VITALS_PAGESPEED_BOOSTER_DIR."/inc/font-minimize.php";
+
+
 function web_vitals_initialize(){
 	if (!is_admin() || (function_exists('wp_doing_ajax') && wp_doing_ajax()) || (defined( 'DOING_AJAX' ) && DOING_AJAX)) {
         ob_start('web_vitals_changes');
