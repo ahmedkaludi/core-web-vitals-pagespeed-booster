@@ -17,6 +17,7 @@ class Webvital_font_frontend_functions
 
 		add_action('wp_head', [$this, 'add_preloads'], 3);
 		add_action('wp_print_styles', [$this, 'process_fonts'], PHP_INT_MAX - 1000);
+		add_action('rest_api_init', [$this, 'register_routes']);
 	}
 
 	/**
@@ -25,13 +26,25 @@ class Webvital_font_frontend_functions
 	 */
 	public function add_preloads()
 	{
-		$preloaded_fonts = apply_filters('omgf_frontend_preloaded_fonts', omgf_init()::preloaded_fonts());
+		static $preloaded_fonts = [];
+
+		if (empty($preloaded_fonts)) {
+			$preloaded_fonts = get_option('web_vital_preload_fonts', []);
+		}
+
+		$preloaded_fonts = apply_filters('web_vital_frontend_preloaded_fonts', $preloaded_fonts);
 
 		if (!$preloaded_fonts) {
 			return;
 		}
 
-		$stylesheets = apply_filters('omgf_frontend_optimized_fonts', omgf_init()::optimized_fonts());
+		static $optimized_fonts = [];
+
+		if (empty($optimized_fonts)) {
+			$optimized_fonts = get_option('web_vital_optimized_fonts', []);
+		}
+
+		$stylesheets = apply_filters('web_vital_frontend_optimized_fonts', $optimized_fonts);
 
 		$i = 0;
 
@@ -73,11 +86,12 @@ class Webvital_font_frontend_functions
 			return;
 		}
 
-		if (apply_filters('omgf_pro_advanced_processing_enabled', false)) {
+		if (apply_filters('web_vital_advanced_processing_enabled', false)) {
 			return;
 		}
+		$processing_option = 'replace';//remove
 
-		switch (OMGF_FONT_PROCESSING) {
+		switch ($processing_option) {
 			case 'remove':
 				add_action('wp_print_styles', [$this, 'remove_registered_fonts'], PHP_INT_MAX - 500);
 				break;
@@ -94,7 +108,7 @@ class Webvital_font_frontend_functions
 		global $wp_styles;
 
 		$registered = $wp_styles->registered;
-		$fonts      = apply_filters('omgf_auto_remove', $this->detect_registered_google_fonts($registered));
+		$fonts      = apply_filters('web_vital_auto_remove', $this->detect_registered_google_fonts($registered));
 
 		foreach ($fonts as $handle => $font) {
 			$wp_styles->registered[$handle]->src = '';
@@ -109,9 +123,9 @@ class Webvital_font_frontend_functions
 		global $wp_styles;
 
 		$registered           = $wp_styles->registered;
-		$fonts                = apply_filters('omgf_auto_replace', $this->detect_registered_google_fonts($registered));
-		$unloaded_stylesheets = omgf_init()::unloaded_stylesheets();
-		$unloaded_fonts       = omgf_init()::unloaded_fonts();
+		$fonts                = apply_filters('web_vital_auto_replace', $this->detect_registered_google_fonts($registered));
+		$unloaded_stylesheets = self::unloaded_stylesheets();
+		$unloaded_fonts       = self::unloaded_fonts();
 
 		foreach ($fonts as $handle => $font) {
 			// If this stylesheet has been marked for unload, empty the src and skip out early.
@@ -124,19 +138,19 @@ class Webvital_font_frontend_functions
 			$updated_handle = $handle;
 
 			if ($unloaded_fonts) {
-				$updated_handle = omgf_init()::get_cache_key($handle);
+				$updated_handle = self::get_cache_key($handle);
 			}
 
-			$cached_file = OMGF_CACHE_PATH . '/' . $updated_handle . "/$updated_handle.css";
+			$cached_file = '/uploads/web-vital-fonts/' . $updated_handle . "/$updated_handle.css";
 
 			if (file_exists(WP_CONTENT_DIR . $cached_file)) {
 				$wp_styles->registered[$handle]->src = content_url($cached_file);
 
 				continue;
 			}
-
-			if (OMGF_OPTIMIZATION_MODE == 'auto' || (OMGF_OPTIMIZATION_MODE == 'manual' && isset($_GET['omgf_optimize']))) {
-				$api_url  = str_replace(['http:', 'https:'], '', home_url('/wp-json/omgf/v1/download/'));
+			$modetype = 'auto';
+			if ( $modetype == 'auto' ) {
+				$api_url  = str_replace(['http:', 'https:'], '', home_url('/wp-json/wvpsbf/v1/download/'));
 				$protocol = '';
 
 				if (substr($font->src, 0, 2) == '//') {
@@ -163,6 +177,62 @@ class Webvital_font_frontend_functions
 			}
 		);
 	}
-}
 
+	/**
+	 * @return array
+	 */
+	public static function unloaded_stylesheets()
+	{
+		static $unloaded_stylesheets = [];
+
+		if (empty($unloaded_stylesheets)) {
+			$unloaded_stylesheets = explode(',', get_option('webvital_unload_stylesheets', ''));
+		}
+
+		return array_filter($unloaded_stylesheets);
+	}
+	/**
+	 * @return array
+	 */
+	public static function unloaded_fonts()
+	{
+		static $unloaded_fonts = [];
+
+		if (empty($unloaded_fonts)) {
+			$unloaded_fonts = get_option('webvital_unload_fonts', []);
+		}
+
+		return $unloaded_fonts;
+	}
+	/**
+	 * @param $handle
+	 *
+	 * @return string
+	 */
+	public static function get_cache_key($handle)
+	{
+		static $cache_keys = [];
+		if (empty($cache_keys)) {
+			$cache_keys = explode(',', get_option('webvital_cache_keys', ''));
+		}
+		$cache_keys = array_filter($cache_keys);
+
+		//$cache_keys = self::cache_keys();
+
+		foreach ($cache_keys as $index => $key) {
+			if (strpos($key, $handle) !== false) {
+				return $key;
+			}
+		}
+
+		return '';
+	}
+
+	public function register_routes()
+	{
+		require_once WEB_VITALS_PAGESPEED_BOOSTER_DIR."/inc/load-css-download.php";
+		$proxy = new Webvita_Fonts_API_Download();
+		$proxy->register_routes();
+	}
+}
 $webvital_font = new Webvital_font_frontend_functions();
