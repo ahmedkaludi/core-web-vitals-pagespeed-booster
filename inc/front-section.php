@@ -8,7 +8,7 @@ require_once WEB_VITALS_PAGESPEED_BOOSTER_DIR."/inc/font-minimize.php";
 
 
 function web_vitals_initialize(){
-	if (!is_admin() || (function_exists('wp_doing_ajax') && wp_doing_ajax()) || (defined( 'DOING_AJAX' ) && DOING_AJAX)) {
+	if (!is_admin() ) {//|| (function_exists('wp_doing_ajax') && wp_doing_ajax()) || (defined( 'DOING_AJAX' ) && DOING_AJAX)
         ob_start('web_vitals_changes');
     }
   }
@@ -262,7 +262,7 @@ function web_vitals_changes($html){
 			$html = $tmpDoc->saveHTML();
 			$html = str_replace("</head>", "<style>".$sheetData."</style></head>", $html);
 		}catch(Throwable $e){
-			$html .= json_encode($e);
+			$html .= json_encode($e->getMessage());
 		}
 	
 		

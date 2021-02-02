@@ -1115,6 +1115,25 @@ class webvital_Style_TreeShaking {
 			]
 		);
 	}
+	public function remove_invalid_child( $node, $validation_error = [] ) {
+		// Prevent double-reporting nodes that are rejected for sanitization.
+		if ( isset( $this->nodes_to_keep[ $node->nodeName ] ) && in_array( $node, $this->nodes_to_keep[ $node->nodeName ], true ) ) {
+			return false;
+		}
+
+		$should_remove = $this->should_sanitize_validation_error( $validation_error, compact( 'node' ) );
+		if ( $should_remove ) {
+			if ( null === $node->parentNode ) {
+				// Node no longer exists.
+				return $should_remove;
+			}
+
+			$node->parentNode->removeChild( $node );
+		} else {
+			$this->nodes_to_keep[ $node->nodeName ][] = $node;
+		}
+		return $should_remove;
+	}
 	protected $previous_should_sanitize_validation_error_results = [];
 	public function should_sanitize_validation_error( $validation_error, $data = [] ) {
 		if ( ! isset( $data['node'] ) ) {
