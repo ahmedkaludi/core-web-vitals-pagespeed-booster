@@ -103,7 +103,7 @@ class Web_Vitals_Admin{
 			'web_vitals_dashboard_section'							// Settings Section ID
 		);
 	}
-
+	
 	function image_convert_webp_bulk(){
 		$webp_nonce = wp_create_nonce('web-vitals-security-nonce');
 		echo "<button type='button' class='bulk_convert_webp' data-nonce='".$webp_nonce."'>".esc_html__('Bulk convert to webp','web-vitals-page-speed-booster')."</button><span id='bulk_convert_message'></span>
@@ -214,7 +214,7 @@ class Web_Vitals_Admin{
                 'image' => 3,
                 '_regexPattern'=> '#\.(jpe?g|png)$#'
             ];
-       	$years = array(date("Y"),date("Y",strtotime("-1 year")),date("Y",strtotime("-2 year")),date("Y",strtotime("-3 year")),date("Y",strtotime("-4 year")),date("Y",strtotime("-6 year")) );
+       	$years = array(date("Y"),date("Y",strtotime("-1 year")),date("Y",strtotime("-2 year")),date("Y",strtotime("-3 year")),date("Y",strtotime("-4 year")), date("Y",strtotime("-5 year")),date("Y",strtotime("-6 year")) );
 
        	$fileArray = array();
        	foreach ($years as $key => $year) {
