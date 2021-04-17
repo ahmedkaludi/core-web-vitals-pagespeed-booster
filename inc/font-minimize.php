@@ -17,6 +17,7 @@ class Webvital_font_frontend_functions
 
 		add_action('wp_head', [$this, 'add_preloads'], 3);
 		add_action('wp_print_styles', [$this, 'process_fonts'], PHP_INT_MAX - 1000);
+		add_action('wp_footer', [$this, 'process_fonts_footer'], 3);
 		add_action('rest_api_init', [$this, 'register_routes']);
 	}
 
@@ -66,11 +67,18 @@ class Webvital_font_frontend_functions
 
 				foreach ($preload_variants as $variant) {
 					$url = $variant->woff2;
-					echo "<link id='omgf-preload-$i' rel='preload' href='$url' as='font' type='font/woff2' crossorigin />\n";
+					echo "<link id='wvpb-preload-$i' rel='preload' href='$url' as='font' type='font/woff2' crossorigin />\n";
 					$i++;
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Update footer fonts
+	 */
+	function process_fonts_footer(){
+		$this->replace_registered_fonts("abc");
 	}
 
 	/**
@@ -148,6 +156,9 @@ class Webvital_font_frontend_functions
 
 				continue;
 			}
+			/**
+			 * if files are not cached local then this restAPI will use
+			 */
 			$modetype = 'auto';
 			if ( $modetype == 'auto' ) {
 				$api_url  = str_replace(['http:', 'https:'], '', home_url('/wp-json/wvpsbf/v1/download/'));

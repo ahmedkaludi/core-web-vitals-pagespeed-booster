@@ -5,6 +5,12 @@ class Webvita_Fonts_API_Download extends WP_REST_Controller
 {
     const WVF_GOOGLE_FONTS_API_URL = 'https://google-webfonts-helper.herokuapp.com';
 
+    const WVFGF_GOOGLE_FONTS_API_URL = 'https://fonts.googleapis.com/css'; //'https://fonts.googleapis.com/css';
+
+    private $nojson = false;
+
+    private $loopjson = 0;
+
     private $plugin_text_domain = 'host-webfonts-local';
 
     /** @var array */
@@ -67,8 +73,20 @@ class Webvita_Fonts_API_Download extends WP_REST_Controller
 
         $this->path    = WP_CONTENT_DIR  . '/uploads/web-vital-fonts/' . $this->handle;
         $url           = self::WVF_GOOGLE_FONTS_API_URL . '/api/fonts/%s';
-        $font_families = explode('|', $params['family']);
-
+        $font_families = '';
+        if(strpos($params['family'], "|")!==false){
+            $font_families = explode('|', $params['family']);
+        }
+        if(empty($font_families)){
+            $font_families = explode(',', $params['family']);
+            if(isset($font_families[0]) && strpos($font_families[0], ":") !== false){
+                $font_family_names = explode(':', $font_families[0]);
+                foreach ($font_families as $key => $value) {
+                    if($key==0){ continue; }
+                    $font_families[$key] = $font_family_names[0].":".$value;
+                }
+            }
+        }
         /*if (defined('OMGF_PRO_FORCE_SUBSETS') && !empty(OMGF_PRO_FORCE_SUBSETS)) {
             $query['subsets'] = implode(',', OMGF_PRO_FORCE_SUBSETS);
         } else {
@@ -84,38 +102,52 @@ class Webvita_Fonts_API_Download extends WP_REST_Controller
         // Filter out empty element, i.e. failed requests.
         $fonts = array_filter($fonts);
 
-        foreach ($fonts as $font_key => &$font) {
-            $font_request = $this->filter_font_families($font_families, $font);
+        if($this->nojson==false){
+            foreach ($fonts as $font_key => &$font) {
+                $font_request = $this->filter_font_families($font_families, $font);
 
-            list($family, $variants) = explode(':', $font_request);
+                list($family, $variants) = explode(':', $font_request);
 
-            $variants = $this->process_variants($variants, $font);
+                $variants = $this->process_variants($variants, $font);
 
-            if ($unloaded_fonts = get_option('wvf_unload_fonts', [])) {
-                $font_id = $font->id;
+                if ($unloaded_fonts = get_option('wvf_unload_fonts', [])) {
+                    $font_id = $font->id;
 
-                // Now we're sure we got 'em all. We can safely unload those we don't want.
-                if (isset($unloaded_fonts[$original_handle][$font_id])) {
-                    $variants     = $this->dequeue_unloaded_fonts($variants, $unloaded_fonts[$original_handle], $font->id);
-                    $font_request = $family . ':' . implode(',', $variants);
+                    // Now we're sure we got 'em all. We can safely unload those we don't want.
+                    if (isset($unloaded_fonts[$original_handle][$font_id])) {
+                        $variants     = $this->dequeue_unloaded_fonts($variants, $unloaded_fonts[$original_handle], $font->id);
+                        $font_request = $family . ':' . implode(',', $variants);
+                    }
+                }
+
+                $font->variants = $this->filter_variants($font->variants, $font_request);
+            }
+
+            foreach ($fonts as &$font) {
+                foreach ($font->variants as &$variant) {
+                    $font_family    = trim($variant->fontFamily, '\'"');
+                    $filename       = strtolower(str_replace(' ', '-', $font_family) . '-' . $variant->fontStyle . '-' . $variant->fontWeight);
+                    $variant->woff  = $this->download($variant->woff, $filename);
+                    $variant->woff2 = $this->download($variant->woff2, $filename);
+                    $variant->eot   = $this->download($variant->eot, $filename);
+                    $variant->ttf   = $this->download($variant->ttf, $filename);
                 }
             }
 
-            $font->variants = $this->filter_variants($font->variants, $font_request);
-        }
-
-        foreach ($fonts as &$font) {
-            foreach ($font->variants as &$variant) {
-                $font_family    = trim($variant->fontFamily, '\'"');
-                $filename       = strtolower(str_replace(' ', '-', $font_family) . '-' . $variant->fontStyle . '-' . $variant->fontWeight);
-                $variant->woff  = $this->download($variant->woff, $filename);
-                $variant->woff2 = $this->download($variant->woff2, $filename);
-                $variant->eot   = $this->download($variant->eot, $filename);
-                $variant->ttf   = $this->download($variant->ttf, $filename);
+            $stylesheet = $this->generate_stylesheet($fonts);
+        }//nojson closed
+        else{
+            wp_mkdir_p($this->path);
+            foreach ($fonts as $key => $value) {
+                preg_match("/url\((.*?)\)/", $value, $matches);
+                if(isset($matches[1])){
+                    $filename = end(explode("/", $matches[1]));
+                    $fileURL  = $this->download($matches[1], $filename);
+                    $fonts[$key] = str_replace($matches[1], $fileURL, $value);
+                }
             }
+            $stylesheet = implode("\n", $fonts);
         }
-
-        $stylesheet = $this->generate_stylesheet($fonts);
         $local_file = $this->path . '/' . $this->handle . '.css';
 
         file_put_contents($local_file, $stylesheet);
@@ -228,7 +260,16 @@ class Webvita_Fonts_API_Download extends WP_REST_Controller
         $response = wp_remote_get(
             sprintf($url, $family) . '?' . http_build_query($query)
         );
-
+        if(wp_remote_retrieve_response_code($response)!== 200){
+            //echo self::WVFGF_GOOGLE_FONTS_API_URL . '?family='.$font_family .'&'. http_build_query($query);die;
+            $response = wp_remote_get(
+                self::WVFGF_GOOGLE_FONTS_API_URL . '?family='.$font_family . http_build_query($query)
+            );
+            if($this->loopjson==0 && wp_remote_retrieve_response_code($response)==200){
+                $this->nojson = true;
+            }
+        }
+        $this->loopjson += 1;
         $response_code = $response['response']['code'] ?? '';
 
         if ($response_code !== 200) {
@@ -237,9 +278,12 @@ class Webvita_Fonts_API_Download extends WP_REST_Controller
             new WP_Error( 'wvf_api_error', $message, 'error' );
             return [];
         }
-
         if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) == 200) {
-            return json_decode(wp_remote_retrieve_body($response));
+            if($this->nojson===true){
+                return wp_remote_retrieve_body($response);
+            }else{
+                return json_decode(wp_remote_retrieve_body($response));
+            }
         }
     }
 
