@@ -1465,7 +1465,7 @@ class webvital_Style_TreeShaking {
 					'genericons.woff',
 				];
 				if ( in_array( $font_filename, $bundled_fonts, true ) ) {
-					$data_url->getURL()->setString( plugin_dir_url( AMP__FILE__ ) . "assets/fonts/$font_filename" );
+					$data_url->getURL()->setString( WEB_VITALS_PAGESPEED_BOOSTER_URL . "assets/fonts/$font_filename" );
 					$converted_count++;
 				}
 			} // End foreach $source_data_url_objects.

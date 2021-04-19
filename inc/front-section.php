@@ -2,7 +2,6 @@
 /*
  * Add action action and filers definition 
  */
-//add_action('shutdown', function(){ ob_start('web_vital_changes'); }, 990);
 add_action('wp', 'web_vitals_initialize', 990);
 require_once WEB_VITALS_PAGESPEED_BOOSTER_DIR."/inc/font-minimize.php";
 
@@ -87,65 +86,70 @@ function web_vitals_changes($html){
 		$html = preg_replace("/<\/body>/", $replaceAdd, $html);
 	}
 
+	/**
+	 * Convert all images in webp format 
+	 */
 	if(isset($settings['image_convert_webp']) && $settings['image_convert_webp']==1 && (strpos($_SERVER['HTTP_ACCEPT'], 'image/webp') !== false)){
 		$guessurl = site_url();
 		if ( ! $guessurl ) {
 			$guessurl = wp_guess_url();
 		}
-		$base_url    = untrailingslashit( $guessurl );
-		$upload = wp_upload_dir();
+		$base_url   = untrailingslashit( $guessurl );
+		$upload 	= wp_upload_dir();
 
-		$tmpDoc = new DOMDocument();
+		$tmpDoc 	= new DOMDocument();
 		libxml_use_internal_errors(true);
 		$tmpDoc->loadHTML($html);
 
-		$xpath = new DOMXPath( $tmpDoc );
-		$domImg = $xpath->query( '//img');
-		foreach ($domImg as $key => $element) {
-			$srcupdate = $element->getAttribute("src");
-			if(strpos($srcupdate, $base_url)!==false){
-				//test page exists or not
-				$srcupdatePath = str_replace($upload['baseurl'], $upload['basedir'].'/web-vital-webp', $srcupdate);
-				$srcupdatePath = "$srcupdatePath.webp";
-				if(file_exists($srcupdatePath)){
-					$srcupdate = str_replace($upload['baseurl'], $upload['baseurl'].'/web-vital-webp', $srcupdate);
-					$srcupdate .= '.webp';
-					$element->setAttribute("src", $srcupdate);	
-				}
-				
-			}
-			if($element->hasAttribute('srcset')){
-				$attrValue = $element->getAttribute("srcset");
-				
-				$srcsetArr = explode(',', $attrValue);
-				foreach ($srcsetArr as $i => $srcSetEntry) {
-					// $srcSetEntry is ie "image.jpg 520w", but can also lack width, ie just "image.jpg"
-					// it can also be ie "image.jpg 2x"
-					$srcSetEntry = trim($srcSetEntry);
-					$entryParts = preg_split('/\s+/', $srcSetEntry, 2);
-					if (count($entryParts) == 2) {
-						list($src, $descriptors) = $entryParts;
-					} else {
-						$src = $srcSetEntry;
-						$descriptors = null;
+		$xpath 		= new DOMXPath( $tmpDoc );
+		$domImg 	= $xpath->query( "//img[@src]");
+			
+		if(count($domImg)>0){
+			foreach ($domImg as $key => $element) {
+				$srcupdate = $element->getAttribute("src");
+				if(strpos($srcupdate, $base_url)!==false){
+					//test page exists or not
+					$srcupdatePath = str_replace($upload['baseurl'], $upload['basedir'].'/web-vital-webp', $srcupdate);
+					$srcupdatePath = "$srcupdatePath.webp";
+					if(file_exists($srcupdatePath)){
+						$srcupdate = str_replace($upload['baseurl'], $upload['baseurl'].'/web-vital-webp', $srcupdate);
+						$srcupdate = "$srcupdate.webp";
+						$element->setAttribute("src", $srcupdate);	
 					}
+					
+				}
+				if($element->hasAttribute('srcset')){
+					$attrValue = $element->getAttribute("srcset");
+					
+					$srcsetArr = explode(',', $attrValue);
+					foreach ($srcsetArr as $i => $srcSetEntry) {
+						// $srcSetEntry is ie "image.jpg 520w", but can also lack width, ie just "image.jpg"
+						// it can also be ie "image.jpg 2x"
+						$srcSetEntry = trim($srcSetEntry);
+						$entryParts = preg_split('/\s+/', $srcSetEntry, 2);
+						if (count($entryParts) == 2) {
+							list($src, $descriptors) = $entryParts;
+						} else {
+							$src = $srcSetEntry;
+							$descriptors = null;
+						}
 
-					//$webpUrl = $this->replaceUrlOr($src, false);
-					if(strpos($src, $base_url)!==false){
-						//test page exists or not
-						$srcupdatePath = str_replace($upload['baseurl'], $upload['basedir'].'/web-vital-webp', $src);
-						$srcupdatePath = "$srcupdatePath.webp";
-						if(file_exists($srcupdatePath)){
-							$webpUrl = str_replace($upload['baseurl'], $upload['baseurl'].'/web-vital-webp', $src);
-							$webpUrl .= '.webp';
+						if(strpos($src, $base_url)!==false){
+							//test page exists or not
+							$srcupdatePath = str_replace($upload['baseurl'], $upload['basedir'].'/web-vital-webp', $src);
+							$srcupdatePath = "$srcupdatePath.webp";
+							if(file_exists($srcupdatePath)){
+								$webpUrl = str_replace($upload['baseurl'], $upload['baseurl'].'/web-vital-webp', $src);
+								$webpUrl .= '.webp';
+							}else{ $webpUrl = $src; }
 						}else{ $webpUrl = $src; }
-					}else{ $webpUrl = $src; }
-					if ($webpUrl !== false) {
-						$srcsetArr[$i] = $webpUrl . (isset($descriptors) ? ' ' . $descriptors : '');
+						if ($webpUrl !== false) {
+							$srcsetArr[$i] = $webpUrl . (isset($descriptors) ? ' ' . $descriptors : '');
+						}
 					}
+					$newSrcsetArr = implode(', ', $srcsetArr);
+					$attrValue = $element->setAttribute("srcset", $newSrcsetArr);
 				}
-				$newSrcsetArr = implode(', ', $srcsetArr);
-				$attrValue = $element->setAttribute("srcset", $newSrcsetArr);
 			}
 		}
 		$html = $tmpDoc->saveHTML();
@@ -237,8 +241,12 @@ function web_vitals_changes($html){
 		}
 	}
 	
+	/**
+	 * CSS Tree shaking
+	 */
 	if(isset($settings['remove_unused_css']) && $settings['remove_unused_css']==1 && !empty($html)){
 		//now filter
+		$whiteCss = web_vitals_whitelist_selectors($html);
 		try{
 			require_once WEB_VITALS_PAGESPEED_BOOSTER_DIR."/inc/style-sanitizer.php";
 			$tmpDoc = new DOMDocument();
@@ -250,17 +258,21 @@ function web_vitals_changes($html){
 					$error_codes[] = $error['code'];
 				},
 				'should_locate_sources'=>true,
-				'use_document_element'=>false,
+				'use_document_element'=>true,
 				'include_manifest_comment'=>false,
 			];
 			$parser = new webvital_Style_TreeShaking($tmpDoc,$args);
 			$sanitize = $parser->sanitize();
-			$sheet = $parser->get_stylesheets();
+			/*$sheet = $parser->get_stylesheets();
 			$sheetData = '';
-			$sheetData .= implode( '', $sheet );
-			
+			$sheetData .= implode( '', $sheet );*/
+			if($whiteCss){
+				$custom_style_element = $tmpDoc->createElement( 'style' );
+				$custom_style_element->appendChild( $tmpDoc->createTextNode( $whiteCss ) );
+				$tmpDoc->head->appendChild( $custom_style_element );
+			}
 			$html = $tmpDoc->saveHTML();
-			$html = str_replace("</head>", "<style>".$sheetData."</style></head>", $html);
+			//$html = str_replace("</head>", "<style>".$sheetData."</style></head>", $html);
 		}catch(Throwable $e){
 			$html .= json_encode($e->getMessage());
 		}
@@ -377,4 +389,19 @@ function web_vitals_lazy_loader_script(){
 			    addEventListener(\'scroll\',webvitalprocessScroll);
 			}(this);';
 return $lazyscript;
+}
+
+function web_vitals_whitelist_selectors($completeContent){
+    $white_list = array('.opened');
+    
+    $white_list = (array)apply_filters('web_vital_css_white_list_selector',$white_list);
+    $w_l_str = '';
+    for($i=0;$i<count($white_list);$i++){
+        $f = $white_list[$i];
+        preg_match_all('/'.$f.'{(.*?)}/s', $completeContent, $matches);
+        if(isset($matches[0][0])){
+            $w_l_str .= $matches[0][0];
+        }
+    }
+    return $w_l_str;
 }
