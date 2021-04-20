@@ -3,7 +3,30 @@
  * Add action action and filers definition 
  */
 add_action('wp', 'web_vitals_initialize', 990);
-require_once WEB_VITALS_PAGESPEED_BOOSTER_DIR."/inc/font-minimize.php";
+web_vital_compatibility_helper();
+
+/**
+ * Load compatibilty and fonts store locally
+*/
+function web_vital_compatibility_helper(){
+	/**
+	* TO localize the fonts
+	*/
+	$settings = web_vitals_default_settings();
+	if($settings['fonts_store_locally']){
+		require_once WEB_VITALS_PAGESPEED_BOOSTER_DIR."/inc/font-minimize.php";
+	}
+	
+	/**
+	* For pagebuilder compatibility & others
+	*/
+	$theme = wp_get_theme(); // gets the current theme
+	if ( is_plugin_active( 'divi-builder/divi-builder.php' ) || 'Divi' == $theme->name || 'Divi' == $theme->parent_theme  || 'Extra' == $theme->name || 'Extra' == $theme->parent_theme ) {
+		require_once WEB_VITALS_PAGESPEED_BOOSTER_DIR."/inc/compatibility/divi-css.php";
+	}
+
+}
+
 
 
 function web_vitals_initialize(){
@@ -266,7 +289,7 @@ function web_vitals_changes($html){
 			/*$sheet = $parser->get_stylesheets();
 			$sheetData = '';
 			$sheetData .= implode( '', $sheet );*/
-			if($whiteCss){
+			if(!empty($whiteCss)){
 				$custom_style_element = $tmpDoc->createElement( 'style' );
 				$custom_style_element->appendChild( $tmpDoc->createTextNode( $whiteCss ) );
 				$tmpDoc->head->appendChild( $custom_style_element );
@@ -394,7 +417,7 @@ return $lazyscript;
 function web_vitals_whitelist_selectors($completeContent){
     $white_list = array('.opened');
     
-    $white_list = (array)apply_filters('web_vital_css_white_list_selector',$white_list);
+    $white_list = (array)apply_filters('web_vital_css_whitelist_selector_inline',$white_list);
     $w_l_str = '';
     for($i=0;$i<count($white_list);$i++){
         $f = $white_list[$i];
@@ -403,5 +426,6 @@ function web_vitals_whitelist_selectors($completeContent){
             $w_l_str .= $matches[0][0];
         }
     }
+	$w_l_str = apply_filters('web_vital_css_whitelist_css',$w_l_str);
     return $w_l_str;
 }

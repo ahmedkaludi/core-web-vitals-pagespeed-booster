@@ -90,13 +90,20 @@ class Web_Vitals_Admin{
 		);
 		add_settings_field(
 			'web_vital_setting_6',								// ID
+			esc_html__('Load fonts locally','web-vitals-page-speed-booster'),			// Title
+			array($this, 'fonts_store_locally'),					// Callback
+			'web_vitals_dashboard_section',							// Page slug
+			'web_vitals_dashboard_section'							// Settings Section ID
+		);
+		add_settings_field(
+			'web_vital_setting_7',								// ID
 			esc_html__('Image convert to webp','web-vitals-page-speed-booster'),			// Title
 			array($this, 'image_convert_webp'),					// Callback
 			'web_vitals_dashboard_section',							// Page slug
 			'web_vitals_dashboard_section'							// Settings Section ID
 		);
 		add_settings_field(
-			'web_vital_setting_7',								// ID
+			'web_vital_setting_8',								// ID
 			esc_html__('Bulk Image convert to webp','web-vitals-page-speed-booster'),			// Title
 			array($this, 'image_convert_webp_bulk'),					// Callback
 			'web_vitals_dashboard_section',							// Page slug
@@ -125,6 +132,15 @@ class Web_Vitals_Admin{
 		$settings = web_vitals_default_settings(); 
 		?>
 		<input type="checkbox" name="webvitals_settings[native_lazyload_image]" id="webvitals_settings[native_lazyload_image]" class="" <?php echo (isset( $settings['native_lazyload_image'] ) &&  $settings['native_lazyload_image'] == 1 ? 'checked="checked"' : ''); ?> value="1">
+	               
+		<?php
+	}
+	
+	function fonts_store_locally(){
+		// Get Settings
+		$settings = web_vitals_default_settings(); 
+		?>
+		<input type="checkbox" name="webvitals_settings[fonts_store_locally]" id="webvitals_settings[fonts_store_locally]" class="" <?php echo (isset( $settings['fonts_store_locally'] ) &&  $settings['fonts_store_locally'] == 1 ? 'checked="checked"' : ''); ?> value="1">
 	               
 		<?php
 	}

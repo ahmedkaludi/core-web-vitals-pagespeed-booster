@@ -1053,13 +1053,23 @@ class webvital_Style_TreeShaking {
 
 					$selectors   = explode( $between_selectors . ',', $split_stylesheet[ ++$i ] );
 					$declaration = explode( ';' . $between_properties, trim( $split_stylesheet[ ++$i ], '{}' ) );
+					// @todo The following logic could be made much more robust if PHP-CSS-Parser did parsing of selectors. See <https://github.com/sabberworm/PHP-CSS-Parser/pull/138#issuecomment-418193262> and <https://github.com/ampproject/amp-wp/issues/2102>.
 					$selectors_parsed = [];
 					foreach ( $selectors as $selector ) {
 						$selectors_parsed[ $selector ] = [];
+
+						// Remove :not() and pseudo selectors to eliminate false negatives, such as with `body:not(.title-tagline-hidden) .site-branding-text` (but not after escape character).
 						$reduced_selector = preg_replace( '/(?<!\\\\)::?[a-zA-Z0-9_-]+(\(.+?\))?/', '', $selector );
+
+						// Ignore any selector terms that occur under a dynamic selector.
 						if ( $dynamic_selector_pattern ) {
 							$reduced_selector = preg_replace( '#((?:' . $dynamic_selector_pattern . ')(?:\.[a-z0-9_-]+)*)[^a-z0-9_-].*#si', '$1', $reduced_selector . ' ' );
 						}
+
+						/*
+						 * Gather attribute names while removing attribute selectors to eliminate false negative,
+						 * such as with `.social-navigation a[href*="example.com"]:before`.
+						 */
 						$reduced_selector = preg_replace_callback(
 							'/\[([A-Za-z0-9_:-]+)(\W?=[^\]]+)?\]/',
 							static function( $matches ) use ( $selector, &$selectors_parsed ) {
@@ -1068,6 +1078,8 @@ class webvital_Style_TreeShaking {
 							},
 							$reduced_selector
 						);
+
+						// Extract class names.
 						$reduced_selector = preg_replace_callback(
 							'/\.((?:[a-zA-Z0-9_-]+|\\\\.)+)/', // The `\\\\.` will allow any char via escaping, like the colon in `.lg\:w-full`.
 							static function( $matches ) use ( $selector, &$selectors_parsed ) {
@@ -1076,6 +1088,8 @@ class webvital_Style_TreeShaking {
 							},
 							$reduced_selector
 						);
+
+						// Extract IDs.
 						$reduced_selector = preg_replace_callback(
 							'/#([a-zA-Z0-9_-]+)/',
 							static function( $matches ) use ( $selector, &$selectors_parsed ) {
@@ -1084,6 +1098,8 @@ class webvital_Style_TreeShaking {
 							},
 							$reduced_selector
 						);
+
+						// Extract tag names.
 						$reduced_selector = preg_replace_callback(
 							'/[a-zA-Z0-9_-]+/',
 							static function( $matches ) use ( $selector, &$selectors_parsed ) {
@@ -1092,6 +1108,8 @@ class webvital_Style_TreeShaking {
 							},
 							$reduced_selector
 						);
+
+						// At this point, $reduced_selector should contain just the remnants of the selector, primarily combinators.
 						unset( $reduced_selector );
 					}
 
@@ -1626,6 +1644,9 @@ class webvital_Style_TreeShaking {
 			$css .= $stylesheet_groups[ self::STYLE_AMP_CUSTOM_GROUP_INDEX ]['source_map_comment'];
 			$this->amp_custom_style_element = $this->dom->createElement( 'style' );
 			$this->amp_custom_style_element->appendChild( $this->dom->createTextNode( $css ) );
+			if(is_user_logged_in()){
+				$imported_font_urls[] = site_url().'/wp-includes/css/admin-bar.min.css';
+			}
 			$this->dom->head->appendChild( $this->amp_custom_style_element );
 		}
 		foreach ( array_unique( $imported_font_urls ) as $imported_font_url ) {
