@@ -1032,7 +1032,7 @@ class webvital_Style_TreeShaking {
 					)
 				);
 			}
-
+			do_action('web_vital_css_whitelist_data', $stylesheet_string);
 			$split_stylesheet = preg_split( $pattern, $stylesheet_string, -1, PREG_SPLIT_DELIM_CAPTURE );
 			$length           = count( $split_stylesheet );
 			for ( $i = 0; $i < $length; $i++ ) {

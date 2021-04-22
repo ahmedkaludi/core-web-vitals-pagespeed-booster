@@ -48,9 +48,11 @@ class Web_Vitals_Admin{
 		echo '<form action="options.php" method="post" enctype="multipart/form-data" class="web-vitals-settings-form">';
 		settings_fields( 'web_vitals_setting_dashboard_group' );
 		do_settings_sections( 'web_vitals_dashboard_section' );	// Page slug
-		echo "<div style='display:inline-block'><div style='float:left;'>";
+		echo "<style>.webvital-actions p{display:inline-block; margin-left:10px;}</style><div class='webvital-actions'>";
 		submit_button( esc_html__('Save Settings', 'web-vitals-page-speed-booster') );
-		echo "</div><p><button type='button' id='web-vital-clear-cache' data-security='".wp_create_nonce('web-vital-cache-clear')."'>".esc_html__('Clear cache', 'web-vitals-page-speed-booster')."</button><span class='clear-cache-msg'></span></p>";
+		echo "<div style='display:inline;'><p>
+				<button type='button' id='web-vital-clear-cache' data-security='".wp_create_nonce('web-vital-cache-clear')."' data-cleaningtype='all' class='button button-secondry'>".esc_html__('Clear cache', 'web-vitals-page-speed-booster')."</button><span class='clear-cache-msg'></span></div>
+			</p></div>";
 		echo '</form>';
 	}
 
@@ -125,6 +127,9 @@ class Web_Vitals_Admin{
 		<input type="checkbox" name="webvitals_settings[image_convert_webp]" id="webvitals_settings[image_convert_webp]" class="" <?php echo (isset( $settings['image_convert_webp'] ) &&  $settings['image_convert_webp'] == 1 ? 'checked="checked"' : ''); ?> value="1">
 	               
 		<?php
+		if(isset( $settings['image_convert_webp'] ) &&  $settings['image_convert_webp'] == 1) {
+			echo "<div style='display:inline-block;'><span class='button button-secondry' id='clear-css-cache' data-cleaningtype='image'>Clear Cached css</span><span class='clear-cache-msg'></span></div>";
+		}
 	}
 
 	function native_lazyload_image(){
@@ -143,14 +148,29 @@ class Web_Vitals_Admin{
 		<input type="checkbox" name="webvitals_settings[fonts_store_locally]" id="webvitals_settings[fonts_store_locally]" class="" <?php echo (isset( $settings['fonts_store_locally'] ) &&  $settings['fonts_store_locally'] == 1 ? 'checked="checked"' : ''); ?> value="1">
 	               
 		<?php
+		if(isset( $settings['fonts_store_locally'] ) &&  $settings['fonts_store_locally'] == 1) {
+			echo "<div style='display:inline-block;'><span class='button button-secondry' id='clear-css-cache' data-cleaningtype='fonts'>Clear Cached css</span><span class='clear-cache-msg'></span></div>";
+		}
 	}
 	function remove_unused_css(){
 		// Get Settings
 		$settings = web_vitals_default_settings(); 
 		?>
 		<input type="checkbox" name="webvitals_settings[remove_unused_css]" id="webvitals_settings[remove_unused_css]" class="" <?php echo (isset( $settings['remove_unused_css'] ) &&  $settings['remove_unused_css'] == 1 ? 'checked="checked"' : ''); ?> value="1">
-	               
 		<?php
+		if(isset( $settings['remove_unused_css'] ) &&  $settings['remove_unused_css'] == 1){
+			echo "
+			<div class='defined-css'>
+			<table>
+			<tr><th><label>paste your whitelist css</label></th><td><textarea rows='5' cols='70' name='webvitals_settings[add_whitelist_css]' id='webvital_add_whitelist_css' placeholder='Enter your css'>".esc_html($settings['add_whitelist_css'])."</textarea><p class='description'>Put your css here</p></td></tr>
+			
+			<tr><th><label>Add whitelisted selectors</label></th><td><textarea rows='5' cols='70' name='webvitals_settings[add_whitelist_css_selector]' id='webvital_add_whitelist_css' placeholder='.abc\n #cde\n.another_selector'>".esc_html($settings['add_whitelist_css_selector'])."</textarea><p class='description'>Give css selectors line by line</p></td></tr>
+			
+			<tr><td col-span='2'><div style='display:inline-block;'><span class='button button-secondry' id='clear-css-cache' data-cleaningtype='css'>Clear Cached css</span><span class='clear-cache-msg'></span></div></td></tr>
+			</table>
+			</div>
+			";
+		}
 	}
 	function lazy_load_callback(){
 		// Get Settings
@@ -201,19 +221,67 @@ class Web_Vitals_Admin{
 		if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vitals-security-nonce')){
 			echo json_encode(array("status"=> 400, "msg"=>esc_html__("Security verification failed, Refresh the page", 'web-vitals-page-speed-booster') ));die;
 		}
+		$clean_types = array('all', 'css', 'fonts', 'images');
+		if(!in_array($_POST['cleaning'], $clean_types)){
+			echo json_encode(array("status"=> 400, "msg"=>esc_html__("Cache type not found", 'web-vitals-page-speed-booster') ));die;
+		}
+		$cleaning = $_POST['cleaning'];
 
 		$upload_dir = wp_upload_dir(); 
-		$user_dirname = $upload_dir['basedir'] . '/' . 'web_vital';
-		$dir_handle = opendir($user_dirname);
-		if (!$dir_handle){
-          echo json_encode(array("status"=> 400, "msg"=>esc_html__("cache not found", 'web-vitals-page-speed-booster') ));die;
-		}
-		while($file = readdir($dir_handle)) {
-			if (strpos($file, '.css')!==false){
-				unlink($user_dirname."/".$file);
+		
+		//Clean css
+		if($cleaning == 'all' || $cleaning == 'css'){
+			$user_dirname = $upload_dir['basedir'] . '/' . 'web_vital';
+			$dir_handle = opendir($user_dirname);
+			if (!$dir_handle){
+			  echo json_encode(array("status"=> 400, "msg"=>esc_html__("cache not found", 'web-vitals-page-speed-booster') ));die;
 			}
+			while($file = readdir($dir_handle)) {
+				if (strpos($file, '.css')!==false){
+					unlink($user_dirname."/".$file);
+				}
+			}
+			closedir($dir_handle);
 		}
-		closedir($dir_handle);
+		//Clean fonts
+		if($cleaning == 'all' || $cleaning == 'fonts'){
+			$user_dirname = $upload_dir['basedir'] . '/' . 'web-vital-fonts';
+			$dir_handle = opendir($user_dirname);
+			if (!$dir_handle){
+			  echo json_encode(array("status"=> 400, "msg"=>esc_html__("cache not found", 'web-vitals-page-speed-booster') ));die;
+			}
+			while($file = readdir($dir_handle)) {
+			   if ($file != "." && $file != "..") {
+					if (!is_dir($user_dirname."/".$file))
+						 unlink($user_dirname."/".$file);
+					else
+						 delete_directory($user_dirname.'/'.$file);
+			   }
+			 }
+			closedir($dir_handle);
+		}
+		//Clean images
+		if($cleaning == 'all' || $cleaning == 'images'){
+			$user_dirname = $upload_dir['basedir'] . '/' . 'web-vital-webp';
+			$dir_handle = opendir($user_dirname);
+			if (!$dir_handle){
+			  echo json_encode(array("status"=> 400, "msg"=>esc_html__("cache folder not found", 'web-vitals-page-speed-booster') ));die;
+			}
+			while($file = readdir($dir_handle)) {
+			   if ($file != "." && $file != "..") {
+					if (!is_dir($user_dirname."/".$file))
+						 unlink($user_dirname."/".$file);
+					elseif(strpos($file, '.webp')!==false)
+						 delete_directory($user_dirname.'/'.$file);
+			   }
+			 }
+			
+			closedir($dir_handle);
+		}
+		
+		
+		
+		
 		echo json_encode(array("status"=> 200, "msg"=>esc_html__("CSS cleared", 'web-vitals-page-speed-booster') ));die;
 	}
 

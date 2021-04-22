@@ -269,7 +269,6 @@ function web_vitals_changes($html){
 	 */
 	if(isset($settings['remove_unused_css']) && $settings['remove_unused_css']==1 && !empty($html)){
 		//now filter
-		$whiteCss = web_vitals_whitelist_selectors($html);
 		try{
 			require_once WEB_VITALS_PAGESPEED_BOOSTER_DIR."/inc/style-sanitizer.php";
 			$tmpDoc = new DOMDocument();
@@ -289,6 +288,7 @@ function web_vitals_changes($html){
 			/*$sheet = $parser->get_stylesheets();
 			$sheetData = '';
 			$sheetData .= implode( '', $sheet );*/
+			$whiteCss = web_vitals_whitelist_selectors($html);
 			if(!empty($whiteCss)){
 				$custom_style_element = $tmpDoc->createElement( 'style' );
 				$custom_style_element->appendChild( $tmpDoc->createTextNode( $whiteCss ) );
@@ -413,19 +413,42 @@ function web_vitals_lazy_loader_script(){
 			}(this);';
 return $lazyscript;
 }
-
+$webvitalWhitelistCSS = '';
 function web_vitals_whitelist_selectors($completeContent){
-    $white_list = array('.opened');
-    
-    $white_list = (array)apply_filters('web_vital_css_whitelist_selector_inline',$white_list);
-    $w_l_str = '';
-    for($i=0;$i<count($white_list);$i++){
-        $f = $white_list[$i];
-        preg_match_all('/'.$f.'{(.*?)}/s', $completeContent, $matches);
-        if(isset($matches[0][0])){
-            $w_l_str .= $matches[0][0];
-        }
-    }
+    global $webvitalWhitelistCSS;
+	$w_l_str = $webvitalWhitelistCSS;
 	$w_l_str = apply_filters('web_vital_css_whitelist_css',$w_l_str);
     return $w_l_str;
+}
+
+add_action('web_vital_css_whitelist_data', 'web_vital_grab_whitelist_css', 10, 1);
+function web_vital_grab_whitelist_css($completeContent){
+	$settings = web_vitals_default_settings();
+	$white_list= array();
+	if( isset($settings['add_whitelist_css_selector']) && !empty($settings['add_whitelist_css_selector']) ){
+		$white_list = preg_split('/\r\n|\r|\n/', $settings['add_whitelist_css_selector']);
+	}
+	$white_list = (array)apply_filters('web_vital_css_whitelist_selector_inline', $white_list);
+	global $webvitalWhitelistCSS;
+	for($i=0;$i<count($white_list);$i++){
+        $f = $white_list[$i];
+        preg_match_all('/'.$f.'(.*?){(.*?)}/s', $completeContent, $matches);
+		if(isset($matches[0]) && !empty($matches[0])){
+			foreach($matches[0] as $match){
+				if(!empty($match)){
+					$webvitalWhitelistCSS .= $match;
+				}
+			}
+		}
+		/* $h = fopen('test.txt', 'a+');
+		if(!empty($matches) && $f=='.et_mobile_menu'){
+			fwrite($h, "\n\n");
+			fwrite($h, json_encode($matches));
+		}
+		fclose($h); */
+		/* if(isset($matches[0][0]) && !empty($matches[0][0])){
+            $webvitalWhitelistCSS .= $matches[0][0];
+        } */
+    }
+	
 }
