@@ -25,6 +25,20 @@ function cwvpsb_add_settings_link( $links ) {
         '">' . 'Settings' . '</a>';
     return $links;
 }
+add_action('plugins_loaded', 'cwvpsb_set_default_settings');
+function cwvpsb_set_default_settings() {
+    if (get_option('cwvpsb_check_webp') === false){
+       update_option('cwvpsb_check_webp', 1);
+    }
+ 
+    if (get_option('cwvpsb_check_minification') === false){
+       update_option('cwvpsb_check_minification', 1);
+    }
+   
+    if (get_option('cwvpsb_check_javascript_delay') === false){ 
+       update_option('cwvpsb_check_javascript_delay', 1);
+    }
+}
 
 function cwvpsb_complete_html_after_dom_loaded( $content ) {
     $content = apply_filters('cwvpsb_complete_html_after_dom_loaded', $content);
