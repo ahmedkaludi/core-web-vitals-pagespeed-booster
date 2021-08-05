@@ -35,7 +35,13 @@ function cwvpsb_convert_webp(){
         $upload_dir = $upload_dir['path'];
         $upload_dir = explode('/uploads', $upload_dir);
         $new_dir = $upload_dir[0] . $img_dir[1];
-        $check_dir = $new_dir . '.webp';
+        $img_dir = explode('/', $img_dir[1]);
+        $img_dir = end($img_dir);
+        $wp_upload_dir = wp_upload_dir();
+        $upload_dir_base = $wp_upload_dir['basedir'] . '/' . 'cwv-webp-images';
+        if(!file_exists($upload_dir_base)) wp_mkdir_p($upload_dir_base);
+        $upload_dir_base .= '/'.$img_dir;
+        $check_dir = $upload_dir_base . '.webp';
         if(!file_exists($check_dir)){
             $image = imagecreatefromstring(file_get_contents($new_dir));
             ob_start();
@@ -44,7 +50,7 @@ function cwvpsb_convert_webp(){
             ob_end_clean();
             imagedestroy($image);
             $content = imagecreatefromstring($get_contents);
-            $output = $new_dir . '.webp';
+            $output = $upload_dir_base . '.webp';
             imagewebp($content,$output);
             imagedestroy($content);
         }
@@ -62,7 +68,12 @@ function cwvpsb_display_webp( $content ) {
     $nodes = $xpath->query('//img[@src]');
     foreach ($nodes as $node) {
         $url = $node->getAttribute('src');
-        $img_webp = $url.".webp";
+        $wp_upload_dir = wp_upload_dir();
+        $upload_baseurl = $wp_upload_dir['baseurl'] . '/' . 'cwv-webp-images/';
+        $img_name = explode('/', $url);
+        $img_name = end($img_name);
+        $upload_baseurl .= $img_name;
+        $img_webp = $upload_baseurl.".webp";
         $img_src = str_replace($url, $img_webp, $url);
         $srcset = $node->getAttribute('srcset');
         $img_srcset = str_replace($srcset, $img_webp, $srcset);
