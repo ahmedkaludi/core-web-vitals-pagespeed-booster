@@ -30,6 +30,10 @@ function cwvpsb_set_default_settings() {
     if (get_option('cwvpsb_check_webp') === false){
        update_option('cwvpsb_check_webp', 1);
     }
+
+    if (get_option('cwvpsb_check_lazyload') === false){
+       update_option('cwvpsb_check_lazyload', 1);
+    }
  
     if (get_option('cwvpsb_check_minification') === false){
        update_option('cwvpsb_check_minification', 1);
@@ -59,5 +63,9 @@ function ampforwp_include_options_file(){
     $check_js = get_option('cwvpsb_check_javascript_delay');
     if ($check_js  == true) {
        require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay_js.php";
+    }
+    $check_ll = get_option('cwvpsb_check_lazyload');
+    if ($check_ll  == true) {
+       require_once CWVPSB_PLUGIN_DIR."includes/images/lazy-loading.php";
     }
 }

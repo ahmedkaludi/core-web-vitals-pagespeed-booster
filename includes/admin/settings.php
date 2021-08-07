@@ -32,8 +32,10 @@ if (isset($_POST['submit'])) {
 function cwvpsb_image_optimization() {
     if (isset($_POST['submit'])) {
         update_option('cwvpsb_check_webp', sanitize_text_field($_POST['check_webp']));
+        update_option('cwvpsb_check_lazyload', sanitize_text_field($_POST['check_ll']));
     }
     $check_webp = get_option('cwvpsb_check_webp');
+    $check_ll = get_option('cwvpsb_check_lazyload');
     ?>
     <form method="POST">
         <?php wp_nonce_field('cwvpsb-nonce', 'cwvpsb-nonce-settings'); ?>
@@ -44,6 +46,13 @@ function cwvpsb_image_optimization() {
                 <td>
                     <input name="check_webp" type="checkbox" value="1" <?php if ($check_webp) {echo "checked";} ?>>
                     <p class="description">Images are converted to WebP on the fly if the browser supports it. You don't have to do anything</p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label>Lazy Load</label></th>
+                <td>
+                    <input name="check_ll" type="checkbox" value="1" <?php if ($check_ll) {echo "checked";} ?>>
+                    <p class="description">Lazy Load delays loading of images and iframes in long web pages. which are outside of viewport and will not be loaded before user scrolls to them</p>
                 </td>
             </tr>
         </tbody>
