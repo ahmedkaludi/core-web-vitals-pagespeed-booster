@@ -80,8 +80,8 @@ function cwvpsb_include_options_file(){
     if ($check_unused_css == true) {
     require_once CWVPSB_PLUGIN_DIR."includes/css/unused_css.php";
     }
-    $check_unused_css = get_option('cwvpsb_check_fonts');
-    if ($check_unused_css == true) {
+    $check_fonts = get_option('cwvpsb_check_fonts');
+    if ($check_fonts == true) {
     require_once CWVPSB_PLUGIN_DIR."includes/css/google-fonts.php";
     }
 }

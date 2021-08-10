@@ -94,7 +94,7 @@ function cwvpsb_css_optimization()
              <tr>
                 <th scope="row"><label>Google Fonts Optimizations</label></th>
                 <td>
-                    <input name="check_fonts" type="checkbox" value="1" <?php if ($check_fonts) {echo "checked";} ?>>
+                    <input name="cwvpsb_check_fonts" type="checkbox" value="1" <?php if ($check_fonts) {echo "checked";} ?>>
                     <p class="description">Locally hosting Google fonts for Pagespeed Insights or GT Metrix improvements.</p>
                 </td>
             </tr>
