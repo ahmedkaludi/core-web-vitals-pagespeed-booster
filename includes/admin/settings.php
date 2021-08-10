@@ -68,9 +68,11 @@ function cwvpsb_css_optimization()
     if (isset($_POST['submit'])) {
         update_option('cwvpsb_check_minification', sanitize_text_field($_POST['check_minify']));
         update_option('cwvpsb_check_unused_css', sanitize_text_field($_POST['check_unused_css']));
+        update_option('cwvpsb_check_fonts', sanitize_text_field($_POST['cwvpsb_check_fonts']));
     }
     $check_minify = get_option('cwvpsb_check_minification'); 
     $check_unused_css = get_option('cwvpsb_check_unused_css'); 
+    $check_fonts = get_option('cwvpsb_check_fonts'); 
     ?>
     <form method="POST">
         <?php wp_nonce_field('cwvpsb-nonce', 'cwvpsb-nonce-settings'); ?>
@@ -87,6 +89,13 @@ function cwvpsb_css_optimization()
                 <td>
                     <input name="check_unused_css" type="checkbox" value="1" <?php if ($check_unused_css) {echo "checked";} ?>>
                     <p class="description">Makes your site even faster and lighter by automatically removing unused CSS from your website.</p>
+                </td>
+            </tr>
+             <tr>
+                <th scope="row"><label>Google Fonts Optimizations</label></th>
+                <td>
+                    <input name="check_fonts" type="checkbox" value="1" <?php if ($check_fonts) {echo "checked";} ?>>
+                    <p class="description">Locally hosting Google fonts for Pagespeed Insights or GT Metrix improvements.</p>
                 </td>
             </tr>
         </tbody>

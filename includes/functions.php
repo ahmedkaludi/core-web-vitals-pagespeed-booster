@@ -38,6 +38,10 @@ function cwvpsb_set_default_settings() {
     if (get_option('cwvpsb_check_unused_css') === false){ 
        update_option('cwvpsb_check_unused_css', 1);
     }
+
+    if (get_option('cwvpsb_check_fonts') === false){ 
+       update_option('cwvpsb_check_fonts', 1);
+    }
  
     if (get_option('cwvpsb_check_minification') === false){
        update_option('cwvpsb_check_minification', 1);
@@ -76,5 +80,8 @@ function cwvpsb_include_options_file(){
     if ($check_unused_css == true) {
     require_once CWVPSB_PLUGIN_DIR."includes/css/unused_css.php";
     }
-
+    $check_unused_css = get_option('cwvpsb_check_fonts');
+    if ($check_unused_css == true) {
+    require_once CWVPSB_PLUGIN_DIR."includes/css/google-fonts.php";
+    }
 }
