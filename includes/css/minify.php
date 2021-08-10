@@ -1,7 +1,7 @@
 <?php
 
 add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_minify_html');
-function cwvpsb_minify_html($content) {die;
+function cwvpsb_minify_html($content) {
     $check_minify = get_option('cwvpsb_check_minification');
     if (!$check_minify) {
        return $content;

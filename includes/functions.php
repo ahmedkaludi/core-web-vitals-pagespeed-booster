@@ -34,6 +34,10 @@ function cwvpsb_set_default_settings() {
     if (get_option('cwvpsb_check_lazyload') === false){
        update_option('cwvpsb_check_lazyload', 1);
     }
+
+    if (get_option('cwvpsb_check_unused_css') === false){ 
+       update_option('cwvpsb_check_unused_css', 1);
+    }
  
     if (get_option('cwvpsb_check_minification') === false){
        update_option('cwvpsb_check_minification', 1);
@@ -50,15 +54,15 @@ function cwvpsb_complete_html_after_dom_loaded( $content ) {
 }
 add_action('wp', function(){ ob_start('cwvpsb_complete_html_after_dom_loaded'); }, 999);
 
-add_action('plugins_loaded', 'ampforwp_include_options_file' );
-function ampforwp_include_options_file(){   
+add_action('plugins_loaded', 'cwvpsb_include_options_file' );
+function cwvpsb_include_options_file(){   
     $check_webp = get_option('cwvpsb_check_webp');
     if ($check_webp == true) {
        require_once CWVPSB_PLUGIN_DIR."includes/images/convert_webp.php";
     }
     $check_minify = get_option('cwvpsb_check_minification');
     if ($check_minify == true) {
-       require_once CWVPSB_PLUGIN_DIR."includes/minification/minify.php";
+       require_once CWVPSB_PLUGIN_DIR."includes/css/minify.php";
     }
     $check_js = get_option('cwvpsb_check_javascript_delay');
     if ($check_js  == true) {
@@ -68,4 +72,9 @@ function ampforwp_include_options_file(){
     if ($check_ll  == true) {
        require_once CWVPSB_PLUGIN_DIR."includes/images/lazy-loading.php";
     }
+    $check_unused_css = get_option('cwvpsb_check_unused_css');
+    if ($check_unused_css == true) {
+    require_once CWVPSB_PLUGIN_DIR."includes/css/unused_css.php";
+    }
+
 }

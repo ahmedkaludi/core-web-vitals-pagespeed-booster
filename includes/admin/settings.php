@@ -9,7 +9,7 @@ if (isset($_POST['submit'])) {
 ?>
 <h2 class="nav-tab-wrapper">
     <a href="?page=cwvpsb-images&tab=images" class="nav-tab <?php echo $active_tab == 'images' ? 'nav-tab-active' : ''; ?>">images</a>
-    <a href="?page=cwvpsb-images&tab=minify" class="nav-tab <?php echo $active_tab == 'minify' ? 'nav-tab-active' : ''; ?>">Minify</a>
+    <a href="?page=cwvpsb-images&tab=css" class="nav-tab <?php echo $active_tab == 'css' ? 'nav-tab-active' : ''; ?>">CSS</a>
     <a href="?page=cwvpsb-images&tab=js" class="nav-tab <?php echo $active_tab == 'js' ? 'nav-tab-active' : ''; ?>">Javascript</a>
 </h2>
 
@@ -19,8 +19,8 @@ if (isset($_POST['submit'])) {
         case 'images':
             cwvpsb_image_optimization();
             break;
-        case 'minify':
-            cwvpsb_minify_optimization();
+        case 'css':
+            cwvpsb_css_optimization();
             break;
         case 'js':
             cwvpsb_js_optimization();
@@ -63,12 +63,14 @@ function cwvpsb_image_optimization() {
     </form>
 <?php
 }
-function cwvpsb_minify_optimization()
+function cwvpsb_css_optimization()
 {
     if (isset($_POST['submit'])) {
         update_option('cwvpsb_check_minification', sanitize_text_field($_POST['check_minify']));
+        update_option('cwvpsb_check_unused_css', sanitize_text_field($_POST['check_unused_css']));
     }
     $check_minify = get_option('cwvpsb_check_minification'); 
+    $check_unused_css = get_option('cwvpsb_check_unused_css'); 
     ?>
     <form method="POST">
         <?php wp_nonce_field('cwvpsb-nonce', 'cwvpsb-nonce-settings'); ?>
@@ -78,6 +80,13 @@ function cwvpsb_minify_optimization()
                 <th scope="row"><label>Minification</label></th>
                 <td>
                     <input name="check_minify" type="checkbox" value="1" <?php if ($check_minify) {echo "checked";} ?>>
+                </td>
+            </tr>
+             <tr>
+                <th scope="row"><label>Remove Unused CSS</label></th>
+                <td>
+                    <input name="check_unused_css" type="checkbox" value="1" <?php if ($check_unused_css) {echo "checked";} ?>>
+                    <p class="description">Makes your site even faster and lighter by automatically removing unused CSS from your website.</p>
                 </td>
             </tr>
         </tbody>
