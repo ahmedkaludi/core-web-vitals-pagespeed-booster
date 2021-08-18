@@ -58,7 +58,8 @@ function cwvpsb_image_optimization() {
         </tbody>
         </table>
         <p class="submit">
-            <input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes">
+            <input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes"></br></br>
+            <input name="clear_site_cache_on_saved" type="submit" class="button-primary" value="Save Changes and Clear Site Cache" />
         </p>
     </form>
 <?php
@@ -101,7 +102,8 @@ function cwvpsb_css_optimization()
         </tbody>
         </table>
         <p class="submit">
-            <input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes">
+            <input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes"></br></br>
+            <input name="clear_site_cache_on_saved" type="submit" class="button-primary" value="Save Changes and Clear Site Cache" />
         </p>
     </form>
 <?php
@@ -128,7 +130,8 @@ function cwvpsb_js_optimization()
         </tbody>
         </table>
         <p class="submit">
-            <input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes">
+            <input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes"></br></br>
+            <input name="clear_site_cache_on_saved" type="submit" class="button-primary" value="Save Changes and Clear Site Cache" />
         </p>
     </form>
 <?php

@@ -852,7 +852,7 @@ class cwvpsb_treeshaking {
 				'wp_enqueue_style',
 				esc_html(
 					sprintf(
-						__( 'It is not a best practice to use %1$s to load font CDN stylesheets. Please use %2$s to enqueue %3$s as its own separate script.', 'amp' ),
+						__( 'It is not a best practice to use %1$s to load font CDN stylesheets. Please use %2$s to enqueue %3$s as its own separate script.', 'cwvpsb' ),
 						'@import',
 						'wp_enqueue_style()',
 						$import_stylesheet_url
