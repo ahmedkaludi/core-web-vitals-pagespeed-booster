@@ -24,14 +24,18 @@ define('CWVPSB_CACHE_DIR', WP_CONTENT_DIR. '/cache/cache-cwvpsb');
 
 require_once CWVPSB_PLUGIN_DIR."includes/functions.php";
 
-// hooks
-add_action(
+$check_cache = get_option('cwvpsb_check_cache');
+if (!empty($check_cache)) {
+	add_action(
 	'plugins_loaded',
 	array(
 		'CWV_Cache',
 		'instance'
 	)
-);
+	);
+}
+
+
 register_activation_hook(
 	__FILE__,
 	array(

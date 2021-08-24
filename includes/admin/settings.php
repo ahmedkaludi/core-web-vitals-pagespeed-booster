@@ -11,6 +11,7 @@ if (isset($_POST['submit'])) {
     <a href="?page=cwvpsb-images&tab=images" class="nav-tab <?php echo $active_tab == 'images' ? 'nav-tab-active' : ''; ?>">images</a>
     <a href="?page=cwvpsb-images&tab=css" class="nav-tab <?php echo $active_tab == 'css' ? 'nav-tab-active' : ''; ?>">CSS</a>
     <a href="?page=cwvpsb-images&tab=js" class="nav-tab <?php echo $active_tab == 'js' ? 'nav-tab-active' : ''; ?>">Javascript</a>
+    <a href="?page=cwvpsb-images&tab=cache" class="nav-tab <?php echo $active_tab == 'cache' ? 'nav-tab-active' : ''; ?>">Cache</a>
 </h2>
 
 <?php 
@@ -24,7 +25,10 @@ if (isset($_POST['submit'])) {
             break;
         case 'js':
             cwvpsb_js_optimization();
-            break;     
+            break;
+        case 'cache':
+            cwvpsb_cache_optimization();
+            break;       
         default:
             cwvpsb_image_optimization();
     }
@@ -125,6 +129,34 @@ function cwvpsb_js_optimization()
                 <td>
                     <input name="check_js" type="checkbox" value="1" <?php if ($check_js) {echo "checked";} ?>>
                     <p class="description">Delays the loading of JavaScript files until the user interacts like scroll, click etc, which improves performance</p>
+                </td>
+            </tr>
+        </tbody>
+        </table>
+        <p class="submit">
+            <input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes"></br></br>
+            <input name="clear_site_cache_on_saved" type="submit" class="button-primary" value="Save Changes and Clear Site Cache" />
+        </p>
+    </form>
+<?php
+}
+
+function cwvpsb_cache_optimization()
+{
+    if (isset($_POST['submit'])) {
+        update_option('cwvpsb_check_cache', sanitize_text_field($_POST['check_cache']));
+    }
+    $check_cache = get_option('cwvpsb_check_cache'); 
+    ?>
+    <form method="POST">
+        <?php wp_nonce_field('cwvpsb-nonce', 'cwvpsb-nonce-settings'); ?>
+        <table class="form-table" role="presentation">
+        <tbody>
+            <tr>
+                <th scope="row"><label>Cache</label></th>
+                <td>
+                    <input name="check_cache" type="checkbox" value="1" <?php if ($check_cache) {echo "checked";} ?>>
+                    <p class="description">Caching pages will reduce the response time of your site and your web pages load much faster, directly from cache.</p>
                 </td>
             </tr>
         </tbody>
