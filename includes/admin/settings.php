@@ -47,15 +47,17 @@ function cwvpsb_image_optimization() {
         <tbody>
             <tr>
                 <th scope="row"><label>Webp images</label></th>
-                <td>
+                <td><label class="switch">
                     <input name="check_webp" type="checkbox" value="1" <?php if ($check_webp) {echo "checked";} ?>>
+                    <span class="slider round"></span></label>
                     <p class="description">Images are converted to WebP on the fly if the browser supports it. You don't have to do anything</p>
                 </td>
             </tr>
             <tr>
                 <th scope="row"><label>Lazy Load</label></th>
-                <td>
+                <td><label class="switch">
                     <input name="check_ll" type="checkbox" value="1" <?php if ($check_ll) {echo "checked";} ?>>
+                    <span class="slider round"></span></label>
                     <p class="description">Lazy Load delays loading of images and iframes in long web pages. which are outside of viewport and will not be loaded before user scrolls to them</p>
                 </td>
             </tr>
@@ -85,21 +87,25 @@ function cwvpsb_css_optimization()
         <tbody>
             <tr>
                 <th scope="row"><label>Minification</label></th>
-                <td>
+                <td><label class="switch">
                     <input name="check_minify" type="checkbox" value="1" <?php if ($check_minify) {echo "checked";} ?>>
+                    <span class="slider round"></span></label>
+                    <p class="description">You will see the source of your HTML, CSS and JavaScript are now compressed and the size will be smaller which will be helpful to improve your page load speed.</p>
                 </td>
             </tr>
              <tr>
                 <th scope="row"><label>Remove Unused CSS</label></th>
-                <td>
+                <td><label class="switch">
                     <input name="check_unused_css" type="checkbox" value="1" <?php if ($check_unused_css) {echo "checked";} ?>>
+                    <span class="slider round"></span></label>
                     <p class="description">Makes your site even faster and lighter by automatically removing unused CSS from your website.</p>
                 </td>
             </tr>
              <tr>
                 <th scope="row"><label>Google Fonts Optimizations</label></th>
-                <td>
+                <td><label class="switch">
                     <input name="cwvpsb_check_fonts" type="checkbox" value="1" <?php if ($check_fonts) {echo "checked";} ?>>
+                    <span class="slider round"></span></label>
                     <p class="description">Locally hosting Google fonts for Pagespeed Insights or GT Metrix improvements.</p>
                 </td>
             </tr>
@@ -126,8 +132,9 @@ function cwvpsb_js_optimization()
         <tbody>
             <tr>
                 <th scope="row"><label>Delay JavaScript Execution</label></th>
-                <td>
+                <td><label class="switch">
                     <input name="check_js" type="checkbox" value="1" <?php if ($check_js) {echo "checked";} ?>>
+                    <span class="slider round"></span></label>
                     <p class="description">Delays the loading of JavaScript files until the user interacts like scroll, click etc, which improves performance</p>
                 </td>
             </tr>
@@ -154,8 +161,9 @@ function cwvpsb_cache_optimization()
         <tbody>
             <tr>
                 <th scope="row"><label>Cache</label></th>
-                <td>
+                <td><label class="switch">
                     <input name="check_cache" type="checkbox" value="1" <?php if ($check_cache) {echo "checked";} ?>>
+                    <span class="slider round"></span></label>
                     <p class="description">Caching pages will reduce the response time of your site and your web pages load much faster, directly from cache.</p>
                 </td>
             </tr>

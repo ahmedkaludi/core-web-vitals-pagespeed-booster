@@ -85,3 +85,9 @@ function cwvpsb_include_options_file(){
     require_once CWVPSB_PLUGIN_DIR."includes/css/google-fonts.php";
     }
 }
+
+add_action( 'admin_enqueue_scripts', 'cwvpsb_admin_style' );
+function cwvpsb_admin_style() {
+    wp_register_style( 'cwvpsb_admin_css', CWVPSB_PLUGIN_DIR_URI . 'includes/admin/style.css', true, CWVPSB_VERSION );
+    wp_enqueue_style( 'cwvpsb_admin_css' );
+}
