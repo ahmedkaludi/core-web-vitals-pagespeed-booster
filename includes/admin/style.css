@@ -58,3 +58,53 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
+.cache-trash {
+    box-sizing: border-box;
+    display: block;
+    transform: scale(var(--ggs,1));
+    width: 10px;
+    height: 12px;
+    border: 2px solid transparent;
+    box-shadow: 0 0 0 2px, inset -2px 0 0, inset 2px 0 0;
+    border-bottom-left-radius: 1px;
+    border-bottom-right-radius: 1px;
+    margin-top: 6px;
+    position: absolute;
+}
+.cache-trash::after,
+.cache-trash::before {
+    content: "";
+    display: block;
+    box-sizing: border-box;
+    position: absolute
+}
+ 
+.cache-trash::before {
+    width: 10px;
+    height: 4px;
+    border: 2px solid;
+    border-bottom: transparent;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    top: -7px;
+    left: -2px
+}
+
+.cache-btn {
+    margin-left: 30px;
+    background: #007cba;
+    color: #fff;
+    cursor: pointer;
+    font-size: 15px;
+    padding: 10px;
+    border: 0;
+    transition: all 0.5s;
+    border-radius: 10px;
+    min-width: 150px;
+    font-weight: 600;
+}
+.cache-btn:hover {
+  background: #2b2bff;
+  transition: all 0.5s;
+  box-shadow: 0px 6px 15px #0000ff61;
+}

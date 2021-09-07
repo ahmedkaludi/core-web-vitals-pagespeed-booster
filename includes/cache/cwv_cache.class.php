@@ -70,7 +70,7 @@ final class CWV_Cache {
 			);
 		} 
 
-	if ( isset( $_POST['clear_site_cache_on_saved'] ) ) {
+	if ( isset( $_POST['submit'] ) || isset( $_POST['cache-btn'] ) ) {
             self::clear_total_cache(true);
         }	
 

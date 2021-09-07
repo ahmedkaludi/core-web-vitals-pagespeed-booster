@@ -24,8 +24,8 @@ define('CWVPSB_CACHE_DIR', WP_CONTENT_DIR. '/cache/cache-cwvpsb');
 
 require_once CWVPSB_PLUGIN_DIR."includes/functions.php";
 
-$check_cache = get_option('cwvpsb_check_cache');
-if (!empty($check_cache)) {
+$options = get_option( 'cwvpsb_settings' );
+if (isset($options['cwvpsb_checkbox_cache']) && $options['cwvpsb_checkbox_cache'] == 1) {
 	add_action(
 	'plugins_loaded',
 	array(

@@ -137,6 +137,7 @@ function cwvpsb_checkbox_cache_render() {
     <label class="switch">
     <input type='checkbox' name='cwvpsb_settings[cwvpsb_checkbox_cache]' <?php checked( $options['cwvpsb_checkbox_cache'], 1 ); ?> value='1'>
     <span class="slider round"></span></label>
+    <button class="cache-btn" name="cache-btn"><i class="cache-trash"></i>&emsp;Clear Site Cache</button>
     <p class="description">Caching pages will reduce the response time of your site and your web pages load much faster, directly from cache</p>
     <?php
 }
