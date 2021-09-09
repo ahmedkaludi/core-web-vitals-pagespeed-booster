@@ -2,12 +2,12 @@
 
 class cwvpsb_settings {
 
-    private $images = 'images';
-    private $css = 'css';
-    private $js = 'js';
-    private $cache = 'cache';
-    private $plugin_options_key = 'cwvpsb_options';
-    private $plugin_settings_tabs = array();
+    public $images = 'images';
+    public $css = 'css';
+    public $js = 'js';
+    public $cache = 'cache';
+    public $plugin_options_key = 'cwvpsb_options';
+    public $plugin_settings_tabs = array();
 
     function __construct() {
         add_action( 'init', array( &$this, 'load_settings' ) );
@@ -50,6 +50,26 @@ class cwvpsb_settings {
                 'cache_option' => '1'
             ), $this->cache_settings );
         }
+
+        if (isset($this->images_settings['webp_option']) && $this->images_settings['webp_option'] == "1") {
+           require_once CWVPSB_PLUGIN_DIR."includes/images/convert_webp.php";
+        }
+        if (isset($this->images_settings['lazyload_option']) && $this->images_settings['lazyload_option'] == "1") {
+           require_once CWVPSB_PLUGIN_DIR."includes/images/lazy-loading.php";
+        }
+        if (isset($this->css_settings['minify_option']) && $this->css_settings['minify_option'] == "1") {
+           require_once CWVPSB_PLUGIN_DIR."includes/css/minify.php";
+        }
+        if (isset($this->css_settings['unused_css_option']) && $this->css_settings['unused_css_option'] == "1") {
+           require_once CWVPSB_PLUGIN_DIR."includes/css/unused_css.php";
+        }
+        if (isset($this->css_settings['fonts_option']) && $this->css_settings['fonts_option'] == "1") {
+           require_once CWVPSB_PLUGIN_DIR."includes/css/google-fonts.php";
+        }
+        if (isset($this->js_settings['delayjs_option']) && $this->js_settings['delayjs_option'] == "1") {
+           require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay_js.php";
+        }
+
     }
 
     function register_images_settings() {
@@ -134,7 +154,7 @@ class cwvpsb_settings {
 
     function field_cache_option() {?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo $this->js; ?>[cache_option]" <?php checked( $this->cache_settings['cache_option'], 1 ); ?> value='1'>
+        <input type='checkbox' name="<?php echo $this->cache; ?>[cache_option]" <?php checked( $this->cache_settings['cache_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
         <button class="cache-btn" name="cache-btn"><i class="cache-trash"></i>&emsp;Clear Site Cache</button>
         <p class="description">Caching pages will reduce the response time of your site and your web pages load much faster, directly from cache</p>

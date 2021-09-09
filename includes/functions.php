@@ -17,31 +17,58 @@ function cwvpsb_complete_html_after_dom_loaded( $content ) {
 }
 add_action('wp', function(){ ob_start('cwvpsb_complete_html_after_dom_loaded'); }, 999);
 
-add_action('init', 'cwvpsb_include_options_file' );
-function cwvpsb_include_options_file(){ 
-    $options = get_option( 'cwvpsb_settings' );  
-    if ($options['cwvpsb_checkbox_webp'] == 1) {
-       require_once CWVPSB_PLUGIN_DIR."includes/images/convert_webp.php";
-    }
-    if ($options['cwvpsb_checkbox_minify'] == 1) {
-       require_once CWVPSB_PLUGIN_DIR."includes/css/minify.php";
-    }
-    if ($options['cwvpsb_checkbox_delayjs'] == 1) {
-       require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay_js.php";
-    }
-    if ($options['cwvpsb_checkbox_lazyload'] == 1) {
-       require_once CWVPSB_PLUGIN_DIR."includes/images/lazy-loading.php";
-    }
-    if ($options['cwvpsb_checkbox_unused_css'] == 1) {
-        require_once CWVPSB_PLUGIN_DIR."includes/css/unused_css.php";
-    }
-    if ($options['cwvpsb_checkbox_fonts'] == 1) {
-        require_once CWVPSB_PLUGIN_DIR."includes/css/google-fonts.php";
-    }
-}
-
 add_action( 'admin_enqueue_scripts', 'cwvpsb_admin_style' );
 function cwvpsb_admin_style() {
     wp_register_style( 'cwvpsb_admin_css', CWVPSB_PLUGIN_DIR_URI . 'includes/admin/style.css', true, CWVPSB_VERSION );
     wp_enqueue_style( 'cwvpsb_admin_css' );
+}
+
+
+$cwvpsb_settings = (array) get_option( $cwvpsb_settings->cache );
+
+if ($cwvpsb_settings["cache_option"] == "1") {
+    add_action(
+        'plugins_loaded',
+        array(
+            'CWV_Cache',
+            'instance'
+    )
+    );
+}
+
+register_activation_hook(
+    __FILE__,
+    array(
+        'CWV_Cache',
+        'on_activation'
+    )
+);
+register_deactivation_hook(
+    __FILE__,
+    array(
+        'CWV_Cache',
+        'on_deactivation'
+    )
+);
+register_uninstall_hook(
+    __FILE__,
+    array(
+        'CWV_Cache',
+        'on_uninstall'
+    )
+);
+// autoload register
+spl_autoload_register('cwvpsb_cache_autoload');
+
+// autoload function
+function cwvpsb_cache_autoload($class) {
+    if ( in_array($class, array('CWV_Cache', 'CWV_Cache_Disk')) ) {
+        require_once(
+            sprintf(
+                '%s/includes/cache/%s.class.php',
+                CWVPSB_DIR,
+                strtolower($class)
+            )
+        );
+    }
 }
