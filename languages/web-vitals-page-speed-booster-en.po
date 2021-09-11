@@ -1,136 +1,140 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2020-09-14 14:07+0530\n"
-"PO-Revision-Date: 2020-09-14 14:07+0530\n"
+"POT-Creation-Date: 2021-09-11 13:10+0530\n"
+"PO-Revision-Date: 2021-09-11 13:11+0530\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: en\n"
+"Language: en_US\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.4.1\n"
+"X-Generator: Poedit 2.3\n"
 "X-Poedit-Basepath: ..\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Poedit-KeywordsList: esc_html__;__;e__;esc_attr__\n"
+"X-Poedit-KeywordsList: esc_html__;esc_attr__;__;__e\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: inc/admin-section.php:17
-msgid "Web vital"
+#: includes/admin/settings.php:80
+msgid "Webp images"
 msgstr ""
 
-#: inc/admin-section.php:18 inc/admin-section.php:26 inc/admin-section.php:60
-msgid "Web Vitals & PageSpeed Booster"
+#: includes/admin/settings.php:81
+msgid "Lazy Load"
 msgstr ""
 
-#: inc/admin-section.php:27
-msgid "Settings"
+#: includes/admin/settings.php:88
+msgid "Minification"
 msgstr ""
 
-#: inc/admin-section.php:52
-msgid "Save Settings"
+#: includes/admin/settings.php:89
+msgid "Remove Unused CSS"
 msgstr ""
 
-#: inc/admin-section.php:53
-msgid "Clear cache"
+#: includes/admin/settings.php:90
+msgid "Google Fonts Optimizations"
 msgstr ""
 
-#: inc/admin-section.php:64
-msgid "Ads Optimization"
+#: includes/admin/settings.php:97
+msgid "Delay JavaScript Execution"
 msgstr ""
 
-#: inc/admin-section.php:71
-msgid "Script URLs"
+#: includes/admin/settings.php:104
+msgid "Cache"
 msgstr ""
 
-#: inc/admin-section.php:78
-msgid "Remove Unused css"
+#: includes/admin/settings.php:111
+msgid ""
+"Images are converted to WebP on the fly if the browser supports it. You "
+"don't have to do anything"
 msgstr ""
 
-#: inc/admin-section.php:86
-msgid "Image Native Lazy Load"
+#: includes/admin/settings.php:119
+msgid ""
+"Lazy Load delays loading of images and iframes in long web pages. which are "
+"outside of viewport and will not be loaded before user scrolls to them"
 msgstr ""
 
-#: inc/admin-section.php:93
-msgid "Image convert to webp"
+#: includes/admin/settings.php:127
+msgid ""
+"You will see the source of your HTML, CSS and JavaScript are now compressed "
+"and the size will be smaller which will be helpful to improve your page load "
+"speed"
 msgstr ""
 
-#: inc/admin-section.php:100
-msgid "Bulk Image convert to webp"
+#: includes/admin/settings.php:135
+msgid ""
+"Makes your site even faster and lighter by automatically removing unused CSS "
+"from your website"
 msgstr ""
 
-#: inc/admin-section.php:109
-msgid "Bulk convert to webp"
+#: includes/admin/settings.php:143
+msgid ""
+"Locally hosting Google fonts for Pagespeed Insights or GT Metrix improvements"
 msgstr ""
 
-#: inc/admin-section.php:110
-msgid "Please wait..."
+#: includes/admin/settings.php:151
+msgid ""
+"Delays the loading of JavaScript files until the user interacts like scroll, "
+"click etc, which improves performance"
 msgstr ""
 
-#: inc/admin-section.php:164 inc/admin-section.php:170
-msgid "Ads script url"
+#: includes/admin/settings.php:159
+msgid "Clear Site Cache"
 msgstr ""
 
-#: inc/admin-section.php:186
-msgid "Security verification failed, Refresh the page"
+#: includes/admin/settings.php:160
+msgid ""
+"Caching pages will reduce the response time of your site and your web pages "
+"load much faster, directly from cache"
 msgstr ""
 
-#: inc/admin-section.php:193
-msgid "cache not found"
+#: includes/admin/settings.php:165
+msgid "Speed Booster"
 msgstr ""
 
-#: inc/admin-section.php:201
-msgid "CSS cleared"
+#: includes/cache/cwv_cache.class.php:287
+msgid "The cache has been cleared."
 msgstr ""
 
-#: inc/admin-section.php:206 inc/admin-section.php:313
-msgid "Request Security not verified"
+#: includes/css/google-fonts-api.php:280
+#, php-format
+msgid ""
+"<strong>%s</strong> could not be found using the current configuration. The "
+"API returned the following error: %s"
 msgstr ""
 
-#: inc/admin-section.php:238
-msgid "Files are available to convert"
-msgstr ""
-
-#: inc/admin-section.php:238
-msgid "All files are converted"
-msgstr ""
-
-#: inc/admin-section.php:335
-msgid "File converted successfully"
-msgstr ""
-
-#: inc/style-sanitizer.php:754
+#: includes/style-sanitizer.php:752
 #, php-format
 msgid "Failed to fetch: %1$s (%2$s)"
 msgstr ""
 
-#: inc/style-sanitizer.php:760
+#: includes/style-sanitizer.php:758
 #, php-format
 msgid "Failed to fetch: %s"
 msgstr ""
 
-#: inc/style-sanitizer.php:768
+#: includes/style-sanitizer.php:766
 msgid "Response did not contain the expected text/css content type."
 msgstr ""
 
-#: inc/style-sanitizer.php:857
+#: includes/style-sanitizer.php:855
 #, php-format
 msgid ""
 "It is not a best practice to use %1$s to load font CDN stylesheets. Please "
 "use %2$s to enqueue %3$s as its own separate script."
 msgstr ""
 
-#: inc/style-sanitizer.php:1679
+#: includes/style-sanitizer.php:1717
 #, php-format
-msgid ""
-"Admin bar (%s) was removed to preserve AMP validity due to excessive CSS."
+msgid "Admin bar (%s) was removed to preserve validity due to excessive CSS."
 msgstr ""
 
-#: inc/style-sanitizer.php:1747
+#: includes/style-sanitizer.php:1785
 msgid "CSS Usage"
 msgstr ""
 
-#: inc/style-sanitizer.php:2161
+#: includes/style-sanitizer.php:2181
 #, php-format
 msgid "Could not write file %s"
 msgstr ""

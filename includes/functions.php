@@ -18,11 +18,16 @@ function cwvpsb_complete_html_after_dom_loaded( $content ) {
 add_action('wp', function(){ ob_start('cwvpsb_complete_html_after_dom_loaded'); }, 999);
 
 add_action( 'admin_enqueue_scripts', 'cwvpsb_admin_style' );
-function cwvpsb_admin_style() {
+function cwvpsb_admin_style($check) {
+    if ( !is_admin() ) {
+        return;
+    }
+    if($check != 'toplevel_page_cwvpsb_options'){
+        return; 
+    }
     wp_register_style( 'cwvpsb_admin_css', CWVPSB_PLUGIN_DIR_URI . 'includes/admin/style.css', true, CWVPSB_VERSION );
     wp_enqueue_style( 'cwvpsb_admin_css' );
 }
-
 
 $cwvpsb_settings = (array) get_option( $cwvpsb_settings->cache );
 

@@ -2,10 +2,6 @@
 
 add_action('wp','cwvpsb_convert_webp');
 function cwvpsb_convert_webp(){
-    $check_webp = get_option('cwvpsb_check_webp');
-    if (!$check_webp) {
-       return;
-    }
     $post = get_post( get_the_ID() );
     $content = $post->post_content;
     if ( is_dynamic_sidebar() ) {
@@ -58,10 +54,6 @@ function cwvpsb_convert_webp(){
 }
 add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_display_webp');
 function cwvpsb_display_webp( $content ) {
-    $check_webp = get_option('cwvpsb_check_webp');
-    if (!$check_webp) {
-        return $content;
-    }
     $comp_dom = new DOMDocument();
     $comp_dom->loadHTML($content);
     $xpath = new DOMXPath( $comp_dom );

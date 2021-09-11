@@ -749,13 +749,13 @@ class cwvpsb_treeshaking {
 			if ( $exception instanceof FailedToGetFromRemoteUrl && $exception->hasStatusCode() ) {
 				return new WP_Error( "http_{$exception->getStatusCode()}", $exception->getMessage() );
 			}
-			return new WP_Error( 'http_error', sprintf( __( 'Failed to fetch: %1$s (%2$s)', 'amp' ), $url, $exception->getMessage() ) );
+			return new WP_Error( 'http_error', sprintf( esc_html__( 'Failed to fetch: %1$s (%2$s)', 'cwvpsb' ), $url, $exception->getMessage() ) );
 		}
 
 		$status  = wp_remote_retrieve_response_code( $response );
 
 		if ( $status < 200 || $status >= 300 ) {
-			return new WP_Error( "http_{$status}", sprintf( __( 'Failed to fetch: %s', 'amp' ), $url ) );
+			return new WP_Error( "http_{$status}", sprintf( esc_html__( 'Failed to fetch: %s', 'cwvpsb' ), $url ) );
 		}
 
 		$content_type = (array) wp_remote_retrieve_header( $response, 'content-type' );
@@ -763,7 +763,7 @@ class cwvpsb_treeshaking {
 		if ( ! empty( $content_type ) && ! preg_match( '#^text/css#', $content_type[0] ) ) {
 			return new WP_Error(
 				'no_css_content_type',
-				__( 'Response did not contain the expected text/css content type.', 'amp' )
+				esc_html__( 'Response did not contain the expected text/css content type.', 'cwvpsb' )
 			);
 		}
 		return wp_remote_retrieve_body( $response );
@@ -852,7 +852,7 @@ class cwvpsb_treeshaking {
 				'wp_enqueue_style',
 				esc_html(
 					sprintf(
-						__( 'It is not a best practice to use %1$s to load font CDN stylesheets. Please use %2$s to enqueue %3$s as its own separate script.', 'cwvpsb' ),
+						esc_html__( 'It is not a best practice to use %1$s to load font CDN stylesheets. Please use %2$s to enqueue %3$s as its own separate script.', 'cwvpsb' ),
 						'@import',
 						'wp_enqueue_style()',
 						$import_stylesheet_url
@@ -1714,7 +1714,7 @@ class cwvpsb_treeshaking {
 				);
 			}
 			$comment_text = sprintf(
-				__( 'Admin bar (%s) was removed to preserve AMP validity due to excessive CSS.', 'amp' ),
+				esc_html__( 'Admin bar (%s) was removed to preserve validity due to excessive CSS.', 'cwvpsb' ),
 				'#' . $admin_bar_id
 			);
 			$admin_bar->parentNode->replaceChild(
@@ -1782,7 +1782,7 @@ class cwvpsb_treeshaking {
 		}
 
 		$css_usage_percentage = ceil( ( $total_size / $this->style_custom_cdata_spec['max_bytes'] ) * 100 );
-		$menu_item_text       = __( 'CSS Usage', 'amp' ) . ': ';
+		$menu_item_text       = esc_html__( 'CSS Usage', 'cwvpsb' ) . ': ';
 		$menu_item_text      .= $css_usage_percentage . '%';
 		$stylesheets_a_element->appendChild( $this->dom->createTextNode( $menu_item_text ) );
 
@@ -2178,7 +2178,7 @@ function cwvpsb_set_file_transient( $transient, $value, $expiration = 0 ) {
 			$new_file = $user_dirname."/".$transient_option.".css";
 			$ifp = @fopen( $new_file, 'w+' );
 			if ( ! $ifp ) {
-	          return ( array( 'error' => sprintf( __( 'Could not write file %s' ), $new_file ) ));
+	          return ( array( 'error' => sprintf( esc_html__( 'Could not write file %s', 'cwvpsb' ), $new_file ) ));
 	        }
 	        $result = @fwrite( $ifp, json_encode($value) );
 		    fclose( $ifp );

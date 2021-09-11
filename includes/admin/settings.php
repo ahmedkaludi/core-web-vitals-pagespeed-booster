@@ -77,38 +77,38 @@ class cwvpsb_settings {
 
         register_setting( $this->images, $this->images );
         add_settings_section('section_images', __return_false(), '__return_false', $this->images);
-        add_settings_field( 'webp_option', 'Webp images', array( &$this, 'field_webp_option' ), $this->images, 'section_images' );
-        add_settings_field( 'lazyload_option', 'Lazy Load', array( &$this, 'field_lazyload_option' ), $this->images, 'section_images' );
+        add_settings_field( 'webp_option', esc_html__('Webp images', 'cwvpsb'), array( &$this, 'field_webp_option' ), $this->images, 'section_images' );
+        add_settings_field( 'lazyload_option', esc_html__('Lazy Load', 'cwvpsb'), array( &$this, 'field_lazyload_option' ), $this->images, 'section_images' );
     }
 
     function register_css_settings() {
         $this->plugin_settings_tabs[$this->css] = 'CSS';
         register_setting( $this->css, $this->css );
         add_settings_section('section_css', __return_false(), '__return_false', $this->css);
-        add_settings_field( 'minify_option', 'Minification', array( &$this, 'field_minify_option' ), $this->css, 'section_css' );
-        add_settings_field( 'unused_css_option', 'Remove Unused CSS', array( &$this, 'field_unused_css_option' ), $this->css, 'section_css' );
-        add_settings_field( 'fonts_option', 'Google Fonts Optimizations', array( &$this, 'field_fonts_option' ), $this->css, 'section_css' );
+        add_settings_field( 'minify_option', esc_html__('Minification', 'cwvpsb'), array( &$this, 'field_minify_option' ), $this->css, 'section_css' );
+        add_settings_field( 'unused_css_option', esc_html__('Remove Unused CSS', 'cwvpsb'), array( &$this, 'field_unused_css_option' ), $this->css, 'section_css' );
+        add_settings_field( 'fonts_option', esc_html__('Google Fonts Optimizations', 'cwvpsb'), array( &$this, 'field_fonts_option' ), $this->css, 'section_css' );
     }
 
     function register_js_settings() {
         $this->plugin_settings_tabs[$this->js] = 'Javascript';
         register_setting( $this->js, $this->js );
         add_settings_section('section_js', __return_false(), '__return_false', $this->js);
-        add_settings_field( 'delayjs_option', 'Delay JavaScript Execution', array( &$this, 'field_delayjs_option' ), $this->js, 'section_js' );
+        add_settings_field( 'delayjs_option', esc_html__('Delay JavaScript Execution', 'cwvpsb'), array( &$this, 'field_delayjs_option' ), $this->js, 'section_js' );
     }
 
     function register_cache_settings() {
         $this->plugin_settings_tabs[$this->cache] = 'Cache';
         register_setting( $this->cache, $this->cache );
         add_settings_section('section_cache', __return_false(), '__return_false', $this->cache);
-        add_settings_field( 'cache_option', 'Cache', array( &$this, 'field_cache_option' ), $this->cache, 'section_cache' );
+        add_settings_field( 'cache_option', esc_html__('Cache', 'cwvpsb'), array( &$this, 'field_cache_option' ), $this->cache, 'section_cache' );
     }
 
     function field_webp_option() {?>
         <label class="switch">
         <input type='checkbox' name="<?php echo $this->images; ?>[webp_option]" <?php checked( $this->images_settings['webp_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
-        <p class="description">Images are converted to WebP on the fly if the browser supports it. You don't have to do anything</p>
+        <p class="description"><?php echo esc_html__("Images are converted to WebP on the fly if the browser supports it. You don't have to do anything", 'cwvpsb');?></p>
         <?php
     }
 
@@ -116,7 +116,7 @@ class cwvpsb_settings {
         <label class="switch">
         <input type='checkbox' name="<?php echo $this->images; ?>[lazyload_option]" <?php checked( $this->images_settings['lazyload_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
-        <p class="description">Lazy Load delays loading of images and iframes in long web pages. which are outside of viewport and will not be loaded before user scrolls to them</p>
+        <p class="description"><?php echo esc_html__("Lazy Load delays loading of images and iframes in long web pages. which are outside of viewport and will not be loaded before user scrolls to them", 'cwvpsb');?></p>
         <?php
     }
 
@@ -124,7 +124,7 @@ class cwvpsb_settings {
         <label class="switch">
         <input type='checkbox' name="<?php echo $this->css; ?>[minify_option]" <?php checked( $this->css_settings['minify_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
-        <p class="description">You will see the source of your HTML, CSS and JavaScript are now compressed and the size will be smaller which will be helpful to improve your page load speed</p>
+        <p class="description"><?php echo esc_html__("You will see the source of your HTML, CSS and JavaScript are now compressed and the size will be smaller which will be helpful to improve your page load speed", 'cwvpsb');?></p>
         <?php
     }
      
@@ -132,7 +132,7 @@ class cwvpsb_settings {
         <label class="switch">
         <input type='checkbox' name="<?php echo $this->css; ?>[unused_css_option]" <?php checked( $this->css_settings['unused_css_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
-        <p class="description">Makes your site even faster and lighter by automatically removing unused CSS from your website</p>
+        <p class="description"><?php echo esc_html__("Makes your site even faster and lighter by automatically removing unused CSS from your website", 'cwvpsb');?></p>
         <?php
     }  
 
@@ -140,7 +140,7 @@ class cwvpsb_settings {
         <label class="switch">
         <input type='checkbox' name="<?php echo $this->css; ?>[fonts_option]" <?php checked( $this->css_settings['fonts_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
-        <p class="description">Locally hosting Google fonts for Pagespeed Insights or GT Metrix improvements</p>
+        <p class="description"><?php echo esc_html__("Locally hosting Google fonts for Pagespeed Insights or GT Metrix improvements", 'cwvpsb');?></p>
         <?php
     } 
      
@@ -148,7 +148,7 @@ class cwvpsb_settings {
         <label class="switch">
         <input type='checkbox' name="<?php echo $this->js; ?>[delayjs_option]" <?php checked( $this->js_settings['delayjs_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
-        <p class="description">Delays the loading of JavaScript files until the user interacts like scroll, click etc, which improves performance</p>
+        <p class="description"><?php echo esc_html__("Delays the loading of JavaScript files until the user interacts like scroll, click etc, which improves performance", 'cwvpsb');?></p>
         <?php
     } 
 
@@ -156,15 +156,14 @@ class cwvpsb_settings {
         <label class="switch">
         <input type='checkbox' name="<?php echo $this->cache; ?>[cache_option]" <?php checked( $this->cache_settings['cache_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
-        <button class="cache-btn" name="cache-btn"><i class="cache-trash"></i>&emsp;Clear Site Cache</button>
-        <p class="description">Caching pages will reduce the response time of your site and your web pages load much faster, directly from cache</p>
+        <button class="cache-btn" name="cache-btn"><i class="cache-trash"></i>&emsp;<?php echo esc_html__("Clear Site Cache", 'cwvpsb');?></button>
+        <p class="description"><?php echo esc_html__("Caching pages will reduce the response time of your site and your web pages load much faster, directly from cache", 'cwvpsb');?></p>
         <?php
     } 
 
     function add_admin_menus() {
-        add_menu_page( 'Speed Booster', 'Speed Booster', 'manage_options', $this->plugin_options_key, array( &$this, 'plugin_options_page' ) ,'dashicons-superhero');
+        add_menu_page( esc_html__('Speed Booster', 'cwvpsb'), esc_html__('Speed Booster', 'cwvpsb'), 'manage_options', $this->plugin_options_key, array( &$this, 'plugin_options_page' ) ,'dashicons-superhero');
     }
-
 
     function plugin_options_page() {
         $tab = isset( $_GET['tab'] ) ? $_GET['tab'] : $this->images;?>

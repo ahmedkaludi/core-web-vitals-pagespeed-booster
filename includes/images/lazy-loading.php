@@ -2,10 +2,6 @@
 
 add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_lazy_loading');
 function cwvpsb_lazy_loading( $html ) {
-		$check_ll = get_option('cwvpsb_check_lazyload');
-	    if (!$check_ll) {
-	       return $html;
-	    }
 		$tmpDoc = new DOMDocument();
 		libxml_use_internal_errors(true);
 		$tmpDoc->loadHTML($html);

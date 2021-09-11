@@ -277,7 +277,7 @@ class cwvpsb_google_fonts_API extends WP_REST_Controller
         $response_code = $response['response']['code'] ?? '';
 
         if ($response_code !== 200) {
-            $message = sprintf(__('<strong>%s</strong> could not be found using the current configuration. The API returned the following error: %s', $this->plugin_text_domain), ucfirst($family), wp_remote_retrieve_body($response));
+            $message = sprintf(esc_html__('<strong>%s</strong> could not be found using the current configuration. The API returned the following error: %s', 'cwvpsb'), ucfirst($family), wp_remote_retrieve_body($response));
             
             new WP_Error( 'wvf_api_error', $message, 'error' );
             return [];
