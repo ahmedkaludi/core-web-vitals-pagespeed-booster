@@ -35,7 +35,7 @@ class cwvpsb_google_fonts_API extends WP_REST_Controller
                 '/' . $this->rest_base . $endpoint,
                 [
                     [
-                        'methods'             => 'GET',
+                        'methods'             => 'WP_REST_Server::READABLE',
                         'callback'            => [$this, 'process'],
                         'permission_callback' => [$this, 'permissions_check']
                     ],
@@ -50,6 +50,9 @@ class cwvpsb_google_fonts_API extends WP_REST_Controller
      */
     public function permissions_check()
     {
+        if ( ! current_user_can( 'read' ) ) {
+            return new WP_Error( 'rest_forbidden', esc_html__( 'You cannot view the category resource.' ), array( 'status' => $this->authorization_status_code() ) );
+        }
         return true;
     }
 

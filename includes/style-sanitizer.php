@@ -1474,16 +1474,6 @@ class cwvpsb_treeshaking {
 						continue 2;
 					}
 				}
-				$font_filename = sprintf( '%s.%s', strtolower( $font_basename ), $extension );
-				$bundled_fonts = [
-					'nonbreakingspaceoverride.woff',
-					'nonbreakingspaceoverride.woff2',
-					'genericons.woff',
-				];
-				if ( in_array( $font_filename, $bundled_fonts, true ) ) {
-					$data_url->getURL()->setString( CWVPSB_PLUGIN_DIR_URI . "assets/fonts/$font_filename" );
-					$converted_count++;
-				}
 			} // End foreach $source_data_url_objects.
 		} // End foreach $src_properties.
 		if ( $converted_count && 0 === count( $ruleset->getRules( 'font-display' ) ) ) {
