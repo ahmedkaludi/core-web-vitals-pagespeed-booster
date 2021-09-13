@@ -77,3 +77,9 @@ function cwvpsb_cache_autoload($class) {
         );
     }
 }
+
+//Load plugin textdomain
+add_action( 'init', 'cwvpsb_load_textdomain' );
+function cwvpsb_load_textdomain() {
+  load_plugin_textdomain( 'cwvpsb_textdomain', false, dirname( CWVPSB_BASE ) . '/languages' ); 
+}
