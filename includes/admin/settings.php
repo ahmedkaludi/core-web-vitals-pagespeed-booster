@@ -77,7 +77,9 @@ class cwvpsb_settings {
 
         register_setting( $this->images, $this->images );
         add_settings_section('section_images', __return_false(), '__return_false', $this->images);
-        add_settings_field( 'webp_option', esc_html__('Webp images', 'cwvpsb'), array( &$this, 'field_webp_option' ), $this->images, 'section_images' );
+        if (function_exists('imagewebp')) {
+            add_settings_field( 'webp_option', esc_html__('Webp images', 'cwvpsb'), array( &$this, 'field_webp_option' ), $this->images, 'section_images' );
+        }
         add_settings_field( 'lazyload_option', esc_html__('Lazy Load', 'cwvpsb'), array( &$this, 'field_lazyload_option' ), $this->images, 'section_images' );
     }
 

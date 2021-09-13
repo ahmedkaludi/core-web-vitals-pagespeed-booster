@@ -1,6 +1,10 @@
 <?php 
 
-add_action('wp','cwvpsb_convert_webp');
+if (function_exists('imagewebp')) {
+    add_action('wp','cwvpsb_convert_webp');
+    add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_display_webp');
+}
+
 function cwvpsb_convert_webp(){
     $post = get_post( get_the_ID() );
     $content = $post->post_content;
@@ -52,7 +56,7 @@ function cwvpsb_convert_webp(){
         }
     }
 }
-add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_display_webp');
+
 function cwvpsb_display_webp( $content ) {
     $comp_dom = new DOMDocument();
     $comp_dom->loadHTML($content);
