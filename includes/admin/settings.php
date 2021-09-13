@@ -106,7 +106,7 @@ class cwvpsb_settings {
 
     function field_webp_option() {?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo $this->images; ?>[webp_option]" <?php checked( $this->images_settings['webp_option'], 1 ); ?> value='1'>
+        <input type='checkbox' name="<?php echo esc_attr($this->images); ?>[webp_option]" <?php checked( $this->images_settings['webp_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Images are converted to WebP on the fly if the browser supports it. You don't have to do anything", 'cwvpsb');?></p>
         <?php
@@ -114,7 +114,7 @@ class cwvpsb_settings {
 
     function field_lazyload_option() {?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo $this->images; ?>[lazyload_option]" <?php checked( $this->images_settings['lazyload_option'], 1 ); ?> value='1'>
+        <input type='checkbox' name="<?php echo esc_attr($this->images); ?>[lazyload_option]" <?php checked( $this->images_settings['lazyload_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Lazy Load delays loading of images and iframes in long web pages. which are outside of viewport and will not be loaded before user scrolls to them", 'cwvpsb');?></p>
         <?php
@@ -122,7 +122,7 @@ class cwvpsb_settings {
 
     function field_minify_option() {?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo $this->css; ?>[minify_option]" <?php checked( $this->css_settings['minify_option'], 1 ); ?> value='1'>
+        <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[minify_option]" <?php checked( $this->css_settings['minify_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("You will see the source of your HTML, CSS and JavaScript are now compressed and the size will be smaller which will be helpful to improve your page load speed", 'cwvpsb');?></p>
         <?php
@@ -130,7 +130,7 @@ class cwvpsb_settings {
      
     function field_unused_css_option() {?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo $this->css; ?>[unused_css_option]" <?php checked( $this->css_settings['unused_css_option'], 1 ); ?> value='1'>
+        <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[unused_css_option]" <?php checked( $this->css_settings['unused_css_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Makes your site even faster and lighter by automatically removing unused CSS from your website", 'cwvpsb');?></p>
         <?php
@@ -138,7 +138,7 @@ class cwvpsb_settings {
 
     function field_fonts_option() {?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo $this->css; ?>[fonts_option]" <?php checked( $this->css_settings['fonts_option'], 1 ); ?> value='1'>
+        <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[fonts_option]" <?php checked( $this->css_settings['fonts_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Locally hosting Google fonts for Pagespeed Insights or GT Metrix improvements", 'cwvpsb');?></p>
         <?php
@@ -146,7 +146,7 @@ class cwvpsb_settings {
      
     function field_delayjs_option() {?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo $this->js; ?>[delayjs_option]" <?php checked( $this->js_settings['delayjs_option'], 1 ); ?> value='1'>
+        <input type='checkbox' name="<?php echo esc_attr($this->js); ?>[delayjs_option]" <?php checked( $this->js_settings['delayjs_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Delays the loading of JavaScript files until the user interacts like scroll, click etc, which improves performance", 'cwvpsb');?></p>
         <?php
@@ -154,7 +154,7 @@ class cwvpsb_settings {
 
     function field_cache_option() {?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo $this->cache; ?>[cache_option]" <?php checked( $this->cache_settings['cache_option'], 1 ); ?> value='1'>
+        <input type='checkbox' name="<?php echo esc_attr($this->cache); ?>[cache_option]" <?php checked( $this->cache_settings['cache_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
         <button class="cache-btn" name="cache-btn"><i class="cache-trash"></i>&emsp;<?php echo esc_html__("Clear Site Cache", 'cwvpsb');?></button>
         <p class="description"><?php echo esc_html__("Caching pages will reduce the response time of your site and your web pages load much faster, directly from cache", 'cwvpsb');?></p>
@@ -186,7 +186,7 @@ class cwvpsb_settings {
         echo '<h2 class="nav-tab-wrapper">';
         foreach ( $this->plugin_settings_tabs as $tab_key => $tab_caption ) {
             $active = $current_tab == $tab_key ? 'nav-tab-active' : '';
-            echo '<a class="nav-tab ' . $active . '" href="?page=' . $this->plugin_options_key . '&tab=' . $tab_key . '">' . $tab_caption . '</a>';
+            echo '<a class="nav-tab ' . esc_attr($active) . '" href="?page=' . esc_attr($this->plugin_options_key) . '&tab=' . esc_attr($tab_key) . '">' . esc_html($tab_caption) . '</a>';
         }
         echo '</h2>';
     }
