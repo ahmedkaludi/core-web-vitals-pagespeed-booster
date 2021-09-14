@@ -8,7 +8,7 @@ Author URI: https://magazine3.company/
 Donate link: https://www.paypal.me/Kaludi/25
 Text Domain: cwvpsb
 Domain Path: /languages
-License: GPL2+
+License: GPL2
 */
 
 // Exit if accessed directly.
