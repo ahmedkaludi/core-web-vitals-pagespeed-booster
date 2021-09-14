@@ -55,7 +55,7 @@ class cwvpsb_settings {
         }
 
         if (isset($this->images_settings['webp_option']) && $this->images_settings['webp_option'] == "1") {
-           require_once CWVPSB_PLUGIN_DIR."includes/images/convert_webp.php";
+           require_once CWVPSB_PLUGIN_DIR."includes/images/convert-webp.php";
         }
         if (isset($this->images_settings['lazyload_option']) && $this->images_settings['lazyload_option'] == "1") {
            require_once CWVPSB_PLUGIN_DIR."includes/images/lazy-loading.php";
@@ -64,13 +64,13 @@ class cwvpsb_settings {
            require_once CWVPSB_PLUGIN_DIR."includes/css/minify.php";
         }
         if (isset($this->css_settings['unused_css_option']) && $this->css_settings['unused_css_option'] == "1") {
-           require_once CWVPSB_PLUGIN_DIR."includes/css/unused_css.php";
+           require_once CWVPSB_PLUGIN_DIR."includes/css/unused-css.php";
         }
         if (isset($this->css_settings['fonts_option']) && $this->css_settings['fonts_option'] == "1") {
            require_once CWVPSB_PLUGIN_DIR."includes/css/google-fonts.php";
         }
         if (isset($this->js_settings['delayjs_option']) && $this->js_settings['delayjs_option'] == "1") {
-           require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay_js.php";
+           require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-js.php";
         }
 
     }
@@ -172,6 +172,7 @@ class cwvpsb_settings {
 
     function plugin_options_page() {
         $tab = isset( $_GET['tab'] ) ? $_GET['tab'] : $this->images;?>
+        <h2>Core Web Vitals & PageSpeed Booster Settings</h2>
         <div class="wrap">
             <?php $this->plugin_options_tabs(); ?>
             <form method="post" action="options.php">

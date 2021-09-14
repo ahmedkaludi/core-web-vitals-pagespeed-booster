@@ -70,15 +70,20 @@ spl_autoload_register('cwvpsb_cache_autoload');
 
 // autoload function
 function cwvpsb_cache_autoload($class) {
-    if ( in_array($class, array('CWVPSB_Cache', 'CWVPSB_Cache_Disk')) ) {
-        require_once(
-            sprintf(
-                '%s/includes/cache/%s.class.php',
-                CWVPSB_DIR,
-                strtolower($class)
-            )
-        );
-    }
+    require_once(
+        sprintf(
+            '%s/includes/cache/cache-class.php',
+            CWVPSB_DIR,
+            strtolower($class)
+        )
+    );
+    require_once(
+        sprintf(
+            '%s/includes/cache/disk-cache-class.php',
+            CWVPSB_DIR,
+             strtolower($class)
+        )
+    );
 }
 
 //Load plugin textdomain

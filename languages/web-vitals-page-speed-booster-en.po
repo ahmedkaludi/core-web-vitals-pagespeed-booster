@@ -93,7 +93,7 @@ msgstr ""
 msgid "Speed Booster"
 msgstr ""
 
-#: includes/cache/cwv_cache.class.php:287
+#: includes/cache/cache-class.php:287
 msgid "The cache has been cleared."
 msgstr ""
 
