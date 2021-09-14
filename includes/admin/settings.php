@@ -172,7 +172,7 @@ class cwvpsb_settings {
 
     function plugin_options_page() {
         $tab = isset( $_GET['tab'] ) ? $_GET['tab'] : $this->images;?>
-        <h2>Core Web Vitals & PageSpeed Booster Settings</h2>
+        <h2><?php echo esc_html__("Core Web Vitals & PageSpeed Booster Settings", 'cwvpsb');?></h2>
         <div class="wrap">
             <?php $this->plugin_options_tabs(); ?>
             <form method="post" action="options.php">
