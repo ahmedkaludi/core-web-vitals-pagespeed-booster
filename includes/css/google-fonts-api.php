@@ -1,6 +1,9 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly.
+}
 
-class cwvpsb_google_fonts_API extends WP_REST_Controller
+class CWVPSB_Google_Fonts_API extends WP_REST_Controller
 {
     const WVF_GOOGLE_FONTS_API_URL = 'https://google-webfonts-helper.herokuapp.com';
 

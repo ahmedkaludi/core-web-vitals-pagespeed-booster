@@ -1,4 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly.
+}
 
 // Add Settings Page
 require_once CWVPSB_PLUGIN_DIR."includes/admin/settings.php";

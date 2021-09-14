@@ -1,4 +1,7 @@
-<?php 
+<?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly.
+}
 add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_unused_css');
 function cwvpsb_unused_css($html){
 	require_once CWVPSB_PLUGIN_DIR."/includes/style-sanitizer.php";

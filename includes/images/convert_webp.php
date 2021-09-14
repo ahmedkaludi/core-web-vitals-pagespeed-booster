@@ -1,4 +1,7 @@
-<?php 
+<?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly.
+}
 
 if (function_exists('imagewebp')) {
     add_action('wp','cwvpsb_convert_webp');

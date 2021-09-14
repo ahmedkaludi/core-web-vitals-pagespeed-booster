@@ -1,15 +1,14 @@
 <?php
 /*
 Plugin Name: Core Web Vitals & PageSpeed Booster
-Plugin URI: https://wordpress.org/plugins/core-web-vitals-page-speed-booster/
 Description: Do you want to speed up your WordPress site? Fast loading pages improve user experience, increase your pageviews, and help with your WordPress SEO.
 Version: 1.0
-Author: AMPforWP Team
-Author URI: https://ampforwp.com/
+Author: Magazine3
+Author URI: https://magazine3.company/
 Donate link: https://www.paypal.me/Kaludi/25
+Text Domain: cwvpsb
 Domain Path: /languages
 License: GPL2+
-Text Domain: cwvpsb
 */
 
 // Exit if accessed directly.

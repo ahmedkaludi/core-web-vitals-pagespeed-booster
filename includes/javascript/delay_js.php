@@ -1,4 +1,7 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly.
+}
 
 add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_load_js');
 function cwvpsb_load_js($content) {

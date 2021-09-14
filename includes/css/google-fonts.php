@@ -1,6 +1,9 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly.
+}
 
-class cwvpsb_google_fonts
+class CWVPSB_Google_Fonts
 {
 	private $do_optimize;
 
@@ -224,8 +227,8 @@ class cwvpsb_google_fonts
 	public function register_routes()
 	{
 		require_once CWVPSB_PLUGIN_DIR."includes/css/google-fonts-api.php";
-		$proxy = new cwvpsb_google_fonts_API();
+		$proxy = new CWVPSB_Google_Fonts_API();
 		$proxy->register_routes();
 	}
 }
-$webvital_font = new cwvpsb_google_fonts();
+$webvital_font = new CWVPSB_Google_Fonts();
