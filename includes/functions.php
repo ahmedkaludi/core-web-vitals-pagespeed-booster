@@ -38,7 +38,7 @@ if ($cwvpsb_settings["cache_option"] == "1") {
     add_action(
         'plugins_loaded',
         array(
-            'CWV_Cache',
+            'CWVPSB_Cache',
             'instance'
     )
     );
@@ -47,21 +47,21 @@ if ($cwvpsb_settings["cache_option"] == "1") {
 register_activation_hook(
     __FILE__,
     array(
-        'CWV_Cache',
+        'CWVPSB_Cache',
         'on_activation'
     )
 );
 register_deactivation_hook(
     __FILE__,
     array(
-        'CWV_Cache',
+        'CWVPSB_Cache',
         'on_deactivation'
     )
 );
 register_uninstall_hook(
     __FILE__,
     array(
-        'CWV_Cache',
+        'CWVPSB_Cache',
         'on_uninstall'
     )
 );
@@ -70,7 +70,7 @@ spl_autoload_register('cwvpsb_cache_autoload');
 
 // autoload function
 function cwvpsb_cache_autoload($class) {
-    if ( in_array($class, array('CWV_Cache', 'CWV_Cache_Disk')) ) {
+    if ( in_array($class, array('CWVPSB_Cache', 'CWVPSB_Cache_Disk')) ) {
         require_once(
             sprintf(
                 '%s/includes/cache/%s.class.php',

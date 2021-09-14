@@ -1,6 +1,6 @@
 <?php
 /**
-* CWV_Cache
+* CWVPSB_Cache
 *
 * @since 1.0.0
 */
@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-final class CWV_Cache {
+final class CWVPSB_Cache {
 
 	private static $disk;
 
@@ -155,8 +155,8 @@ final class CWV_Cache {
 	private static function _set_default_vars() {
 
 		// disk cache
-		if ( CWV_Cache_Disk::is_permalink() ) {
-			self::$disk = new CWV_Cache_Disk;
+		if ( CWVPSB_Cache_Disk::is_permalink() ) {
+			self::$disk = new CWVPSB_Cache_Disk;
 		}
 	}
 
@@ -450,7 +450,7 @@ final class CWV_Cache {
 
 	public static function clear_total_cache() {
 		// clear disk cache
-		CWV_Cache_Disk::clear_cache();
+		CWVPSB_Cache_Disk::clear_cache();
 	}
 
 	public static function set_cache($data) {
@@ -489,7 +489,7 @@ final class CWV_Cache {
 
 		// check if cache empty
 		if ( empty($cached) ) {
-			ob_start('CWV_Cache::set_cache');
+			ob_start('CWVPSB_Cache::set_cache');
 			return;
 		}
 

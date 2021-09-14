@@ -1,6 +1,6 @@
 <?php
 /**
-* CWV_Cache_Disk
+* CWVPSB_Cache_Disk
 *
 * @since 1.0.0
 */
@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-final class CWV_Cache_Disk {
+final class CWVPSB_Cache_Disk {
 
 	const FILE_HTML = 'index.html';
 	const FILE_GZIP = 'index.html.gz';
