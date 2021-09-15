@@ -34,7 +34,7 @@ function cwvpsb_admin_style($check) {
 
 $cwvpsb_settings = (array) get_option( $cwvpsb_settings->cache );
 
-if ($cwvpsb_settings["cache_option"] == "1") {
+if (isset($cwvpsb_settings["cache_option"]) && $cwvpsb_settings["cache_option"] == "1") {
     add_action(
         'plugins_loaded',
         array(
