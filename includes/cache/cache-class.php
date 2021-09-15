@@ -84,9 +84,9 @@ final class CWVPSB_Cache {
 	}
 
 	public static function on_activation() {
-
+		$networkwide = sanitize_text_field($_GET['networkwide']);
 		// multisite and network
-		if ( is_multisite() && ! empty($_GET['networkwide']) ) {
+		if ( is_multisite() && ! empty($networkwide) ) {
 			// blog ids
 			$ids = self::_get_blog_ids();
 
@@ -116,9 +116,9 @@ final class CWVPSB_Cache {
 
 	public static function on_uninstall() {
 		global $wpdb;
-
+		$networkwide = sanitize_text_field($_GET['networkwide']);
 		// multisite and network
-		if ( is_multisite() && ! empty($_GET['networkwide']) ) {
+		if ( is_multisite() && ! empty($networkwide) ) {
 			// legacy blog
 			$old = $wpdb->blogid;
 
@@ -171,9 +171,9 @@ final class CWVPSB_Cache {
 	}
 
 	public static function process_clear_request($data) {
-
+		$cache = sanitize_text_field($_GET['_cache']);
 		// check if clear request
-		if ( empty($_GET['_cache']) OR ( $_GET['_cache'] !== 'clear' && $_GET['_cache'] !== 'clearurl' ) ) {
+		if ( empty($cache) OR ( $cache !== 'clear' && $cache !== 'clearurl' ) ) {
 			return;
 		}
 
@@ -226,7 +226,7 @@ final class CWVPSB_Cache {
 					);
 				}
 			} else {
-				if ($_GET['_cache'] == 'clearurl') {
+				if ($cache == 'clearurl') {
 					// clear specific multisite url cache
 					self::clear_page_cache_by_url($clear_url);
 				} else {
@@ -246,7 +246,7 @@ final class CWVPSB_Cache {
 				}
 			}
 		} else {
-			if ($_GET['_cache'] == 'clearurl') {
+			if ($cache == 'clearurl') {
 				// clear url cache
 				self::clear_page_cache_by_url($clear_url);
 			} else {

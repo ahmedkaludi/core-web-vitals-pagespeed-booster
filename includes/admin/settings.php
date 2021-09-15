@@ -171,7 +171,7 @@ class cwvpsb_settings {
     }
 
     function plugin_options_page() {
-        $tab = isset( $_GET['tab'] ) ? $_GET['tab'] : $this->images;?>
+        $tab = isset( $_GET['tab'] ) ? sanitize_text_field($_GET['tab']) : $this->images;?>
         <h2><?php echo esc_html__("Core Web Vitals & PageSpeed Booster Settings", 'cwvpsb');?></h2>
         <div class="wrap">
             <?php $this->plugin_options_tabs(); ?>
@@ -186,7 +186,7 @@ class cwvpsb_settings {
     }
 
     function plugin_options_tabs() {
-        $current_tab = isset( $_GET['tab'] ) ? $_GET['tab'] : $this->images;
+        $current_tab = isset( $_GET['tab'] ) ? sanitize_text_field($_GET['tab']) : $this->images;
 
         screen_icon();
         echo '<h2 class="nav-tab-wrapper">';
