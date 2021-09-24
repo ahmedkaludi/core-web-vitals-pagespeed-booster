@@ -5,14 +5,36 @@ Tested up to: 5.8
 Stable tag: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Tags: Core Web Vitals & PageSpeed Booster
-
+Tags: core web vitals, optimization, pagespeed, performance, cache
 
 == Description ==
-Optimizing for quality of user experience is key to the long-term success of any site. Web Vitals can help you quantify the experience of your site and identify opportunities to improve.
+<h4>Core Web Vitals is the new ranking factor</h4>
 
+Google announced that "Core Web Vitals" are going to be a significant ranking signal for websites. In fact, Core Web Vitals or the page experience signal is going to become a requirement for a page to appear in Google's Top Stories.
+
+### Features
+
+* <strong>Webp images</strong>: If images are slowing down your website, then converting them to WebP format can improve your page load speed test scores. 
+* <strong>Lazy Load</strong>: Lazy loading allows your website to only load images when a user scrolls down to a specific image, which reduces website load time and improves website performance.
+* <strong>Minification</strong>: If you are trying to achieve 100/100 score on Google Pagespeed or GTMetrix tool, then minifying CSS and JavaScript will significantly improve your score.
+* <strong>Remove Unused CSS</strong>:Unused CSS is any CSS code added by your WordPress theme or plugins that you don’t really need. Removing this CSS code improves WordPress performance and user experience.
+* <strong>Google Fonts Optimizations</strong>: You may start noticing external resources like fonts affecting Google PageSpeed + load times. This is where loading Google Fonts locally comes into play.
+* <strong>Delay JavaScript Execution</strong>:You can delay JavaScript based on user interaction. This can be a great way to speed up the paint of the page for Google PageSpeed when something isn't needed right away. Especially heavy third-party scripts like Google Adsense, Google Analytics etc.
+* <strong>Cache</strong>: Caching is one of the most important and easiest ways to speed up WordPress! it reduces the amount of work required to generate a page view. As a result, your web pages load much faster, directly from cache.
+
+### Support
+
+We try our best to provide support on WordPress.org forums. However, We have a special [team support](https://webvitalsdev.com/#text-3) where you can ask us questions and get help. Delivering a good user experience means a lot to us and so we try our best to reply each and every question that gets asked.
+
+### Bug Reports
+
+Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](https://github.com/ahmedkaludi/core-web-vitals-pagespeed-booster/issues). Please note GitHub is not a support forum, and issues that aren't properly qualified as bugs will be closed.
+
+### Credits
+
+* PHP CSS Parser library used https://github.com/sabberworm/PHP-CSS-Parser - License URI: https://github.com/sabberworm/PHP-CSS-Parser#license (PHP-CSS-Parser is freely distributable under the terms of an MIT-style license.)
 
 == Changelog ==
 
-= 1.0 (24 JULY 2020) =
+= 1.0 (24th September 2021) =
 * Version 1.0 Released
