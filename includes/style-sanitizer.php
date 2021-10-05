@@ -348,7 +348,6 @@ class cwvpsb_treeshaking {
 			if ( 'style' === $node_name ) {
 				$this->process_style_element( $element );
 			} elseif ( 'link' === $node_name ) {
-				$this->process_link_element( $element );
 				if ( $element->parentNode && 'head' !== $element->parentNode->nodeName ) {
 					$this->dom->head->appendChild( $element->parentNode->removeChild( $element ) );
 				}

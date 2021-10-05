@@ -133,12 +133,17 @@ class cwvpsb_settings {
         <?php
     }
      
-    function field_unused_css_option() {?>
+    function field_unused_css_option() {
+        $webp_nonce = wp_create_nonce('cwv-security-nonce');
+        ?>
         <label class="switch">
         <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[unused_css_option]" <?php checked( $this->css_settings['unused_css_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Makes your site even faster and lighter by automatically removing unused CSS from your website", 'cwvpsb');?></p>
-        <?php
+<?php if ($this->css_settings['unused_css_option'] == '1') {?>
+        <br/>
+        <div style='display:inline-block;'><span class='button button-secondry' id='clear-css-cache' data-cleaningtype='css' data-nonce='<?php echo $webp_nonce;?>' >Clear Cached CSS</span><span class='clear-cache-msg'></span></div>
+        <?php }
     }  
 
     function field_fonts_option() {?>

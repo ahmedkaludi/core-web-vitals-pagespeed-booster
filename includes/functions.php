@@ -30,6 +30,7 @@ function cwvpsb_admin_style($check) {
     }
     wp_register_style( 'cwvpsb_admin_css', CWVPSB_PLUGIN_DIR_URI . 'includes/admin/style.css', true, CWVPSB_VERSION );
     wp_enqueue_style( 'cwvpsb_admin_css' );
+    wp_enqueue_script( 'cwvpsb_admin-script', CWVPSB_PLUGIN_DIR_URI . 'includes/admin/script.js', array('jquery'), CWVPSB_VERSION, true );
 }
 
 $cwvpsb_settings = (array) get_option( $cwvpsb_settings->cache );
@@ -91,3 +92,33 @@ add_action( 'init', 'cwvpsb_load_textdomain' );
 function cwvpsb_load_textdomain() {
   load_plugin_textdomain( 'cwvpsb_textdomain', false, dirname( CWVPSB_BASE ) . '/languages' ); 
 }
+
+add_action('wp_ajax_cwvpsb_clear_cached_css', 'cwvpsb_clear_cached_css');
+function cwvpsb_clear_cached_css(){
+        if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'cwv-security-nonce')){
+            echo json_encode(array("status"=> 400, "msg"=>esc_html__("Security verification failed, Refresh the page", 'cwvpsb') ));die;
+        }
+        $clean_types = array('css');
+        if(!in_array($_POST['cleaning'], $clean_types)){
+            echo json_encode(array("status"=> 400, "msg"=>esc_html__("Cache type not found", 'cwvpsb') ));die;
+        }
+        $cleaning = $_POST['cleaning'];
+
+        $upload_dir = wp_upload_dir(); 
+        
+        //Clean css
+        if($cleaning == 'css'){
+            $user_dirname = $upload_dir['basedir'] . '/' . 'web_vital';
+            $dir_handle = opendir($user_dirname);
+            if (!$dir_handle){
+              echo json_encode(array("status"=> 400, "msg"=>esc_html__("cache not found", 'cwvpsb') ));die;
+            }
+            while($file = readdir($dir_handle)) {
+                if (strpos($file, '.css') !== false){
+                    unlink($user_dirname."/".$file);
+                }
+            }
+            closedir($dir_handle);
+        }
+        echo json_encode(array("status"=> 200, "msg"=>esc_html__("CSS Cleared", 'cwvpsb') ));die;
+    }
