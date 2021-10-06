@@ -140,9 +140,11 @@ class cwvpsb_settings {
         <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[unused_css_option]" <?php checked( $this->css_settings['unused_css_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Makes your site even faster and lighter by automatically removing unused CSS from your website", 'cwvpsb');?></p>
-<?php if ($this->css_settings['unused_css_option'] == '1') {?>
-        <br/>
-        <div style='display:inline-block;'><span class='button button-secondry' id='clear-css-cache' data-cleaningtype='css' data-nonce='<?php echo $webp_nonce;?>' >Clear Cached CSS</span><span class='clear-cache-msg'></span></div>
+        <?php if ($this->css_settings['unused_css_option'] == '1') {?>
+        <br/><textarea rows='5' cols='70' name="<?php echo esc_attr($this->css); ?>[whitelist_css]" id='cwvpsb_add_whitelist_css'><?php echo esc_html($this->css_settings['whitelist_css']) ?></textarea>
+            <p class="description"><?php echo esc_html__("Add the CSS selectors line by line which you don't want to remove", 'cwvpsb');?></p><br/>
+        <?php } if ($this->css_settings['unused_css_option'] == '1') { ?>
+            <div style='display:inline-block;'><span class='button button-secondry' id='clear-css-cache' data-cleaningtype='css' data-nonce='<?php echo $webp_nonce;?>' >Clear Cached CSS</span><span class='clear-cache-msg'></span></div>
         <?php }
     }  
 

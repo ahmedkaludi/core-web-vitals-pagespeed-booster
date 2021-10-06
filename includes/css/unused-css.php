@@ -19,8 +19,37 @@ function cwvpsb_unused_css($html){
 	];
 	$parser = new cwvpsb_treeshaking($tmpDoc,$args);
 	$sanitize = $parser->sanitize();
-	$custom_style_element = $tmpDoc->createElement( 'style' );
-	$tmpDoc->head->appendChild( $custom_style_element );
+	$whitelist = cwvpsb_css_whitelist_selectors($html);
+  	if(!empty($whitelist)){
+	    $custom_style_element = $tmpDoc->createElement( 'style' );
+	    $custom_style_element->appendChild($tmpDoc->createTextNode( $whitelist ));
+	    $tmpDoc->head->appendChild( $custom_style_element );
+  	}
 	$html = $tmpDoc->saveHTML();
 	return $html;
+}
+$whitelist_css = '';
+function cwvpsb_css_whitelist_selectors($html){
+    global $whitelist_css;
+    return $whitelist_css;
+}
+add_action('cwvpsb_css_whitelist_data', 'cwvpsb_get_whitelist_css', 10, 1);
+function cwvpsb_get_whitelist_css($html){
+  $white_list = array();
+  $cwvpsb_settings = new cwvpsb_settings;
+  $cwvpsb_settings = get_option( $cwvpsb_settings->css );
+  $white_list_data = $cwvpsb_settings['whitelist_css'];
+  $white_list = preg_split('/\r\n|\r|\n/', $white_list_data);
+  	global $whitelist_css;
+  	for($i=0;$i<count($white_list);$i++){
+        $whitelist_all = $white_list[$i];
+        preg_match_all('/'.$whitelist_all.'(.*?){(.*?)}/s', $html, $matches);
+    	if(isset($matches[0]) && !empty($matches[0])){
+      		foreach($matches[0] as $match){
+	        	if(!empty($match)){
+	          		$whitelist_css .= $match;
+	        	}
+      		}
+    	}
+    }  
 }
