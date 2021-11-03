@@ -174,7 +174,7 @@ class cwvpsb_settings {
     } 
 
     function add_admin_menus() {
-        add_menu_page( esc_html__('Speed Booster', 'cwvpsb'), esc_html__('Speed Booster', 'cwvpsb'), 'manage_options', $this->plugin_options_key, array( &$this, 'plugin_options_page' ) ,'dashicons-superhero');
+        add_menu_page( esc_html__('Core Web Vitals', 'cwvpsb'), esc_html__('Core Web Vitals', 'cwvpsb'), 'manage_options', $this->plugin_options_key, array( &$this, 'plugin_options_page' ) ,'dashicons-superhero');
     }
 
     function plugin_options_page() {
