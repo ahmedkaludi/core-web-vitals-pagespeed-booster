@@ -171,7 +171,10 @@ final class CWVPSB_Cache {
 	}
 
 	public static function process_clear_request($data) {
-		$cache = sanitize_text_field($_GET['_cache']);
+		$cache = "";
+		if (isset($_GET['_cache'])){
+			$cache = sanitize_text_field($_GET['_cache']);
+		}
 		// check if clear request
 		if ( empty($cache) OR ( $cache !== 'clear' && $cache !== 'clearurl' ) ) {
 			return;
