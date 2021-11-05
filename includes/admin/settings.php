@@ -109,7 +109,9 @@ class cwvpsb_settings {
         add_settings_field( 'cache_option', esc_html__('Cache', 'cwvpsb'), array( &$this, 'field_cache_option' ), $this->cache, 'section_cache' );
     }
 
-    function field_webp_option() {?>
+    function field_webp_option() {
+        $this->images_settings['webp_option'] = isset($this->images_settings['webp_option']) ? $this->images_settings['webp_option'] : '';
+        ?>
         <label class="switch">
         <input type='checkbox' name="<?php echo esc_attr($this->images); ?>[webp_option]" <?php checked( $this->images_settings['webp_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
@@ -117,7 +119,9 @@ class cwvpsb_settings {
         <?php
     }
 
-    function field_lazyload_option() {?>
+    function field_lazyload_option() {
+        $this->images_settings['lazyload_option'] = isset($this->images_settings['lazyload_option']) ? $this->images_settings['lazyload_option'] : '';
+        ?>
         <label class="switch">
         <input type='checkbox' name="<?php echo esc_attr($this->images); ?>[lazyload_option]" <?php checked( $this->images_settings['lazyload_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
@@ -125,7 +129,9 @@ class cwvpsb_settings {
         <?php
     }
 
-    function field_minify_option() {?>
+    function field_minify_option() {
+        $this->css_settings['minify_option'] = isset($this->css_settings['minify_option']) ? $this->css_settings['minify_option'] : '';
+        ?>
         <label class="switch">
         <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[minify_option]" <?php checked( $this->css_settings['minify_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
@@ -135,6 +141,7 @@ class cwvpsb_settings {
      
     function field_unused_css_option() {
         $webp_nonce = wp_create_nonce('cwv-security-nonce');
+        $this->css_settings['unused_css_option'] = isset($this->css_settings['unused_css_option']) ? $this->css_settings['unused_css_option'] : '';
         ?>
         <label class="switch">
         <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[unused_css_option]" <?php checked( $this->css_settings['unused_css_option'], 1 ); ?> value='1'>
@@ -148,7 +155,9 @@ class cwvpsb_settings {
         <?php }
     }  
 
-    function field_fonts_option() {?>
+    function field_fonts_option() {
+        $this->css_settings['fonts_option'] = isset($this->css_settings['fonts_option']) ? $this->css_settings['fonts_option'] : '';
+        ?>
         <label class="switch">
         <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[fonts_option]" <?php checked( $this->css_settings['fonts_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
@@ -156,7 +165,9 @@ class cwvpsb_settings {
         <?php
     } 
      
-    function field_delayjs_option() {?>
+    function field_delayjs_option() {
+        $this->js_settings['delayjs_option'] = isset($this->js_settings['delayjs_option']) ? $this->js_settings['delayjs_option'] : '';
+        ?>
         <label class="switch">
         <input type='checkbox' name="<?php echo esc_attr($this->js); ?>[delayjs_option]" <?php checked( $this->js_settings['delayjs_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
@@ -164,7 +175,9 @@ class cwvpsb_settings {
         <?php
     } 
 
-    function field_cache_option() {?>
+    function field_cache_option() {
+        $this->cache_settings['cache_option'] = isset($this->cache_settings['cache_option']) ? $this->cache_settings['cache_option'] : '';
+        ?>
         <label class="switch">
         <input type='checkbox' name="<?php echo esc_attr($this->cache); ?>[cache_option]" <?php checked( $this->cache_settings['cache_option'], 1 ); ?> value='1'>
         <span class="slider round"></span></label>
