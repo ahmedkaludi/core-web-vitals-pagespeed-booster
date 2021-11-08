@@ -53,7 +53,6 @@ class cwvpsb_settings {
                 'cache_option' => '1'
             ), $this->cache_settings );
         }
-
         if (isset($this->images_settings['webp_option']) && $this->images_settings['webp_option'] == "1") {
            require_once CWVPSB_PLUGIN_DIR."includes/images/convert-webp.php";
         }
@@ -113,7 +112,7 @@ class cwvpsb_settings {
         $this->images_settings['webp_option'] = isset($this->images_settings['webp_option']) ? $this->images_settings['webp_option'] : '';
         ?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->images); ?>[webp_option]" <?php checked( $this->images_settings['webp_option'], 1 ); ?> value='1'>
+        <input type='checkbox' name="<?php echo esc_attr($this->images); ?>[webp_option]" <?php checked( $this->images_settings['webp_option'], "on" ); ?> >
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Images are converted to WebP on the fly if the browser supports it. You don't have to do anything", 'cwvpsb');?></p>
         <?php
@@ -123,7 +122,7 @@ class cwvpsb_settings {
         $this->images_settings['lazyload_option'] = isset($this->images_settings['lazyload_option']) ? $this->images_settings['lazyload_option'] : '';
         ?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->images); ?>[lazyload_option]" <?php checked( $this->images_settings['lazyload_option'], 1 ); ?> value='1'>
+        <input type='checkbox' name="<?php echo esc_attr($this->images); ?>[lazyload_option]" <?php checked( $this->images_settings['lazyload_option'], "on" ); ?> >
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Lazy Load delays loading of images and iframes in long web pages. which are outside of viewport and will not be loaded before user scrolls to them", 'cwvpsb');?></p>
         <?php
@@ -133,7 +132,7 @@ class cwvpsb_settings {
         $this->css_settings['minify_option'] = isset($this->css_settings['minify_option']) ? $this->css_settings['minify_option'] : '';
         ?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[minify_option]" <?php checked( $this->css_settings['minify_option'], 1 ); ?> value='1'>
+        <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[minify_option]" <?php checked( $this->css_settings['minify_option'], "on" ); ?> >
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("You will see the source of your HTML, CSS and JavaScript are now compressed and the size will be smaller which will be helpful to improve your page load speed", 'cwvpsb');?></p>
         <?php
@@ -144,7 +143,7 @@ class cwvpsb_settings {
         $this->css_settings['unused_css_option'] = isset($this->css_settings['unused_css_option']) ? $this->css_settings['unused_css_option'] : '';
         ?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[unused_css_option]" <?php checked( $this->css_settings['unused_css_option'], 1 ); ?> value='1'>
+        <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[unused_css_option]" <?php checked( $this->css_settings['unused_css_option'], "on" ); ?> >
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Makes your site even faster and lighter by automatically removing unused CSS from your website", 'cwvpsb');?></p>
         <?php if ($this->css_settings['unused_css_option'] == '1') {?>
@@ -159,7 +158,7 @@ class cwvpsb_settings {
         $this->css_settings['fonts_option'] = isset($this->css_settings['fonts_option']) ? $this->css_settings['fonts_option'] : '';
         ?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[fonts_option]" <?php checked( $this->css_settings['fonts_option'], 1 ); ?> value='1'>
+        <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[fonts_option]" <?php checked( $this->css_settings['fonts_option'], "on" ); ?> >
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Locally hosting Google fonts for Pagespeed Insights or GT Metrix improvements", 'cwvpsb');?></p>
         <?php
@@ -169,7 +168,7 @@ class cwvpsb_settings {
         $this->js_settings['delayjs_option'] = isset($this->js_settings['delayjs_option']) ? $this->js_settings['delayjs_option'] : '';
         ?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->js); ?>[delayjs_option]" <?php checked( $this->js_settings['delayjs_option'], 1 ); ?> value='1'>
+        <input type='checkbox' name="<?php echo esc_attr($this->js); ?>[delayjs_option]" <?php checked( $this->js_settings['delayjs_option'], "on" ); ?> >
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Delays the loading of JavaScript files until the user interacts like scroll, click etc, which improves performance", 'cwvpsb');?></p>
         <?php
@@ -179,7 +178,7 @@ class cwvpsb_settings {
         $this->cache_settings['cache_option'] = isset($this->cache_settings['cache_option']) ? $this->cache_settings['cache_option'] : '';
         ?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->cache); ?>[cache_option]" <?php checked( $this->cache_settings['cache_option'], 1 ); ?> value='1'>
+        <input type='checkbox' name="<?php echo esc_attr($this->cache); ?>[cache_option]" <?php checked( $this->cache_settings['cache_option'], "on" ); ?> >
         <span class="slider round"></span></label>
         <button class="cache-btn" name="cache-btn"><i class="cache-trash"></i>&emsp;<?php echo esc_html__("Clear Site Cache", 'cwvpsb');?></button>
         <p class="description"><?php echo esc_html__("Caching pages will reduce the response time of your site and your web pages load much faster, directly from cache", 'cwvpsb');?></p>
@@ -191,31 +190,72 @@ class cwvpsb_settings {
     }
 
     function plugin_options_page() {
-        $tab = isset( $_GET['tab'] ) ? sanitize_text_field($_GET['tab']) : esc_html($this->images);?>
-        <h2><?php echo esc_html__("Core Web Vitals & PageSpeed Booster Settings", 'cwvpsb');?></h2>
-        <div class="wrap">
-            <?php $this->plugin_options_tabs(); ?>
-            <form method="post" action="options.php">
-                <?php wp_nonce_field( 'update-options' ); ?>
-                <?php settings_fields( $tab ); ?>
-                <?php do_settings_sections( $tab ); ?>
-                <?php submit_button(); ?>
-            </form>
-        </div>
-        <?php
-    }
+        // Authentication
+    if ( ! current_user_can( 'manage_options' ) ) {
+        return;
+    }              
+    $tab = cwvpsb_get_tab('images', array('images', 'css','js','cache')); 
+    ?>
+    <h1><?php echo esc_html__('Core Web Vitals & PageSpeed Booster Settings', 'cwvpsb'); ?></h1>
+        <h2 class="nav-tab-wrapper cwvpsb-tabs">
+            <?php   
+            echo '<a href="' . esc_url(cwvpsb_admin_link('images')) . '" class="nav-tab ' . esc_attr( $tab == 'images' ? 'nav-tab-active' : '') . '">' . esc_html__('images','cwvpsb') . '</a>';
+                        
+            echo '<a href="' . esc_url(cwvpsb_admin_link('css')) . '" class="nav-tab ' . esc_attr( $tab == 'css' ? 'nav-tab-active' : '') . '">' . esc_html__('CSS','cwvpsb') . '</a>';
 
-    function plugin_options_tabs() {
-        $current_tab = isset( $_GET['tab'] ) ? sanitize_text_field($_GET['tab']) : esc_html($this->images);
+            echo '<a href="' . esc_url(cwvpsb_admin_link('js')) . '" class="nav-tab ' . esc_attr( $tab == 'js' ? 'nav-tab-active' : '') . '">' . esc_html__('JS','cwvpsb') . '</a>';
 
-        screen_icon();
-        echo '<h2 class="nav-tab-wrapper">';
-        foreach ( $this->plugin_settings_tabs as $tab_key => $tab_caption ) {
-            $active = $current_tab == $tab_key ? 'nav-tab-active' : '';
-            echo '<a class="nav-tab ' . esc_attr($active) . '" href="?page=' . esc_attr($this->plugin_options_key) . '&tab=' . esc_attr($tab_key) . '">' . esc_html($tab_caption) . '</a>';
-        }
-        echo '</h2>';
-    }
+            echo '<a href="' . esc_url(cwvpsb_admin_link('cache')) . '" class="nav-tab ' . esc_attr( $tab == 'cache' ? 'nav-tab-active' : '') . '">' . esc_html__('Cache','cwvpsb') . '</a>';
+                                                
+            ?>
+        </h2>
+            <form action="options.php" method="post" enctype="multipart/form-data" class="cwvpsb-settings-form">      
+            <div class="cwvpsb-form-wrap">
+            <?php
+            settings_fields( $tab );
+
+            echo "<div class='cwvpsb-images' ".( $tab != 'images' ? 'style="display:none;"' : '').">";
+            do_settings_sections( $this->images );
+            echo "</div>";
+
+            echo "<div class='cwvpsb-css' ".( $tab != 'css' ? 'style="display:none;"' : '').">";
+            do_settings_sections( $this->css );
+            echo "</div>";
+
+            echo "<div class='cwvpsb-js' ".( $tab != 'js' ? 'style="display:none;"' : '').">";
+            do_settings_sections( $this->js ); 
+            echo "</div>";
+
+            echo "<div class='cwvpsb-cache' ".( $tab != 'cache' ? 'style="display:none;"' : '').">";
+            do_settings_sections( $this->cache );
+            echo "</div>";  
+
+            ?>
+            </div>
+            <div class="button-wrapper">                            
+            <?php
+                submit_button( esc_html__('Save', 'cwvpsb') );
+            ?>
+            </div>
+        </form>
+    </div> 
+    <?php }
+
+    function plugin_options_tabs() {?>
+        <h2 class="nav-tab-wrapper cwvpsb-tabs">
+            <?php   
+            $tab = cwvpsb_get_tab('images', array('images', 'css'));
+
+            echo '<a href="' . esc_url(cwvpsb_admin_link('images')) . '" class="nav-tab ' . esc_attr( $tab == 'images' ? 'nav-tab-active' : '') . '">' . esc_html__('images','cwvpsb') . '</a>';
+                        
+            echo '<a href="' . esc_url(cwvpsb_admin_link('css')) . '" class="nav-tab ' . esc_attr( $tab == 'css' ? 'nav-tab-active' : '') . '">' . esc_html__('CSS','cwvpsb') . '</a>';
+
+            echo '<a href="' . esc_url(cwvpsb_admin_link('js')) . '" class="nav-tab ' . esc_attr( $tab == 'js' ? 'nav-tab-active' : '') . '">' . esc_html__('JS','cwvpsb') . '</a>';
+
+            echo '<a href="' . esc_url(cwvpsb_admin_link('cache')) . '" class="nav-tab ' . esc_attr( $tab == 'cache' ? 'nav-tab-active' : '') . '">' . esc_html__('Cache','cwvpsb') . '</a>';                            
+            ?>
+        </h2>
+    <?php }
 };
 
 $cwvpsb_settings = new cwvpsb_settings;

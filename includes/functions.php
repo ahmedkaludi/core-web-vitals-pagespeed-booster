@@ -122,3 +122,34 @@ function cwvpsb_clear_cached_css(){
         }
         echo json_encode(array("status"=> 200, "msg"=>esc_html__("CSS Cleared", 'cwvpsb') ));die;
     }
+
+function cwvpsb_admin_link($tab = '', $args = array()){   
+    $page = 'cwvpsb_options';
+    if ( ! is_multisite() ) {
+        $link = admin_url( 'admin.php?page=' . $page );
+    }
+    else {
+        $link = network_admin_url( 'admin.php?page=' . $page );
+    }
+
+    if ( $tab ) {
+        $link .= '&tab=' . $tab;
+    }
+
+    if ( $args ) {
+        foreach ( $args as $arg => $value ) {
+            $link .= '&' . $arg . '=' . urlencode( $value );
+        }
+    }
+
+    return esc_url($link);
+}
+function cwvpsb_get_tab( $default = '', $available = array() ) {
+
+    $tab = isset( $_GET['tab'] ) ? sanitize_text_field($_GET['tab']) : $default;
+        
+    if ( ! in_array( $tab, $available ) ) {
+        $tab = $default;
+    }
+    return $tab;
+}
