@@ -153,3 +153,36 @@ function cwvpsb_get_tab( $default = '', $available = array() ) {
     }
     return $tab;
 }
+function cwvpsb_default_settings(){
+    
+    $defaults_images = array(
+    'webp_option' => 'on',
+    'lazyload_option' => 'on',
+    );
+    if(get_option('images') == ''){
+        return update_option('images', $defaults_images);
+    }
+
+    $defaults_css = array(
+    'minify_option' => 'on',
+    'unused_css_option' => 'on',
+    'fonts_option' => 'on'
+    );
+    if(get_option('css') == ''){
+        return update_option('css', $defaults_css);
+    }
+
+    $defaults_js = array(
+    'delayjs_option' => 'on'
+    );
+    if(get_option('js') == ''){
+        return update_option('js', $defaults_js);
+    }
+
+    $defaults_cache = array(
+    'cache_option' => 'on'
+    );
+    if(get_option('cache') == ''){
+        return update_option('cache', $defaults_cache);
+    }
+}

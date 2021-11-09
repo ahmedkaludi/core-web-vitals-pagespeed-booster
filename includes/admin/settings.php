@@ -29,46 +29,46 @@ class cwvpsb_settings {
 
         if (!isset($this->images_settings)) {
             $this->images_settings = array_merge( array(
-                'webp_option' => '1',
-                'lazyload_option' => '1'
+                'webp_option' => 'on',
+                'lazyload_option' => 'on'
             ), $this->images_settings );
         }
         
         if (!isset($this->css_settings)) {
             $this->css_settings = array_merge( array(
-                'minify_option' => '1',
-                'unused_css_option' => '1',
-                'fonts_option' => '1'
+                'minify_option' => 'on',
+                'unused_css_option' => 'on',
+                'fonts_option' => 'on'
             ), $this->css_settings );
         }
 
         if (!isset($this->js_settings)) {
             $this->js_settings = array_merge( array(
-                'delayjs_option' => '1'
+                'delayjs_option' => 'on'
             ), $this->js_settings );
         }
 
         if (!isset($this->cache_settings)) {
             $this->cache_settings = array_merge( array(
-                'cache_option' => '1'
+                'cache_option' => 'on'
             ), $this->cache_settings );
         }
-        if (isset($this->images_settings['webp_option']) && $this->images_settings['webp_option'] == "1") {
+        if (isset($this->images_settings['webp_option']) && $this->images_settings['webp_option'] == "on") {
            require_once CWVPSB_PLUGIN_DIR."includes/images/convert-webp.php";
         }
-        if (isset($this->images_settings['lazyload_option']) && $this->images_settings['lazyload_option'] == "1") {
+        if (isset($this->images_settings['lazyload_option']) && $this->images_settings['lazyload_option'] == "on") {
            require_once CWVPSB_PLUGIN_DIR."includes/images/lazy-loading.php";
         }
-        if (isset($this->css_settings['minify_option']) && $this->css_settings['minify_option'] == "1") {
+        if (isset($this->css_settings['minify_option']) && $this->css_settings['minify_option'] == "on") {
            require_once CWVPSB_PLUGIN_DIR."includes/css/minify.php";
         }
-        if (isset($this->css_settings['unused_css_option']) && $this->css_settings['unused_css_option'] == "1") {
+        if (isset($this->css_settings['unused_css_option']) && $this->css_settings['unused_css_option'] == "on") {
            require_once CWVPSB_PLUGIN_DIR."includes/css/unused-css.php";
         }
-        if (isset($this->css_settings['fonts_option']) && $this->css_settings['fonts_option'] == "1") {
+        if (isset($this->css_settings['fonts_option']) && $this->css_settings['fonts_option'] == "on") {
            require_once CWVPSB_PLUGIN_DIR."includes/css/google-fonts.php";
         }
-        if (isset($this->js_settings['delayjs_option']) && $this->js_settings['delayjs_option'] == "1") {
+        if (isset($this->js_settings['delayjs_option']) && $this->js_settings['delayjs_option'] == "on") {
            require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-js.php";
         }
 
@@ -112,7 +112,7 @@ class cwvpsb_settings {
         $this->images_settings['webp_option'] = isset($this->images_settings['webp_option']) ? $this->images_settings['webp_option'] : '';
         ?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->images); ?>[webp_option]" <?php checked( $this->images_settings['webp_option'], "on" ); ?> >
+        <input type='checkbox' name="<?php echo esc_attr($this->images); ?>[webp_option]" <?php checked( $this->images_settings['webp_option'], "on" ); ?> <?php cwvpsb_default_settings();?>>
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Images are converted to WebP on the fly if the browser supports it. You don't have to do anything", 'cwvpsb');?></p>
         <?php
@@ -122,7 +122,7 @@ class cwvpsb_settings {
         $this->images_settings['lazyload_option'] = isset($this->images_settings['lazyload_option']) ? $this->images_settings['lazyload_option'] : '';
         ?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->images); ?>[lazyload_option]" <?php checked( $this->images_settings['lazyload_option'], "on" ); ?> >
+        <input type='checkbox' name="<?php echo esc_attr($this->images); ?>[lazyload_option]" <?php checked( $this->images_settings['lazyload_option'], "on" ); ?> <?php cwvpsb_default_settings();?>>
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Lazy Load delays loading of images and iframes in long web pages. which are outside of viewport and will not be loaded before user scrolls to them", 'cwvpsb');?></p>
         <?php
@@ -132,7 +132,7 @@ class cwvpsb_settings {
         $this->css_settings['minify_option'] = isset($this->css_settings['minify_option']) ? $this->css_settings['minify_option'] : '';
         ?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[minify_option]" <?php checked( $this->css_settings['minify_option'], "on" ); ?> >
+        <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[minify_option]" <?php checked( $this->css_settings['minify_option'], "on" ); ?> <?php cwvpsb_default_settings();?>>
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("You will see the source of your HTML, CSS and JavaScript are now compressed and the size will be smaller which will be helpful to improve your page load speed", 'cwvpsb');?></p>
         <?php
@@ -143,13 +143,13 @@ class cwvpsb_settings {
         $this->css_settings['unused_css_option'] = isset($this->css_settings['unused_css_option']) ? $this->css_settings['unused_css_option'] : '';
         ?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[unused_css_option]" <?php checked( $this->css_settings['unused_css_option'], "on" ); ?> >
+        <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[unused_css_option]" <?php checked( $this->css_settings['unused_css_option'], "on" ); ?> <?php cwvpsb_default_settings();?>>
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Makes your site even faster and lighter by automatically removing unused CSS from your website", 'cwvpsb');?></p>
-        <?php if ($this->css_settings['unused_css_option'] == '1') {?>
+        <?php if ($this->css_settings['unused_css_option'] == 'on') {?>
         <br/><textarea rows='5' cols='70' name="<?php echo esc_attr($this->css); ?>[whitelist_css]" id='cwvpsb_add_whitelist_css'><?php echo esc_html($this->css_settings['whitelist_css']) ?></textarea>
             <p class="description"><?php echo esc_html__("Add the CSS selectors line by line which you don't want to remove", 'cwvpsb');?></p><br/>
-        <?php } if ($this->css_settings['unused_css_option'] == '1') { ?>
+        <?php } if ($this->css_settings['unused_css_option'] == 'on') { ?>
             <div style='display:inline-block;'><span class='button button-secondry' id='clear-css-cache' data-cleaningtype='css' data-nonce='<?php echo $webp_nonce;?>' >Clear Cached CSS</span><span class='clear-cache-msg'></span></div>
         <?php }
     }  
@@ -158,7 +158,7 @@ class cwvpsb_settings {
         $this->css_settings['fonts_option'] = isset($this->css_settings['fonts_option']) ? $this->css_settings['fonts_option'] : '';
         ?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[fonts_option]" <?php checked( $this->css_settings['fonts_option'], "on" ); ?> >
+        <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[fonts_option]" <?php checked( $this->css_settings['fonts_option'], "on" ); ?> <?php cwvpsb_default_settings();?>>
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Locally hosting Google fonts for Pagespeed Insights or GT Metrix improvements", 'cwvpsb');?></p>
         <?php
@@ -168,7 +168,7 @@ class cwvpsb_settings {
         $this->js_settings['delayjs_option'] = isset($this->js_settings['delayjs_option']) ? $this->js_settings['delayjs_option'] : '';
         ?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->js); ?>[delayjs_option]" <?php checked( $this->js_settings['delayjs_option'], "on" ); ?> >
+        <input type='checkbox' name="<?php echo esc_attr($this->js); ?>[delayjs_option]" <?php checked( $this->js_settings['delayjs_option'], "on" ); ?> <?php cwvpsb_default_settings();?>>
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Delays the loading of JavaScript files until the user interacts like scroll, click etc, which improves performance", 'cwvpsb');?></p>
         <?php
@@ -178,7 +178,7 @@ class cwvpsb_settings {
         $this->cache_settings['cache_option'] = isset($this->cache_settings['cache_option']) ? $this->cache_settings['cache_option'] : '';
         ?>
         <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->cache); ?>[cache_option]" <?php checked( $this->cache_settings['cache_option'], "on" ); ?> >
+        <input type='checkbox' name="<?php echo esc_attr($this->cache); ?>[cache_option]" <?php checked( $this->cache_settings['cache_option'], "on" ); ?> <?php cwvpsb_default_settings();?>>
         <span class="slider round"></span></label>
         <button class="cache-btn" name="cache-btn"><i class="cache-trash"></i>&emsp;<?php echo esc_html__("Clear Site Cache", 'cwvpsb');?></button>
         <p class="description"><?php echo esc_html__("Caching pages will reduce the response time of your site and your web pages load much faster, directly from cache", 'cwvpsb');?></p>
