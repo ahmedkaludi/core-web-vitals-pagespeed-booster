@@ -21,22 +21,9 @@ function cwvpsb_complete_html_after_dom_loaded( $content ) {
 }
 add_action('wp', function(){ ob_start('cwvpsb_complete_html_after_dom_loaded'); }, 999);
 
-add_action( 'admin_enqueue_scripts', 'cwvpsb_admin_style' );
-function cwvpsb_admin_style($check) {
-    if ( !is_admin() ) {
-        return;
-    }
-    if($check != 'toplevel_page_cwvpsb_options'){
-        return; 
-    }
-    wp_register_style( 'cwvpsb_admin_css', CWVPSB_PLUGIN_DIR_URI . 'includes/admin/style.css', true, CWVPSB_VERSION );
-    wp_enqueue_style( 'cwvpsb_admin_css' );
-    wp_enqueue_script( 'cwvpsb_admin-script', CWVPSB_PLUGIN_DIR_URI . 'includes/admin/script.js', array('jquery'), CWVPSB_VERSION, true );
-}
+$settings = cwvpsb_defaults();
 
-$cwvpsb_settings = (array) get_option( $cwvpsb_settings->cache );
-
-if (isset($cwvpsb_settings["cache_option"]) && $cwvpsb_settings["cache_option"] == "1") {
+if(isset($settings['cache_support'])){
     add_action(
         'plugins_loaded',
         array(
@@ -125,7 +112,7 @@ function cwvpsb_clear_cached_css(){
     }
 
 function cwvpsb_admin_link($tab = '', $args = array()){   
-    $page = 'cwvpsb_options';
+    $page = 'cwvpsb';
     if ( ! is_multisite() ) {
         $link = admin_url( 'admin.php?page=' . $page );
     }
@@ -145,45 +132,40 @@ function cwvpsb_admin_link($tab = '', $args = array()){
 
     return esc_url($link);
 }
+
 function cwvpsb_get_tab( $default = '', $available = array() ) {
 
     $tab = isset( $_GET['tab'] ) ? sanitize_text_field($_GET['tab']) : $default;
-        
     if ( ! in_array( $tab, $available ) ) {
         $tab = $default;
     }
     return $tab;
 }
-function cwvpsb_default_settings(){
-    
-    $defaults_images = array(
-    'webp_option' => 'on',
-    'lazyload_option' => 'on',
-    );
-    if(get_option('images') == ''){
-        return update_option('images', $defaults_images);
-    }
 
-    $defaults_css = array(
-    'minify_option' => 'on',
-    'unused_css_option' => 'on',
-    'fonts_option' => 'on'
-    );
-    if(get_option('css') == ''){
-        return update_option('css', $defaults_css);
-    }
+function cwvpsb_defaults(){
+    $defaults = array(
+       'webp_support' => 1,
+       'lazyload_support'  => 1,
+       'minification_support'  => 1,
+       'unused_css_support'  => 1,
+       'google_fonts_support'  => 1,
+       'delay_js_support'  => 1
+    );        
+    $settings = get_option( 'cwvpsb_get_settings', $defaults );         
+    return $settings;
+}
 
-    $defaults_js = array(
-    'delayjs_option' => 'on'
-    );
-    if(get_option('js') == ''){
-        return update_option('js', $defaults_js);
+add_action('admin_enqueue_scripts','cwvpsb_admin_enqueue');
+function cwvpsb_admin_enqueue($check) {
+    if ( !is_admin() ) {
+        return;
     }
+    if($check != 'toplevel_page_cwvpsb'){
+        return; 
+    }
+    wp_register_style( 'cwvpsb-admin-css', CWVPSB_PLUGIN_DIR_URI . '/includes/admin/style.css', false, CWVPSB_VERSION );
+    wp_enqueue_style( 'cwvpsb-admin-css' );
 
-    $defaults_cache = array(
-    'cache_option' => 'on'
-    );
-    if(get_option('cache') == ''){
-        return update_option('cache', $defaults_cache);
-    }
+    wp_register_script( 'cwvpsb-admin-js', CWVPSB_PLUGIN_DIR_URI . 'includes/admin/script.js', array(), CWVPSB_VERSION , true );
+    wp_enqueue_script( 'cwvpsb-admin-js' );
 }

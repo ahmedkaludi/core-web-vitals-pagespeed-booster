@@ -1,261 +1,267 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
-    exit; // Exit if accessed directly.
+class cwvpsb_admin_settings{
+
+public function __construct() {
+    add_action( 'admin_menu', array($this, 'cwvpsb_add_menu_links'));
+    add_action('admin_init', array($this, 'cwvpsb_settings_init'));
+    add_action( 'init', array( &$this, 'load_settings' ) );
 }
 
-class cwvpsb_settings {
-
-    public $images = 'images';
-    public $css = 'css';
-    public $js = 'js';
-    public $cache = 'cache';
-    public $plugin_options_key = 'cwvpsb_options';
-    public $plugin_settings_tabs = array();
-
-    function __construct() {
-        add_action( 'init', array( &$this, 'load_settings' ) );
-        add_action( 'admin_init', array( &$this, 'register_images_settings' ) );
-        add_action( 'admin_init', array( &$this, 'register_css_settings' ) );
-        add_action( 'admin_init', array( &$this, 'register_js_settings' ) );
-        add_action( 'admin_init', array( &$this, 'register_cache_settings' ) );
-        add_action( 'admin_menu', array( &$this, 'add_admin_menus' ) );
+function load_settings() {
+    $settings = cwvpsb_defaults();
+    if(isset($settings['webp_support'])){
+       require_once CWVPSB_PLUGIN_DIR."includes/images/convert-webp.php";;
     }
-
-    function load_settings() {
-        $this->images_settings = (array) get_option( $this->images );
-        $this->css_settings = (array) get_option( $this->css );
-        $this->js_settings = (array) get_option( $this->js );
-        $this->cache_settings = (array) get_option( $this->cache );
-
-        if (!isset($this->images_settings)) {
-            $this->images_settings = array_merge( array(
-                'webp_option' => 'on',
-                'lazyload_option' => 'on'
-            ), $this->images_settings );
-        }
-        
-        if (!isset($this->css_settings)) {
-            $this->css_settings = array_merge( array(
-                'minify_option' => 'on',
-                'unused_css_option' => 'on',
-                'fonts_option' => 'on'
-            ), $this->css_settings );
-        }
-
-        if (!isset($this->js_settings)) {
-            $this->js_settings = array_merge( array(
-                'delayjs_option' => 'on'
-            ), $this->js_settings );
-        }
-
-        if (!isset($this->cache_settings)) {
-            $this->cache_settings = array_merge( array(
-                'cache_option' => 'on'
-            ), $this->cache_settings );
-        }
-        if (isset($this->images_settings['webp_option']) && $this->images_settings['webp_option'] == "on") {
-           require_once CWVPSB_PLUGIN_DIR."includes/images/convert-webp.php";
-        }
-        if (isset($this->images_settings['lazyload_option']) && $this->images_settings['lazyload_option'] == "on") {
-           require_once CWVPSB_PLUGIN_DIR."includes/images/lazy-loading.php";
-        }
-        if (isset($this->css_settings['minify_option']) && $this->css_settings['minify_option'] == "on") {
-           require_once CWVPSB_PLUGIN_DIR."includes/css/minify.php";
-        }
-        if (isset($this->css_settings['unused_css_option']) && $this->css_settings['unused_css_option'] == "on") {
-           require_once CWVPSB_PLUGIN_DIR."includes/css/unused-css.php";
-        }
-        if (isset($this->css_settings['fonts_option']) && $this->css_settings['fonts_option'] == "on") {
-           require_once CWVPSB_PLUGIN_DIR."includes/css/google-fonts.php";
-        }
-        if (isset($this->js_settings['delayjs_option']) && $this->js_settings['delayjs_option'] == "on") {
-           require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-js.php";
-        }
-
+    if(isset($settings['lazyload_support'])){
+       require_once CWVPSB_PLUGIN_DIR."includes/images/lazy-loading.php";
     }
+    if(isset($settings['minification_support'])){
 
-    function register_images_settings() {
-        $this->plugin_settings_tabs[$this->images] = 'images';
-
-        register_setting( $this->images, $this->images );
-        add_settings_section('section_images', __return_false(), '__return_false', $this->images);
-        if (function_exists('imagewebp')) {
-            add_settings_field( 'webp_option', esc_html__('Webp images', 'cwvpsb'), array( &$this, 'field_webp_option' ), $this->images, 'section_images' );
-        }
-        add_settings_field( 'lazyload_option', esc_html__('Lazy Load', 'cwvpsb'), array( &$this, 'field_lazyload_option' ), $this->images, 'section_images' );
+       require_once CWVPSB_PLUGIN_DIR."includes/css/minify.php";
     }
-
-    function register_css_settings() {
-        $this->plugin_settings_tabs[$this->css] = 'CSS';
-        register_setting( $this->css, $this->css );
-        add_settings_section('section_css', __return_false(), '__return_false', $this->css);
-        add_settings_field( 'minify_option', esc_html__('Minification', 'cwvpsb'), array( &$this, 'field_minify_option' ), $this->css, 'section_css' );
-        add_settings_field( 'unused_css_option', esc_html__('Remove Unused CSS', 'cwvpsb'), array( &$this, 'field_unused_css_option' ), $this->css, 'section_css' );
-        add_settings_field( 'fonts_option', esc_html__('Google Fonts Optimizations', 'cwvpsb'), array( &$this, 'field_fonts_option' ), $this->css, 'section_css' );
+    if(isset($settings['unused_css_support'])){
+       require_once CWVPSB_PLUGIN_DIR."includes/css/unused-css.php";
     }
-
-    function register_js_settings() {
-        $this->plugin_settings_tabs[$this->js] = 'Javascript';
-        register_setting( $this->js, $this->js );
-        add_settings_section('section_js', __return_false(), '__return_false', $this->js);
-        add_settings_field( 'delayjs_option', esc_html__('Delay JavaScript Execution', 'cwvpsb'), array( &$this, 'field_delayjs_option' ), $this->js, 'section_js' );
+    if(isset($settings['google_fonts_support'])){
+       require_once CWVPSB_PLUGIN_DIR."includes/css/google-fonts.php";
     }
-
-    function register_cache_settings() {
-        $this->plugin_settings_tabs[$this->cache] = 'Cache';
-        register_setting( $this->cache, $this->cache );
-        add_settings_section('section_cache', __return_false(), '__return_false', $this->cache);
-        add_settings_field( 'cache_option', esc_html__('Cache', 'cwvpsb'), array( &$this, 'field_cache_option' ), $this->cache, 'section_cache' );
+    if(isset($settings['delay_js_support'])){
+       require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-js.php";
     }
+}
 
-    function field_webp_option() {
-        $this->images_settings['webp_option'] = isset($this->images_settings['webp_option']) ? $this->images_settings['webp_option'] : '';
-        ?>
-        <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->images); ?>[webp_option]" <?php checked( $this->images_settings['webp_option'], "on" ); ?> <?php cwvpsb_default_settings();?>>
-        <span class="slider round"></span></label>
-        <p class="description"><?php echo esc_html__("Images are converted to WebP on the fly if the browser supports it. You don't have to do anything", 'cwvpsb');?></p>
-        <?php
-    }
+public function cwvpsb_add_menu_links() { 
+    add_menu_page( esc_html__('Core Web Vitals', 'cwvpsb'), esc_html__('Core Web Vitals', 'cwvpsb'), 'manage_options', 'cwvpsb', array($this, 'cwvpsb_admin_interface_render'),'dashicons-superhero');
+}
 
-    function field_lazyload_option() {
-        $this->images_settings['lazyload_option'] = isset($this->images_settings['lazyload_option']) ? $this->images_settings['lazyload_option'] : '';
-        ?>
-        <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->images); ?>[lazyload_option]" <?php checked( $this->images_settings['lazyload_option'], "on" ); ?> <?php cwvpsb_default_settings();?>>
-        <span class="slider round"></span></label>
-        <p class="description"><?php echo esc_html__("Lazy Load delays loading of images and iframes in long web pages. which are outside of viewport and will not be loaded before user scrolls to them", 'cwvpsb');?></p>
-        <?php
-    }
+public function cwvpsb_admin_interface_render(){
 
-    function field_minify_option() {
-        $this->css_settings['minify_option'] = isset($this->css_settings['minify_option']) ? $this->css_settings['minify_option'] : '';
-        ?>
-        <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[minify_option]" <?php checked( $this->css_settings['minify_option'], "on" ); ?> <?php cwvpsb_default_settings();?>>
-        <span class="slider round"></span></label>
-        <p class="description"><?php echo esc_html__("You will see the source of your HTML, CSS and JavaScript are now compressed and the size will be smaller which will be helpful to improve your page load speed", 'cwvpsb');?></p>
-        <?php
-    }
-     
-    function field_unused_css_option() {
-        $webp_nonce = wp_create_nonce('cwv-security-nonce');
-        $this->css_settings['unused_css_option'] = isset($this->css_settings['unused_css_option']) ? $this->css_settings['unused_css_option'] : '';
-        ?>
-        <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[unused_css_option]" <?php checked( $this->css_settings['unused_css_option'], "on" ); ?> <?php cwvpsb_default_settings();?>>
-        <span class="slider round"></span></label>
-        <p class="description"><?php echo esc_html__("Makes your site even faster and lighter by automatically removing unused CSS from your website", 'cwvpsb');?></p>
-        <?php if ($this->css_settings['unused_css_option'] == 'on') {?>
-        <br/><textarea rows='5' cols='70' name="<?php echo esc_attr($this->css); ?>[whitelist_css]" id='cwvpsb_add_whitelist_css'><?php echo esc_html($this->css_settings['whitelist_css']) ?></textarea>
-            <p class="description"><?php echo esc_html__("Add the CSS selectors line by line which you don't want to remove", 'cwvpsb');?></p><br/>
-        <?php } if ($this->css_settings['unused_css_option'] == 'on') { ?>
-            <div style='display:inline-block;'><span class='button button-secondry' id='clear-css-cache' data-cleaningtype='css' data-nonce='<?php echo $webp_nonce;?>' >Clear Cached CSS</span><span class='clear-cache-msg'></span></div>
-        <?php }
-    }  
-
-    function field_fonts_option() {
-        $this->css_settings['fonts_option'] = isset($this->css_settings['fonts_option']) ? $this->css_settings['fonts_option'] : '';
-        ?>
-        <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->css); ?>[fonts_option]" <?php checked( $this->css_settings['fonts_option'], "on" ); ?> <?php cwvpsb_default_settings();?>>
-        <span class="slider round"></span></label>
-        <p class="description"><?php echo esc_html__("Locally hosting Google fonts for Pagespeed Insights or GT Metrix improvements", 'cwvpsb');?></p>
-        <?php
-    } 
-     
-    function field_delayjs_option() {
-        $this->js_settings['delayjs_option'] = isset($this->js_settings['delayjs_option']) ? $this->js_settings['delayjs_option'] : '';
-        ?>
-        <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->js); ?>[delayjs_option]" <?php checked( $this->js_settings['delayjs_option'], "on" ); ?> <?php cwvpsb_default_settings();?>>
-        <span class="slider round"></span></label>
-        <p class="description"><?php echo esc_html__("Delays the loading of JavaScript files until the user interacts like scroll, click etc, which improves performance", 'cwvpsb');?></p>
-        <?php
-    } 
-
-    function field_cache_option() {
-        $this->cache_settings['cache_option'] = isset($this->cache_settings['cache_option']) ? $this->cache_settings['cache_option'] : '';
-        ?>
-        <label class="switch">
-        <input type='checkbox' name="<?php echo esc_attr($this->cache); ?>[cache_option]" <?php checked( $this->cache_settings['cache_option'], "on" ); ?> <?php cwvpsb_default_settings();?>>
-        <span class="slider round"></span></label>
-        <button class="cache-btn" name="cache-btn"><i class="cache-trash"></i>&emsp;<?php echo esc_html__("Clear Site Cache", 'cwvpsb');?></button>
-        <p class="description"><?php echo esc_html__("Caching pages will reduce the response time of your site and your web pages load much faster, directly from cache", 'cwvpsb');?></p>
-        <?php
-    } 
-
-    function add_admin_menus() {
-        add_menu_page( esc_html__('Core Web Vitals', 'cwvpsb'), esc_html__('Core Web Vitals', 'cwvpsb'), 'manage_options', $this->plugin_options_key, array( &$this, 'plugin_options_page' ) ,'dashicons-superhero');
-    }
-
-    function plugin_options_page() {
-        // Authentication
+    // Authentication
     if ( ! current_user_can( 'manage_options' ) ) {
         return;
     }              
-    $tab = cwvpsb_get_tab('images', array('images', 'css','js','cache')); 
-    ?>
+    // Handing save settings
+    if ( isset( $_GET['settings-updated'] ) ) { 
+        $settings = cwvpsb_defaults();  
+        settings_errors();
+    }
+    $tab = cwvpsb_get_tab('images', array('images', 'css', 'javascript','cache')); ?>
+                                    
     <h1><?php echo esc_html__('Core Web Vitals & PageSpeed Booster Settings', 'cwvpsb'); ?></h1>
-        <h2 class="nav-tab-wrapper cwvpsb-tabs">
-            <?php   
-            echo '<a href="' . esc_url(cwvpsb_admin_link('images')) . '" class="nav-tab ' . esc_attr( $tab == 'images' ? 'nav-tab-active' : '') . '">' . esc_html__('images','cwvpsb') . '</a>';
-                        
-            echo '<a href="' . esc_url(cwvpsb_admin_link('css')) . '" class="nav-tab ' . esc_attr( $tab == 'css' ? 'nav-tab-active' : '') . '">' . esc_html__('CSS','cwvpsb') . '</a>';
+    <h2 class="nav-tab-wrapper cwvpsb-tabs">
+    <?php
+        echo '<a href="' . esc_url(cwvpsb_admin_link('images')) . '" class="nav-tab ' . esc_attr( $tab == 'images' ? 'nav-tab-active' : '') . '">' . esc_html__('images','cwvpsb') . '</a>';
+                    
+        echo '<a href="' . esc_url(cwvpsb_admin_link('css')) . '" class="nav-tab ' . esc_attr( $tab == 'css' ? 'nav-tab-active' : '') . '">' . esc_html__('CSS','cwvpsb') . '</a>';
 
-            echo '<a href="' . esc_url(cwvpsb_admin_link('js')) . '" class="nav-tab ' . esc_attr( $tab == 'js' ? 'nav-tab-active' : '') . '">' . esc_html__('JS','cwvpsb') . '</a>';
+        echo '<a href="' . esc_url(cwvpsb_admin_link('javascript')) . '" class="nav-tab ' . esc_attr( $tab == 'javascript' ? 'nav-tab-active' : '') . '">' . esc_html__('Javascript','cwvpsb') . '</a>';
 
-            echo '<a href="' . esc_url(cwvpsb_admin_link('cache')) . '" class="nav-tab ' . esc_attr( $tab == 'cache' ? 'nav-tab-active' : '') . '">' . esc_html__('Cache','cwvpsb') . '</a>';
-                                                
-            ?>
-        </h2>
-            <form action="options.php" method="post" enctype="multipart/form-data" class="cwvpsb-settings-form">      
-            <div class="cwvpsb-form-wrap">
+        echo '<a href="' . esc_url(cwvpsb_admin_link('cache')) . '" class="nav-tab ' . esc_attr( $tab == 'cache' ? 'nav-tab-active' : '') . '">' . esc_html__('Cache','cwvpsb') . '</a>';
+                                                   
+    ?>
+    </h2>
+    <form action="options.php" method="post" enctype="multipart/form-data" class="cwvpsb-settings-form">      
+        <div class="form-wrap">
             <?php
-            settings_fields( $tab );
+            settings_fields( 'cwvpsb_setting_dashboard_group' );
 
             echo "<div class='cwvpsb-images' ".( $tab != 'images' ? 'style="display:none;"' : '').">";
-            do_settings_sections( $this->images );
+            do_settings_sections( 'cwvpsb_images_section' );
             echo "</div>";
-
+                        
             echo "<div class='cwvpsb-css' ".( $tab != 'css' ? 'style="display:none;"' : '').">";
-            do_settings_sections( $this->css );
+            do_settings_sections( 'cwvpsb_css_section' );
             echo "</div>";
 
-            echo "<div class='cwvpsb-js' ".( $tab != 'js' ? 'style="display:none;"' : '').">";
-            do_settings_sections( $this->js ); 
+            echo "<div class='cwvpsb-javascript' ".( $tab != 'javascript' ? 'style="display:none;"' : '').">";
+            do_settings_sections( 'cwvpsb_javascript_section' ); 
             echo "</div>";
 
             echo "<div class='cwvpsb-cache' ".( $tab != 'cache' ? 'style="display:none;"' : '').">";
-            do_settings_sections( $this->cache );
-            echo "</div>";  
-
-            ?>
-            </div>
-            <div class="button-wrapper">                            
-            <?php
-                submit_button( esc_html__('Save', 'cwvpsb') );
-            ?>
-            </div>
-        </form>
-    </div> 
+            do_settings_sections( 'cwvpsb_cache_section' );
+            echo "</div>"; ?>
+        </div>
+        <div class="button-wrapper">                            
+        <?php
+            submit_button( esc_html__('Save', 'cwvpsb') );
+        ?>
+        </div>
+    </form>
+    </div>   
     <?php }
 
-    function plugin_options_tabs() {?>
-        <h2 class="nav-tab-wrapper cwvpsb-tabs">
-            <?php   
-            $tab = cwvpsb_get_tab('images', array('images', 'css'));
+public function cwvpsb_settings_init(){
 
-            echo '<a href="' . esc_url(cwvpsb_admin_link('images')) . '" class="nav-tab ' . esc_attr( $tab == 'images' ? 'nav-tab-active' : '') . '">' . esc_html__('images','cwvpsb') . '</a>';
-                        
-            echo '<a href="' . esc_url(cwvpsb_admin_link('css')) . '" class="nav-tab ' . esc_attr( $tab == 'css' ? 'nav-tab-active' : '') . '">' . esc_html__('CSS','cwvpsb') . '</a>';
+    register_setting( 'cwvpsb_setting_dashboard_group', 'cwvpsb_get_settings' );
+ 
+    add_settings_section('cwvpsb_images_section', '', '__return_false', 'cwvpsb_images_section');
+    if (function_exists('imagewebp')) {                    
+        add_settings_field(
+            'webp_support',
+            'Webp Images',
+             array($this, 'webp_callback'),
+            'cwvpsb_images_section',
+            'cwvpsb_images_section'
+        );
+    }
+    add_settings_field(
+        'lazyload_support',
+        'Lazy Load',
+         array($this, 'lazyload_callback'),
+        'cwvpsb_images_section',
+        'cwvpsb_images_section'
+    );
+    
+    add_settings_section('cwvpsb_css_section', '', '__return_false', 'cwvpsb_css_section');                     
+    add_settings_field(
+        'minification_support',
+        'Minification',
+         array($this, 'minification_callback'),
+        'cwvpsb_css_section',
+        'cwvpsb_css_section'
+    );  
+    add_settings_field(
+        'unused_css_support',
+        'Remove Unused CSS',
+         array($this, 'unused_css_callback'),
+        'cwvpsb_css_section',
+        'cwvpsb_css_section'
+    );
+    add_settings_field(
+        'google_fonts_support',
+        'Google Fonts Optimizations',
+         array($this, 'google_fonts_callback'),
+        'cwvpsb_css_section',
+        'cwvpsb_css_section'
+    );    
 
-            echo '<a href="' . esc_url(cwvpsb_admin_link('js')) . '" class="nav-tab ' . esc_attr( $tab == 'js' ? 'nav-tab-active' : '') . '">' . esc_html__('JS','cwvpsb') . '</a>';
+    add_settings_section('cwvpsb_javascript_section', '', '__return_false', 'cwvpsb_javascript_section');                    
+    add_settings_field(
+        'delay_js_support',
+        'Delay JavaScript Execution ',
+         array($this, 'delay_js_callback'),
+        'cwvpsb_javascript_section',
+        'cwvpsb_javascript_section'
+    );
 
-            echo '<a href="' . esc_url(cwvpsb_admin_link('cache')) . '" class="nav-tab ' . esc_attr( $tab == 'cache' ? 'nav-tab-active' : '') . '">' . esc_html__('Cache','cwvpsb') . '</a>';                            
-            ?>
-        </h2>
+    add_settings_section('cwvpsb_cache_section', '', '__return_false', 'cwvpsb_cache_section');                    
+    add_settings_field(
+        'cache_support',
+        'Cache',
+         array($this, 'cache_callback'),
+        'cwvpsb_cache_section',
+        'cwvpsb_cache_section'
+    );                                           
+}
+ 
+public function webp_callback(){
+            
+    $settings = cwvpsb_defaults(); ?>  
+    <fieldset><label class="switch">
+        <?php
+        if(isset($settings['webp_support'])){
+            echo '<input type="checkbox" name="cwvpsb_get_settings[webp_support]" class="regular-text" value="1" checked>';
+        }else{
+            echo '<input type="checkbox" name="cwvpsb_get_settings[webp_support]" class="regular-text" value="1" >';
+        } ?>
+        <span class="slider round"></span></label>    
+        <p class="description"><?php echo esc_html__("Images are converted to WebP on the fly if the browser supports it. You don't have to do anything", 'cwvpsb');?></p>
+    </fieldset>
+    <?php    
+}
+public function lazyload_callback(){
+    $settings = cwvpsb_defaults(); ?>
+    <fieldset><label class="switch">
+        <?php
+        if(isset($settings['lazyload_support'])){
+            echo '<input type="checkbox" name="cwvpsb_get_settings[lazyload_support]" class="regular-text" value="1" checked> ';
+        }else{
+            echo '<input type="checkbox" name="cwvpsb_get_settings[lazyload_support]" class="regular-text" value="1" >';
+        } ?>
+        <span class="slider round"></span></label>
+        <p class="description"><?php echo esc_html__("Lazy Load delays loading of images and iframes in long web pages. which are outside of viewport and will not be loaded before user scrolls to them", 'cwvpsb');?></p>
+    </fieldset>
     <?php }
+
+public function minification_callback(){
+    $settings = cwvpsb_defaults(); ?>
+    <fieldset><label class="switch">
+        <?php
+        if(isset($settings['minification_support'])){
+            echo '<input type="checkbox" name="cwvpsb_get_settings[minification_support]" class="regular-text" value="1" checked> ';
+        }else{
+            echo '<input type="checkbox" name="cwvpsb_get_settings[minification_support]" class="regular-text" value="1" >';
+        }?>
+        <span class="slider round"></span></label>
+        <p class="description"><?php echo esc_html__("You will see the source of your HTML, CSS and JavaScript are now compressed and the size will be smaller which will be helpful to improve your page load speed", 'cwvpsb');?></p>
+    </fieldset>
+    <?php }
+ 
+public function unused_css_callback(){
+    $webp_nonce = wp_create_nonce('cwv-security-nonce');
+    $settings = cwvpsb_defaults(); ?>
+    <fieldset><label class="switch">
+        <?php
+        if(isset($settings['unused_css_support'])){
+            echo '<input type="checkbox" name="cwvpsb_get_settings[unused_css_support]" class="regular-text" value="1" checked> ';
+        }else{
+            echo '<input type="checkbox" name="cwvpsb_get_settings[unused_css_support]" class="regular-text" value="1" >';
+        } ?>
+        <span class="slider round"></span></label>
+        <p class="description"><?php echo esc_html__("Makes your site even faster and lighter by automatically removing unused CSS from your website", 'cwvpsb');?></p>
+        <?php if(isset($settings['unused_css_support'])){?>
+        <br/><textarea rows='5' cols='70' name="cwvpsb_get_settings[whitelist_css]" id='cwvpsb_add_whitelist_css'><?php echo esc_html($settings['whitelist_css']) ?></textarea>
+            <p class="description"><?php echo esc_html__("Add the CSS selectors line by line which you don't want to remove", 'cwvpsb');?></p><br/>
+            <div style='display:inline-block;'><span class='button button-secondry' id='clear-css-cache' data-cleaningtype='css' data-nonce='<?php echo $webp_nonce;?>' >Clear Cached CSS</span><span class='clear-cache-msg'></span></div>
+        <?php } ?>
+    </fieldset>
+    <?php } 
+
+public function google_fonts_callback(){
+    $settings = cwvpsb_defaults();?>
+    <fieldset><label class="switch">
+        <?php
+        if(isset($settings['google_fonts_support'])){
+            echo '<input type="checkbox" name="cwvpsb_get_settings[google_fonts_support]" class="regular-text" value="1" checked> ';
+        }else{
+            echo '<input type="checkbox" name="cwvpsb_get_settings[google_fonts_support]" class="regular-text" value="1" >';
+        }?>
+        <span class="slider round"></span></label>
+        <p class="description"><?php echo esc_html__("Locally hosting Google fonts for Pagespeed Insights or GT Metrix improvements", 'cwvpsb');?></p>
+    </fieldset>
+    <?php }   
+    
+public function delay_js_callback(){
+    $settings = cwvpsb_defaults(); ?>
+    <fieldset><label class="switch">
+        <?php
+        if(isset($settings['delay_js_support'])){
+            echo '<input type="checkbox" name="cwvpsb_get_settings[delay_js_support]" class="regular-text" value="1" checked> ';
+        }else{
+            echo '<input type="checkbox" name="cwvpsb_get_settings[delay_js_support]" class="regular-text" value="1" >';
+        }?>
+        <span class="slider round"></span></label>
+        <p class="description"><?php echo esc_html__("Delays the loading of JavaScript files until the user interacts like scroll, click etc, which improves performance", 'cwvpsb');?></p>
+    </fieldset>
+    <?php } 
+
+public function cache_callback(){
+    $settings = cwvpsb_defaults(); ?>
+    <fieldset><label class="switch">
+        <?php
+        if(isset($settings['cache_support'])){
+            echo '<input type="checkbox" name="cwvpsb_get_settings[cache_support]" class="regular-text" value="1" checked> ';
+        }else{
+            echo '<input type="checkbox" name="cwvpsb_get_settings[cache_support]" class="regular-text" value="1" >';
+        }?>
+        <span class="slider round"></span></label>
+   <?php if(isset($settings['cache_support'])){?>      
+    <button class="cache-btn" name="cache-btn"><i class="cache-trash"></i>&emsp;<?php echo esc_html__("Clear Site Cache", 'cwvpsb');?></button>
+    <?php }  ?>
+    <p class="description"><?php echo esc_html__("Caching pages will reduce the response time of your site and your web pages load much faster, directly from cache", 'cwvpsb');?></p>
+    </fieldset>
+    <?php }
+}
+if (class_exists('cwvpsb_admin_settings')) {
+    new cwvpsb_admin_settings;
 };
-
-$cwvpsb_settings = new cwvpsb_settings;
