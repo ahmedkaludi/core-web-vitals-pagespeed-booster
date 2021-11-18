@@ -45,7 +45,7 @@ function cwvpsb_convert_webp(){
         if(!file_exists($upload_dir_base)) wp_mkdir_p($upload_dir_base);
         $upload_dir_base .= '/'.$img_dir;
         $check_dir = $upload_dir_base . '.webp';
-        if(!file_exists($check_dir)){
+        if(!file_exists($check_dir) && file_exists($new_dir)){
             $image = imagecreatefromstring(file_get_contents($new_dir));
             ob_start();
             imagejpeg($image,NULL,100);
