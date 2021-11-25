@@ -140,7 +140,7 @@ class CWVPSB_Google_Fonts
 				$updated_handle = self::get_cache_key($handle);
 			}
 
-			$cached_file = '/uploads/cwvpsb-fonts/' . $updated_handle . "/$updated_handle.css";
+			$cached_file = '/wp-content/uploads/web-vital-fonts/' . $updated_handle . "/$updated_handle.";
 
 			if (file_exists(WP_CONTENT_DIR . $cached_file)) {
 				$wp_styles->registered[$handle]->src = content_url($cached_file);
@@ -152,7 +152,7 @@ class CWVPSB_Google_Fonts
 			 */
 			$modetype = 'auto';
 			if ( $modetype == 'auto' ) {
-				$api_url  = str_replace(['http:', 'https:'], '', home_url('/wp-json/cwvpsb/v1/download/'));
+				$api_url  = str_replace(['http:', 'https:'], '', home_url($cached_file));
 				$protocol = '';
 
 				if (substr($font->src, 0, 2) == '//') {
