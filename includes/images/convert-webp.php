@@ -27,6 +27,10 @@ function cwvpsb_convert_webp(){
         $featured_img = get_the_post_thumbnail_url(get_the_ID(),'full');
         array_push($img_src , $featured_img);
     }
+    if (function_exists('et_setup_theme')) { 
+        $logo = et_get_option( 'divi_logo' );
+        array_push($img_src , $logo);
+    }
     if ( has_custom_logo() ) {
         $logo = wp_get_attachment_url( get_theme_mod( 'custom_logo' ));
         array_push($img_src , $logo);
