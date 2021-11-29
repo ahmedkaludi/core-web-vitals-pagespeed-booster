@@ -43,6 +43,7 @@ function cwvpsb_get_whitelist_css($html){
   $white_list = array();
   $settings = cwvpsb_defaults();
   $white_list_data = $settings['whitelist_css'];
+  $white_list_data = apply_filters('cwvpsb_whitelist_css', $white_list_data );
   $white_list = preg_split('/\r\n|\r|\n/', $white_list_data);
   	global $whitelist_css;
   	for($i=0;$i<count($white_list);$i++){
@@ -56,4 +57,10 @@ function cwvpsb_get_whitelist_css($html){
       		}
     	}
     }  
+}
+
+add_filter('cwvpsb_whitelist_css', 'cwvpsb_whitelist_css_global');
+function cwvpsb_whitelist_css_global($whitelist){
+	$whitelist = '.et-waypoint';
+	return $whitelist;
 }
