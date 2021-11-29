@@ -22,14 +22,12 @@ function cwvpsb_unused_css($html){
 	$sanitize = $parser->sanitize();
 	$custom_style_element = $tmpDoc->createElement( 'style' );
 	$tmpDoc->head->appendChild( $custom_style_element );
-    if(!empty($settings['whitelist_css'])){
-		$whitelist = cwvpsb_css_whitelist_selectors($html);
+	$whitelist = cwvpsb_css_whitelist_selectors($html);
 	  	if(!empty($whitelist)){
 		    $custom_style_element = $tmpDoc->createElement( 'style' );
 		    $custom_style_element->appendChild($tmpDoc->createTextNode( $whitelist ));
 		    $tmpDoc->head->appendChild( $custom_style_element );
-	  	}
-  	}
+	  	}	
 	$html = $tmpDoc->saveHTML();
 	return $html;
 }
