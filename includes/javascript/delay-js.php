@@ -74,10 +74,7 @@ function cwvpsb_delay_js_html($html) {
 		$atts_array['type'] = 'cwvpsbdelayedscript';
 	
 		if($delay_flag) {
-			$atts_array['data-cfasync'] = "false";
-			$atts_array['data-no-optimize'] = "1";
-			$atts_array['data-no-defer'] = "1";
-			$atts_array['data-no-minify'] = "1";
+	
 			$delayed_atts_string = cwvpsb_get_atts_string($atts_array);
 	        $delayed_tag = sprintf('<script %1$s>', $delayed_atts_string) . (!empty($matches[3][$i]) ? $matches[3][$i] : '') .'</script>';
 			$html = str_replace($tag, $delayed_tag, $html);
