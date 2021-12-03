@@ -62,6 +62,6 @@ function cwvpsb_whitelist_css_global($whitelist){
 	if (empty($whitelist)) {
 		$whitelist = '\s';
 	}
-	$whitelist .= ' .et-waypoint img.emoji';
+	$whitelist .= '.et-waypoint img.emoji';
 	return $whitelist;
 }
