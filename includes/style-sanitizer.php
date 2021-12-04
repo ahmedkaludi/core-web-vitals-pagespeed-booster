@@ -655,6 +655,9 @@ class cwvpsb_treeshaking {
 	private function process_link_element( DOMElement $element ) {
 		$href = $element->getAttribute( 'href' );
 		$normalized_url = preg_replace( '#^(http:)?(?=//)#', 'https:', $href );
+		if(preg_match('/wp-content\/themes\/betheme\/css\/be\.css/i', $normalized_url)){
+			return;
+		}
 		if ( $this->allowed_font_src_regex && preg_match( $this->allowed_font_src_regex, $normalized_url ) ) {
 			if ( $href !== $normalized_url ) {
 				$element->setAttribute( 'href', $normalized_url );
