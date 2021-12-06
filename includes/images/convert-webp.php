@@ -18,6 +18,9 @@ function cwvpsb_convert_webp(){
         ob_end_clean();
         $content .=  $sidebar_html; 
     }
+    if (class_exists('Mfn_Builder_Front')) {
+        $content .= get_post_field( 'mfn-page-items-seo', get_the_ID());
+    }
     $get_src_regex = '/src="([^"]*)"/';
     preg_match_all( $get_src_regex, $content, $matches );
     $matches = array_reverse($matches);
