@@ -169,3 +169,12 @@ function cwvpsb_admin_enqueue($check) {
     wp_register_script( 'cwvpsb-admin-js', CWVPSB_PLUGIN_DIR_URI . 'includes/admin/script.js', array(), CWVPSB_VERSION , true );
     wp_enqueue_script( 'cwvpsb-admin-js' );
 }
+
+add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_google_fonts_swap');
+function cwvpsb_google_fonts_swap( $html ) {
+    $html = str_replace("&#038;display=swap", "", $html);
+    $html = str_replace("googleapis.com/css?family", "googleapis.com/css?display=swap&family", $html);
+    $html = str_replace("googleapis.com/css2?family", "googleapis.com/css2?display=swap&family", $html);
+    $html = preg_replace("/(WebFontConfig\['google'\])(.+[\w])(.+};)/", '$1$2&display=swap$3', $html);
+    return $html;
+}
