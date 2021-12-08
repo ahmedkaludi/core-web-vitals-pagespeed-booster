@@ -31,6 +31,9 @@ function load_settings() {
     if(isset($settings['delay_js_support'])){
        require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-js.php";
     }
+    if(isset($settings['delay_js_support_js'])){
+       require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-jswithjs.php";
+    }
 }
 
 public function cwvpsb_add_menu_links() { 
@@ -141,8 +144,15 @@ public function cwvpsb_settings_init(){
     add_settings_section('cwvpsb_javascript_section', '', '__return_false', 'cwvpsb_javascript_section');                    
     add_settings_field(
         'delay_js_support',
-        'Delay JavaScript Execution ',
+        'Delay JS Execution [PHP Method]',
          array($this, 'delay_js_callback'),
+        'cwvpsb_javascript_section',
+        'cwvpsb_javascript_section'
+    );
+    add_settings_field(
+        'delay_js_support_js',
+        'Delay JS Execution [JS Method]',
+         array($this, 'delay_js_callback_js'),
         'cwvpsb_javascript_section',
         'cwvpsb_javascript_section'
     );
@@ -247,6 +257,20 @@ public function delay_js_callback(){
         <p class="description"><?php echo esc_html__("Delays the loading of JavaScript files until the user interacts like scroll, click etc, which improves performance", 'cwvpsb');?></p>
     </fieldset>
     <?php } 
+
+public function delay_js_callback_js(){
+    $settings = cwvpsb_defaults(); ?>
+    <fieldset><label class="switch">
+        <?php
+        if(isset($settings['delay_js_support_js'])){
+            echo '<input type="checkbox" name="cwvpsb_get_settings[delay_js_support_js]" class="regular-text" value="1" checked> ';
+        }else{
+            echo '<input type="checkbox" name="cwvpsb_get_settings[delay_js_support_js]" class="regular-text" value="1" >';
+        }?>
+        <span class="slider round"></span></label>
+        <p class="description"><?php echo esc_html__("Delays the loading of JavaScript files until the user interacts like scroll, click etc, which improves performance", 'cwvpsb');?></p>
+    </fieldset>
+    <?php }    
 
 public function cache_callback(){
     $settings = cwvpsb_defaults(); ?>
