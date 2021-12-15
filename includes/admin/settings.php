@@ -8,6 +8,8 @@ public function __construct() {
     add_action( 'admin_menu', array($this, 'cwvpsb_add_menu_links'));
     add_action('admin_init', array($this, 'cwvpsb_settings_init'));
     add_action( 'init', array( &$this, 'load_settings' ) );
+    add_action('wp_ajax_list_files_to_convert', array($this, 'get_list_convert_files'));
+        add_action('wp_ajax_webvital_webp_convert_file', array($this, 'webp_convert_file'));
 }
 
 function load_settings() {
@@ -104,10 +106,27 @@ public function cwvpsb_settings_init(){
     if (function_exists('imagewebp')) {                    
         add_settings_field(
             'webp_support',
-            'Webp Images',
+            'Webp Images [ On The Fly]',
              array($this, 'webp_callback'),
             'cwvpsb_images_section',
             'cwvpsb_images_section'
+        );
+    }
+    $settings = cwvpsb_defaults(); 
+    if(!isset($settings['webp_support'])){
+    add_settings_field(
+            'webp_support_manually',
+            esc_html__('Convert all images to WEBP [ Manually ]','web-vitals-page-speed-enhancer'),  
+            array($this, 'image_convert_webp_bulk'),            
+            'cwvpsb_images_section',                     
+            'cwvpsb_images_section'                          
+        );
+        add_settings_field(
+            'webp_support_manually_display',
+            esc_html__('Display WEBP Images','web-vitals-page-speed-enhancer'),
+            array($this, 'image_convert_webp'),                 
+            'cwvpsb_images_section',
+            'cwvpsb_images_section'                      
         );
     }
     add_settings_field(
@@ -182,6 +201,34 @@ public function webp_callback(){
     </fieldset>
     <?php    
 }
+function image_convert_webp_bulk(){
+   $settings = cwvpsb_defaults(); 
+   if(!isset($settings['webp_support'])){
+    $webp_nonce = wp_create_nonce('web-vitals-security-nonce');
+    echo "<button type='button' class='bulk_convert_webp' data-nonce='".$webp_nonce."'>".esc_html__('Bulk convert to WEBP','web-vitals-page-speed-enhancer')."<span id='bulk_convert_message'></span></button>
+        <div><div id='bulkconverUpload-wrap'><div class='bulkconverUpload'>".esc_html__('Convert all your images to webp by clicking on this button and please wait for few seconds to load and then click on start convertion','web-vitals-page-speed-enhancer')."</div></div></div>";
+    }
+}
+
+    function image_convert_webp(){
+        // Get Settings
+        $settings = cwvpsb_defaults(); 
+       if(!isset($settings['webp_support'])){?>      
+     
+    
+    <fieldset><label class="switch">
+        <?php
+        if(isset($settings['webp_support_manually_display'])){
+            echo '<input type="checkbox" name="cwvpsb_get_settings[webp_support_manually_display]" class="regular-text" value="1" checked>';
+        }else{
+            echo '<input type="checkbox" name="cwvpsb_get_settings[webp_support_manually_display]" class="regular-text" value="1" >';
+        } ?>
+        <span class="slider round"></span></label>    
+        <p class="description"><?php echo esc_html__("Display WEBP Images once you have converted it manually", 'cwvpsb');?></p>
+    </fieldset>
+
+    <?php  }
+    }
 public function lazyload_callback(){
     $settings = cwvpsb_defaults(); ?>
     <fieldset><label class="switch">
@@ -288,6 +335,138 @@ public function cache_callback(){
     <p class="description"><?php echo esc_html__("Caching pages will reduce the response time of your site and your web pages load much faster, directly from cache", 'cwvpsb');?></p>
     </fieldset>
     <?php }
+    function get_list_convert_files(){
+        if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vitals-security-nonce')){
+            echo json_encode(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified', 'web-vitals-page-speed-enhancer' ) ) );die;
+        }
+        $listOpt = array();
+        $upload = wp_upload_dir();
+        $listOpt['root'] = $upload['basedir'];
+        $listOpt['filter'] = [
+                'only-converted' => false,
+                'only-unconverted' => true,
+                'image' => 3,
+                '_regexPattern'=> '#\.(jpe?g|png)$#'
+            ];
+        $years = array(date("Y"),date("Y",strtotime("-1 year")),date("Y",strtotime("-2 year")),date("Y",strtotime("-3 year")),date("Y",strtotime("-4 year")), date("Y",strtotime("-5 year")),date("Y",strtotime("-6 year")) );
+
+        $fileArray = array();
+        foreach ($years as $key => $year) {
+            $images = $this->getFilesListRecursively($year, $listOpt);
+            $fileArray = array_merge($fileArray, $images);
+        }
+        $sort = array();
+        foreach($fileArray as $keys=>$file){
+            $sort[$file[1]][] = $file[0];
+        }
+        krsort($sort);
+        $files = array();
+        foreach($sort as $asort){
+            foreach($asort as $file){
+                $files[] = $file;
+            }
+        }
+        $response['files'] = array_filter($files);
+
+        $response['status'] = 200;
+        $response['message'] = ($response['files'])? esc_html__('Files are available to convert', 'web-vitals-page-speed-enhancer'): esc_html__('All files are converted', 'web-vitals-page-speed-enhancer');
+        $response['count'] = count($response['files']);
+        echo json_encode($response);die;
+    }
+
+    function getFilesListRecursively($currentDir, &$listOpt){
+        $dir = $listOpt['root'] . '/' . $currentDir;
+        $dir = $this->canonicalize($dir);
+        if (!file_exists($dir) || !is_dir($dir)) {
+            return [];
+        }
+        $fileIterator = new \FilesystemIterator($dir);
+        $results = [];
+        $filter = &$listOpt['filter'];
+        while ($fileIterator->valid()) {
+            $filename = $fileIterator->getFilename();
+            $filedate = $fileIterator->getCTime();
+            if (($filename != ".") && ($filename != "..")) {
+                if (is_dir($dir . "/" . $filename)) {
+                    $results = array_merge($results, $this->getFilesListRecursively($currentDir . "/" . $filename, $listOpt));
+                } else {
+                    // its a file - check if its a jpeg or png
+                    if (preg_match('#\.(jpe?g|png)$#', $filename)) {
+                        $addThis = true;
+
+                        if (($filter['only-converted']) || ($filter['only-unconverted'])) {
+
+                            $destinationPath = $listOpt['root']."/web-vital-webp";
+                            if(!is_dir($destinationPath)) { wp_mkdir_p($destinationPath); }
+                            
+                            $destination = str_replace($listOpt['root'], $destinationPath, $dir);
+                            $destination .= "/".$filename.'.webp';
+                            $webpExists = file_exists($destination);
+                            
+
+                            if (!$webpExists && ($filter['only-converted'])) {
+                                $addThis = false;
+                            }
+                            if ($webpExists && ($filter['only-unconverted'])) {
+                                $addThis = false;
+                            }
+                        } else {
+                            $addThis = true;
+                        }
+                        if ($addThis) {
+                            $results[] = array($currentDir . "/" . $filename, $filedate);
+                        }
+                    }
+                }
+            }
+            $fileIterator->next();
+        }
+        return $results;
+    }
+
+    function canonicalize($path){
+        $parts = explode('/', $path);
+
+        // Remove parts containing just '.' (and the empty holes afterwards)
+        $parts = array_values(array_filter($parts, function($var) {
+            return ($var != '.');
+        }));
+
+          // Remove parts containing '..' and the preceding
+          $keys = array_keys($parts, '..');
+          foreach($keys as $keypos => $key) {
+            array_splice($parts, $key - ($keypos * 2 + 1), 2);
+          }
+          return implode('/', $parts);
+        
+    }
+
+    function webp_convert_file(){
+        if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vitals-security-nonce')){
+            echo json_encode(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified' , 'web-vitals-page-speed-enhancer') ) );die;
+        }
+        $filename = sanitize_text_field(stripslashes($_POST['filename']));
+        $filename = wp_unslash($_POST['filename']);
+
+        $upload = wp_upload_dir();
+        $destinationPath = $upload['basedir']."/web-vital-webp";
+        if(!is_dir($destinationPath)) { wp_mkdir_p($destinationPath); }
+        $destination = $destinationPath.'/'. $filename.".webp";
+
+        $source = $upload['basedir']."/".$filename;
+
+        try {
+            require_once CWVPSB_PLUGIN_DIR."/includes/vendor/autoload.php";
+            $convertOptions = [];
+            \WebPConvert\WebPConvert::convert($source, $destination, $convertOptions);
+        } catch (\WebpConvert\Exceptions\WebPConvertException $e) {
+            if(function_exists('error_log')){ error_log($e->getMessage()); }
+        } catch (\Exception $e) {
+            $message = 'An exception was thrown!';
+            if(function_exists('error_log')){ error_log($e->getMessage()); }
+        }
+        echo json_encode(array('status'=>200 ,"msg"=>esc_html__('File converted successfully', 'web-vitals-page-speed-enhancer') ));die;
+    }
 }
 if (class_exists('cwvpsb_admin_settings')) {
     new cwvpsb_admin_settings;

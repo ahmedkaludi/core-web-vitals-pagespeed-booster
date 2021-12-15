@@ -22,3 +22,9 @@ define('CWVPSB_BASE', plugin_basename(__FILE__));
 define('CWVPSB_CACHE_DIR', WP_CONTENT_DIR. '/cache/cache-cwvpsb');
 
 require_once CWVPSB_PLUGIN_DIR."includes/functions.php";
+
+add_action('plugins_loaded', 'cwv_pse_initiate');
+function cwv_pse_initiate(){
+	require_once CWVPSB_PLUGIN_DIR."/includes/helper-section.php";
+	add_filter('wp_handle_upload', array('Core_Web_Vital_Helper_Section', 'do_upload_with_webp'), 10, 2);
+}

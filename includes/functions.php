@@ -232,3 +232,77 @@ function cwvpsb_image_width_height( $image, $image_size ) {
     }
     return $modified_image;
 }
+ 
+
+
+
+add_filter('cwvpsb_complete_html_after_dom_loaded','web_vitals_changes');
+function web_vitals_changes($html){
+    $settings = cwvpsb_defaults();
+    if(isset($settings['webp_support_manually_display'])){
+        $guessurl = site_url();
+        if ( ! $guessurl ) {
+            $guessurl = wp_guess_url();
+        }
+        $base_url   = untrailingslashit( $guessurl );
+        $upload     = wp_upload_dir();
+
+        $tmpDoc     = new DOMDocument();
+        libxml_use_internal_errors(true);
+        $tmpDoc->loadHTML($html);
+
+        $xpath      = new DOMXPath( $tmpDoc );
+        $domImg     = $xpath->query( "//img[@src]");
+            
+        if(count($domImg)>0){
+            foreach ($domImg as $key => $element) {
+                $srcupdate = $element->getAttribute("src");
+                if(strpos($srcupdate, $base_url)!==false){
+                    //test page exists or not
+                    $srcupdatePath = str_replace($upload['baseurl'], $upload['basedir'].'/web-vital-webp', $srcupdate);
+                    $srcupdatePath = "$srcupdatePath.webp";
+                    if(file_exists($srcupdatePath)){
+                        $srcupdate = str_replace($upload['baseurl'], $upload['baseurl'].'/web-vital-webp', $srcupdate);
+                        $srcupdate = "$srcupdate.webp";
+                        $element->setAttribute("src", $srcupdate);  
+                    }
+                    
+                }
+                if($element->hasAttribute('srcset')){
+                    $attrValue = $element->getAttribute("srcset");
+                    
+                    $srcsetArr = explode(',', $attrValue);
+                    foreach ($srcsetArr as $i => $srcSetEntry) {
+                        // $srcSetEntry is ie "image.jpg 520w", but can also lack width, ie just "image.jpg"
+                        // it can also be ie "image.jpg 2x"
+                        $srcSetEntry = trim($srcSetEntry);
+                        $entryParts = preg_split('/\s+/', $srcSetEntry, 2);
+                        if (count($entryParts) == 2) {
+                            list($src, $descriptors) = $entryParts;
+                        } else {
+                            $src = $srcSetEntry;
+                            $descriptors = null;
+                        }
+
+                        if(strpos($src, $base_url)!==false){
+                            //test page exists or not
+                            $srcupdatePath = str_replace($upload['baseurl'], $upload['basedir'].'/web-vital-webp', $src);
+                            $srcupdatePath = "$srcupdatePath.webp";
+                            if(file_exists($srcupdatePath)){
+                                $webpUrl = str_replace($upload['baseurl'], $upload['baseurl'].'/web-vital-webp', $src);
+                                $webpUrl .= '.webp';
+                            }else{ $webpUrl = $src; }
+                        }else{ $webpUrl = $src; }
+                        if ($webpUrl !== false) {
+                            $srcsetArr[$i] = $webpUrl . (isset($descriptors) ? ' ' . $descriptors : '');
+                        }
+                    }
+                    $newSrcsetArr = implode(', ', $srcsetArr);
+                    $attrValue = $element->setAttribute("srcset", $newSrcsetArr);
+                }
+            }
+        }
+        $html = $tmpDoc->saveHTML();
+        return $html;
+    }
+}
