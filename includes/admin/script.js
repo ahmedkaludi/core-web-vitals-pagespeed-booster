@@ -78,8 +78,7 @@ $(".cwvpsb-tabs a").click(function(e){
 	function startConversion(nonce){
 		var currentFile = need_convertFiles[current_conversion_number];
 		var data = {'action': 'webvital_webp_convert_file',
-			        'nonce_verify' : nonce,
-			        'filename': currentFile
+			        'nonce_verify' : nonce
 			    }
 		if (typeof currentFile == 'undefined'){
 			currentFile = 'All images are already WEBP';
