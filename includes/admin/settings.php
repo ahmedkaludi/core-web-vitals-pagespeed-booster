@@ -58,7 +58,7 @@ public function cwvpsb_admin_interface_render(){
     <h1><?php echo esc_html__('Core Web Vitals & PageSpeed Booster Settings', 'cwvpsb'); ?></h1>
     <h2 class="nav-tab-wrapper cwvpsb-tabs">
     <?php
-        echo '<a href="' . esc_url(cwvpsb_admin_link('images')) . '" class="nav-tab ' . esc_attr( $tab == 'images' ? 'nav-tab-active' : '') . '">' . esc_html__('images','cwvpsb') . '</a>';
+        echo '<a href="' . esc_url(cwvpsb_admin_link('images')) . '" class="nav-tab ' . esc_attr( $tab == 'images' ? 'nav-tab-active' : '') . '">' . esc_html__('Images','cwvpsb') . '</a>';
                     
         echo '<a href="' . esc_url(cwvpsb_admin_link('css')) . '" class="nav-tab ' . esc_attr( $tab == 'css' ? 'nav-tab-active' : '') . '">' . esc_html__('CSS','cwvpsb') . '</a>';
 
@@ -106,7 +106,7 @@ public function cwvpsb_settings_init(){
     if (function_exists('imagewebp')) {                    
         add_settings_field(
             'webp_support',
-            'Webp Images [ On The Fly]',
+            'Convert WebP (On The Fly)',
              array($this, 'webp_callback'),
             'cwvpsb_images_section',
             'cwvpsb_images_section'
@@ -116,17 +116,10 @@ public function cwvpsb_settings_init(){
     if(!isset($settings['webp_support'])){
     add_settings_field(
             'webp_support_manually',
-            esc_html__('Convert all images to WEBP [ Manually ]','web-vitals-page-speed-enhancer'),  
+            esc_html__('Convert WebP (Manually)' ,'cwvpsb'),  
             array($this, 'image_convert_webp_bulk'),            
             'cwvpsb_images_section',                     
             'cwvpsb_images_section'                          
-        );
-        add_settings_field(
-            'webp_support_manually_display',
-            esc_html__('Display WEBP Images','web-vitals-page-speed-enhancer'),
-            array($this, 'image_convert_webp'),                 
-            'cwvpsb_images_section',
-            'cwvpsb_images_section'                      
         );
     }
     add_settings_field(
@@ -204,31 +197,12 @@ public function webp_callback(){
 function image_convert_webp_bulk(){
    $settings = cwvpsb_defaults(); 
    if(!isset($settings['webp_support'])){
-    $webp_nonce = wp_create_nonce('web-vitals-security-nonce');
-    echo "<button type='button' class='bulk_convert_webp' data-nonce='".$webp_nonce."'>".esc_html__('Bulk convert to WEBP','web-vitals-page-speed-enhancer')."<span id='bulk_convert_message'></span></button>
-        <div><div id='bulkconverUpload-wrap'><div class='bulkconverUpload'>".esc_html__('Convert all your images to webp by clicking on this button and please wait for few seconds to load and then click on start convertion','web-vitals-page-speed-enhancer')."</div></div></div>";
+    echo "
+        <div><div id='bulkconverUpload-wrap'><div class='bulkconverUpload'>".esc_html__('This tool will automatically convert your images in webp format and it will take some mintues please do not close this window or click the back button until all images converted
+','cwvpsb')."</div></div></div>";
     }
 }
 
-    function image_convert_webp(){
-        // Get Settings
-        $settings = cwvpsb_defaults(); 
-       if(!isset($settings['webp_support'])){?>      
-     
-    
-    <fieldset><label class="switch">
-        <?php
-        if(isset($settings['webp_support_manually_display'])){
-            echo '<input type="checkbox" name="cwvpsb_get_settings[webp_support_manually_display]" class="regular-text" value="1" checked>';
-        }else{
-            echo '<input type="checkbox" name="cwvpsb_get_settings[webp_support_manually_display]" class="regular-text" value="1" >';
-        } ?>
-        <span class="slider round"></span></label>    
-        <p class="description"><?php echo esc_html__("Display WEBP Images once you have converted it manually", 'cwvpsb');?></p>
-    </fieldset>
-
-    <?php  }
-    }
 public function lazyload_callback(){
     $settings = cwvpsb_defaults(); ?>
     <fieldset><label class="switch">
@@ -337,7 +311,7 @@ public function cache_callback(){
     <?php }
     function get_list_convert_files(){
         if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vitals-security-nonce')){
-            echo json_encode(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified', 'web-vitals-page-speed-enhancer' ) ) );die;
+            echo json_encode(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified', 'cwvpsb' ) ) );die;
         }
         $listOpt = array();
         $upload = wp_upload_dir();
@@ -369,7 +343,7 @@ public function cache_callback(){
         $response['files'] = array_filter($files);
 
         $response['status'] = 200;
-        $response['message'] = ($response['files'])? esc_html__('Files are available to convert', 'web-vitals-page-speed-enhancer'): esc_html__('All files are converted', 'web-vitals-page-speed-enhancer');
+        $response['message'] = ($response['files'])? esc_html__('Files are available to convert', 'cwvpsb'): esc_html__('All files are converted', 'cwvpsb');
         $response['count'] = count($response['files']);
         echo json_encode($response);die;
     }
@@ -443,7 +417,7 @@ public function cache_callback(){
 
     function webp_convert_file(){
         if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vitals-security-nonce')){
-            echo json_encode(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified' , 'web-vitals-page-speed-enhancer') ) );die;
+            echo json_encode(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified' , 'cwvpsb') ) );die;
         }
         $filename = sanitize_text_field(stripslashes($_POST['filename']));
         $filename = wp_unslash($_POST['filename']);
@@ -465,7 +439,7 @@ public function cache_callback(){
             $message = 'An exception was thrown!';
             if(function_exists('error_log')){ error_log($e->getMessage()); }
         }
-        echo json_encode(array('status'=>200 ,"msg"=>esc_html__('File converted successfully', 'web-vitals-page-speed-enhancer') ));die;
+        echo json_encode(array('status'=>200 ,"msg"=>esc_html__('File converted successfully', 'cwvpsb') ));die;
     }
 }
 if (class_exists('cwvpsb_admin_settings')) {

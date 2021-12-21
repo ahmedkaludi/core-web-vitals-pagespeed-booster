@@ -46,25 +46,22 @@ $(".cwvpsb-tabs a").click(function(e){
 	});
 	var need_convertFiles = {};
 	var current_conversion_number = 0;
-	$(".bulk_convert_webp").on('click', function(event){
+	 
 		var data = {
 			'action': 'list_files_to_convert',
 	        'nonce' : $(this).attr('data-nonce'),
 		};
 		$.ajax({url: ajaxurl, type:'post', dataType: 'json', data: data,
 			success: function(response){
-				if(response.status==200){
 					need_convertFiles = response.files
-					html = 'This tool will automatically convert your images in webp format and it will take some mintues please do not close this window or click the back button until all images converted<br/><br/><button id="startListconversion" class="button button-primary" type="button">Start conversion</button>'+
+					html = '<button id="startListconversion" class="button button-primary" type="button">Bulk Convert to WebP</button><br/><br/>This tool will automatically convert your images in webp format and it will take some mintues please do not close this window or click the back button until all images converted<br/><br/>'+
 						'<div class="log_convert_info"></div>';
 					$('.bulkconverUpload').html( html );
 					addconverter();
-				}else{
-					$('.clear-cache-msg').text(response.msg)
-				}
+				
 			}
-		})
-	});
+		});
+	 
 
 	function addconverter(){
 		$('#startListconversion').on('click', function(){

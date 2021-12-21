@@ -239,7 +239,7 @@ function cwvpsb_image_width_height( $image, $image_size ) {
 add_filter('cwvpsb_complete_html_after_dom_loaded','web_vitals_changes');
 function web_vitals_changes($html){
     $settings = cwvpsb_defaults();
-    if(isset($settings['webp_support_manually_display'])){
+    if(!isset($settings['webp_support'])){
         $guessurl = site_url();
         if ( ! $guessurl ) {
             $guessurl = wp_guess_url();
