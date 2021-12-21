@@ -18,6 +18,9 @@ function cwvpsb_convert_webp(){
         ob_end_clean();
         $content .=  $sidebar_html; 
     }
+    if (class_exists('Mfn_Builder_Front')) {
+        $content .= get_post_field( 'mfn-page-items-seo', get_the_ID());
+    }
     $get_src_regex = '/src="([^"]*)"/';
     preg_match_all( $get_src_regex, $content, $matches );
     $matches = array_reverse($matches);
@@ -26,6 +29,10 @@ function cwvpsb_convert_webp(){
     if ( has_post_thumbnail() ) {  
         $featured_img = get_the_post_thumbnail_url(get_the_ID(),'full');
         array_push($img_src , $featured_img);
+    }
+    if (function_exists('et_setup_theme')) { 
+        $logo = et_get_option( 'divi_logo' );
+        array_push($img_src , $logo);
     }
     if ( has_custom_logo() ) {
         $logo = wp_get_attachment_url( get_theme_mod( 'custom_logo' ));
@@ -45,7 +52,7 @@ function cwvpsb_convert_webp(){
         if(!file_exists($upload_dir_base)) wp_mkdir_p($upload_dir_base);
         $upload_dir_base .= '/'.$img_dir;
         $check_dir = $upload_dir_base . '.webp';
-        if(!file_exists($check_dir)){
+        if(!file_exists($check_dir) && file_exists($new_dir)){
             $image = imagecreatefromstring(file_get_contents($new_dir));
             ob_start();
             imagejpeg($image,NULL,100);

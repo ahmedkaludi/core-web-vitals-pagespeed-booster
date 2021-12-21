@@ -1,5 +1,6 @@
 {
     "require": {
         "sabberworm/php-css-parser": "*",
+        "rosell-dk/webp-convert": "^2.3"
     }
 }
