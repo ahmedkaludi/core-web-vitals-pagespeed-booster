@@ -14,7 +14,7 @@ public function __construct() {
 
 function load_settings() {
     $settings = cwvpsb_defaults();
-    if(isset($settings['image_optimization']) && $settings['webp_support'] == 'auto'){
+    if(function_exists('imagewebp') && $settings['webp_support'] == 'auto'){
        require_once CWVPSB_PLUGIN_DIR."includes/images/convert-webp.php";
     }
     if(isset($settings['lazyload_support'])){
@@ -30,11 +30,11 @@ function load_settings() {
     if(isset($settings['google_fonts_support'])){
        require_once CWVPSB_PLUGIN_DIR."includes/css/google-fonts.php";
     }
-    if(isset($settings['js_optimization']) && $settings['delay_js'] == 'php'){
+    if( $settings['delay_js'] == 'php'){
        require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-js.php";
     }
 
-    if(isset($settings['js_optimization']) && $settings['delay_js'] == 'js'){
+    if( $settings['delay_js'] == 'js'){
        require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-jswithjs.php";
     }
 }
@@ -112,16 +112,7 @@ public function cwvpsb_settings_init(){
             'cwvpsb_images_section',
             'cwvpsb_images_section'
          );   
-    if (function_exists('imagewebp')) {                
-        add_settings_field(
-            'webp_support',
-            'Convert WebP',
-             array($this, 'webp_callback'),
-            'cwvpsb_images_section',
-            'cwvpsb_images_section',
-            array('class' => 'child-opt')
-        );
-    }
+    
     $settings = cwvpsb_defaults();         
     add_settings_field(
             'webp_support_manually',
@@ -165,19 +156,11 @@ public function cwvpsb_settings_init(){
     add_settings_section('cwvpsb_javascript_section', '', '__return_false', 'cwvpsb_javascript_section');     
     add_settings_field(
             'js_optimization',
-            'Javascript Optimization Method',
+            'Delay JS Method',
              array($this, 'js_optimization_callback'), 
             'cwvpsb_javascript_section',
             'cwvpsb_javascript_section'
-         );       
-    add_settings_field(
-        'delay_js_support',
-        'Delay JS Execution',
-         array($this, 'delay_js_callback'),
-        'cwvpsb_javascript_section',
-        'cwvpsb_javascript_section',
-        array('class' => 'child-opt')
-    );
+         );
 
     add_settings_section('cwvpsb_cache_section', '', '__return_false', 'cwvpsb_cache_section');                    
     add_settings_field(
@@ -191,21 +174,6 @@ public function cwvpsb_settings_init(){
 
 public function image_optimization_callback(){
    $settings = cwvpsb_defaults(); ?>  
-    <fieldset><label class="switch">
-        <?php
-        if(isset($settings['image_optimization'])){
-            echo '<input type="checkbox" name="cwvpsb_get_settings[image_optimization]" class="regular-text image_optimization" value="1" checked>';
-        }else{
-            echo '<input type="checkbox" name="cwvpsb_get_settings[image_optimization]" class="regular-text image_optimization" value="1" >';
-        } ?>
-        <span class="slider round"></span></label>    
-    </fieldset>
-         
-    <?php }
-
-public function webp_callback(){
-            
-    $settings = cwvpsb_defaults(); ?>  
     <div class="label-align">
     <select class="webp_support" name="cwvpsb_get_settings[webp_support]" >
      <?php
@@ -217,9 +185,9 @@ public function webp_callback(){
         }
         ?>
     </select>
-    </div> 
-    <?php    
-}
+    </div>
+         
+    <?php }
 
 function image_convert_webp_bulk(){
     echo "<div><div id='bulkconverUpload-wrap'><div class='bulkconverUpload'>".esc_html__('This tool will automatically convert your images in webp format and it will take some mintues please do not close this window or click the back button until all images converted
@@ -290,20 +258,6 @@ public function google_fonts_callback(){
  public function js_optimization_callback(){
 
     $settings = cwvpsb_defaults(); ?>  
-    <fieldset><label class="switch">
-        <?php
-        if(isset($settings['js_optimization'])){
-            echo '<input type="checkbox" name="cwvpsb_get_settings[js_optimization]" class="regular-text js_optimization" value="1" checked>';
-        }else{
-            echo '<input type="checkbox" name="cwvpsb_get_settings[js_optimization]" class="regular-text js_optimization" value="1" >';
-        } ?>
-        <span class="slider round"></span></label>    
-    </fieldset>
-             
-    <?php 
-}   
-public function delay_js_callback(){
-    $settings = cwvpsb_defaults(); ?>
     <div class="label-align delay_js">
     <select name="cwvpsb_get_settings[delay_js]">
      <?php
@@ -315,8 +269,10 @@ public function delay_js_callback(){
         }
         ?>
     </select>
-    </div>      
-    <?php }   
+    </div>  
+             
+    <?php 
+}   
 
 public function cache_callback(){
     $settings = cwvpsb_defaults(); ?>
