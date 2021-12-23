@@ -222,12 +222,8 @@ public function webp_callback(){
 }
 
 function image_convert_webp_bulk(){
-   $settings = cwvpsb_defaults(); 
-   if(!isset($settings['webp_support'])){
-    echo "
-        <div><div id='bulkconverUpload-wrap'><div class='bulkconverUpload'>".esc_html__('This tool will automatically convert your images in webp format and it will take some mintues please do not close this window or click the back button until all images converted
+    echo "<div><div id='bulkconverUpload-wrap'><div class='bulkconverUpload'>".esc_html__('This tool will automatically convert your images in webp format and it will take some mintues please do not close this window or click the back button until all images converted
 ','cwvpsb')."</div></div></div>";
-    }
 }
 
 public function lazyload_callback(){
