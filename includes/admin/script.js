@@ -8,6 +8,32 @@ function cwvpsbGetParamByName(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 jQuery( document ).ready(function($) {
+	 $(".child-opt-bulk").hide();
+	 $('.image_optimization').change(function(){
+        if($(this).is(':checked')){
+            $(".child-opt").show();
+        }else{
+            $(".child-opt").hide();
+            $(".child-opt-bulk").hide();
+        }
+    }).change();
+
+ 	$("select.webp_support").change(function(){
+        var webp = $(this).children("option:selected").val();
+        if(webp == 'manual'){
+        	$(".child-opt-bulk").show();
+        }else{
+        	$(".child-opt-bulk").hide();
+        }
+    });
+
+    $('.js_optimization').change(function(){
+        if($(this).is(':checked')){
+            $(".child-opt").show();
+        }else{
+            $(".child-opt").hide();
+        }
+    }).change();
 $("#clear-css-cache").click(function(event){
 		var selfobj = $(this);
 		var cleantype = selfobj.attr('data-cleaningtype');

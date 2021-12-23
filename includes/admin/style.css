@@ -108,3 +108,12 @@ input:checked + .slider:before {
   transition: all 0.5s;
   box-shadow: 0px 6px 15px #0000ff61;
 }
+
+.cwvpsb-images tr.child-opt, .cwvpsb-images tr.subchild-opt , .cwvpsb-images tr.child-opt-manual , .cwvpsb-images tr.child-opt-bulk, .cwvpsb-javascript tr.child-opt{
+  position: relative!important;
+  left: 25px!important;
+}
+
+.cwvpsb-javascript .form-table th {
+  width: 203px;
+}

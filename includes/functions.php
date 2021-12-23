@@ -144,12 +144,14 @@ function cwvpsb_get_tab( $default = '', $available = array() ) {
 
 function cwvpsb_defaults(){
     $defaults = array(
-       'webp_support' => 1,
+       'image_optimization' =>1,
+       'webp_support' => 'auto',
        'lazyload_support'  => 1,
        'minification_support'  => 1,
        'unused_css_support'  => 1,
        'google_fonts_support'  => 1,
-       'delay_js_support'  => 1
+       'js_optimization' => 1,
+       'delay_js' => 'js'
     );        
     $settings = get_option( 'cwvpsb_get_settings', $defaults );         
     return $settings;
