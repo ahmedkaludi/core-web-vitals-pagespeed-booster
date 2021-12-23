@@ -241,7 +241,9 @@ function cwvpsb_image_width_height( $image, $image_size ) {
 add_filter('cwvpsb_complete_html_after_dom_loaded','web_vitals_changes');
 function web_vitals_changes($html){
     $settings = cwvpsb_defaults();
-    if(!isset($settings['webp_support'])){
+    if($settings['webp_support'] == 'auto'){
+        return $html;
+    }
         $guessurl = site_url();
         if ( ! $guessurl ) {
             $guessurl = wp_guess_url();
@@ -306,5 +308,4 @@ function web_vitals_changes($html){
         }
         $html = $tmpDoc->saveHTML();
         return $html;
-    }
 }
