@@ -122,6 +122,16 @@ public function cwvpsb_settings_init(){
             'cwvpsb_images_section',
             array('class' => 'child-opt-bulk')                       
         );
+    if ($settings['webp_support'] == 'manual') {
+        add_settings_field(
+            'webp_support_manually',
+            esc_html__('Manual' ,'cwvpsb'),  
+            array($this, 'image_convert_webp_bulk'),            
+            'cwvpsb_images_section',                     
+            'cwvpsb_images_section',
+            array('class' => 'child-opt-bulk2')                       
+        );
+    }
     add_settings_field(
         'lazyload_support',
         'Lazy Load',

@@ -22,8 +22,10 @@ jQuery( document ).ready(function($) {
         var webp = $(this).children("option:selected").val();
         if(webp == 'manual'){
         	$(".child-opt-bulk").show();
+        	$(".child-opt-bulk2").show();
         }else{
         	$(".child-opt-bulk").hide();
+        	$(".child-opt-bulk2").hide();
         }
     });
 
