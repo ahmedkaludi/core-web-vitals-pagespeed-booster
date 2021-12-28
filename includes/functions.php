@@ -180,63 +180,6 @@ function cwvpsb_google_fonts_swap( $html ) {
     $html = preg_replace("/(WebFontConfig\['google'\])(.+[\w])(.+};)/", '$1$2&display=swap$3', $html);
     return $html;
 }
-add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_add_image_width_height');
-function cwvpsb_add_image_width_height( $content ) {
-    $set_images_regex = '<img(?:[^>](?!(height|width)=[\'\"](?:\S+)[\'\"]))*+>';
-    preg_match_all( "/{$set_images_regex}/is", $content, $images_match );
-    $images_to_replace_array = [];
-    $images = $images_match[0];
-    
-    foreach ( $images as $image ) {
-        $image_url = cwvpsb_get_image_url($image);
-        if( empty($image_url) ) {
-            continue;
-        }       
-        if( $image_url == false ) {
-            continue;
-        }
-        
-        $image_extension = strtolower(pathinfo($image_url, PATHINFO_EXTENSION));
-        
-        if( strtolower($image_extension) == 'svg' ) {
-            $svgfile = simplexml_load_file($image_url);
-            if( !empty($svgfile) ) {
-                $xmlattributes = $svgfile->attributes();
-                $sizes[3] = 'width="'.$xmlattributes->width.'" height="'.$xmlattributes->height.'"' ;
-            }
-        }
-        else {
-            $sizes = getimagesize( $image_url );
-        }
-        
-        if( empty($sizes[3]) ) {
-            continue;
-        }
-    
-        $images_to_replace_array[ $image ] = cwvpsb_image_width_height( $image, $sizes[3] );
-    
-    }
-    return str_replace( array_keys( $images_to_replace_array ), $images_to_replace_array, $content );
-}
-
-function cwvpsb_get_image_url( $image ) {
-    preg_match( '/\s+src\s*=\s*[\'"](?<url>[^\'"]+)/i', $image, $src_match );
-    if( !empty($src_match['url']) ) {
-        return $src_match['url'];        
-    }
-}
-
-function cwvpsb_image_width_height( $image, $image_size ) {
-    $modified_image = preg_replace( '/(height|width)=[\'"](?:\S+)*[\'"]/i', '', $image );
-    $modified_image = preg_replace( '/<\s*img/i', '<img ' . $image_size, $modified_image );
-    if ( $modified_image === null ) {
-        return $image;
-    }
-    return $modified_image;
-}
- 
-
-
 
 add_filter('cwvpsb_complete_html_after_dom_loaded','web_vitals_changes');
 function web_vitals_changes($html){
