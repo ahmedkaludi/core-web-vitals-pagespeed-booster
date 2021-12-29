@@ -18,27 +18,29 @@
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
+  bottom: -2px;
+  background: #fbfbfb;
+  border-radius: 2em;
+  padding: 2px;
+  transition: all 0.4s ease;
+  border: 1px solid #e8eae9;
 }
 
 .slider:before {
-    position: absolute;
-    content: "";
-    height: 25px;
-    width: 25px;
-    left: 0px;
-    bottom: -5px;
-    background-color: white;
-    -webkit-transition: .4s;
-    transition: .4s;
+  position: absolute;
+  content: "";
+  height: 23px;
+  width: 23px;
+  bottom: 0px;
+  bottom: 2px;
+  border-radius: 2em;
+  background: #fbfbfb;
+  transition: left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), padding 0.3s ease, margin 0.3s ease;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 10%), 0 4px 0 rgb(0 0 0 / 8%);
 }
 
 input:checked + .slider {
-  background: rgb(0, 193, 26);
-
+  background: #d84315;
 }
 
 input:focus + .slider {
@@ -49,8 +51,6 @@ input:checked + .slider:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
   transform: translateX(26px);
-  background: rgb(0, 193, 26);
-  border: none;
 }
 
 /* Rounded sliders */
@@ -58,11 +58,6 @@ input:checked + .slider:before {
   border-radius: 34px;
 }
 
-.slider.round:before {
-  border-radius: 50%;
-
-    border: 1px solid #ccc;
-}
 .cache-trash {
     box-sizing: border-box;
     display: block;
@@ -133,16 +128,20 @@ div#cwv-wrap h1 {
 div#cwv-wrap input#submit {
   border: 0;
   border-radius: 0;
-  padding: 10px 40px;
-  line-height: 40px;
+  padding: 10px 35px;
+  line-height: 30px;
   background-color: #d84315;
   -webkit-box-shadow: 0 2px 16px 0 rgb(0 0 0 / 20%);
   box-shadow: 0 2px 16px 0 rgb(0 0 0 / 20%);
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
   color: #fff;
   text-transform: uppercase;
   text-decoration: none;
+  position: relative;
+  left: 800px;
+  bottom: 115px;
+  font-size: 15px;
 }
 div#cwv-wrap a.nav-tab.nav-tab-active {
   z-index: 1;
@@ -169,11 +168,7 @@ h2.nav-tab-wrapper.cwvpsb-tabs a {
   border: 0;
   font-family: sans-serif;
 }
-div#cwv-wrap span.slider.round {  
-  width: 50px;
-  height: 15px;
-}
-
+ 
 div#cwv-wrap select { 
   max-width: 320px;
   height:40px;
@@ -187,9 +182,9 @@ div#cwv-wrap table.form-table {
   box-shadow: 0 4px 16px 0 rgb(0 0 0 / 20%);
   position: relative;
   top: -7px;
-  max-width: 1200px;
+  max-width: 1000px;
   border-radius: 15px 15px 15px 15px;
-  padding: 25px 0px 35px 0px;
+  padding: 25px 0px 100px 0px;
   display: block;
 }
 
@@ -224,4 +219,26 @@ div#cwv-wrap .form-table th {
   background-image: url(./images/cwv-main-bg.png);
   background-size: 50%;
   background-color: #f9f9f9;
+}
+
+div#cwv-wrap .form-table th:hover , h2.nav-tab-wrapper.cwvpsb-tabs a:hover{
+  color: #d84214;
+}
+
+label.switch {
+  outline: 0;
+  display: block;
+  width: 52px;
+  height: 22px;
+  position: relative;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  background: #fbfbfb;
+  border-radius: 2em;
+  padding: 2px;
+  transition: all 0.4s ease;
+  border: 1px solid #e8eae9;
+  user-select: none;
 }

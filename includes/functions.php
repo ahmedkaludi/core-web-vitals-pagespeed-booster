@@ -252,3 +252,14 @@ function web_vitals_changes($html){
         $html = $tmpDoc->saveHTML();
         return $html;
 }
+
+add_action( 'current_screen', 'cwvpsb_remove_wp_footer_notice' );
+function cwvpsb_remove_wp_footer_notice() {
+    if ( is_admin() ) {
+        $my_current_screen = get_current_screen();
+        if ( isset( $my_current_screen->base ) && 'toplevel_page_cwvpsb' === $my_current_screen->base ) {
+            add_filter( 'admin_footer_text', '__return_empty_string', 11 );
+            add_filter( 'update_footer',     '__return_empty_string', 11 );
+        }
+    }
+}
