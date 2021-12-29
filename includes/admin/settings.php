@@ -55,7 +55,7 @@ public function cwvpsb_admin_interface_render(){
         settings_errors();
     }
     $tab = cwvpsb_get_tab('images', array('images', 'css', 'javascript','cache')); ?>
-     <div id="cwv-wrap" style="background-image: url(<?php echo CWVPSB_IMAGE_DIR . '/cwv-main-bg.png'?>);">
+     <div id="cwv-wrap">
     <h1><?php echo esc_html__('Core Web Vitals & PageSpeed Booster Settings', 'cwvpsb'); ?></h1>
     <h2 class="nav-tab-wrapper cwvpsb-tabs">
     <?php
