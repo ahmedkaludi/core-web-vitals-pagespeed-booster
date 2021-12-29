@@ -20,6 +20,7 @@ define('CWVPSB_VERSION','1.0.1');
 define('CWVPSB_DIR', dirname(__FILE__));
 define('CWVPSB_BASE', plugin_basename(__FILE__));
 define('CWVPSB_CACHE_DIR', WP_CONTENT_DIR. '/cache/cache-cwvpsb');
+define('CWVPSB_IMAGE_DIR',plugin_dir_url(__FILE__).'images');
 
 require_once CWVPSB_PLUGIN_DIR."includes/functions.php";
 
