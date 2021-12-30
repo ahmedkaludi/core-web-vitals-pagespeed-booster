@@ -263,3 +263,8 @@ function cwvpsb_remove_wp_footer_notice() {
         }
     }
 }
+
+add_action('pre_amp_render_post','cwvpsb_amp_support');
+function cwvpsb_amp_support(){
+    remove_all_filters( 'cwvpsb_complete_html_after_dom_loaded' );
+}
