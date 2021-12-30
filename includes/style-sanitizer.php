@@ -658,6 +658,9 @@ class cwvpsb_treeshaking {
 		if(preg_match('/wp-content\/themes\/betheme\/css\/be\.css/i', $normalized_url)){
 			return;
 		}
+		if(preg_match('/fontawesome-all.min.css/i', $normalized_url)){
+			return;
+		}
 		if ( $this->allowed_font_src_regex && preg_match( $this->allowed_font_src_regex, $normalized_url ) ) {
 			if ( $href !== $normalized_url ) {
 				$element->setAttribute( 'href', $normalized_url );
