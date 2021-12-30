@@ -85,6 +85,11 @@ class CWVPSB_Google_Fonts
 			return;
 		}
 
+		$cached_file = '/uploads/web-vital-fonts/';	
+		if (!file_exists(WP_CONTENT_DIR . $cached_file)) {
+			return;
+		}
+
 		if (apply_filters('cwvpsb_advanced_processing_enabled', false)) {
 			return;
 		}
