@@ -166,7 +166,9 @@ class CWV_Lazy_Load_Public {
   }
   public function buffer_start_cwv() { 
     function lazy_load_img($wphtml) {
-       
+      if ( function_exists( 'ampforwp_is_amp_endpoint' ) && ampforwp_is_amp_endpoint() ) {
+      return $wphtml;
+    }
       $lazy_jq_selector = 'img';   
       
       $pq = phpQuery::newDocument($wphtml); 

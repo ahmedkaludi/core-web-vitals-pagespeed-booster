@@ -57,6 +57,7 @@ public function cwvpsb_admin_interface_render(){
     $tab = cwvpsb_get_tab('images', array('images', 'css', 'javascript','cache')); ?>
      <div id="cwv-wrap">
     <h1><?php echo esc_html__('Core Web Vitals & PageSpeed Booster Settings', 'cwvpsb'); ?></h1>
+     <div id="left-sidebar">
     <h2 class="nav-tab-wrapper cwvpsb-tabs">
     <?php
         echo '<a href="' . esc_url(cwvpsb_admin_link('images')) . '" class="nav-tab ' . esc_attr( $tab == 'images' ? 'nav-tab-active' : '') . '">' . esc_html__('Images','cwvpsb') . '</a>';
@@ -97,7 +98,32 @@ public function cwvpsb_admin_interface_render(){
         </div>
     </form>
     </div>
-    </div>   
+    <div id="right-sidebar">
+     <div class="boxsidebar boxsidebar-1">
+         <h2 class="vision">Vision & Mission</h2>
+         <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry</p>
+         <section class="bio">
+          <div class="bio-wrap">
+            <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/ahmed-kaludi.jpg' ?>" alt="ahmed kaludi">
+            <p>Lead Developer</p>
+          </div>
+          <div class="bio-wrap">
+             <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/Mohammed-kaludi.jpeg' ?>" alt="Profile">
+                <p>Developer</p>
+          </div>
+          <div class="bio-wrap">
+             <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/zabi.jpg' ?>" alt="Profile">
+              <p>Developer</p>
+          </div>
+          <div class="bio-wrap">
+             <img width="50" height="50" src="https://s3.amazonaws.com/landonschroppcodepen/profile.svg" alt="Profile">
+             <p>Developer</p>
+          </div>
+        </section>
+    <p class="boxdesc">Lorem Ipsum is simply dummy text of the printing and typesetting industry standard dummy</p>
+    </div>
+    </div>
+    </div>  
     <?php }
 
 public function cwvpsb_settings_init(){
