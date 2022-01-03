@@ -68,6 +68,6 @@ function cwvpsb_whitelist_css_global($whitelist){
 
 add_filter('cwvpsb_whitelist_css_code', 'cwvpsb_whitelist_css_code');
 function cwvpsb_whitelist_css_code($css){
-	$css = '.essb_topbar.essb_active_topbar {margin: 0;}';
+	$css = '.essb_topbar.essb_active_topbar {margin: 0;}.td-js-loaded .sf-menu ul {visibility: visible;}';
 	return $css;
 }
