@@ -68,6 +68,9 @@ function cwvpsb_whitelist_css_global($whitelist){
 
 add_filter('cwvpsb_whitelist_css_code', 'cwvpsb_whitelist_css_code');
 function cwvpsb_whitelist_css_code($css){
-	$css = '.essb_topbar.essb_active_topbar {margin: 0;}.td-js-loaded .sf-menu ul {visibility: visible;}';
+	$theme = wp_get_theme();
+	if ( 'Newsmag Child theme' == $theme->name ) {
+		$css = '.essb_topbar.essb_active_topbar {margin: 0;}.td-js-loaded .sf-menu ul {visibility: visible;}.td-drop-down-search.td-drop-down-search-open {display:block !important;z-index: 9999 !important;}th.poptip.sort_default_asc , .full_table .left:first-child ,tfoot .left:first-child, tr.over_header, th.poptip.center{background-color: #dadcde;border: 1px solid #747678;opacity: initial;}table{border-collapse:collapse;border-spacing:0}td,th{padding:0}table,tr,td{page-break-before:avoid}table{width:100%;font-size: .875em;}table th{text-align:left;border:1px solid #e6e6e6;padding:2px 8px}table td{border:1px solid #e6e6e6;padding:2px 8px}table .odd td{background-color:#fcfcfc}table th {border: inherit;}';
+	}
 	return $css;
 }
