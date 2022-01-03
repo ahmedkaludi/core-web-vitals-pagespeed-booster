@@ -1598,9 +1598,11 @@ class cwvpsb_treeshaking {
 		$this->set_current_node( null );
 	}
 	private function finalize_styles() {
+		$white_list_css = '';
+		$white_list_css = apply_filters('cwvpsb_whitelist_css_code', $white_list_css );
 		$stylesheet_groups = [
 			self::STYLE_AMP_CUSTOM_GROUP_INDEX    => [
-				'source_map_comment'  => "\n\n/*# sourceURL=web-vital-custom.css */",
+				'source_map_comment'  => $white_list_css . "\n\n/*# sourceURL=web-vital-custom.css */",
 				'cdata_spec'          => $this->style_custom_cdata_spec,
 				'included_count'      => 0,
 				'import_front_matter' => '', // Extra @import statements that are prepended when fetch fails and validation error is rejected.

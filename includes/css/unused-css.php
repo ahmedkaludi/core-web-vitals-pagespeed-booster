@@ -65,3 +65,9 @@ function cwvpsb_whitelist_css_global($whitelist){
 	$whitelist .= '.et-waypoint img.emoji';
 	return $whitelist;
 }
+
+add_filter('cwvpsb_whitelist_css_code', 'cwvpsb_whitelist_css_code');
+function cwvpsb_whitelist_css_code($css){
+	$css = '.essb_topbar.essb_active_topbar {margin: 0;}';
+	return $css;
+}
