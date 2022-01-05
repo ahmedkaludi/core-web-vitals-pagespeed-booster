@@ -297,3 +297,8 @@ h2.vision {
     font-size: 25px;
     font-family: sans-serif;
 }
+
+.bio-wrap p {
+  width: 66px;
+  margin-top: 5px;
+}

@@ -67,7 +67,7 @@ public function cwvpsb_admin_interface_render(){
         echo '<a href="' . esc_url(cwvpsb_admin_link('javascript')) . '" class="nav-tab ' . esc_attr( $tab == 'javascript' ? 'nav-tab-active' : '') . '">' . esc_html__('Javascript','cwvpsb') . '</a>';
 
         echo '<a href="' . esc_url(cwvpsb_admin_link('cache')) . '" class="nav-tab ' . esc_attr( $tab == 'cache' ? 'nav-tab-active' : '') . '">' . esc_html__('Cache','cwvpsb') . '</a>';
-                                                   
+                                          
     ?>
     </h2>
     <form action="options.php" method="post" enctype="multipart/form-data" class="cwvpsb-settings-form">      
@@ -108,16 +108,16 @@ public function cwvpsb_admin_interface_render(){
             <p>Lead Developer</p>
           </div>
           <div class="bio-wrap">
-             <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/Mohammed-kaludi.jpeg' ?>" alt="Profile">
+             <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/Mohammed-kaludi.jpeg' ?>" alt="Mohammed">
                 <p>Developer</p>
           </div>
           <div class="bio-wrap">
-             <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/zabi.jpg' ?>" alt="Profile">
+             <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/zabi.jpg' ?>" alt="zabi">
               <p>Developer</p>
           </div>
           <div class="bio-wrap">
-             <img width="50" height="50" src="https://s3.amazonaws.com/landonschroppcodepen/profile.svg" alt="Profile">
-             <p>Developer</p>
+             <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/jamal.jpg' ?>" alt="jamal">
+             <p>Support Developer</p>
           </div>
         </section>
     <p class="boxdesc">Lorem Ipsum is simply dummy text of the printing and typesetting industry standard dummy</p>
