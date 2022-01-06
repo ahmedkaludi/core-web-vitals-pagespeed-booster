@@ -54,7 +54,7 @@ public function cwvpsb_admin_interface_render(){
         $settings = cwvpsb_defaults();  
         settings_errors();
     }
-    $tab = cwvpsb_get_tab('images', array('images', 'css', 'javascript','cache')); ?>
+    $tab = cwvpsb_get_tab('images', array('images', 'css', 'javascript','cache','advance')); ?>
      <div id="cwv-wrap">
     <h1><?php echo esc_html__('Core Web Vitals & PageSpeed Booster Settings', 'cwvpsb'); ?></h1>
      <div id="left-sidebar">
@@ -67,7 +67,8 @@ public function cwvpsb_admin_interface_render(){
         echo '<a href="' . esc_url(cwvpsb_admin_link('javascript')) . '" class="nav-tab ' . esc_attr( $tab == 'javascript' ? 'nav-tab-active' : '') . '">' . esc_html__('Javascript','cwvpsb') . '</a>';
 
         echo '<a href="' . esc_url(cwvpsb_admin_link('cache')) . '" class="nav-tab ' . esc_attr( $tab == 'cache' ? 'nav-tab-active' : '') . '">' . esc_html__('Cache','cwvpsb') . '</a>';
-                                          
+
+        echo '<a href="' . esc_url(cwvpsb_admin_link('advance')) . '" class="nav-tab ' . esc_attr( $tab == 'advance' ? 'nav-tab-active' : '') . '">' . esc_html__('Advance','cwvpsb') . '</a>';                                  
     ?>
     </h2>
     <form action="options.php" method="post" enctype="multipart/form-data" class="cwvpsb-settings-form">      
@@ -89,7 +90,12 @@ public function cwvpsb_admin_interface_render(){
 
             echo "<div class='cwvpsb-cache' ".( $tab != 'cache' ? 'style="display:none;"' : '').">";
             do_settings_sections( 'cwvpsb_cache_section' );
-            echo "</div>"; ?>
+            echo "</div>"; 
+
+            echo "<div class='cwvpsb-advance' ".( $tab != 'advance' ? 'style="display:none;"' : '').">";
+            do_settings_sections( 'cwvpsb_advance_section' ); 
+            echo "</div>";
+            ?>
         </div>
         <div class="button-wrapper">                            
         <?php
@@ -206,7 +212,16 @@ public function cwvpsb_settings_init(){
          array($this, 'cache_callback'),
         'cwvpsb_cache_section',
         'cwvpsb_cache_section'
-    );                                           
+    );     
+
+    add_settings_section('cwvpsb_advance_section', '', '__return_false', 'cwvpsb_advance_section');                    
+    add_settings_field(
+        'advance_support',
+        'Specific URL',
+         array($this, 'advance_url_callback'),
+        'cwvpsb_advance_section',
+        'cwvpsb_advance_section'
+    );                                      
 }
 
 public function image_optimization_callback(){
@@ -327,6 +342,11 @@ public function cache_callback(){
     <p class="description"><?php echo esc_html__("Caching pages will reduce the response time of your site and your web pages load much faster, directly from cache", 'cwvpsb');?></p>
     </fieldset>
     <?php }
+public function advance_url_callback(){
+    $settings = cwvpsb_defaults(); ?> 
+    <textarea rows='5' cols='70' name="cwvpsb_get_settings[advance_support]" id='cwvpsb_add_advance_support'><?php echo esc_html($settings['advance_support']) ?></textarea>
+    <p class="description"><?php echo esc_html__("The Core Web Vital will only work on this URL, So that you can compare the speed on this URL with others", 'cwvpsb');?></p>
+    <?php }    
     function get_list_convert_files(){
         if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vitals-security-nonce')){
             echo json_encode(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified', 'cwvpsb' ) ) );die;

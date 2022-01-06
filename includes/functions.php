@@ -268,3 +268,22 @@ add_action('pre_amp_render_post','cwvpsb_amp_support');
 function cwvpsb_amp_support(){
     remove_all_filters( 'cwvpsb_complete_html_after_dom_loaded' );
 }
+
+add_action('wp' , 'cwvpsb_on_specific_url');
+function cwvpsb_on_specific_url(){
+    $settings = cwvpsb_defaults(); 
+    $url = $settings['advance_support'];
+    if (empty($url)) {
+        return;
+    }
+    $url_id = url_to_postid( $url );
+    $id = get_the_ID();
+    if (is_home() &&  $url == home_url( '/' )) {
+        $page_for_posts  =  get_option( 'page_for_posts' );
+        $post = get_post($page_for_posts);
+        $url_id = $post->ID;
+    }
+    if ($url_id != $id ) {
+        add_filter( 'cwvpsb_complete_html_after_dom_loaded', '__return_false' );
+    }
+}
