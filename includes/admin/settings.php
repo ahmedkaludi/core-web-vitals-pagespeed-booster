@@ -14,8 +14,8 @@ public function __construct() {
 
 function load_settings() {
     $settings = cwvpsb_defaults();
-    if(isset($settings['webp_support'])){
-       require_once CWVPSB_PLUGIN_DIR."includes/images/convert-webp.php";;
+    if(function_exists('imagewebp') && $settings['webp_support'] == 'auto'){
+       require_once CWVPSB_PLUGIN_DIR."includes/images/convert-webp.php";
     }
     if(isset($settings['lazyload_support'])){
        require_once CWVPSB_PLUGIN_DIR."includes/images/lazy-loading.php";
@@ -30,10 +30,11 @@ function load_settings() {
     if(isset($settings['google_fonts_support'])){
        require_once CWVPSB_PLUGIN_DIR."includes/css/google-fonts.php";
     }
-    if(isset($settings['delay_js_support'])){
+    if( $settings['delay_js'] == 'php'){
        require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-js.php";
     }
-    if(isset($settings['delay_js_support_js'])){
+
+    if( $settings['delay_js'] == 'js'){
        require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-jswithjs.php";
     }
 }
@@ -53,19 +54,21 @@ public function cwvpsb_admin_interface_render(){
         $settings = cwvpsb_defaults();  
         settings_errors();
     }
-    $tab = cwvpsb_get_tab('images', array('images', 'css', 'javascript','cache')); ?>
-                                    
+    $tab = cwvpsb_get_tab('images', array('images', 'css', 'javascript','cache','advance')); ?>
+     <div id="cwv-wrap">
     <h1><?php echo esc_html__('Core Web Vitals & PageSpeed Booster Settings', 'cwvpsb'); ?></h1>
+     <div id="left-sidebar">
     <h2 class="nav-tab-wrapper cwvpsb-tabs">
     <?php
-        echo '<a href="' . esc_url(cwvpsb_admin_link('images')) . '" class="nav-tab ' . esc_attr( $tab == 'images' ? 'nav-tab-active' : '') . '">' . esc_html__('images','cwvpsb') . '</a>';
+        echo '<a href="' . esc_url(cwvpsb_admin_link('images')) . '" class="nav-tab ' . esc_attr( $tab == 'images' ? 'nav-tab-active' : '') . '">' . esc_html__('Images','cwvpsb') . '</a>';
                     
         echo '<a href="' . esc_url(cwvpsb_admin_link('css')) . '" class="nav-tab ' . esc_attr( $tab == 'css' ? 'nav-tab-active' : '') . '">' . esc_html__('CSS','cwvpsb') . '</a>';
 
         echo '<a href="' . esc_url(cwvpsb_admin_link('javascript')) . '" class="nav-tab ' . esc_attr( $tab == 'javascript' ? 'nav-tab-active' : '') . '">' . esc_html__('Javascript','cwvpsb') . '</a>';
 
         echo '<a href="' . esc_url(cwvpsb_admin_link('cache')) . '" class="nav-tab ' . esc_attr( $tab == 'cache' ? 'nav-tab-active' : '') . '">' . esc_html__('Cache','cwvpsb') . '</a>';
-                                                   
+
+        echo '<a href="' . esc_url(cwvpsb_admin_link('advance')) . '" class="nav-tab ' . esc_attr( $tab == 'advance' ? 'nav-tab-active' : '') . '">' . esc_html__('Advance','cwvpsb') . '</a>';                                  
     ?>
     </h2>
     <form action="options.php" method="post" enctype="multipart/form-data" class="cwvpsb-settings-form">      
@@ -87,7 +90,12 @@ public function cwvpsb_admin_interface_render(){
 
             echo "<div class='cwvpsb-cache' ".( $tab != 'cache' ? 'style="display:none;"' : '').">";
             do_settings_sections( 'cwvpsb_cache_section' );
-            echo "</div>"; ?>
+            echo "</div>"; 
+
+            echo "<div class='cwvpsb-advance' ".( $tab != 'advance' ? 'style="display:none;"' : '').">";
+            do_settings_sections( 'cwvpsb_advance_section' ); 
+            echo "</div>";
+            ?>
         </div>
         <div class="button-wrapper">                            
         <?php
@@ -95,7 +103,33 @@ public function cwvpsb_admin_interface_render(){
         ?>
         </div>
     </form>
-    </div>   
+    </div>
+    <div id="right-sidebar">
+     <div class="boxsidebar boxsidebar-1">
+         <h2 class="vision">Vision & Mission</h2>
+         <p>We breath and live CWV technology and no body can beat us in this game.</p>
+         <section class="bio">
+          <div class="bio-wrap">
+            <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/ahmed-kaludi.jpg' ?>" alt="ahmed kaludi">
+            <p>Lead Developer</p>
+          </div>
+          <div class="bio-wrap">
+             <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/Mohammed-kaludi.jpeg' ?>" alt="Mohammed">
+                <p>Developer</p>
+          </div>
+          <div class="bio-wrap">
+             <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/zabi.jpg' ?>" alt="zabi">
+              <p>Developer</p>
+          </div>
+          <div class="bio-wrap">
+             <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/jamal.jpg' ?>" alt="jamal">
+             <p>Support Developer</p>
+          </div>
+        </section>
+    <p class="boxdesc">Delivering a good user experience means a lot to us, so we try our best to reply each and every question.</p>
+    </div>
+    </div>
+    </div>  
     <?php }
 
 public function cwvpsb_settings_init(){
@@ -103,30 +137,32 @@ public function cwvpsb_settings_init(){
     register_setting( 'cwvpsb_setting_dashboard_group', 'cwvpsb_get_settings' );
  
     add_settings_section('cwvpsb_images_section', '', '__return_false', 'cwvpsb_images_section');
-    if (function_exists('imagewebp')) {                    
+    
         add_settings_field(
-            'webp_support',
-            'Webp Images [ On The Fly]',
-             array($this, 'webp_callback'),
+            'image_optimization',
+            'Image Optimization',
+             array($this, 'image_optimization_callback'), 
             'cwvpsb_images_section',
             'cwvpsb_images_section'
-        );
-    }
-    $settings = cwvpsb_defaults(); 
-    if(!isset($settings['webp_support'])){
+         );   
+    
+    $settings = cwvpsb_defaults();         
     add_settings_field(
             'webp_support_manually',
-            esc_html__('Convert all images to WEBP [ Manually ]','web-vitals-page-speed-enhancer'),  
+            esc_html__('Manual' ,'cwvpsb'),  
             array($this, 'image_convert_webp_bulk'),            
             'cwvpsb_images_section',                     
-            'cwvpsb_images_section'                          
-        );
-        add_settings_field(
-            'webp_support_manually_display',
-            esc_html__('Display WEBP Images','web-vitals-page-speed-enhancer'),
-            array($this, 'image_convert_webp'),                 
             'cwvpsb_images_section',
-            'cwvpsb_images_section'                      
+            array('class' => 'child-opt-bulk')                       
+        );
+    if ($settings['webp_support'] == 'manual') {
+        add_settings_field(
+            'webp_support_manually',
+            esc_html__('Manual' ,'cwvpsb'),  
+            array($this, 'image_convert_webp_bulk'),            
+            'cwvpsb_images_section',                     
+            'cwvpsb_images_section',
+            array('class' => 'child-opt-bulk2')                       
         );
     }
     add_settings_field(
@@ -160,21 +196,14 @@ public function cwvpsb_settings_init(){
         'cwvpsb_css_section'
     );    
 
-    add_settings_section('cwvpsb_javascript_section', '', '__return_false', 'cwvpsb_javascript_section');                    
+    add_settings_section('cwvpsb_javascript_section', '', '__return_false', 'cwvpsb_javascript_section');     
     add_settings_field(
-        'delay_js_support',
-        'Delay JS Execution [PHP Method]',
-         array($this, 'delay_js_callback'),
-        'cwvpsb_javascript_section',
-        'cwvpsb_javascript_section'
-    );
-    add_settings_field(
-        'delay_js_support_js',
-        'Delay JS Execution [JS Method]',
-         array($this, 'delay_js_callback_js'),
-        'cwvpsb_javascript_section',
-        'cwvpsb_javascript_section'
-    );
+            'js_optimization',
+            'Delay JS Method',
+             array($this, 'js_optimization_callback'), 
+            'cwvpsb_javascript_section',
+            'cwvpsb_javascript_section'
+         );
 
     add_settings_section('cwvpsb_cache_section', '', '__return_false', 'cwvpsb_cache_section');                    
     add_settings_field(
@@ -183,52 +212,40 @@ public function cwvpsb_settings_init(){
          array($this, 'cache_callback'),
         'cwvpsb_cache_section',
         'cwvpsb_cache_section'
-    );                                           
+    );     
+
+    add_settings_section('cwvpsb_advance_section', '', '__return_false', 'cwvpsb_advance_section');                    
+    add_settings_field(
+        'advance_support',
+        'Specific URL',
+         array($this, 'advance_url_callback'),
+        'cwvpsb_advance_section',
+        'cwvpsb_advance_section'
+    );                                      
 }
- 
-public function webp_callback(){
-            
-    $settings = cwvpsb_defaults(); ?>  
-    <fieldset><label class="switch">
+
+public function image_optimization_callback(){
+   $settings = cwvpsb_defaults(); ?>  
+    <div class="label-align">
+    <select class="webp_support" name="cwvpsb_get_settings[webp_support]" >
+     <?php
+        $delay = array('auto' => 'Automatic (Recommended)','manual' => 'Manual Method');
+        foreach ($delay as $key => $value ) {
+        ?>
+            <option value="<?php echo $key;?>" <?php selected( $settings['webp_support'], $key);?>><?php echo $value;?></option>
         <?php
-        if(isset($settings['webp_support'])){
-            echo '<input type="checkbox" name="cwvpsb_get_settings[webp_support]" class="regular-text" value="1" checked>';
-        }else{
-            echo '<input type="checkbox" name="cwvpsb_get_settings[webp_support]" class="regular-text" value="1" >';
-        } ?>
-        <span class="slider round"></span></label>    
-        <p class="description"><?php echo esc_html__("Images are converted to WebP on the fly if the browser supports it. You don't have to do anything", 'cwvpsb');?></p>
-    </fieldset>
-    <?php    
-}
+        }
+        ?>
+    </select>
+    </div>
+         
+    <?php }
+
 function image_convert_webp_bulk(){
-   $settings = cwvpsb_defaults(); 
-   if(!isset($settings['webp_support'])){
-    $webp_nonce = wp_create_nonce('web-vitals-security-nonce');
-    echo "<button type='button' class='bulk_convert_webp' data-nonce='".$webp_nonce."'>".esc_html__('Bulk convert to WEBP','web-vitals-page-speed-enhancer')."<span id='bulk_convert_message'></span></button>
-        <div><div id='bulkconverUpload-wrap'><div class='bulkconverUpload'>".esc_html__('Convert all your images to webp by clicking on this button and please wait for few seconds to load and then click on start convertion','web-vitals-page-speed-enhancer')."</div></div></div>";
-    }
+    echo "<div><div id='bulkconverUpload-wrap'><div class='bulkconverUpload'>".esc_html__('This tool will automatically convert your images in webp format and it will take some mintues please do not close this window or click the back button until all images converted
+','cwvpsb')."</div></div></div>";
 }
 
-    function image_convert_webp(){
-        // Get Settings
-        $settings = cwvpsb_defaults(); 
-       if(!isset($settings['webp_support'])){?>      
-     
-    
-    <fieldset><label class="switch">
-        <?php
-        if(isset($settings['webp_support_manually_display'])){
-            echo '<input type="checkbox" name="cwvpsb_get_settings[webp_support_manually_display]" class="regular-text" value="1" checked>';
-        }else{
-            echo '<input type="checkbox" name="cwvpsb_get_settings[webp_support_manually_display]" class="regular-text" value="1" >';
-        } ?>
-        <span class="slider round"></span></label>    
-        <p class="description"><?php echo esc_html__("Display WEBP Images once you have converted it manually", 'cwvpsb');?></p>
-    </fieldset>
-
-    <?php  }
-    }
 public function lazyload_callback(){
     $settings = cwvpsb_defaults(); ?>
     <fieldset><label class="switch">
@@ -289,35 +306,25 @@ public function google_fonts_callback(){
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Locally hosting Google fonts for Pagespeed Insights or GT Metrix improvements", 'cwvpsb');?></p>
     </fieldset>
-    <?php }   
-    
-public function delay_js_callback(){
-    $settings = cwvpsb_defaults(); ?>
-    <fieldset><label class="switch">
-        <?php
-        if(isset($settings['delay_js_support'])){
-            echo '<input type="checkbox" name="cwvpsb_get_settings[delay_js_support]" class="regular-text" value="1" checked> ';
-        }else{
-            echo '<input type="checkbox" name="cwvpsb_get_settings[delay_js_support]" class="regular-text" value="1" >';
-        }?>
-        <span class="slider round"></span></label>
-        <p class="description"><?php echo esc_html__("Delays the loading of JavaScript files until the user interacts like scroll, click etc, which improves performance", 'cwvpsb');?></p>
-    </fieldset>
-    <?php } 
+    <?php }
+ public function js_optimization_callback(){
 
-public function delay_js_callback_js(){
-    $settings = cwvpsb_defaults(); ?>
-    <fieldset><label class="switch">
+    $settings = cwvpsb_defaults(); ?>  
+    <div class="label-align delay_js">
+    <select name="cwvpsb_get_settings[delay_js]">
+     <?php
+        $delay = array('js' => 'JS Method','php' => 'PHP Method');
+        foreach ($delay as $key => $value ) {
+        ?>
+            <option value="<?php echo $key;?>" <?php selected( $settings['delay_js'], $key);?>><?php echo $value;?></option>
         <?php
-        if(isset($settings['delay_js_support_js'])){
-            echo '<input type="checkbox" name="cwvpsb_get_settings[delay_js_support_js]" class="regular-text" value="1" checked> ';
-        }else{
-            echo '<input type="checkbox" name="cwvpsb_get_settings[delay_js_support_js]" class="regular-text" value="1" >';
-        }?>
-        <span class="slider round"></span></label>
-        <p class="description"><?php echo esc_html__("Delays the loading of JavaScript files until the user interacts like scroll, click etc, which improves performance", 'cwvpsb');?></p>
-    </fieldset>
-    <?php }    
+        }
+        ?>
+    </select>
+    </div>  
+             
+    <?php 
+}   
 
 public function cache_callback(){
     $settings = cwvpsb_defaults(); ?>
@@ -335,9 +342,14 @@ public function cache_callback(){
     <p class="description"><?php echo esc_html__("Caching pages will reduce the response time of your site and your web pages load much faster, directly from cache", 'cwvpsb');?></p>
     </fieldset>
     <?php }
+public function advance_url_callback(){
+    $settings = cwvpsb_defaults(); ?> 
+    <textarea rows='5' cols='70' name="cwvpsb_get_settings[advance_support]" id='cwvpsb_add_advance_support'><?php echo esc_html($settings['advance_support']) ?></textarea>
+    <p class="description"><?php echo esc_html__("The Core Web Vital will only work on this URL, So that you can compare the speed on this URL with others", 'cwvpsb');?></p>
+    <?php }    
     function get_list_convert_files(){
         if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vitals-security-nonce')){
-            echo json_encode(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified', 'web-vitals-page-speed-enhancer' ) ) );die;
+            echo json_encode(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified', 'cwvpsb' ) ) );die;
         }
         $listOpt = array();
         $upload = wp_upload_dir();
@@ -369,7 +381,7 @@ public function cache_callback(){
         $response['files'] = array_filter($files);
 
         $response['status'] = 200;
-        $response['message'] = ($response['files'])? esc_html__('Files are available to convert', 'web-vitals-page-speed-enhancer'): esc_html__('All files are converted', 'web-vitals-page-speed-enhancer');
+        $response['message'] = ($response['files'])? esc_html__('Files are available to convert', 'cwvpsb'): esc_html__('All files are converted', 'cwvpsb');
         $response['count'] = count($response['files']);
         echo json_encode($response);die;
     }
@@ -443,7 +455,7 @@ public function cache_callback(){
 
     function webp_convert_file(){
         if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vitals-security-nonce')){
-            echo json_encode(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified' , 'web-vitals-page-speed-enhancer') ) );die;
+            echo json_encode(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified' , 'cwvpsb') ) );die;
         }
         $filename = sanitize_text_field(stripslashes($_POST['filename']));
         $filename = wp_unslash($_POST['filename']);
@@ -465,7 +477,7 @@ public function cache_callback(){
             $message = 'An exception was thrown!';
             if(function_exists('error_log')){ error_log($e->getMessage()); }
         }
-        echo json_encode(array('status'=>200 ,"msg"=>esc_html__('File converted successfully', 'web-vitals-page-speed-enhancer') ));die;
+        echo json_encode(array('status'=>200 ,"msg"=>esc_html__('File converted successfully', 'cwvpsb') ));die;
     }
 }
 if (class_exists('cwvpsb_admin_settings')) {

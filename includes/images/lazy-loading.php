@@ -3,74 +3,195 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly.
 }
 
-add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_lazy_loading');
-function cwvpsb_lazy_loading( $html ) {
-		$tmpDoc = new DOMDocument();
-		libxml_use_internal_errors(true);
-		$tmpDoc->loadHTML($html);
-		$xpath = new DOMXPath( $tmpDoc );
-		$domImg = $xpath->query( '//img');
-		foreach ($domImg as $key => $element) {
-				$classupdate = $element->getAttribute("class");
-				$element->setAttribute("class", $classupdate." cwv-lazy-loading");
-		}
-		$domIframe = $xpath->query( '//iframe');
-		foreach($domIframe as $iframe){
-			$iframe->setAttribute("loading", "lazy");
-		}
-		$html = $tmpDoc->saveHTML();
-		if($appendlazyScript){
-			$lazyScript = "<script>".cwvpsb_lazy_loading_script()."</script>";
-			$html = str_replace("</body>", $lazyScript."</body>", $html);
-		}
-	return $html;
+function run_CWV_lazy_load() {
+  $plugin = new CWV_Lazy_Load();
+  $plugin->run();
 }
-function cwvpsb_lazy_loading_script(){
+run_CWV_lazy_load();
 
-	$lazyscript = 'document.addEventListener("DOMContentLoaded", function() {
-        let lazyloadImages;
-        if("IntersectionObserver" in window) {
-          lazyloadImages = document.querySelectorAll(".cwv-lazy-loading");
-          let imageObserver = new IntersectionObserver(function(entries, observer) {
-            entries.forEach(function(entry) {
-              if(entry.isIntersecting) {
-                let image = entry.target;
-                image.src = image.dataset.src;
-                image.classList.remove("cwv-lazy-loading");
-                imageObserver.unobserve(image);
-              }
-            });
-          });
-          lazyloadImages.forEach(function(image) {
-            imageObserver.observe(image);
-          });
-        } else {
-          let lazyloadThrottleTimeout;
-          lazyloadImages = document.querySelectorAll(".cwv-lazy-loading");
+class CWV_Lazy_Load {
 
-          function lazyload() {
-            if(lazyloadThrottleTimeout) {
-              clearTimeout(lazyloadThrottleTimeout);
-            }
-            lazyloadThrottleTimeout = setTimeout(function() {
-              let scrollTop = window.pageYOffset;
-              lazyloadImages.forEach(function(img) {
-                if(img.offsetTop < (window.innerHeight + scrollTop)) {
-                  img.src = img.dataset.src;
-                  img.classList.remove("cwv-lazy-loading");
-                }
-              });
-              if(lazyloadImages.length == 0) {
-                document.removeEventListener("scroll", lazyload);
-                window.removeEventListener("resize", lazyload);
-                window.removeEventListener("orientationChange", lazyload);
-              }
-            }, 20);
-          }
-          document.addEventListener("scroll", lazyload);
-          window.addEventListener("resize", lazyload);
-          window.addEventListener("orientationChange", lazyload);
-        }
-      });';
-return $lazyscript;
+  protected $loader;
+
+  protected $plugin_name;
+
+  
+  protected $version;
+
+  
+  public function __construct() {
+     
+    $this->version = CWVPSB_VERSION;
+     
+    $this->plugin_name = 'Core Web Vitals & PageSpeed Booster';
+    
+    $this->load_dependencies();
+     
+    $this->define_admin_hooks();
+    $this->define_public_hooks();
+
+  }
+
+  
+  private function load_dependencies() {
+
+    if (!class_exists('phpQuery')) {
+        require_once plugin_dir_path( __FILE__ ) . 'phpQuery-onefile.php';
+    }
+
+    $this->loader = new CWV_Lazy_Load_Loader();
+
+  }
+
+  
+  private function define_admin_hooks() {
+
+    
+    $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
+    $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+    $this->loader->add_action( 'admin_menu', $plugin_admin, 'add_menu_page' );
+  }
+
+  
+  private function define_public_hooks() {
+
+    $plugin_public = new CWV_Lazy_Load_Public( $this->get_plugin_name(), $this->get_version() );
+   
+    if ( !is_admin() ) {
+      
+        $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
+        $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
+        $this->loader->add_action( 'wp_loaded', $plugin_public, 'buffer_start_cwv', 45 );
+        $this->loader->add_action( 'shutdown', $plugin_public, 'buffer_end_cwv', 45 );
+      
+    }
+  }
+
+  
+  public function run() {
+    $this->loader->run();
+  }
+
+  
+  public function get_plugin_name() {
+    return $this->plugin_name;
+  }
+
+  public function get_loader() {
+    return $this->loader;
+  }
+
+  
+  public function get_version() {
+    return $this->version;
+  }
+
+}
+
+class CWV_Lazy_Load_Loader {
+
+  
+  protected $actions;
+
+  
+  protected $filters;
+
+  public function __construct() {
+
+    $this->actions = array();
+    $this->filters = array();
+
+  }
+
+  
+  public function add_action( $hook, $component, $callback, $priority = 10, $accepted_args = 1 ) {
+    $this->actions = $this->add( $this->actions, $hook, $component, $callback, $priority, $accepted_args );
+  }
+
+  
+  public function add_filter( $hook, $component, $callback, $priority = 10, $accepted_args = 1 ) {
+    $this->filters = $this->add( $this->filters, $hook, $component, $callback, $priority, $accepted_args );
+  }
+
+  
+  private function add( $hooks, $hook, $component, $callback, $priority, $accepted_args ) {
+
+    $hooks[] = array(
+      'hook'          => $hook,
+      'component'     => $component,
+      'callback'      => $callback,
+      'priority'      => $priority,
+      'accepted_args' => $accepted_args
+    );
+
+    return $hooks;
+
+  }
+
+  
+  public function run() {
+
+    foreach ( $this->filters as $hook ) {
+      add_filter( $hook['hook'], array( $hook['component'], $hook['callback'] ), $hook['priority'], $hook['accepted_args'] );
+    }
+
+    foreach ( $this->actions as $hook ) {
+      add_action( $hook['hook'], array( $hook['component'], $hook['callback'] ), $hook['priority'], $hook['accepted_args'] );
+    }
+
+  }
+
+}
+
+class CWV_Lazy_Load_Public {
+
+  
+  private $plugin_name;
+
+  private $version;
+
+  public function __construct( $plugin_name, $version ) {
+
+    $this->plugin_name = $plugin_name;
+    $this->version = $version;
+
+  }
+ 
+
+  
+  public function enqueue_scripts() {
+
+    wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'lazy-load-public.js', array( 'jquery' ), $this->version, false );
+
+  }
+  public function buffer_start_cwv() { 
+    function lazy_load_img($wphtml) {
+      if ( function_exists( 'ampforwp_is_amp_endpoint' ) && ampforwp_is_amp_endpoint() ) {
+      return $wphtml;
+    }
+      $lazy_jq_selector = 'img';   
+      
+      $pq = phpQuery::newDocument($wphtml); 
+      
+      foreach(pq($lazy_jq_selector) as $stuff)
+      {
+      
+       if ($stuff->tagName == 'img'){
+         pq($stuff)->attr('data-src',pq($stuff)->attr('src'));
+         pq($stuff)->removeAttr('src');
+         pq($stuff)->attr('src','data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw==');
+         pq($stuff)->attr('data-srcset',pq($stuff)->attr('srcset'));
+         pq($stuff)->removeAttr('srcset');
+         pq($stuff)->attr('data-sizes',pq($stuff)->attr('sizes'));
+         pq($stuff)->removeAttr('sizes');
+         pq($stuff)->addClass('cwvlazyload');
+       }
+              
+      }
+        return $pq->html();
+    }
+    ob_start("lazy_load_img"); 
+  }
+
+  public function buffer_end_cwv() { ob_end_flush(); }
 }

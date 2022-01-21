@@ -144,12 +144,14 @@ function cwvpsb_get_tab( $default = '', $available = array() ) {
 
 function cwvpsb_defaults(){
     $defaults = array(
-       'webp_support' => 1,
+       'image_optimization' =>1,
+       'webp_support' => 'auto',
        'lazyload_support'  => 1,
        'minification_support'  => 1,
        'unused_css_support'  => 1,
        'google_fonts_support'  => 1,
-       'delay_js_support'  => 1
+       'js_optimization' => 1,
+       'delay_js' => 'js'
     );        
     $settings = get_option( 'cwvpsb_get_settings', $defaults );         
     return $settings;
@@ -178,68 +180,13 @@ function cwvpsb_google_fonts_swap( $html ) {
     $html = preg_replace("/(WebFontConfig\['google'\])(.+[\w])(.+};)/", '$1$2&display=swap$3', $html);
     return $html;
 }
-add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_add_image_width_height');
-function cwvpsb_add_image_width_height( $content ) {
-    $set_images_regex = '<img(?:[^>](?!(height|width)=[\'\"](?:\S+)[\'\"]))*+>';
-    preg_match_all( "/{$set_images_regex}/is", $content, $images_match );
-    $images_to_replace_array = [];
-    $images = $images_match[0];
-    
-    foreach ( $images as $image ) {
-        $image_url = cwvpsb_get_image_url($image);
-        if( empty($image_url) ) {
-            continue;
-        }       
-        if( $image_url == false ) {
-            continue;
-        }
-        
-        $image_extension = strtolower(pathinfo($image_url, PATHINFO_EXTENSION));
-        
-        if( strtolower($image_extension) == 'svg' ) {
-            $svgfile = simplexml_load_file($image_url);
-            if( !empty($svgfile) ) {
-                $xmlattributes = $svgfile->attributes();
-                $sizes[3] = 'width="'.$xmlattributes->width.'" height="'.$xmlattributes->height.'"' ;
-            }
-        }
-        else {
-            $sizes = getimagesize( $image_url );
-        }
-        
-        if( empty($sizes[3]) ) {
-            continue;
-        }
-    
-        $images_to_replace_array[ $image ] = cwvpsb_image_width_height( $image, $sizes[3] );
-    
-    }
-    return str_replace( array_keys( $images_to_replace_array ), $images_to_replace_array, $content );
-}
-
-function cwvpsb_get_image_url( $image ) {
-    preg_match( '/\s+src\s*=\s*[\'"](?<url>[^\'"]+)/i', $image, $src_match );
-    if( !empty($src_match['url']) ) {
-        return $src_match['url'];        
-    }
-}
-
-function cwvpsb_image_width_height( $image, $image_size ) {
-    $modified_image = preg_replace( '/(height|width)=[\'"](?:\S+)*[\'"]/i', '', $image );
-    $modified_image = preg_replace( '/<\s*img/i', '<img ' . $image_size, $modified_image );
-    if ( $modified_image === null ) {
-        return $image;
-    }
-    return $modified_image;
-}
- 
-
-
 
 add_filter('cwvpsb_complete_html_after_dom_loaded','web_vitals_changes');
 function web_vitals_changes($html){
     $settings = cwvpsb_defaults();
-    if(isset($settings['webp_support_manually_display'])){
+    if($settings['webp_support'] == 'auto'){
+        return $html;
+    }
         $guessurl = site_url();
         if ( ! $guessurl ) {
             $guessurl = wp_guess_url();
@@ -304,5 +251,39 @@ function web_vitals_changes($html){
         }
         $html = $tmpDoc->saveHTML();
         return $html;
+}
+
+add_action( 'current_screen', 'cwvpsb_remove_wp_footer_notice' );
+function cwvpsb_remove_wp_footer_notice() {
+    if ( is_admin() ) {
+        $my_current_screen = get_current_screen();
+        if ( isset( $my_current_screen->base ) && 'toplevel_page_cwvpsb' === $my_current_screen->base ) {
+            add_filter( 'admin_footer_text', '__return_empty_string', 11 );
+            add_filter( 'update_footer',     '__return_empty_string', 11 );
+        }
+    }
+}
+
+add_action('pre_amp_render_post','cwvpsb_amp_support');
+function cwvpsb_amp_support(){
+    remove_all_filters( 'cwvpsb_complete_html_after_dom_loaded' );
+}
+
+add_action('wp' , 'cwvpsb_on_specific_url');
+function cwvpsb_on_specific_url(){
+    $settings = cwvpsb_defaults(); 
+    $url = $settings['advance_support'];
+    if (empty($url)) {
+        return;
+    }
+    $url_id = url_to_postid( $url );
+    $id = get_the_ID();
+    if (is_home() &&  $url == home_url( '/' )) {
+        $page_for_posts  =  get_option( 'page_for_posts' );
+        $post = get_post($page_for_posts);
+        $url_id = $post->ID;
+    }
+    if ($url_id != $id ) {
+        add_filter( 'cwvpsb_complete_html_after_dom_loaded', '__return_false' );
     }
 }
