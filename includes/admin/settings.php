@@ -107,7 +107,7 @@ public function cwvpsb_admin_interface_render(){
     <div id="right-sidebar">
      <div class="boxsidebar boxsidebar-1">
          <h2 class="vision">Vision & Mission</h2>
-         <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry</p>
+         <p>We breath and live CWV technology and no body can beat us in this game.</p>
          <section class="bio">
           <div class="bio-wrap">
             <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/ahmed-kaludi.jpg' ?>" alt="ahmed kaludi">
@@ -126,7 +126,7 @@ public function cwvpsb_admin_interface_render(){
              <p>Support Developer</p>
           </div>
         </section>
-    <p class="boxdesc">Lorem Ipsum is simply dummy text of the printing and typesetting industry standard dummy</p>
+    <p class="boxdesc">Delivering a good user experience means a lot to us, so we try our best to reply each and every question.</p>
     </div>
     </div>
     </div>  
