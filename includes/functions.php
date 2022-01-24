@@ -287,3 +287,8 @@ function cwvpsb_on_specific_url(){
         add_filter( 'cwvpsb_complete_html_after_dom_loaded', '__return_false' );
     }
 }
+
+add_action('admin_head', 'cwvpsb_add_custom_admin_css');
+function cwvpsb_add_custom_admin_css() {
+  echo '<style>.media-frame-content {position: inherit;}</style>';
+}
