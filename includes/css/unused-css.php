@@ -72,5 +72,9 @@ function cwvpsb_whitelist_css_code($css){
 	if ( 'Newsmag Child theme' == $theme->name ) {
 		$css = '.essb_topbar.essb_active_topbar {margin: 0;}.td-js-loaded .sf-menu ul {visibility: visible;}.td-drop-down-search.td-drop-down-search-open {display:block !important;z-index: 9999 !important;}th.poptip.sort_default_asc , .full_table .left:first-child ,tfoot .left:first-child, tr.over_header, th.poptip.center{background-color: #dadcde;border: 1px solid #747678;opacity: initial;}table{border-collapse:collapse;border-spacing:0}td,th{padding:0}table,tr,td{page-break-before:avoid}table{width:100%;font-size: .875em;}table th{text-align:left;border:1px solid #e6e6e6;padding:2px 8px}table td{border:1px solid #e6e6e6;padding:2px 8px}table .odd td{background-color:#fcfcfc}table th {border: inherit;}';
 	}
-	return $css;
+	if ( 'Newspaper' == $theme->name ) {
+		$css = '.td-icon-search:before {content: "\e80a";}.td-icon-mobile:before {content: "\e83e";}.td-icon-menu-left:before {content: "\e80c";}.td-icon-menu-right:before {content: "\e80d";}.td-icon-star:before {content: "\e80f";}.td-icon-facebook:before {content: "\e818";}.td-icon-googleplus:before {content: "\e81b";}.td-icon-instagram:before {content: "\e81d";}.td-icon-pinterest:before {content: "\e825";}.td-icon-reddit:before {content: "\e827";}.td-icon-tumblr:before {content: "\e830";}.td-icon-twitter:before {content: "\e831";}.td-icon-youtube:before {content: "\e836";}.td-icon-comments:before {content: "\e83b";}.td-icon-mobile:before {content: "\e83e";}.td-icon-whatsapp:before {content: "\f232";}.td-icon-print:before {content: "\f02f";}.td-icon-telegram:before {content: "\f2c6";}.td-icon-line:before {content: "\e906";}';
+	}
+
+  return $css;
 }
