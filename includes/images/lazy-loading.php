@@ -57,7 +57,7 @@ class CWV_Lazy_Load {
 
     $plugin_public = new CWV_Lazy_Load_Public( $this->get_plugin_name(), $this->get_version() );
    
-    if ( !is_admin() ) {
+     if ( !is_admin() && function_exists('is_checkout') && is_checkout()) {
       
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
