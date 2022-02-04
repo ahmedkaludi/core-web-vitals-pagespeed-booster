@@ -184,6 +184,9 @@ function cwvpsb_google_fonts_swap( $html ) {
 add_filter('cwvpsb_complete_html_after_dom_loaded','web_vitals_changes');
 function web_vitals_changes($html){
     $settings = cwvpsb_defaults();
+    if (is_admin()) {
+        return $html;
+    }
     if($settings['webp_support'] == 'auto'){
         return $html;
     }

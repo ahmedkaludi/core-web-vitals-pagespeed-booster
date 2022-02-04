@@ -14,10 +14,10 @@ public function __construct() {
 
 function load_settings() {
     $settings = cwvpsb_defaults();
-    if(function_exists('imagewebp') && $settings['webp_support'] == 'auto'){
+    if(function_exists('imagewebp') && $settings['webp_support'] == 'auto' && !is_user_logged_in()){
        require_once CWVPSB_PLUGIN_DIR."includes/images/convert-webp.php";
     }
-    if(isset($settings['lazyload_support'])){
+    if(isset($settings['lazyload_support']) && !is_user_logged_in() ){
        require_once CWVPSB_PLUGIN_DIR."includes/images/lazy-loading.php";
     }
     if(isset($settings['minification_support'])){
