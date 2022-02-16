@@ -1,8 +1,8 @@
 === Core Web Vitals & PageSpeed Booster ===
 Contributors: magazine3
 Requires at least: 3.0
-Tested up to: 5.8
-Stable tag: 1.0.2
+Tested up to: 5.9
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: core web vitals, optimization, pagespeed, performance, cache
@@ -35,6 +35,9 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 * PHP CSS Parser library used https://github.com/sabberworm/PHP-CSS-Parser - License URI: https://github.com/sabberworm/PHP-CSS-Parser#license (PHP-CSS-Parser is freely distributable under the terms of an MIT-style license.)
 
 == Changelog ==
+
+= 1.0.3 (16th February 2022) =
+* Fixed: Icons not loading issue fixed #16
 
 = 1.0.2 (21th January 2022) =
 * Improvements: Added module where we can test all optimization on a particular URL #17

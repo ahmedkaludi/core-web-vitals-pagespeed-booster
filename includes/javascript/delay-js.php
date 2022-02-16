@@ -36,6 +36,9 @@ function cwvpsb_get_atts_string($atts_array) {
 }
 
 function cwvpsb_delay_js_main() {
+	if ( function_exists('is_checkout') && is_checkout() ) {
+        return $html;
+    }
 	add_filter('cwvpsb_complete_html_after_dom_loaded', 'cwvpsb_delay_js_html', 2);
 	add_action('wp_footer', 'cwvpsb_delay_js_load', PHP_INT_MAX);
 }

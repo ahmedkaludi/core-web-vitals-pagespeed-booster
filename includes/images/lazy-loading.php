@@ -26,8 +26,7 @@ class CWV_Lazy_Load {
     $this->plugin_name = 'Core Web Vitals & PageSpeed Booster';
     
     $this->load_dependencies();
-     
-    $this->define_admin_hooks();
+    
     $this->define_public_hooks();
 
   }
@@ -42,22 +41,12 @@ class CWV_Lazy_Load {
     $this->loader = new CWV_Lazy_Load_Loader();
 
   }
-
-  
-  private function define_admin_hooks() {
-
-    
-    $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-    $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-    $this->loader->add_action( 'admin_menu', $plugin_admin, 'add_menu_page' );
-  }
-
   
   private function define_public_hooks() {
 
     $plugin_public = new CWV_Lazy_Load_Public( $this->get_plugin_name(), $this->get_version() );
    
-    if ( !is_admin() ) {
+     if ( !is_admin() && function_exists('is_checkout') && is_checkout()) {
       
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
