@@ -28,7 +28,7 @@ function cwvpsb_unused_css($html){
 		    $custom_style_element->appendChild($tmpDoc->createTextNode( $whitelist ));
 		    $tmpDoc->head->appendChild( $custom_style_element );
 	  	}	
-	$html = $tmpDoc->saveHTML();
+	$html = $tmpDoc->saveHTML($tmpDoc->documentElement);
 	return $html;
 }
 $whitelist_css = '';
