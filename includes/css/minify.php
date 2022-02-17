@@ -4,28 +4,42 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_minify_html');
-function cwvpsb_minify_html($html){
-   if(trim($html) === "") return $html;
-   $search = array(
-    '/(\n|^)(\x20+|\t)/',
-    '/(\n|^)\/\/(.*?)(\n|$)/',
-    '/\n/',
-    '/\<\!--.*?-->/',
-    '/(\x20+|\t)/', # Delete multispace (Without \n)
-    '/\>\s+\</', # strip whitespaces between tags
-    '/(\"|\')\s+\>/', # strip whitespaces between quotation ("') and end tags
-    '/=\s+(\"|\')/'); # strip whitespaces between = "'
+function cwvpsb_minify_html($input){
+ 
+    if(trim($input) === "") return $input;
+    // Remove extra white-space(s) between HTML attribute(s)
+    $input = preg_replace_callback('#<([^\/\s<>!]+)(?:\s+([^<>]*?)\s*|\s*)(\/?)>#s', function($matches) {
+        return '<' . $matches[1] . preg_replace('#([^\s=]+)(\=([\'"]?)(.*?)\3)?(\s+|$)#s', ' $1$2', $matches[2]) . $matches[3] . '>';
+    }, str_replace("\r", "", $input));
 
-   $replace = array(
-    "\n",
-    "\n",
-    " ",
-    "",
-    " ",
-    "><",
-    "$1>",
-    "=$1");
-
-    $html = preg_replace($search,$replace,$html);
-    return $html;
+    return preg_replace(
+        array(
+            
+            // Keep important white-space(s) after self-closing HTML tag(s)
+            '#<(img|input)(>| .*?>)#s',
+            // Remove a line break and two or more white-space(s) between tag(s)
+            '#(<!--.*?-->)|(>)(?:\n*|\s{2,})(<)|^\s*|\s*$#s',
+            '#(<!--.*?-->)|(?<!\>)\s+(<\/.*?>)|(<[^\/]*?>)\s+(?!\<)#s',
+            '#(<!--.*?-->)|(<[^\/]*?>)\s+(<[^\/]*?>)|(<\/.*?>)\s+(<\/.*?>)#s',
+            '#(<!--.*?-->)|(<\/.*?>)\s+(\s)(?!\<)|(?<!\>)\s+(\s)(<[^\/]*?\/?>)|(<[^\/]*?\/?>)\s+(\s)(?!\<)#s',
+            '#(<!--.*?-->)|(<[^\/]*?>)\s+(<\/.*?>)#s', // empty tag
+            '#<(img|input)(>| .*?>)<\/\1>#s', // reset previous fix
+            '#(&nbsp;)&nbsp;(?![<\s])#', // clean up ...
+            '#(?<=\>)(&nbsp;)(?=\<)#', // --ibid
+            // Remove HTML comment(s) except IE comment(s)
+            '#\s*<!--(?!\[if\s).*?-->\s*|(?<!\>)\n+(?=\<[^!])#s'
+        ),
+        array(
+            '<$1$2</$1>',
+            '$1$2$3',
+            '$1$2$3',
+            '$1$2$3$4$5',
+            '$1$2$3$4$5$6$7',
+            '$1$2$3',
+            '<$1$2',
+            '$1 ',
+            '$1',
+            ""
+        ),
+    $input);
 }
