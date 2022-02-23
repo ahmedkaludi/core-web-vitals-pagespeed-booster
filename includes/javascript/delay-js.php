@@ -42,6 +42,9 @@ function cwvpsb_delay_js_main() {
     if( class_exists( 'next_article_layout' ) ) {
 		return $html;
 	}
+	if ( function_exists('elementor_load_plugin_textdomain') && \Elementor\Plugin::$instance->preview->is_preview_mode() ) {
+    	return;
+	}
 	add_filter('cwvpsb_complete_html_after_dom_loaded', 'cwvpsb_delay_js_html', 2);
 	add_action('wp_footer', 'cwvpsb_delay_js_load', PHP_INT_MAX);
 }
