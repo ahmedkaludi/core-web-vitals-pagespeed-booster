@@ -87,5 +87,8 @@ function cwvpsb_whitelist_css_code($css){
 	if (function_exists('astra_register_menu_locations')) {
  		$css .= 'span.elementor-grid-item:not(:first-child) {padding-left: 20px;}';
 	}
-  return $css;
+	if (function_exists('premitheme_widgets_notice')) {
+ 		$css .= '.header nav.pt-hide {opacity: 0;visibility: hidden;}.pt-search-panel.pt-active {opacity: 1;visibility: visible;}';
+ 	}
+  	return $css;
 }
