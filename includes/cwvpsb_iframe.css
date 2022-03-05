@@ -1,0 +1,86 @@
+@charset "utf-8";
+/* CSS Document */
+
+.cwvpsb_iframe {
+	max-width:560px;
+}
+
+.iframe_wrap {
+	cursor: pointer;
+	position: relative;
+	overflow: hidden;
+	margin-bottom: 30px;
+	padding-top: 56.25%;
+	background-color: #000;	
+}
+
+.iframe_wrap iframe {
+	height: 100%;
+	width: 100%;
+	top: 0;
+	left: 0;
+}
+
+.iframe_wrap .play-button {
+	opacity: 0.88;
+	width: 9%;
+	height: 11%;
+	background-color: #1b1b1b;
+	box-shadow: 0 0 30px rgba( 0,0,0,0.6 );
+	z-index: 1;
+	border-radius: 25%;
+	max-width:69px;
+	max-height:47px;
+	min-width:50px;
+	min-height:35px;
+	transition: background-color .2s ease;
+}
+
+@media screen and (max-width: 1023px) {
+	.iframe_wrap .play-button {
+		background-color: #F00;
+	}
+}
+
+.iframe_wrap:hover .play-button {
+	background-color: #F00;
+	opacity: 1;
+}
+
+.iframe_wrap .play-button:before {
+	content: "";
+	border-style: solid;
+	border-color: transparent transparent transparent #fff;
+	border-width: 10px 0 10px 16.0px;	
+}
+
+.iframe_wrap .play-button,
+.iframe_wrap .play-button:before {
+	transform: translate3d( -42%, -50%, 0 );
+	top: 50%;
+	left: 50%;	
+}
+
+.iframe_wrap img {
+	width: 100%;
+	top: -16.82%;
+	left: 0;
+	opacity: 0.9;
+}
+
+
+.iframe_wrap .play-button,
+.iframe_wrap img {
+	cursor: pointer;
+}
+
+.iframe_wrap iframe,
+.iframe_wrap .play-button,
+.iframe_wrap .play-button:before,
+.iframe_wrap img {
+	position: absolute;
+}
+
+.wp-block-embed-youtube .wp-block-embed__wrapper:before {
+	padding-top: 0% !important;
+}

@@ -293,3 +293,30 @@ function cwvpsb_on_specific_url(){
         add_filter( 'cwvpsb_complete_html_after_dom_loaded', '__return_false' );
     }
 }
+
+add_filter('the_content', 'cwvpsb_iframe_delay');
+       
+function cwvpsb_iframe_delay($content) {
+
+    $content = preg_replace('/<iframe(?!iframe)(.+)youtube\.com\/embed\/(?!iframe)(?!videoseries)(.+?)\?(.+)<\/iframe>/', '<div class="cwvpsb_iframe"><div class="iframe_wrap"><div class="iframe_player" data-embed="${2}" id="player_${2}"><div class="play-button"></div></div></div></div>', $content); 
+    
+            global $iframe_check;
+            $iframe_check = preg_match( '/iframe_player/i', $content, $result );
+            return $content;
+}
+
+add_action("wp_footer", "cwvpsb_iframe_delay_enqueue");
+ 
+function cwvpsb_iframe_delay_enqueue(){
+    
+    global $iframe_check;
+    if ( $iframe_check == 1 ) {
+        
+        
+        wp_enqueue_script( 'cwvpsb_iframe', plugin_dir_url(__FILE__) . 'cwvpsb_iframe.js', array(), NULL);
+        wp_enqueue_style( 'cwvpsb_iframe', plugin_dir_url(__FILE__) . 'cwvpsb_iframe.css', array(), NULL);
+ 
+        echo '<style>.cwvpsb_iframe {max-width:600px !important}</style>';
+   
+    }
+}
