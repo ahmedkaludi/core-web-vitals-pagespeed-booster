@@ -78,7 +78,7 @@ function cwv_send_feedback() {
 
     $subject = $subject.' - Core Web Vitals & PageSpeed Booster';
 
-    if($subject == 'technical issue - Core Web Vitals & PageSpeed Booster'){
+    if($subject == 'technical - Core Web Vitals & PageSpeed Booster'){
 
           $text = trim($text);
 
