@@ -76,7 +76,9 @@ function cwv_send_feedback() {
 
     $subject = isset( $form['cwv_disable_reason'] ) ? $form['cwv_disable_reason'] : '(no reason given)';
 
-    if($subject == 'technical issue'){
+    $subject = $subject.' - Core Web Vitals & PageSpeed Booster';
+
+    if($subject == 'technical issue - Core Web Vitals & PageSpeed Booster'){
 
           $text = trim($text);
 
