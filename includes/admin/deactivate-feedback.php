@@ -1,15 +1,15 @@
 <?php 
 $reasons = array(
-    		1 => '<li><label><input type="radio" name="cwv_disable_reason" value="temporary"/>' . __('It is only temporary', 'quick-adsense-reloaded') . '</label></li>',
-		2 => '<li><label><input type="radio" name="cwv_disable_reason" value="stopped showing ads"/>' . __('I stopped showing ads on my site', 'quick-adsense-reloaded') . '</label></li>',
-		3 => '<li><label><input type="radio" name="cwv_disable_reason" value="missing feature"/>' . __('I miss a feature', 'quick-adsense-reloaded') . '</label></li>
-		<li><input type="text" name="cwv_disable_text[]" value="" placeholder="Please describe the feature"/></li>',
-		4 => '<li><label><input type="radio" name="cwv_disable_reason" value="technical issue"/>' . __('Technical Issue', 'quick-adsense-reloaded') . '</label></li>
-		<li><textarea name="cwv_disable_text[]" placeholder="' . __('Can we help? Please describe your problem', 'quick-adsense-reloaded') . '"></textarea></li>',
-		5 => '<li><label><input type="radio" name="cwv_disable_reason" value="other plugin"/>' . __('I switched to another plugin', 'quick-adsense-reloaded') .  '</label></li>
-		<li><input type="text" name="cwv_disable_text[]" value="" placeholder="Name of the plugin"/></li>',
-		6 => '<li><label><input type="radio" name="cwv_disable_reason" value="other"/>' . __('Other reason', 'quick-adsense-reloaded') . '</label></li>
-		<li><textarea name="cwv_disable_text[]" placeholder="' . __('Please specify, if possible', 'quick-adsense-reloaded') . '"></textarea></li>',
+    		1 => '<li><label><input type="radio" name="cwv_disable_reason" value="temporary"/>' . __('It is only temporary', 'cwvpsb') . '</label></li>',
+		2 => '<li><label><input type="radio" name="cwv_disable_reason" value="stopped"/>' . __('I stopped using plugin on my site', 'cwvpsb') . '</label></li>',
+		3 => '<li><label><input type="radio" name="cwv_disable_reason" value="missing"/>' . __('I miss a feature', 'cwvpsb') . '</label></li>
+		<li><input type="text" class="mb-box missing" name="cwv_disable_text[]" value="" placeholder="Please describe the feature"/></li>',
+		4 => '<li><label><input type="radio" name="cwv_disable_reason" value="technical"/>' . __('Technical Issue', 'cwvpsb') . '</label></li>
+		<li><textarea class="mb-box technical" name="cwv_disable_text[]" placeholder="' . __('How Can we help? Please describe your problem', 'cwvpsb') . '"></textarea></li>',
+		5 => '<li><label><input type="radio" name="cwv_disable_reason" value="another"/>' . __('I switched to another plugin', 'cwvpsb') .  '</label></li>
+		<li><input type="text" class="mb-box another" name="cwv_disable_text[]" value="" placeholder="Name of the plugin"/></li>',
+		6 => '<li><label><input type="radio" name="cwv_disable_reason" value="other"/>' . __('Other reason', 'cwvpsb') . '</label></li>
+		<li><textarea class="mb-box other" name="cwv_disable_text[]" placeholder="' . __('Please specify, if possible', 'cwvpsb') . '"></textarea></li>',
     );
 shuffle($reasons);
 ?>
@@ -18,7 +18,7 @@ shuffle($reasons);
 <div id="cwv-reloaded-feedback-overlay" style="display: none;">
     <div id="cwv-reloaded-feedback-content">
 	<form action="" method="post">
-	    <h3><strong><?php _e('If you have a moment, please let us know why you are deactivating:', 'quick-adsense-reloaded'); ?></strong></h3>
+	    <h3><strong><?php _e('If you have a moment, please let us know why you are deactivating:', 'cwvpsb'); ?></strong></h3>
 	    <ul>
                 <?php 
                 foreach ($reasons as $reason){
@@ -29,9 +29,9 @@ shuffle($reasons);
 	    <?php if ($email) : ?>
     	    <input type="hidden" name="cwv_disable_from" value="<?php echo $email; ?>"/>
 	    <?php endif; ?>
-	    <input id="cwv-reloaded-feedback-submit" class="button button-primary" type="submit" name="cwv_disable_submit" value="<?php _e('Submit & Deactivate', 'quick-adsense-reloaded'); ?>"/>
-	    <a class="button"><?php _e('Only Deactivate', 'quick-adsense-reloaded'); ?></a>
-	    <a class="cwv-feedback-not-deactivate" href="#"><?php _e('Don\'t deactivate', 'quick-adsense-reloaded'); ?></a>
+	    <input id="cwv-reloaded-feedback-submit" class="button button-primary" type="submit" name="cwv_disable_submit" value="<?php _e('Submit & Deactivate', 'cwvpsb'); ?>"/>
+	    <a class="button"><?php _e('Only Deactivate', 'cwvpsb'); ?></a>
+	    <a class="cwv-feedback-not-deactivate" href="#"><?php _e('Don\'t deactivate', 'cwvpsb'); ?></a>
 	</form>
     </div>
 </div>
