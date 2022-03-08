@@ -21,6 +21,9 @@ define('CWVPSB_DIR', dirname(__FILE__));
 define('CWVPSB_BASE', plugin_basename(__FILE__));
 define('CWVPSB_CACHE_DIR', WP_CONTENT_DIR. '/cache/cache-cwvpsb');
 define('CWVPSB_IMAGE_DIR',plugin_dir_url(__FILE__).'images');
+$host = parse_url(get_site_url())['host'];
+define('CWVPSB_CACHE_FONTS_DIR', WP_CONTENT_DIR . "/cwv-fonts/fonts/$host/");
+define('CWVPSB_CACHE_FONTS_URL', site_url("/wp-content/cwv-fonts/fonts/$host/"));
 
 require_once CWVPSB_PLUGIN_DIR."includes/functions.php";
 require_once CWVPSB_PLUGIN_DIR."includes/admin/helper-function.php";
