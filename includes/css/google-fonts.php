@@ -2,7 +2,7 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly.
 }
-use Requests;
+
 add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_google_fonts');
 function cwvpsb_google_fonts( $html ) { 
 		//create our fonts cache directory
@@ -10,7 +10,6 @@ function cwvpsb_google_fonts( $html ) {
             @mkdir(CWVPSB_CACHE_FONTS_DIR . 'fonts/', 0755, true);
         }
 	preg_match_all('#<link[^>]+?href=(["\'])([^>]*?fonts\.googleapis\.com\/css.*?)\1.*?>#i', $html, $google_fonts, PREG_SET_ORDER);
-	//return $google_fonts[0][0];
 	if(!empty($google_fonts)) {
             foreach($google_fonts as $google_font) {
      
