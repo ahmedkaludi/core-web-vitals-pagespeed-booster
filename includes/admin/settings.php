@@ -30,6 +30,9 @@ function load_settings() {
     if(isset($settings['google_fonts_support'])){
        require_once CWVPSB_PLUGIN_DIR."includes/css/google-fonts.php";
     }
+    if(isset($settings['critical_css_support'])){
+       require_once CWVPSB_PLUGIN_DIR."includes/css/critical_css.php";
+    }
     if( $settings['delay_js'] == 'php'){
        require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-js.php";
     }
@@ -194,6 +197,13 @@ public function cwvpsb_settings_init(){
          array($this, 'google_fonts_callback'),
         'cwvpsb_css_section',
         'cwvpsb_css_section'
+    );
+    add_settings_field(
+        'critical_css_support',
+        'Critical css Optimizations',
+         array($this, 'critical_css_callback'),
+        'cwvpsb_css_section',
+        'cwvpsb_css_section'
     );    
 
     add_settings_section('cwvpsb_javascript_section', '', '__return_false', 'cwvpsb_javascript_section');     
@@ -305,6 +315,19 @@ public function google_fonts_callback(){
         }?>
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Locally hosting Google fonts for Pagespeed Insights or GT Metrix improvements", 'cwvpsb');?></p>
+    </fieldset>
+    <?php }
+public function critical_css_callback(){
+    $settings = cwvpsb_defaults();?>
+    <fieldset><label class="switch">
+        <?php
+        if(isset($settings['critical_css_support'])){
+            echo '<input type="checkbox" name="cwvpsb_get_settings[critical_css_support]" class="regular-text" value="1" checked> ';
+        }else{
+            echo '<input type="checkbox" name="cwvpsb_get_settings[critical_css_support]" class="regular-text" value="1" >';
+        }?>
+        <span class="slider round"></span></label>
+        <p class="description"><?php echo esc_html__("Grab critical css and inline on webpage to better experience first impression", 'cwvpsb');?></p>
     </fieldset>
     <?php }
  public function js_optimization_callback(){
