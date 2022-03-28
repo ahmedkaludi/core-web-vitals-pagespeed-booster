@@ -6,9 +6,10 @@ class criticalCss{
 	}
 
 	public function init(){
+		add_action('wp_head', array($this, 'print_style_cc'));
 		if(!is_admin()){
 			add_action( 'wp_enqueue_scripts', array($this, 'scripts_styles') );
-			add_action('wp_head', array($this, 'print_style_cc'), 100);
+			
 		}
 		add_action("wp_ajax_cc_call", array($this, 'grab_cc_css'));
 			add_action("wp_ajax_nopriv_cc_call", array($this, 'grab_cc_css'));
@@ -53,7 +54,7 @@ class criticalCss{
 			if(!file_exists($user_dirname)) wp_mkdir_p($user_dirname);
 
 			$content = $responseArr['critical_css'];
-			$new_file = $user_dirname."/".md5($URL).".css";
+			$new_file = $user_dirname."/".md5($targetUrl).".css";
 			$ifp = @fopen( $new_file, 'w+' );
 			if ( ! $ifp ) {
 	          echo json_encode(  array( 'error' => sprintf( __( 'Could not write file %s' ), $new_file ) ));die;
@@ -76,13 +77,13 @@ class criticalCss{
 	function print_style_cc(){
 		$upload_dir = wp_upload_dir(); 
 		$user_dirname = $upload_dir['basedir'] . '/' . 'cc-cwvpb';
-
 		global $wp;
 		$url = home_url( $wp->request );
 		if(file_exists($user_dirname.'/'.md5($url).'.css')){
 			$css =  file_get_contents($user_dirname.'/'.md5($url).'.css');
-		 	echo "<style>$css</style>";
+		 	echo "<style type='text/css' id='cc-styles'>$css</style>";
 		}
 	}
+	
 }
 $cwvpbCriticalCss = new criticalCss();
