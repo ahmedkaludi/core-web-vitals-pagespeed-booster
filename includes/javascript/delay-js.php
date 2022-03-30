@@ -36,12 +36,13 @@ function cwvpsb_get_atts_string($atts_array) {
 }
 
 function cwvpsb_delay_js_main() {
-	if ( function_exists('is_checkout') && is_checkout() ) {
-        return $html;
+	if ( function_exists('is_checkout') && is_checkout() || (function_exists('is_feed')&& is_feed()) ) {
+        return;
     }
     if( class_exists( 'next_article_layout' ) ) {
-		return $html;
+		return ;
 	}
+
 	if ( function_exists('elementor_load_plugin_textdomain') && \Elementor\Plugin::$instance->preview->is_preview_mode() ) {
     	return;
 	}

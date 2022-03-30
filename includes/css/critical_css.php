@@ -6,8 +6,8 @@ class criticalCss{
 	}
 
 	public function init(){
-		if ( function_exists('is_checkout') && is_checkout() ) {
-        	return $html;
+		if ( function_exists('is_checkout') && is_checkout()  || (function_exists('is_feed')&& is_feed())) {
+        	return;
 	    }
 	    if ( function_exists('elementor_load_plugin_textdomain') && \Elementor\Plugin::$instance->preview->is_preview_mode() ) {
 	    	return;
@@ -94,6 +94,12 @@ class criticalCss{
 	}
 	
 	public function delay_css_loadings(){
+		if ( function_exists('is_checkout') && is_checkout()  || (function_exists('is_feed')&& is_feed())) {
+        	return;
+	    }
+	    if ( function_exists('elementor_load_plugin_textdomain') && \Elementor\Plugin::$instance->preview->is_preview_mode() ) {
+	    	return;
+		}
 		add_filter('cwvpsb_complete_html_after_dom_loaded', array($this, 'cwvpsb_delay_css_html'), 2,1);
 	}
 
@@ -177,33 +183,33 @@ class criticalCss{
 
 
 	function cwvpsb_delay_js_load() {
-  	echo '<script type="text/javascript" id="cwvpsb-delayed-styles">
-	(function() {
-	cwvpsbUserInteractionsAll = ["keydown", "mousemove", "wheel", "touchmove", "touchstart", "touchend", "touchcancel", "touchforcechange"]
-	cwvpsbUserInteractionsAll.forEach(function(e) {
-			window.removeEventListener(e, cwvpsbTriggerDOMListener, {
-            passive: !0
-        })
-	}), "loading" === document.readyState ? document.addEventListener("DOMContentLoaded", ctl) : ctl()
-	function ctl(){
-		var cssEle = document.querySelectorAll("link[rel=cwvpsbdelayedstyle]");
-		console.log(cssEle.length);
-		for(var i=0; i <= cssEle.length;i++){
-			if(cssEle[i]){
-				var cssMain = document.createElement("link");
-				cssMain.href = cssEle[i].href;
-				cssMain.rel = "stylesheet";
-				cssMain.type = "text/css";
-				document.getElementsByTagName("head")[0].appendChild(cssMain);
+		echo '<script type="text/javascript" id="cwvpsb-delayed-styles">
+			(function() {
+			cwvpsbUserInteractionsAll = ["keydown", "mousemove", "wheel", "touchmove", "touchstart", "touchend", "touchcancel", "touchforcechange"]
+			cwvpsbUserInteractionsAll.forEach(function(e) {
+					window.removeEventListener(e, cwvpsbTriggerDOMListener, {
+					passive: !0
+				})
+			}), "loading" === document.readyState ? document.addEventListener("DOMContentLoaded", ctl) : ctl()
+			function ctl(){
+				var cssEle = document.querySelectorAll("link[rel=cwvpsbdelayedstyle]");
+				console.log(cssEle.length);
+				for(var i=0; i <= cssEle.length;i++){
+					if(cssEle[i]){
+						var cssMain = document.createElement("link");
+						cssMain.href = cssEle[i].href;
+						cssMain.rel = "stylesheet";
+						cssMain.type = "text/css";
+						document.getElementsByTagName("head")[0].appendChild(cssMain);
+					}
+				}
 			}
-		}
+
+		 
+
+		})();
+		</script>';
 	}
-
-	 
-
-})();
-</script>';
-}
 
 }
 $cwvpbCriticalCss = new criticalCss();
