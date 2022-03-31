@@ -148,12 +148,15 @@ function cwvpsb_defaults(){
        'webp_support' => 'auto',
        'lazyload_support'  => 1,
        'minification_support'  => 1,
-       'unused_css_support'  => 1,
+       'unused_css_support'  => 0,
        'google_fonts_support'  => 1,
        'js_optimization' => 1,
-       'delay_js' => 'js'
+       'delay_js' => 'js',
+       'whitelist_css'=>array(),
+       'critical_css_support'=>1
     );        
-    $settings = get_option( 'cwvpsb_get_settings', $defaults );         
+    $settings = get_option( 'cwvpsb_get_settings', $defaults );   
+    $settings['unused_css_support'] = 0;
     return $settings;
 }
 

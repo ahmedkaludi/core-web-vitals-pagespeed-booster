@@ -189,7 +189,8 @@ public function cwvpsb_settings_init(){
         'Remove Unused CSS',
          array($this, 'unused_css_callback'),
         'cwvpsb_css_section',
-        'cwvpsb_css_section'
+        'cwvpsb_css_section',
+        ["class"=>"hidden"]
     );
     add_settings_field(
         'google_fonts_support',
@@ -200,7 +201,7 @@ public function cwvpsb_settings_init(){
     );
     add_settings_field(
         'critical_css_support',
-        'Critical css Optimizations',
+        'Critical CSS Optimizations',
          array($this, 'critical_css_callback'),
         'cwvpsb_css_section',
         'cwvpsb_css_section'
@@ -286,18 +287,19 @@ public function minification_callback(){
  
 public function unused_css_callback(){
     $webp_nonce = wp_create_nonce('cwv-security-nonce');
-    $settings = cwvpsb_defaults(); ?>
+    $settings = cwvpsb_defaults(); 
+    ?>
     <fieldset><label class="switch">
         <?php
-        if(isset($settings['unused_css_support'])){
+        if(isset($settings['unused_css_support']) && $settings['unused_css_support']==1){
             echo '<input type="checkbox" name="cwvpsb_get_settings[unused_css_support]" class="regular-text" value="1" checked> ';
         }else{
             echo '<input type="checkbox" name="cwvpsb_get_settings[unused_css_support]" class="regular-text" value="1" >';
         } ?>
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Makes your site even faster and lighter by automatically removing unused CSS from your website", 'cwvpsb');?></p>
-        <?php if(isset($settings['unused_css_support'])){?>
-        <br/><textarea rows='5' cols='70' name="cwvpsb_get_settings[whitelist_css]" id='cwvpsb_add_whitelist_css'><?php echo esc_html($settings['whitelist_css']) ?></textarea>
+        <?php if(isset($settings['unused_css_support']) && $settings['unused_css_support']==1){?>
+        <br/><textarea rows='5' cols='70' name="cwvpsb_get_settings[whitelist_css]" id='cwvpsb_add_whitelist_css'><?php if(isset($settings['whitelist_css'])){ echo esc_html($settings['whitelist_css']); }  ?></textarea>
             <p class="description"><?php echo esc_html__("Add the CSS selectors line by line which you don't want to remove", 'cwvpsb');?></p><br/>
             <div style='display:inline-block;'><span class='button button-secondry' id='clear-css-cache' data-cleaningtype='css' data-nonce='<?php echo $webp_nonce;?>' >Clear Cached CSS</span><span class='clear-cache-msg'></span></div>
         <?php } ?>
@@ -321,7 +323,7 @@ public function critical_css_callback(){
     $settings = cwvpsb_defaults();?>
     <fieldset><label class="switch">
         <?php
-        if(isset($settings['critical_css_support'])){
+        if(isset($settings['critical_css_support']) && $settings['critical_css_support']==1){
             echo '<input type="checkbox" name="cwvpsb_get_settings[critical_css_support]" class="regular-text" value="1" checked> ';
         }else{
             echo '<input type="checkbox" name="cwvpsb_get_settings[critical_css_support]" class="regular-text" value="1" >';
