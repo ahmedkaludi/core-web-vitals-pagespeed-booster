@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_minify_html');
 function cwvpsb_minify_html($input){
- 
+    if(function_exists('is_feed')&& is_feed()){return $input;}
     if(trim($input) === "") return $input;
     // Remove extra white-space(s) between HTML attribute(s)
     $input = preg_replace_callback('#<([^\/\s<>!]+)(?:\s+([^<>]*?)\s*|\s*)(\/?)>#s', function($matches) {
