@@ -84,16 +84,10 @@ function cwvpsb_delay_js_html($html) {
 		$atts_array['type'] = 'cwvpsbdelayedscript';
 		$atts_array['defer'] = 'defer';
 
-		/*if ( ! empty( $cwvpsb_detalay_exclude_js() ) ) {
-			// File is excluded from minification/concatenation.
-			if (  ) {
-				return true;
-			}
-		}*/
 		$include = true;
 		if(isset($atts_array['src'])){
-		error_log(" => ".$matches[3][$i]." =>102 ".json_encode(cwvpsb_detalay_exclude_js()) );
-			if(preg_match( '#(' . cwvpsb_detalay_exclude_js() . ')#', $atts_array['src'] )){
+			$regex = cwvpsb_detalay_exclude_js();
+			if($regex && preg_match( '#(' . $regex . ')#', $atts_array['src'] )){
 				$include = false;		
 			}
 		}
@@ -124,10 +118,12 @@ function cwvpsb_detalay_exclude_js(){
 		$inputs['exclude_js'] = array();
 	}
 	$excluded_files = array();
-	foreach ( $inputs['exclude_js'] as $i => $excluded_file ) {
+	if($inputs['exclude_js']){
+		foreach ( $inputs['exclude_js'] as $i => $excluded_file ) {
 			// Escape characters for future use in regex pattern.
 			$excluded_files[ $i ] = str_replace( '#', '\#', $excluded_file );
 		}
+	}
 	if(is_array($excluded_files)){
 		return implode( '|', $excluded_files );
 	}else{
