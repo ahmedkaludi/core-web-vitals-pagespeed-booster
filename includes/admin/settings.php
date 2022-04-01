@@ -17,20 +17,20 @@ function load_settings() {
     if(function_exists('imagewebp') && $settings['webp_support'] == 'auto' && !is_user_logged_in()){
        require_once CWVPSB_PLUGIN_DIR."includes/images/convert-webp.php";
     }
-    if(isset($settings['lazyload_support']) && !is_user_logged_in() ){
+    if(isset($settings['lazyload_support']) && $settings['lazyload_support']==1 && !is_user_logged_in() ){
        require_once CWVPSB_PLUGIN_DIR."includes/images/lazy-loading.php";
     }
-    if(isset($settings['minification_support'])){
+    if(isset($settings['minification_support']) && $settings['minification_support']==1){
 
        require_once CWVPSB_PLUGIN_DIR."includes/css/minify.php";
     }
-    if(isset($settings['unused_css_support'])){
+    if(isset($settings['unused_css_support']) && $settings['unused_css_support']==1){
        require_once CWVPSB_PLUGIN_DIR."includes/css/unused-css.php";
     }
-    if(isset($settings['google_fonts_support'])){
+    if(isset($settings['google_fonts_support']) && $settings['google_fonts_support']==1){
        require_once CWVPSB_PLUGIN_DIR."includes/css/google-fonts.php";
     }
-    if(isset($settings['critical_css_support'])){
+    if(isset($settings['critical_css_support']) && $settings['critical_css_support']==1){
        require_once CWVPSB_PLUGIN_DIR."includes/css/critical_css.php";
     }
     if( $settings['delay_js'] == 'php'){
@@ -337,6 +337,7 @@ public function critical_css_callback(){
     $settings = cwvpsb_defaults(); ?>  
     <div class="label-align delay_js">
     <select name="cwvpsb_get_settings[delay_js]">
+        <option value="">Select Method</option>
      <?php
         $delay = array('js' => 'JS Method','php' => 'PHP Method');
         foreach ($delay as $key => $value ) {
@@ -369,7 +370,7 @@ public function cache_callback(){
     <?php }
 public function advance_url_callback(){
     $settings = cwvpsb_defaults(); ?> 
-    <textarea rows='5' cols='70' name="cwvpsb_get_settings[advance_support]" id='cwvpsb_add_advance_support'><?php echo esc_html($settings['advance_support']) ?></textarea>
+    <textarea rows='5' cols='70' name="cwvpsb_get_settings[advance_support]" id='cwvpsb_add_advance_support'><?php echo isset($settings['advance_support'])? esc_html($settings['advance_support']) : ''; ?></textarea>
     <p class="description"><?php echo esc_html__("The Core Web Vital will only work on this URL, So that you can compare the speed on this URL with others", 'cwvpsb');?></p>
     <?php }    
     function get_list_convert_files(){

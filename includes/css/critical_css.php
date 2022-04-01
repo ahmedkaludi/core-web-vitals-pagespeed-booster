@@ -12,12 +12,12 @@ class criticalCss{
 	    if ( function_exists('elementor_load_plugin_textdomain') && \Elementor\Plugin::$instance->preview->is_preview_mode() ) {
 	    	return;
 		}
-		add_action('wp', array($this, 'delay_css_loadings'));
 		add_action('wp_footer', array($this,'cwvpsb_delay_js_load'), PHP_INT_MAX);
-
+		add_action('wp', array($this, 'delay_css_loadings'), 999);
 		add_action('wp_head', array($this, 'print_style_cc'));
 		if(!is_admin()){
 			add_action( 'wp_enqueue_scripts', array($this, 'scripts_styles') );
+			
 		}
 		add_action("wp_ajax_cc_call", array($this, 'grab_cc_css'));
 		add_action("wp_ajax_nopriv_cc_call", array($this, 'grab_cc_css'));
@@ -100,10 +100,19 @@ class criticalCss{
 	    if ( function_exists('elementor_load_plugin_textdomain') && \Elementor\Plugin::$instance->preview->is_preview_mode() ) {
 	    	return;
 		}
-		add_filter('cwvpsb_complete_html_after_dom_loaded', array($this, 'cwvpsb_delay_css_html'), 2,1);
+		add_filter('cwvpsb_complete_html_after_dom_loaded', array($this, 'cwvpsb_delay_css_html'), 1,1);
+	}
+
+	function check_critical_css(){
+		$upload_dir = wp_upload_dir(); 
+		$user_dirname = $upload_dir['basedir'] . '/' . 'cc-cwvpb';
+		global $wp;
+		$url = home_url( $wp->request );
+		return file_exists($user_dirname.'/'.md5($url).'.css')? true :  false; 
 	}
 
 	public function cwvpsb_delay_css_html($html){
+		if(!$this->check_critical_css()){ return $html; }
 		$html_no_comments = preg_replace('/<!--(.*)-->/Uis', '', $html);
 		preg_match_all('/<link\s?([^>]+)?>/is', $html_no_comments, $matches);
 
@@ -112,7 +121,7 @@ class criticalCss{
 		}
 		
 		foreach($matches[0] as $i => $tag) {
-			$atts_array = !empty($matches[1][$i]) ? cwvpsb_get_atts_array($matches[1][$i]) : array();
+			$atts_array = !empty($matches[1][$i]) ? $this->cwvpsb_get_atts_array($matches[1][$i]) : array();
 			if(isset($atts_array['rel']) && stripos($atts_array['rel'], 'stylesheet') === false) {
 				continue;
 			}
@@ -139,7 +148,7 @@ class criticalCss{
 		
 			if($delay_flag) {
 				//$html = str_replace($tag, '<noscript id="cwvpsbdelayedstyle">'.$tag.'</noscript>', $html);
-				 $delayed_atts_string = cwvpsb_get_atts_string($atts_array);
+				 $delayed_atts_string = $this->cwvpsb_get_atts_string($atts_array);
 		        $delayed_tag = sprintf('<link %1$s', $delayed_atts_string) . (!empty($matches[3][$i]) ? $matches[3][$i] : '') .'/>';
 				$html = str_replace($tag, $delayed_tag, $html); 
 				continue;
@@ -183,15 +192,134 @@ class criticalCss{
 
 
 	function cwvpsb_delay_js_load() {
+		if(!$this->check_critical_css()){ return ; }
+		$settings = cwvpsb_defaults();
+		if( $settings['delay_js'] == 'php'){ return; }
 		echo '<script type="text/javascript" id="cwvpsb-delayed-styles">
-			(function() {
-			cwvpsbUserInteractionsAll = ["keydown", "mousemove", "wheel", "touchmove", "touchstart", "touchend", "touchcancel", "touchforcechange"]
-			cwvpsbUserInteractionsAll.forEach(function(e) {
-					window.removeEventListener(e, cwvpsbTriggerDOMListener, {
-					passive: !0
-				})
-			}), "loading" === document.readyState ? document.addEventListener("DOMContentLoaded", ctl) : ctl()
-			function ctl(){
+			cwvpsbUserInteractions = ["keydown", "mousemove", "wheel", "touchmove", "touchstart", "touchend", "touchcancel", "touchforcechange"], cwvpsbDelayedScripts = {
+    normal: [],
+    defer: [],
+    async: []
+}, jQueriesArray = [];
+var cwvpsbDOMLoaded = !1;
+
+function cwvpsbTriggerDOMListener() {
+    ' . '
+    cwvpsbUserInteractions.forEach(function(e) {
+        window.removeEventListener(e, cwvpsbTriggerDOMListener, {
+            passive: !0
+        })
+    }), "loading" === document.readyState ? document.addEventListener("DOMContentLoaded", cwvpsbTriggerDelayedScripts) : cwvpsbTriggerDelayedScripts()
+}
+async function cwvpsbTriggerDelayedScripts() {
+    cwvpsbDelayEventListeners(), cwvpsbDelayJQueryReady(), cwvpsbProcessDocumentWrite(), cwvpsbSortDelayedScripts(), cwvpsbPreloadDelayedScripts(), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.normal), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.defer), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.async), await cwvpsbTriggerEventListeners(), ctl()
+}
+
+function cwvpsbDelayEventListeners() {
+    let e = {};
+
+    function t(t, n) {
+        function r(n) {
+            return e[t].delayedEvents.indexOf(n) >= 0 ? "perfmatters-" + n : n
+        }
+        e[t] || (e[t] = {
+            originalFunctions: {
+                add: t.addEventListener,
+                remove: t.removeEventListener
+            },
+            delayedEvents: []
+        }, t.addEventListener = function() {
+            arguments[0] = r(arguments[0]), e[t].originalFunctions.add.apply(t, arguments)
+        }, t.removeEventListener = function() {
+            arguments[0] = r(arguments[0]), e[t].originalFunctions.remove.apply(t, arguments)
+        }), e[t].delayedEvents.push(n)
+    }
+
+    function n(e, t) {
+        const n = e[t];
+        Object.defineProperty(e, t, {
+            get: n || function() {},
+            set: function(n) {
+                e["perfmatters" + t] = n
+            }
+        })
+    }
+    t(document, "DOMContentLoaded"), t(window, "DOMContentLoaded"), t(window, "load"), t(window, "pageshow"), t(document, "readystatechange"), n(document, "onreadystatechange"), n(window, "onload"), n(window, "onpageshow")
+}
+
+function cwvpsbDelayJQueryReady() {
+    let e = window.jQuery;
+    Object.defineProperty(window, "jQuery", {
+        get: () => e,
+        set(t) {
+            if (t && t.fn && !jQueriesArray.includes(t)) {
+                t.fn.ready = t.fn.init.prototype.ready = function(e) {
+                    cwvpsbDOMLoaded ? e.bind(document)(t) : document.addEventListener("perfmatters-DOMContentLoaded", function() {
+                        e.bind(document)(t)
+                    })
+                };
+                const e = t.fn.on;
+                t.fn.on = t.fn.init.prototype.on = function() {
+                    if (this[0] === window) {
+                        function t(e) {
+                            return e.split(" ").map(e => "load" === e || 0 === e.indexOf("load.") ? "perfmatters-jquery-load" : e).join(" ")
+                        }
+                        "string" == typeof arguments[0] || arguments[0] instanceof String ? arguments[0] = t(arguments[0]) : "object" == typeof arguments[0] && Object.keys(arguments[0]).forEach(function(e) {
+                            delete Object.assign(arguments[0], {
+                                [t(e)]: arguments[0][e]
+                            })[e]
+                        })
+                    }
+                    return e.apply(this, arguments), this
+                }, jQueriesArray.push(t)
+            }
+            e = t
+        }
+    })
+}
+
+function cwvpsbProcessDocumentWrite() {
+    const e = new Map;
+    document.write = document.writeln = function(t) {
+        var n = document.currentScript,
+            r = document.createRange();
+        let a = e.get(n);
+        void 0 === a && (a = n.nextSibling, e.set(n, a));
+        var o = document.createDocumentFragment();
+        r.setStart(o, 0), o.appendChild(r.createContextualFragment(t)), n.parentElement.insertBefore(o, a)
+    }
+}
+
+function cwvpsbSortDelayedScripts() {
+    document.querySelectorAll("script[type=cwvpsbdelayedscript]").forEach(function(e) {
+        e.hasAttribute("src") ? e.hasAttribute("defer") && !1 !== e.defer ? cwvpsbDelayedScripts.defer.push(e) : e.hasAttribute("async") && !1 !== e.async ? cwvpsbDelayedScripts.async.push(e) : cwvpsbDelayedScripts.normal.push(e) : cwvpsbDelayedScripts.normal.push(e)
+    })
+}
+
+function cwvpsbPreloadDelayedScripts() {
+    var e = document.createDocumentFragment();
+    [...cwvpsbDelayedScripts.normal, ...cwvpsbDelayedScripts.defer, ...cwvpsbDelayedScripts.async].forEach(function(t) {
+        var n = t.getAttribute("src");
+        if (n) {
+            var r = document.createElement("link");
+            r.href = n, r.rel = "preload", r.as = "script", e.appendChild(r)
+        }
+    }), document.head.appendChild(e)
+}
+async function cwvpsbLoadDelayedScripts(e) {
+    var t = e.shift();
+    return t ? (await cwvpsbReplaceScript(t), cwvpsbLoadDelayedScripts(e)) : Promise.resolve()
+}
+async function cwvpsbReplaceScript(e) {
+    return await cwvpsbNextFrame(), new Promise(function(t) {
+        const n = document.createElement("script");
+        [...e.attributes].forEach(function(e) {
+            let t = e.nodeName;
+            "type" !== t && ("data-type" === t && (t = "type"), n.setAttribute(t, e.nodeValue))
+        }), e.hasAttribute("src") ? (n.addEventListener("load", t), n.addEventListener("error", t)) : (n.text = e.text, t()), e.parentNode.replaceChild(n, e)
+    })
+}
+function ctl(){
 				var cssEle = document.querySelectorAll("link[rel=cwvpsbdelayedstyle]");
 				console.log(cssEle.length);
 				for(var i=0; i <= cssEle.length;i++){
@@ -204,10 +332,45 @@ class criticalCss{
 					}
 				}
 			}
+async function cwvpsbTriggerEventListeners() {
+    cwvpsbDOMLoaded = !0, await cwvpsbNextFrame(), document.dispatchEvent(new Event("perfmatters-DOMContentLoaded")), await cwvpsbNextFrame(), window.dispatchEvent(new Event("perfmatters-DOMContentLoaded")), await cwvpsbNextFrame(), document.dispatchEvent(new Event("perfmatters-readystatechange")), await cwvpsbNextFrame(), document.perfmattersonreadystatechange && document.perfmattersonreadystatechange(), await cwvpsbNextFrame(), window.dispatchEvent(new Event("perfmatters-load")), await cwvpsbNextFrame(), window.perfmattersonload && window.perfmattersonload(), await cwvpsbNextFrame(), jQueriesArray.forEach(function(e) {
+        e(window).trigger("perfmatters-jquery-load")
+    }), window.dispatchEvent(new Event("perfmatters-pageshow")), await cwvpsbNextFrame(), window.perfmattersonpageshow && window.perfmattersonpageshow()
+}
+async function cwvpsbNextFrame() {
+    return new Promise(function(e) {
+        requestAnimationFrame(e)
+    })
+}
+cwvpsbUserInteractions.forEach(function(e) {
+    window.addEventListener(e, cwvpsbTriggerDOMListener, {
+        passive: !0
+    })
+});
 
-		 
 
-		})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		</script>';
 	}
 

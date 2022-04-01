@@ -69,7 +69,9 @@ function cwvpsb_convert_webp(){
 
 function cwvpsb_display_webp( $content ) {
     $comp_dom = new DOMDocument();
+    libxml_use_internal_errors(true);
     $comp_dom->loadHTML($content);
+    libxml_clear_errors();
     $xpath = new DOMXPath( $comp_dom );
     $nodes = $xpath->query('//img[@src]');
     foreach ($nodes as $node) {
