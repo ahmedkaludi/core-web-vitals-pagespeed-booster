@@ -347,6 +347,10 @@ public function critical_css_callback(){
         }
         ?>
     </select>
+    
+    <br/>
+    <br/>
+    <textarea cols="70" rows="5" class="" name="cwvpsb_get_settings[exclude_delay_js]"><?php echo isset($settings['exclude_delay_js'])? $settings['exclude_delay_js']:''; ?></textarea>
     </div>  
              
     <?php 

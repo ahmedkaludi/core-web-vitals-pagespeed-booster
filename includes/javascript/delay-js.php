@@ -83,8 +83,21 @@ function cwvpsb_delay_js_html($html) {
 
 		$atts_array['type'] = 'cwvpsbdelayedscript';
 		$atts_array['defer'] = 'defer';
-	
-		if($delay_flag) {
+
+		/*if ( ! empty( $cwvpsb_detalay_exclude_js() ) ) {
+			// File is excluded from minification/concatenation.
+			if (  ) {
+				return true;
+			}
+		}*/
+		$include = true;
+		if(isset($atts_array['src'])){
+		error_log(" => ".$matches[3][$i]." =>102 ".json_encode(cwvpsb_detalay_exclude_js()) );
+			if(preg_match( '#(' . cwvpsb_detalay_exclude_js() . ')#', $atts_array['src'] )){
+				$include = false;		
+			}
+		}
+		if($delay_flag && $include) {
 	
 			$delayed_atts_string = cwvpsb_get_atts_string($atts_array);
 	        $delayed_tag = sprintf('<script %1$s>', $delayed_atts_string) . (!empty($matches[3][$i]) ? $matches[3][$i] : '') .'</script>';
@@ -93,6 +106,39 @@ function cwvpsb_delay_js_html($html) {
 		}
 	}
 	return $html;
+}
+
+
+function cwvpsb_detalay_exclude_js(){
+	$settings = cwvpsb_defaults();
+	$inputs['exclude_js'] = $settings['exclude_delay_js'];
+	if ( ! empty( $inputs['exclude_js'] ) ) {
+		if ( ! is_array( $inputs['exclude_js'] ) ) {
+			$inputs['exclude_js'] = explode( "\n", $inputs['exclude_js'] );
+		}
+		$inputs['exclude_js'] = array_map( 'trim', $inputs['exclude_js'] );
+		$inputs['exclude_js'] = array_map( 'cwvpsb_sanitize_js', $inputs['exclude_js'] );
+		$inputs['exclude_js'] = (array) array_filter( $inputs['exclude_js'] );
+		$inputs['exclude_js'] = array_unique( $inputs['exclude_js'] );
+	} else {
+		$inputs['exclude_js'] = array();
+	}
+	$excluded_files = array();
+	foreach ( $inputs['exclude_js'] as $i => $excluded_file ) {
+			// Escape characters for future use in regex pattern.
+			$excluded_files[ $i ] = str_replace( '#', '\#', $excluded_file );
+		}
+	if(is_array($excluded_files)){
+		return implode( '|', $excluded_files );
+	}else{
+		return '';
+	}
+}
+
+function cwvpsb_sanitize_js( $file ) {
+	$file = preg_replace( '#\?.*$#', '', $file );
+	$ext  = strtolower( pathinfo( $file, PATHINFO_EXTENSION ) );
+	return ( 'js' === $ext ) ? trim( $file ) : false;
 }
 
 function cwvpsb_delay_js_load() {
