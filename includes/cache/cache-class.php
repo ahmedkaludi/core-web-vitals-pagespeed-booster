@@ -64,12 +64,20 @@ final class CWVPSB_Cache {
 		// caching
 		if ( !is_admin() ) {
 			add_action(
-				'template_redirect',
+				'sanitize_comment_cookies',
+				array(
+					__CLASS__,
+					'handle_serving_cache'
+				),
+				0
+			);
+			add_filter(
+				'cwvpsb_complete_html_after_dom_loaded',
 				array(
 					__CLASS__,
 					'handle_cache'
 				),
-				0
+				99
 			);
 		} 
 
@@ -475,12 +483,21 @@ final class CWVPSB_Cache {
 		return $data;
 	}
 
-	public static function handle_cache() {
-
+	public static function handle_cache($data) {
 		// bypass cache
 		if ( self::_bypass_cache() ) {
-			return;
+			return $data;
 		}
+		$settings = cwvpsb_defaults();
+		if(isset($settings['critical_css_support']) && $settings['critical_css_support']==1){
+           $upload_dir = wp_upload_dir(); 
+    		$user_dirname = $upload_dir['basedir'] . '/' . 'cc-cwvpb';
+    		global $wp;
+    		$url = home_url( $wp->request );
+    		if(!file_exists($user_dirname.'/'.md5($url).'.css')){
+    		    return $data;
+    		}
+        }
 
 		// get asset cache status
 		$cached = call_user_func(
@@ -492,16 +509,41 @@ final class CWVPSB_Cache {
 
 		// check if cache empty
 		if ( empty($cached) ) {
-			ob_start('CWVPSB_Cache::set_cache');
-			return;
+			CWVPSB_Cache::set_cache($data);
+			//ob_start('CWVPSB_Cache::set_cache');
+			return $data;
 		}
-
+        /*return "hello obstart ".self::$disk::get_asset($data);*/ //To track cache serve on obstart
+        return self::$disk::get_asset($data);
 		// return cached asset
-		call_user_func(
+		/* call_user_func(
 			array(
 				self::$disk,
 				'get_asset'
 			)
+		);*/
+	}
+	
+	public static function handle_serving_cache(){
+	    // bypass cache
+		if ( self::_bypass_cache() ) {
+			return;
+		}
+		$cached = call_user_func(
+			array(
+				self::$disk,
+				'check_asset'
+			)
 		);
+		if ( !empty($cached) ) {
+		    /*echo "runs on setup_theme ";*/ //To track cache serve on setup theme
+		    call_user_func(
+			array(
+				self::$disk,
+				'get_asset_readfile'
+			));
+		    exit();
+		}
+		
 	}
 }

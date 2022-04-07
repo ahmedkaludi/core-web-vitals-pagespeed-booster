@@ -3,15 +3,15 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly.
 }
 
-add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_minify_html');
+add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_minify_html',50);
 function cwvpsb_minify_html($input){
     if(function_exists('is_feed')&& is_feed()){return $input;}
     if(trim($input) === "") return $input;
     // Remove extra white-space(s) between HTML attribute(s)
     $input = preg_replace_callback('#<([^\/\s<>!]+)(?:\s+([^<>]*?)\s*|\s*)(\/?)>#s', function($matches) {
         return '<' . $matches[1] . preg_replace('#([^\s=]+)(\=([\'"]?)(.*?)\3)?(\s+|$)#s', ' $1$2', $matches[2]) . $matches[3] . '>';
-    }, str_replace("\r", "", $input));
-
+    }, str_replace(array("\r", "\n"), array("", ""), $input));//str_replace(array("\r", "\n"), array("", ""), $input)
+    
     return preg_replace(
         array(
             

@@ -69,8 +69,41 @@ final class CWVPSB_Cache_Disk {
 		@unlink($path.self::FILE_GZIP);
 	}
 
-	public static function get_asset() {
+	public static function get_asset($data) {
+		// set cache handler header
+		header('X-Cache-Handler: php');
 
+		// get if-modified request headers
+		if ( function_exists( 'apache_request_headers' ) ) {
+			$headers = apache_request_headers();
+			$http_if_modified_since = ( isset( $headers[ 'If-Modified-Since' ] ) ) ? $headers[ 'If-Modified-Since' ] : '';
+			$http_accept = ( isset( $headers[ 'Accept' ] ) ) ? $headers[ 'Accept' ] : '';
+			$http_accept_encoding = ( isset( $headers[ 'Accept-Encoding' ] ) ) ? $headers[ 'Accept-Encoding' ] : '';
+		} else {
+			$http_if_modified_since = ( isset( $_SERVER[ 'HTTP_IF_MODIFIED_SINCE' ] ) ) ? $_SERVER[ 'HTTP_IF_MODIFIED_SINCE' ] : '';
+			$http_accept = ( isset( $_SERVER[ 'HTTP_ACCEPT' ] ) ) ? $_SERVER[ 'HTTP_ACCEPT' ] : '';
+			$http_accept_encoding = ( isset( $_SERVER[ 'HTTP_ACCEPT_ENCODING' ] ) ) ? $_SERVER[ 'HTTP_ACCEPT_ENCODING' ] : '';
+		}
+
+		// check modified since with cached file and return 304 if no difference
+		if ( $http_if_modified_since && ( strtotime( $http_if_modified_since ) == filemtime( self::_file_html() ) ) ) {
+			header( $_SERVER['SERVER_PROTOCOL'] . ' 304 Not Modified', true, 304 );
+			return $data;
+			exit;
+		}
+		// check encoding and deliver gzip file if support
+		if ( $http_accept_encoding && ( strpos($http_accept_encoding, 'gzip') !== false ) && is_readable( self::_file_gzip() )  ) {
+			header('Content-Encoding: gzip');
+			return file_get_contents( self::_file_gzip() );
+			exit;
+		}
+
+		// deliver cached file (default)
+		return file_get_contents( self::_file_html() );
+		exit;
+	}
+	
+	public static function get_asset_readfile() {
 		// set cache handler header
 		header('X-Cache-Handler: php');
 

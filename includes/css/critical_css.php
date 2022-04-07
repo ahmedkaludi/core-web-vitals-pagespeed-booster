@@ -13,12 +13,15 @@ class criticalCss{
 	    	return;
 		}
 		add_action('wp_footer', array($this,'cwvpsb_delay_js_load'), PHP_INT_MAX);
-		add_action('wp', array($this, 'delay_css_loadings'), 999);
-		add_action('wp_head', array($this, 'print_style_cc'));
-		if(!is_admin()){
-			add_action( 'wp_enqueue_scripts', array($this, 'scripts_styles') );
+		if(function_exists('is_user_logged_in') && !is_user_logged_in()){
+		    add_action('wp', array($this, 'delay_css_loadings'), 999);
+	    }
+	    
+	    add_action('wp_head', array($this, 'print_style_cc'),2);
+		//if(!is_admin()){
+		    add_action( 'wp_enqueue_scripts', array($this, 'scripts_styles') );
 			
-		}
+		//}
 		add_action("wp_ajax_cc_call", array($this, 'grab_cc_css'));
 		add_action("wp_ajax_nopriv_cc_call", array($this, 'grab_cc_css'));
 	}
@@ -49,7 +52,7 @@ class criticalCss{
 	    }
 	    $targetUrl = $_POST['current_url'];
 	    $URL = 'http://45.32.112.172/?url='.$targetUrl;
-	    $response = wp_remote_get($URL, array());
+	    $response = wp_remote_get($URL, array('timeout'     => 40));
 	    $resStatuscode = wp_remote_retrieve_response_code( $response );
 	    if($resStatuscode==200){
 	    	$response = wp_remote_retrieve_body($response);
@@ -62,6 +65,10 @@ class criticalCss{
 			if(!file_exists($user_dirname)) wp_mkdir_p($user_dirname);
 
 			$content = $responseArr['critical_css'];
+			$content = str_replace("url('wp-content/", "url('https://buildingandinteriors.com/wp-content/", $content); 
+			$content = str_replace('url("wp-content/', 'url("https://buildingandinteriors.com/wp-content/', $content); 
+			
+			
 			$new_file = $user_dirname."/".md5($targetUrl).".css";
 			$ifp = @fopen( $new_file, 'w+' );
 			if ( ! $ifp ) {
@@ -72,7 +79,7 @@ class criticalCss{
 
 	    	echo json_encode(array("status"=>200));die;
 	    }else{
-	    	echo json_encode(array("status"=>$resStatuscode, 'message'=> 'return from server'));die;
+	    	echo json_encode(array("status"=>$resStatuscode, 'message'=> 'return from server', 'response'=>$response));die;
 	    }
 
 
@@ -148,10 +155,25 @@ class criticalCss{
 		
 			if($delay_flag) {
 				//$html = str_replace($tag, '<noscript id="cwvpsbdelayedstyle">'.$tag.'</noscript>', $html);
-				 $delayed_atts_string = $this->cwvpsb_get_atts_string($atts_array);
+				$delayed_atts_string = $this->cwvpsb_get_atts_string($atts_array);
 		        $delayed_tag = sprintf('<link %1$s', $delayed_atts_string) . (!empty($matches[3][$i]) ? $matches[3][$i] : '') .'/>';
 				$html = str_replace($tag, $delayed_tag, $html); 
 				continue;
+			}
+		}
+
+		preg_match_all('#(<style\s?([^>]+)?\/?>)(.*?)<\/style>#is', $html_no_comments, $matches1);
+		if(isset($matches1[0])){
+			foreach($matches1[0] as $i => $tag) {
+				$atts_array = !empty($matches1[2][$i]) ? $this->cwvpsb_get_atts_array($matches1[2][$i]) : array();
+				if($atts_array['id'] == 'cc-styles'){ continue; }
+				if(isset($atts_array['type'])){
+					$atts_array['data-cwvpsb-cc-type'] = $atts_array['type'];
+				}
+				$atts_array['type'] = 'cwvpsbdelayedstyle';
+				$delayed_atts_string = $this->cwvpsb_get_atts_string($atts_array);
+		        $delayed_tag = sprintf('<style %1$s>', $delayed_atts_string) . (!empty($matches1[3][$i]) ? $matches1[3][$i] : '') .'</style>';
+				$html = str_replace($tag, $delayed_tag, $html);
 			}
 		}
 		return $html;
@@ -321,13 +343,23 @@ async function cwvpsbReplaceScript(e) {
 }
 function ctl(){
 				var cssEle = document.querySelectorAll("link[rel=cwvpsbdelayedstyle]");
-				console.log(cssEle.length);
 				for(var i=0; i <= cssEle.length;i++){
 					if(cssEle[i]){
 						var cssMain = document.createElement("link");
 						cssMain.href = cssEle[i].href;
 						cssMain.rel = "stylesheet";
 						cssMain.type = "text/css";
+						document.getElementsByTagName("head")[0].appendChild(cssMain);
+					}
+				}
+				var cssEle = document.querySelectorAll("style[type=cwvpsbdelayedstyle]");
+				for(var i=0; i <= cssEle.length;i++){
+					if(cssEle[i]){
+						var cssMain = document.createElement("style");
+						cssMain.type = "text/css";
+						/*cssMain.rel = "stylesheet";*/
+						/*cssMain.type = "text/css";*/
+						cssMain.textContent = cssEle[i].textContent;
 						document.getElementsByTagName("head")[0].appendChild(cssMain);
 					}
 				}
