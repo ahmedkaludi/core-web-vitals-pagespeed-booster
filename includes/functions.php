@@ -153,7 +153,8 @@ function cwvpsb_defaults(){
        'js_optimization' => 1,
        'delay_js' => 'js',
        'whitelist_css'=>array(),
-       'critical_css_support'=>1
+       'critical_css_support'=>1,
+       'cache_support_method'=>'Highly Optimized',
     );        
     $settings = get_option( 'cwvpsb_get_settings', $defaults );   
     $settings['unused_css_support'] = 0;

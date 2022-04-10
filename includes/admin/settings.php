@@ -54,6 +54,7 @@ public function cwvpsb_admin_interface_render(){
     }              
     // Handing save settings
     if ( isset( $_GET['settings-updated'] ) ) { 
+        $this->cwvpsb_reWriteCacheHtaccess();
         $settings = cwvpsb_defaults();  
         settings_errors();
     }
@@ -223,6 +224,15 @@ public function cwvpsb_settings_init(){
          array($this, 'cache_callback'),
         'cwvpsb_cache_section',
         'cwvpsb_cache_section'
+    );
+
+    add_settings_field(
+        'cache_support_method',
+        'Cache Method',
+         array($this, 'cache_strategy_callback'),
+        'cwvpsb_cache_section',
+        'cwvpsb_cache_section',
+        ["class"=>(isset($settings['cache_support']) && $settings['cache_support']==1 ? "": 'hidden')]
     );     
 
     add_settings_section('cwvpsb_advance_section', '', '__return_false', 'cwvpsb_advance_section');                    
@@ -372,6 +382,22 @@ public function cache_callback(){
     <p class="description"><?php echo esc_html__("Caching pages will reduce the response time of your site and your web pages load much faster, directly from cache", 'cwvpsb');?></p>
     </fieldset>
     <?php }
+public function cache_strategy_callback(){
+    $settings = cwvpsb_defaults(); ?>
+    <fieldset><?php
+        $options = array("Highly Optimized"=>"Highly Optimized (Recommended)", "Aggressively Optimized"=>"Aggressively Optimized");
+        ?><select name="cwvpsb_get_settings[cache_support_method]">
+                <?php foreach($options as $key=>$opt){
+                    $sel = '';
+                    if($settings['cache_support_method']==$key){ $sel = "selected"; }
+                 ?>
+                    <option value="<?php echo $key; ?>" <?php echo $sel; ?>><?php echo $opt; ?></option>
+                <?php } ?>
+            </select>
+    <p class="description"><?php echo esc_html__("Highly Optimized will serve by PHP", 'cwvpsb')."<br/>".esc_html__(" Aggressively Optimized will serve cache via htaccess", 'cwvpsb');?></p>
+    </fieldset>
+    <?php }
+
 public function advance_url_callback(){
     $settings = cwvpsb_defaults(); ?> 
     <textarea rows='5' cols='70' name="cwvpsb_get_settings[advance_support]" id='cwvpsb_add_advance_support'><?php echo isset($settings['advance_support'])? esc_html($settings['advance_support']) : ''; ?></textarea>
@@ -508,6 +534,97 @@ public function advance_url_callback(){
             if(function_exists('error_log')){ error_log($e->getMessage()); }
         }
         echo json_encode(array('status'=>200 ,"msg"=>esc_html__('File converted successfully', 'cwvpsb') ));die;
+    }
+
+    public function cwvpsb_reWriteCacheHtaccess(){
+        $settings = cwvpsb_defaults();
+        $staticEnabled = true;
+        if(isset($settings['cache_support']) && $settings['cache_support']==1){
+             if(isset($settings['cache_support_method']) && $settings['cache_support_method']=='Aggressively Optimized'){
+                $staticEnabled = true;
+            }else{$staticEnabled = false;}
+        }else{$staticEnabled = false;} 
+        //Remove rules if option is off
+            if ( ! function_exists( 'get_home_path' ) ) {
+                    require_once ABSPATH . 'wp-admin/includes/file.php';
+                }
+                $htaccess_file = get_home_path() . '.htaccess';
+                if ( ! $this->direct_filesystem()->is_writable( $htaccess_file ) ) {
+                    // The file is not writable or does not exist.
+                    return false;
+                }
+                // Get content of .htaccess file.
+                $ftmp = $this->direct_filesystem()->get_contents( $htaccess_file );
+
+                if ( false === $ftmp ) {
+                    // Could not get the file contents.
+                    return false;
+                }
+                // Check if the file contains the WP rules, before modifying anything.
+                $has_wp_rules = $this->check_wp_has_htaccess_rules( $ftmp );
+
+                // Remove the WP Rocket marker.
+                $ftmp = preg_replace( '/\s*# BEGIN Core WebVital.*# END Core WebVital\s*?/isU', PHP_EOL . PHP_EOL, $ftmp );
+                $ftmp = ltrim( $ftmp );
+
+                if ( $staticEnabled ) {
+                    var_dump($staticEnabled);
+                    $ftmp = $this->get_corewebvital_cache_htaccess() . PHP_EOL . $ftmp;
+                }
+
+                // Make sure the WP rules are still there.
+                if ( $has_wp_rules && ! $this->check_wp_has_htaccess_rules( $ftmp ) ) {
+                    return false;
+                }
+
+                // Update the .htacces file.
+                return $this->direct_filesystem()->put_contents( $htaccess_file, $ftmp, 0644 );
+        //Remove or add rules are added 
+    }
+    protected function direct_filesystem(){
+        require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
+        require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
+        return new WP_Filesystem_Direct( new StdClass() );
+    }
+    protected function check_wp_has_htaccess_rules( $content ) {
+        if ( is_multisite() ) {
+            $has_wp_rules = strpos( $content, '# add a trailing slash to /wp-admin' ) !== false;
+        } else {
+            $has_wp_rules = strpos( $content, '# BEGIN WordPress' ) !== false;
+        }
+
+        return  $has_wp_rules;
+    }
+    protected function get_corewebvital_cache_htaccess(){
+        $host = parse_url(
+                get_site_url(),
+                PHP_URL_HOST
+            );
+        // Recreate rules.
+        $rule = '# BEGIN Core WebVital'. PHP_EOL;
+        $rule .= '<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /wp-content/cache/
+    RewriteRule ^cache-cwvpsb/ - [L]
+    RewriteCond %{HTTP_COOKIE} !wordpress_logged_in_.*=[^;]+ [NC]
+    RewriteCond %{REQUEST_METHOD} !POST
+    RewriteCond %{QUERY_STRING} !.*=.*
+    RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/cache-cwvpsb/'.$host.'/$1 -f
+    RewriteRule ^(.*)$ /wp-content/cache/cache-cwvpsb/'.$host.'/$1 [L]
+    RewriteCond %{REQUEST_METHOD} !POST
+    RewriteCond %{QUERY_STRING} !.*=.*
+    RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/cache-cwvpsb/'.$host.'/$1/index.html -f
+    RewriteRule ^(.*)$ /wp-content/cache/cache-cwvpsb/'.$host.'/$1/index.html [L]
+
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires 0
+</IfModule>'.PHP_EOL;
+
+        $rule .= '# END Core WebVital' . PHP_EOL;
+        $rule = apply_filters( 'rocket_htaccess_marker', $rule );
+        return $rule;
+        
     }
 }
 if (class_exists('cwvpsb_admin_settings')) {

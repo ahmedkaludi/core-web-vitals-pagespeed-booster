@@ -62,7 +62,8 @@ function cwvpsb_delay_js_html($html) {
 	foreach($matches[0] as $i => $tag) {
 		$atts_array = !empty($matches[2][$i]) ? cwvpsb_get_atts_array($matches[2][$i]) : array();
 		if(isset($atts_array['type']) && stripos($atts_array['type'], 'javascript') == false || 
-			isset($atts_array['id']) && stripos($atts_array['id'], 'corewvps-mergejsfile') !== false
+			isset($atts_array['id']) && stripos($atts_array['id'], 'corewvps-mergejsfile') !== false ||
+			isset($atts_array['id']) && stripos($atts_array['id'], 'corewvps-cc') !== false
 		) {
 			continue;
 		}
