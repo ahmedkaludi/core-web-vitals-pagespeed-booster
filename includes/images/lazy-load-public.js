@@ -14,6 +14,7 @@
         src: "data-src",
         srcset: "data-srcset",
 		sizes: "data-sizes",
+        style: "data-style",
         selector: ".cwvlazyload"
     };
 

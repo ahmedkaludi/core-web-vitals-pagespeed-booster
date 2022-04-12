@@ -178,6 +178,23 @@ class CWV_Lazy_Load_Public {
        }
               
       }
+      //return json_encode(count($pq->xpath->query('//*[@style]')));
+      foreach($pq->xpath->query('//*[@style]') as $node)
+      {
+        $style =  $node->getAttribute('style');
+        $gotmatches = preg_match_all("/url\(.*?(gif|png|jpg|jpeg)\'\)/", $style, $matches);
+        if($gotmatches){
+          //return json_encode($matches[0]);
+          foreach ($matches[0] as $key => $value) {
+            $newstyle = str_replace($value, "url('data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw==')", $style); 
+            pq($node)->attr("data-style", $style);
+            pq($node)->attr("style", $newstyle);
+            pq($node)->addClass('cwvlazyload');
+          }
+          
+          //return json_encode($matches);die;
+        }
+      }
         return $pq->html();
     //}
     //ob_start("lazy_load_img"); 
