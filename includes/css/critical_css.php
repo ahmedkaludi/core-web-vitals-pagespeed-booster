@@ -68,16 +68,19 @@ class criticalCss{
 			$content = str_replace("url('wp-content/", "url('https://buildingandinteriors.com/wp-content/", $content); 
 			$content = str_replace('url("wp-content/', 'url("https://buildingandinteriors.com/wp-content/', $content); 
 			
-			
-			$new_file = $user_dirname."/".md5($targetUrl).".css";
-			$ifp = @fopen( $new_file, 'w+' );
-			if ( ! $ifp ) {
-	          echo json_encode(  array( 'error' => sprintf( __( 'Could not write file %s' ), $new_file ) ));die;
-	        }
-	        $result = @fwrite( $ifp, $content );
-		    fclose( $ifp );
+			if($content){
+				$new_file = $user_dirname."/".md5($targetUrl).".css";
+				$ifp = @fopen( $new_file, 'w+' );
+				if ( ! $ifp ) {
+		          echo json_encode(  array( 'error' => sprintf( __( 'Could not write file %s' ), $new_file ) ));die;
+		        }
+		        $result = @fwrite( $ifp, $content );
+			    fclose( $ifp );
 
-	    	echo json_encode(array("status"=>200));die;
+		    	echo json_encode(array("status"=>200));die;
+		    }else{
+		    	echo json_encode(array("status"=>401, "message"=> "file content is blank"));die;
+		    }
 	    }else{
 	    	echo json_encode(array("status"=>$resStatuscode, 'message'=> 'return from server', 'response'=>$response));die;
 	    }
