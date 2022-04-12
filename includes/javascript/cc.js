@@ -1,7 +1,6 @@
 if(cwvpb_ccdata.grab_cc_check!=1){
 	let xhr = new XMLHttpRequest();
 	xhr.open("POST", cwvpb_ccdata.ajaxurl, true);
-	console.log(cwvpb_ccdata.ajaxurl);
 	xhr.setRequestHeader("Accept", "application/json");
 	xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
 
