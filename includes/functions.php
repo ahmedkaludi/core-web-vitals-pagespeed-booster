@@ -19,7 +19,10 @@ function cwvpsb_complete_html_after_dom_loaded( $content ) {
     $content = apply_filters('cwvpsb_complete_html_after_dom_loaded', $content);
     return $content;
 }
-add_action('wp', function(){ ob_start('cwvpsb_complete_html_after_dom_loaded'); }, 999);
+add_action('wp', function(){
+    
+    if ( cwvpsb_amp_support_enabled() ) { return; }
+ ob_start('cwvpsb_complete_html_after_dom_loaded'); }, 999);
 
 $settings = cwvpsb_defaults();
 
@@ -324,4 +327,29 @@ function cwvpsb_iframe_delay_enqueue(){
         echo '<style>.cwvpsb_iframe {max-width:600px !important}</style>';
    
     }
+}
+
+function cwvpsb_amp_support_enabled(){
+    if(function_exists( 'ampforwp_is_amp_endpoint' ) && ampforwp_is_amp_endpoint()){
+        return true;
+    }elseif(function_exists('is_amp_endpoint') && is_amp_endpoint()){
+        return true;
+    }elseif(function_exists('get_post_type') && in_array(get_post_type(), array('web-stories', 
+'web-story'))){
+        return true;
+    }elseif(function_exists('get_post_type') && get_post_type()=='ampforwp_story'){
+        return true;
+    }
+    if(function_exists('vp_metabox')){
+        $amp_story_activated = vp_metabox('amp_story_vp_metabox.amp_story_tg');
+       $amp_story_primary = vp_metabox('amp_story_vp_metabox.amp_story_tg_primary');
+       if ($amp_story_primary == 1 && $amp_story_activated == 1 && !is_admin() &&  (is_single() ||  is_page() ) ) {
+            return true;
+        }
+        if (sanitize_text_field($_GET['amp'] == 1)  && $amp_story_activated == 1 ) {
+          return true;
+       }
+    }
+    
+    return false;
 }
