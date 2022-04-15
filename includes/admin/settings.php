@@ -568,7 +568,6 @@ public function advance_url_callback(){
                 $ftmp = ltrim( $ftmp );
 
                 if ( $staticEnabled ) {
-                    var_dump($staticEnabled);
                     $ftmp = $this->get_corewebvital_cache_htaccess() . PHP_EOL . $ftmp;
                 }
 
@@ -604,25 +603,21 @@ public function advance_url_callback(){
         $rule = '# BEGIN Core WebVital'. PHP_EOL;
         $rule .= '<IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /wp-content/cache/
+    RewriteBase /wp-content/cache/cwvpsb/
     RewriteRule ^cache-cwvpsb/ - [L]
     RewriteCond %{HTTP_COOKIE} !wordpress_logged_in_.*=[^;]+ [NC]
     RewriteCond %{REQUEST_METHOD} !POST
     RewriteCond %{QUERY_STRING} !.*=.*
-    RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/cache-cwvpsb/'.$host.'/$1 -f
-    RewriteRule ^(.*)$ /wp-content/cache/cache-cwvpsb/'.$host.'/$1 [L]
+    RewriteCond %{DOCUMENT_ROOT}'.CWVPSB_CACHE_AGGRESIVE_DIR.$host.'/$1 -f
+    RewriteRule ^(.*)$ '.CWVPSB_CACHE_AGGRESIVE_DIR.$host.'/$1 [L]
     RewriteCond %{REQUEST_METHOD} !POST
     RewriteCond %{QUERY_STRING} !.*=.*
-    RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/cache-cwvpsb/'.$host.'/$1/index.html -f
-    RewriteRule ^(.*)$ /wp-content/cache/cache-cwvpsb/'.$host.'/$1/index.html [L]
-
-    Header set Cache-Control "no-cache, no-store, must-revalidate"
-    Header set Pragma "no-cache"
-    Header set Expires 0
+    RewriteCond %{DOCUMENT_ROOT}'.CWVPSB_CACHE_AGGRESIVE_DIR.$host.'/$1/index.html -f
+    RewriteRule ^(.*)$ '.CWVPSB_CACHE_AGGRESIVE_DIR.$host.'/$1/index.html [L]
 </IfModule>'.PHP_EOL;
 
         $rule .= '# END Core WebVital' . PHP_EOL;
-        $rule = apply_filters( 'rocket_htaccess_marker', $rule );
+        $rule = apply_filters( 'cwvpb_aggressive_cache_htaccess_marker', $rule );
         return $rule;
         
     }

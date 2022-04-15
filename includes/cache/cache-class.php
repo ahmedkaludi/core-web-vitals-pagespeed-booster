@@ -427,10 +427,15 @@ final class CWVPSB_Cache {
 			return true;
 		}
 
-		// conditional tags
-		if ( self::_is_index() OR is_search() OR is_404() OR is_feed() OR is_trackback() OR is_robots() OR is_preview() OR post_password_required() ) {
+		// if logged in
+		if ( self::_is_logged_in() ) {
 			return true;
 		}
+
+		// conditional tags
+		/*if ( self::_is_index() OR (function_exists('is_search') && is_search()) OR is_404() OR is_feed() OR is_trackback() OR is_robots() OR is_preview() OR post_password_required() ) {
+			return true;
+		}*/
 
 		// DONOTCACHEPAGE check e.g. woocommerce
 		if ( defined('DONOTCACHEPAGE') && DONOTCACHEPAGE ) {
@@ -444,11 +449,6 @@ final class CWVPSB_Cache {
 
 		// Request with query strings
 		if ( ! empty($_GET) && ! isset( $_GET['utm_source'], $_GET['utm_medium'], $_GET['utm_campaign'] ) && get_option('permalink_structure') ) {
-			return true;
-		}
-
-		// if logged in
-		if ( self::_is_logged_in() ) {
 			return true;
 		}
 
@@ -490,11 +490,9 @@ final class CWVPSB_Cache {
 		}
 		$settings = cwvpsb_defaults();
 		if(isset($settings['critical_css_support']) && $settings['critical_css_support']==1){
-           $upload_dir = wp_upload_dir(); 
-    		$user_dirname = $upload_dir['basedir'] . '/' . 'cc-cwvpb';
-    		global $wp;
-    		$url = home_url( $wp->request );
-    		if(!file_exists($user_dirname.'/'.md5($url).'.css')){
+           global $wp, $cwvpbCriticalCss;
+           $url = home_url( $wp->request );
+    		if(!file_exists(CWVPSB_CRITICAL_CSS_CACHE_DIR.'/'.md5($url).'.css')){
     		    return $data;
     		}
         }

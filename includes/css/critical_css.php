@@ -1,8 +1,19 @@
 <?php
-
+/**
+ * Critical CSS functionality 
+ * @since 1.3
+ **/
 class criticalCss{
 	public function __construct(){
 		$this->init();
+	}
+
+	public function cachepath(){
+		if(defined(CWVPSB_CRITICAL_CSS_CACHE_DIR)){
+			return CWVPSB_CRITICAL_CSS_CACHE_DIR;
+		}else{
+			return WP_CONTENT_DIR . "/cache/cwvpsb/critical_css/";
+		}
 	}
 
 	public function init(){
@@ -27,13 +38,10 @@ class criticalCss{
 	}
 
 	function scripts_styles(){
-		wp_register_script('corewvps-cc', CWVPSB_PLUGIN_DIR_URI.'/includes/javascript/cc.js', array('jquery'), CWVPSB_VERSION, true);
-
-		wp_enqueue_script('corewvps-cc');
 		global $wp;
-		$upload_dir = wp_upload_dir(); 
-		$user_dirname = $upload_dir['basedir'] . '/' . 'cc-cwvpb';
-
+		wp_register_script('corewvps-cc', CWVPSB_PLUGIN_DIR_URI.'/includes/css/cc.js', array('jquery'), CWVPSB_VERSION, true);
+		wp_enqueue_script('corewvps-cc');
+		$user_dirname =  $this->cachepath();
 		$data = array('ajaxurl'=>admin_url( 'admin-ajax.php' ),
 					'cc_nonce'   => wp_create_nonce('cc_ajax_check_nonce'),
 					'current_url' => home_url( $wp->request ),
@@ -60,15 +68,15 @@ class criticalCss{
 	    	if($responseArr["status"] != 200){
 	    		echo json_encode( array("status"=>$responseArr["status"]) );die;
 	    	}
-	    	$upload_dir = wp_upload_dir(); 
-			$user_dirname = $upload_dir['basedir'] . '/' . 'cc-cwvpb';
+	    	
+			$user_dirname = $this->cachepath();
 			if(!file_exists($user_dirname)) wp_mkdir_p($user_dirname);
 
 			$content = $responseArr['critical_css'];
 			$content = str_replace("url('wp-content/", "url('https://buildingandinteriors.com/wp-content/", $content); 
 			$content = str_replace('url("wp-content/', 'url("https://buildingandinteriors.com/wp-content/', $content); 
 			
-			if($content){
+			if(true){//$content
 				$new_file = $user_dirname."/".md5($targetUrl).".css";
 				$ifp = @fopen( $new_file, 'w+' );
 				if ( ! $ifp ) {
@@ -84,17 +92,12 @@ class criticalCss{
 	    }else{
 	    	echo json_encode(array("status"=>$resStatuscode, 'message'=> 'return from server', 'response'=>$response));die;
 	    }
-
-
-
-
-
 	}
 
 
 	function print_style_cc(){
 		$upload_dir = wp_upload_dir(); 
-		$user_dirname = $upload_dir['basedir'] . '/' . 'cc-cwvpb';
+		$user_dirname = $upload_dir['basedir'] . '/' . $this->cachepath();
 		global $wp;
 		$url = home_url( $wp->request );
 		if(file_exists($user_dirname.'/'.md5($url).'.css')){
@@ -115,7 +118,7 @@ class criticalCss{
 
 	function check_critical_css(){
 		$upload_dir = wp_upload_dir(); 
-		$user_dirname = $upload_dir['basedir'] . '/' . 'cc-cwvpb';
+		$user_dirname = $upload_dir['basedir'] . '/' . $this->cachepath();
 		global $wp;
 		$url = home_url( $wp->request );
 		return file_exists($user_dirname.'/'.md5($url).'.css')? true :  false; 
@@ -157,7 +160,6 @@ class criticalCss{
 			$atts_array['defer'] = 'defer';
 		
 			if($delay_flag) {
-				//$html = str_replace($tag, '<noscript id="cwvpsbdelayedstyle">'.$tag.'</noscript>', $html);
 				$delayed_atts_string = $this->cwvpsb_get_atts_string($atts_array);
 		        $delayed_tag = sprintf('<link %1$s', $delayed_atts_string) . (!empty($matches[3][$i]) ? $matches[3][$i] : '') .'/>';
 				$html = str_replace($tag, $delayed_tag, $html); 

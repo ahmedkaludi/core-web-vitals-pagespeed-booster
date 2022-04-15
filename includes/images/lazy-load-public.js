@@ -95,7 +95,8 @@
                                 entry.target.sizes = sizes;
                             }
                         } else {
-                            entry.target.style.backgroundImage = "url(" + src + ")";
+                            //entry.target.style.backgroundImage = "url(" + src + ")";
+                            entry.target.style = entry.target.getAttribute(self.settings.style);
                         }
                     }
                 });
@@ -131,7 +132,8 @@
                         image.sizes = sizes;
                     }
                 } else {
-                    image.style.backgroundImage = "url('" + src + "')";
+                    //image.style.backgroundImage = "url('" + src + "')";
+                    image.style = image.getAttribute(self.settings.style);
                 }
             });
         },

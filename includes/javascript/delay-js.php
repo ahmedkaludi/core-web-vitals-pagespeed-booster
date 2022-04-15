@@ -134,9 +134,8 @@ function cwvpsb_combine_js_files($combined_ex_js_arr, $html){
      }
 
      $filename = md5('cc-js-files');
-     $upload_dir = wp_upload_dir(); 
-	 $user_dirname = $upload_dir['basedir'] . '/' . 'cc-cwvpb-js';
-	 $user_urlname = $upload_dir['baseurl'] . '/' . 'cc-cwvpb-js';
+	 $user_dirname = CWVPSB_JS_EXCLUDE_CACHE_DIR;
+	 $user_urlname = CWVPSB_JS_EXCLUDE_CACHE_URL;
 	 $jsUrl = '';
 	 
 	 if(!file_exists($user_dirname.'/'.$filename.'.js')){
@@ -195,9 +194,8 @@ function cwvpsb_delay_exclude_js(){
 add_action( 'wp_enqueue_scripts',  'cwvpsb_scripts_styles' , 9);
 function cwvpsb_scripts_styles(){
 	$filename = md5('cc-js-files');
-     $upload_dir = wp_upload_dir(); 
-	 $user_dirname = $upload_dir['basedir'] . '/' . 'cc-cwvpb-js';
-	 $user_urlname = $upload_dir['baseurl'] . '/' . 'cc-cwvpb-js';
+	 $user_dirname = CWVPSB_JS_EXCLUDE_CACHE_DIR;
+	 $user_urlname = CWVPSB_JS_EXCLUDE_CACHE_URL;
 	 
 	 if(file_exists($user_dirname.'/'.$filename.'.js')){
 	 	wp_register_script('corewvps-mergejsfile', $user_urlname.'/'.$filename.'.js', array(), CWVPSB_VERSION, true);
