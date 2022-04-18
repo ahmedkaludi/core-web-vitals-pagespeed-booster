@@ -43,6 +43,10 @@ define('CWVPSB_CRITICAL_CSS_CACHE_DIR', WP_CONTENT_DIR . "/cache/cwvpsb/css/");
  **/ 
 define('CWVPSB_JS_EXCLUDE_CACHE_DIR', WP_CONTENT_DIR . "/cache/cwvpsb/excluded-js/");
 define('CWVPSB_JS_EXCLUDE_CACHE_URL', site_url("/wp-content/cache/cwvpsb/excluded-js/"));
+/**
+ * Cache transient 
+ **/
+define('CWVPSB_CACHE_NAME', 'cwvpsb_cleared_timestamp');
 
 require_once CWVPSB_PLUGIN_DIR."includes/functions.php";
 require_once CWVPSB_PLUGIN_DIR."includes/admin/helper-function.php";

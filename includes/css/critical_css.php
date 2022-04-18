@@ -116,8 +116,7 @@ class criticalCss{
 	}
 
 	function check_critical_css(){
-		$upload_dir = wp_upload_dir(); 
-		$user_dirname = $upload_dir['basedir'] . '/' . $this->cachepath();
+		$user_dirname = $this->cachepath();
 		global $wp;
 		$url = home_url( $wp->request );
 		return file_exists($user_dirname.'/'.md5($url).'.css')? true :  false; 

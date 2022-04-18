@@ -653,7 +653,8 @@ function cwvpsb_purge_cache(){
         cwvpsb_delete_folder(
                 CWVPSB_JS_EXCLUDE_CACHE_DIR
             );
-        
+        delete_transient( CWVPSB_CACHE_NAME );
+        set_transient( CWVPSB_CACHE_NAME, time() );
     }
     wp_redirect( stripslashes( $_GET['_wp_http_referer']  ));
         exit;

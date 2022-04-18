@@ -133,7 +133,11 @@ function cwvpsb_combine_js_files($combined_ex_js_arr, $html){
          return false;
      }
 
-     $filename = md5('cc-js-files');
+	$uniqueid = get_transient( CWVPSB_CACHE_NAME );
+    global $wp;
+	$url = home_url( $wp->request );
+    $filename = md5($url.$uniqueid);
+
 	 $user_dirname = CWVPSB_JS_EXCLUDE_CACHE_DIR;
 	 $user_urlname = CWVPSB_JS_EXCLUDE_CACHE_URL;
 	 $jsUrl = '';
@@ -193,7 +197,10 @@ function cwvpsb_delay_exclude_js(){
 }
 add_action( 'wp_enqueue_scripts',  'cwvpsb_scripts_styles' , 9);
 function cwvpsb_scripts_styles(){
-	$filename = md5('cc-js-files');
+	$uniqueid = get_transient( CWVPSB_CACHE_NAME );
+    global $wp;
+	$url = home_url( $wp->request );
+    $filename = md5($url.$uniqueid);
 	 $user_dirname = CWVPSB_JS_EXCLUDE_CACHE_DIR;
 	 $user_urlname = CWVPSB_JS_EXCLUDE_CACHE_URL;
 	 
