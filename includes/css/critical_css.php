@@ -12,7 +12,7 @@ class criticalCss{
 		if(defined(CWVPSB_CRITICAL_CSS_CACHE_DIR)){
 			return CWVPSB_CRITICAL_CSS_CACHE_DIR;
 		}else{
-			return WP_CONTENT_DIR . "/cache/cwvpsb/critical_css/";
+			return WP_CONTENT_DIR . "/cache/cwvpsb/css/";
 		}
 	}
 
@@ -60,7 +60,7 @@ class criticalCss{
 	    }
 	    $targetUrl = $_POST['current_url'];
 	    $URL = 'http://45.32.112.172/?url='.$targetUrl;
-	    $response = wp_remote_get($URL, array('timeout'     => 40));
+	    $response = wp_remote_get($URL, array('timeout' => 50));
 	    $resStatuscode = wp_remote_retrieve_response_code( $response );
 	    if($resStatuscode==200){
 	    	$response = wp_remote_retrieve_body($response);
@@ -76,7 +76,7 @@ class criticalCss{
 			$content = str_replace("url('wp-content/", "url('https://buildingandinteriors.com/wp-content/", $content); 
 			$content = str_replace('url("wp-content/', 'url("https://buildingandinteriors.com/wp-content/', $content); 
 			
-			if(true){//$content
+			if($content){//
 				$new_file = $user_dirname."/".md5($targetUrl).".css";
 				$ifp = @fopen( $new_file, 'w+' );
 				if ( ! $ifp ) {
@@ -96,8 +96,7 @@ class criticalCss{
 
 
 	function print_style_cc(){
-		$upload_dir = wp_upload_dir(); 
-		$user_dirname = $upload_dir['basedir'] . '/' . $this->cachepath();
+		$user_dirname = $this->cachepath();
 		global $wp;
 		$url = home_url( $wp->request );
 		if(file_exists($user_dirname.'/'.md5($url).'.css')){

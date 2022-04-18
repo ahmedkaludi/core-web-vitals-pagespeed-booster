@@ -22,24 +22,27 @@ define('CWVPSB_BASE', plugin_basename(__FILE__));
 /**
  * Static cache path
  **/
-define('CWVPSB_CACHE_DIR', WP_CONTENT_DIR. '/cache/cwvpsb/cache-cwvpsb/');
-define('CWVPSB_CACHE_AGGRESIVE_DIR',  'wp-content/cache/cwvpsb/cache-cwvpsb/');
+define('CWVPSB_CACHE_DIR', WP_CONTENT_DIR. '/cache/cwvpsb/static/');
+define('CWVPSB_CACHE_AGGRESIVE_DIR',  'wp-content/cache/cwvpsb/static/');
+/**
+ * Core images 
+ **/
 define('CWVPSB_IMAGE_DIR',plugin_dir_url(__FILE__).'images/');
 $host = parse_url(get_site_url())['host'];
 /**
  * Font cache path
  **/
-define('CWVPSB_CACHE_FONTS_DIR', WP_CONTENT_DIR . "/cache/cwvpsb/cwv-fonts/fonts/$host/");
-define('CWVPSB_CACHE_FONTS_URL', site_url("/wp-content/cache/cwvpsb/cwv-fonts/fonts/$host/"));
+define('CWVPSB_CACHE_FONTS_DIR', WP_CONTENT_DIR . "/cache/cwvpsb/fonts/$host/");
+define('CWVPSB_CACHE_FONTS_URL', site_url("/wp-content/cache/cwvpsb/fonts/$host/"));
 /**
  * Critical css cache path
  **/
-define('CWVPSB_CRITICAL_CSS_CACHE_DIR', WP_CONTENT_DIR . "/cache/cwvpsb/critical_css/");
+define('CWVPSB_CRITICAL_CSS_CACHE_DIR', WP_CONTENT_DIR . "/cache/cwvpsb/css/");
 /**
  * Js Exclude Cache 
  **/ 
-define('CWVPSB_JS_EXCLUDE_CACHE_DIR', WP_CONTENT_DIR . "/cache/cwvpsb/cc-cwvpb-js/");
-define('CWVPSB_JS_EXCLUDE_CACHE_URL', site_url("/wp-content/cache/cwvpsb/cc-cwvpb-js/"));
+define('CWVPSB_JS_EXCLUDE_CACHE_DIR', WP_CONTENT_DIR . "/cache/cwvpsb/excluded-js/");
+define('CWVPSB_JS_EXCLUDE_CACHE_URL', site_url("/wp-content/cache/cwvpsb/excluded-js/"));
 
 require_once CWVPSB_PLUGIN_DIR."includes/functions.php";
 require_once CWVPSB_PLUGIN_DIR."includes/admin/helper-function.php";

@@ -64,7 +64,7 @@ global $pagenow, $post;
 				[
 					'parent' => 'wp-cwvpsb',
 					'id'     => 'purge-all',
-					'title'  => __( 'Clear cache', 'cwvpsb' ),
+					'title'  => __( 'Clear all cache', 'cwvpsb' ),
 					'href'   => wp_nonce_url( admin_url( 'admin-ajax.php?action=' . $action . '&type=all' . $referer ), $action . '_all' ),
 				]
 			);

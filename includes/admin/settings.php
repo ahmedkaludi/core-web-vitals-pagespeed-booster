@@ -637,7 +637,7 @@ if(is_admin()){
 }
 
 function cwvpsb_purge_cache(){
-    if( wp_verify_nonce('cwvpsb_purge_cache', $_GET['_wpnonce'])){ 
+    if( wp_verify_nonce( $_GET['_wpnonce'], 'cwvpsb_purge_cache_all' ) ){ 
         CWVPSB_Cache::clear_total_cache(true);
         cwvpsb_delete_folder(
                 CWVPSB_CACHE_DIR
