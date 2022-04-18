@@ -9,7 +9,8 @@ public function __construct() {
     add_action('admin_init', array($this, 'cwvpsb_settings_init'));
     add_action( 'init', array( &$this, 'load_settings' ) );
     add_action('wp_ajax_list_files_to_convert', array($this, 'get_list_convert_files'));
-        add_action('wp_ajax_webvital_webp_convert_file', array($this, 'webp_convert_file'));
+    add_action('wp_ajax_webvital_webp_convert_file', array($this, 'webp_convert_file'));
+    add_action( 'admin_bar_menu',  array($this, 'all_admin_bar_settings'), PHP_INT_MAX - 10 );
 }
 
 function load_settings() {
@@ -621,7 +622,75 @@ public function advance_url_callback(){
         return $rule;
         
     }
+
+    function all_admin_bar_settings( $wp_admin_bar ){
+        require_once( CWVPSB_PLUGIN_DIR.'includes/admin/admin-bar-settings.php');
+    }
 }
 if (class_exists('cwvpsb_admin_settings')) {
     new cwvpsb_admin_settings;
 };
+
+if(is_admin()){
+    //add_action( 'wp_ajax_admin_bar_cwvpsb_purge_cache', 'cwvpsb_purge_cache', 0 );
+    add_action( 'wp_ajax_cwvpsb_purge_cache', 'cwvpsb_purge_cache', 0 );
+}
+
+function cwvpsb_purge_cache(){
+    if( wp_verify_nonce('cwvpsb_purge_cache', $_GET['_wpnonce'])){ 
+        CWVPSB_Cache::clear_total_cache(true);
+        cwvpsb_delete_folder(
+                CWVPSB_CACHE_DIR
+            );
+        $host = parse_url(get_site_url())['host'];
+        $fontsPath = str_replace("/fonts/$host/", "", CWVPSB_CACHE_FONTS_DIR);
+        cwvpsb_delete_folder(
+                $fontsPath
+            );
+        cwvpsb_delete_folder(
+                CWVPSB_CRITICAL_CSS_CACHE_DIR
+            );
+        cwvpsb_delete_folder(
+                CWVPSB_JS_EXCLUDE_CACHE_DIR
+            );
+        
+    }
+    wp_redirect( stripslashes( $_GET['_wp_http_referer']  ));
+        exit;
+}
+
+
+function cwvpsb_delete_folder($dir){
+    // remove slashes
+        $dir = untrailingslashit($dir);
+
+        // check if dir
+        if ( ! is_dir($dir) ) {
+            return;
+        }
+
+        // get dir data
+        $objects = array_diff(
+            scandir($dir),
+            array('..', '.')
+        );
+
+        if ( empty($objects) ) {
+            return;
+        }
+
+        foreach ( $objects as $object ) {
+            // full path
+            $object = $dir. DIRECTORY_SEPARATOR .$object;
+
+            // check if directory
+            if ( is_dir($object) ) {
+                cwvpsb_delete_folder($object);
+            } else {
+                unlink($object);
+            }
+        }
+
+        // delete
+        @rmdir($dir);
+}

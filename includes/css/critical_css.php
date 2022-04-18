@@ -247,7 +247,7 @@ function cwvpsbDelayEventListeners() {
 
     function t(t, n) {
         function r(n) {
-            return e[t].delayedEvents.indexOf(n) >= 0 ? "perfmatters-" + n : n
+            return e[t].delayedEvents.indexOf(n) >= 0 ? "cwvpsb-" + n : n
         }
         e[t] || (e[t] = {
             originalFunctions: {
@@ -267,7 +267,7 @@ function cwvpsbDelayEventListeners() {
         Object.defineProperty(e, t, {
             get: n || function() {},
             set: function(n) {
-                e["perfmatters" + t] = n
+                e["cwvpsb" + t] = n
             }
         })
     }
@@ -281,7 +281,7 @@ function cwvpsbDelayJQueryReady() {
         set(t) {
             if (t && t.fn && !jQueriesArray.includes(t)) {
                 t.fn.ready = t.fn.init.prototype.ready = function(e) {
-                    cwvpsbDOMLoaded ? e.bind(document)(t) : document.addEventListener("perfmatters-DOMContentLoaded", function() {
+                    cwvpsbDOMLoaded ? e.bind(document)(t) : document.addEventListener("cwvpsb-DOMContentLoaded", function() {
                         e.bind(document)(t)
                     })
                 };
@@ -289,7 +289,7 @@ function cwvpsbDelayJQueryReady() {
                 t.fn.on = t.fn.init.prototype.on = function() {
                     if (this[0] === window) {
                         function t(e) {
-                            return e.split(" ").map(e => "load" === e || 0 === e.indexOf("load.") ? "perfmatters-jquery-load" : e).join(" ")
+                            return e.split(" ").map(e => "load" === e || 0 === e.indexOf("load.") ? "cwvpsb-jquery-load" : e).join(" ")
                         }
                         "string" == typeof arguments[0] || arguments[0] instanceof String ? arguments[0] = t(arguments[0]) : "object" == typeof arguments[0] && Object.keys(arguments[0]).forEach(function(e) {
                             delete Object.assign(arguments[0], {
@@ -370,9 +370,9 @@ function ctl(){
 				}
 			}
 async function cwvpsbTriggerEventListeners() {
-    cwvpsbDOMLoaded = !0, await cwvpsbNextFrame(), document.dispatchEvent(new Event("perfmatters-DOMContentLoaded")), await cwvpsbNextFrame(), window.dispatchEvent(new Event("perfmatters-DOMContentLoaded")), await cwvpsbNextFrame(), document.dispatchEvent(new Event("perfmatters-readystatechange")), await cwvpsbNextFrame(), document.perfmattersonreadystatechange && document.perfmattersonreadystatechange(), await cwvpsbNextFrame(), window.dispatchEvent(new Event("perfmatters-load")), await cwvpsbNextFrame(), window.perfmattersonload && window.perfmattersonload(), await cwvpsbNextFrame(), jQueriesArray.forEach(function(e) {
-        e(window).trigger("perfmatters-jquery-load")
-    }), window.dispatchEvent(new Event("perfmatters-pageshow")), await cwvpsbNextFrame(), window.perfmattersonpageshow && window.perfmattersonpageshow()
+    cwvpsbDOMLoaded = !0, await cwvpsbNextFrame(), document.dispatchEvent(new Event("cwvpsb-DOMContentLoaded")), await cwvpsbNextFrame(), window.dispatchEvent(new Event("cwvpsb-DOMContentLoaded")), await cwvpsbNextFrame(), document.dispatchEvent(new Event("cwvpsb-readystatechange")), await cwvpsbNextFrame(), document.cwvpsbonreadystatechange && document.cwvpsbonreadystatechange(), await cwvpsbNextFrame(), window.dispatchEvent(new Event("cwvpsb-load")), await cwvpsbNextFrame(), window.cwvpsbonload && window.cwvpsbonload(), await cwvpsbNextFrame(), jQueriesArray.forEach(function(e) {
+        e(window).trigger("cwvpsb-jquery-load")
+    }), window.dispatchEvent(new Event("cwvpsb-pageshow")), await cwvpsbNextFrame(), window.cwvpsbonpageshow && window.cwvpsbonpageshow()
 }
 async function cwvpsbNextFrame() {
     return new Promise(function(e) {
