@@ -46,7 +46,7 @@ class criticalCss{
 					'cc_nonce'   => wp_create_nonce('cc_ajax_check_nonce'),
 					'current_url' => home_url( $wp->request ),
 					'grab_cc_check'=> ($this->check_critical_css()? 1: 2), 
-					'test'=>$user_dirname."/".md5(home_url( $wp->request )).".css"
+					//'test'=>$user_dirname."/".md5(home_url( $wp->request )).".css"
 					);
 		wp_localize_script('corewvps-cc', 'cwvpb_ccdata', $data);
 	}
@@ -63,8 +63,7 @@ class criticalCss{
 	    if(file_exists($user_dirname.md5($targetUrl).".css")){ 
 	    	echo json_encode(array( "status"=>201 ));die;
 	    }
-
-	    $targetUrl = $_POST['current_url'];
+	    
 	    $URL = 'http://45.32.112.172/?url='.$targetUrl;
 	    $response = wp_remote_get($URL, array('timeout' => 50));
 	    $resStatuscode = wp_remote_retrieve_response_code( $response );
@@ -124,8 +123,8 @@ class criticalCss{
 	function check_critical_css($url=''){
 		$user_dirname = $this->cachepath();
 		if(!$url){
-			global $wp;
-			$url = home_url( $wp->request );
+    		global $wp;
+    		$url = home_url( $wp->request );
 		}
 		return file_exists($user_dirname.'/'.md5($url).'.css')? true :  false; 
 	}
