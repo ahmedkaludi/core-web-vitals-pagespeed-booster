@@ -605,7 +605,7 @@ public function advance_url_callback(){
         $rule .= '<IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /wp-content/cache/cwvpsb/
-    RewriteRule ^cache-cwvpsb/ - [L]
+    RewriteRule ^static/ - [L]
     RewriteCond %{HTTP_COOKIE} !wordpress_logged_in_.*=[^;]+ [NC]
     RewriteCond %{REQUEST_METHOD} !POST
     RewriteCond %{QUERY_STRING} !.*=.*

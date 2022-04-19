@@ -213,8 +213,10 @@ function cwvpsb_scripts_styles(){
 add_filter( 'script_loader_src', 'cwvpsb_remove_css_js_version', 9999, 2 );
 function cwvpsb_remove_css_js_version($src, $handle ){
 	$handles_with_version = [ 'corewvps-mergejsfile', 'corewvps-cc' ];
-	if ( strpos( $src, 'ver=' ) && in_array( $handle, $handles_with_version, true ) )
-        $src = remove_query_arg( 'ver', $src );
+	if ( strpos( $src, 'ver=' ) && in_array( $handle, $handles_with_version, true ) ){
+        //$src = remove_query_arg( 'ver', $src );
+	}
+	$src = add_query_arg( 'time', time(), $src );
     return $src;
 }
 
