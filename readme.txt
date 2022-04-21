@@ -2,7 +2,7 @@
 Contributors: magazine3
 Requires at least: 3.0
 Tested up to: 5.9
-Stable tag: 1.0.5
+Stable tag: 1.0.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: core web vitals, optimization, pagespeed, performance, cache
@@ -35,6 +35,13 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 * PHP CSS Parser library used https://github.com/sabberworm/PHP-CSS-Parser - License URI: https://github.com/sabberworm/PHP-CSS-Parser#license (PHP-CSS-Parser is freely distributable under the terms of an MIT-style license.)
 
 == Changelog ==
+= 1.0.6 (21st April 2022) =
+* Improvement: Centralize all cache in single cache folder
+* Fixed: Improve exclude JS and combine 
+* Added: Created option to clear all cache on one click
+* Added: Added lazy load on inline style background images also
+* Fixed: Improvement for AMP, AMP for WP, AMP Stories and AMPforWP Stories not apply optimization
+
 = 1.0.5 (12th April 2022) =
 * Fixed: Removed minify AMP #49
 * Fixed: Removed version from exclude js for gzip
