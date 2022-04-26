@@ -119,9 +119,9 @@ function cwvpsb_delay_js_html($html) {
 			continue;
 		}
 	}
-	if($combined_ex_js_arr){
+	/*if($combined_ex_js_arr){
 		$html = cwvpsb_combine_js_files($combined_ex_js_arr, $html);
-	}
+	}*/
 	return $html;
 }
 
@@ -195,8 +195,73 @@ function cwvpsb_delay_exclude_js(){
 		return '';
 	}
 }
-add_action( 'wp_enqueue_scripts',  'cwvpsb_scripts_styles' , 9);
+add_action( 'wp_enqueue_scripts',  'cwvpsb_scripts_styles' , 99999);
 function cwvpsb_scripts_styles(){
+	global $wp_scripts;
+	$wp_scripts->all_deps($wp_scripts->queue);
+
+	$uniqueid = get_transient( CWVPSB_CACHE_NAME );
+    global $wp;
+	$url = home_url( $wp->request );
+    $filename = md5($url.$uniqueid);
+	 $user_dirname = CWVPSB_JS_EXCLUDE_CACHE_DIR;
+	 $user_urlname = CWVPSB_JS_EXCLUDE_CACHE_URL;
+
+	if(!file_exists($user_dirname.'/'.$filename.'.js')){
+		$combined_ex_js_arr= array();
+		$jscontent = '';
+		$regex = cwvpsb_delay_exclude_js();
+		include_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
+	    include_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
+	    if (!class_exists('WP_Filesystem_Direct')) {
+	         return false;
+	    }
+	    $wp_scripts->all_deps($wp_scripts->queue);
+		foreach( $wp_scripts->to_do as $key=>$handle) 
+		{
+			$localize = $localize_handle = '';
+			//$src = strtok($wp_scripts->registered[$handle]->src, '?');
+			if($regex && preg_match( '#(' . $regex . ')#', $wp_scripts->registered[$handle]->src )){
+				$localize_handle = $handle;
+			}
+			if($regex && preg_match( '#(' . $regex . ')#', $handle )){
+				$localize_handle = $handle;
+			}
+			if($localize_handle){
+				if(@array_key_exists('data', $wp_scripts->registered[$handle]->extra)) {
+					$localize = $wp_scripts->registered[$handle]->extra['data'] . ';';
+				}
+				$file_url = $wp_scripts->registered[$handle]->src;
+				$parse_url = parse_url($file_url);
+		     	$file_path = str_replace(array(get_site_url(),'?'.@$parse_url['query']),array(ABSPATH,''),$file_url);
+
+		     	if(substr( $file_path, 0, 13 ) === "/wp-includes/"){
+		     		$file_path = ABSPATH.$file_path;	
+		     	}
+			    $wp_filesystem = new WP_Filesystem_Direct(null);
+			    $js = $wp_filesystem->get_contents($file_path);
+			    unset($wp_filesystem);
+			    if (empty($js)) {
+			         $request = wp_remote_get($file_url);
+			         $js = wp_remote_retrieve_body($request);
+			    }
+
+
+				//$combined_ex_js_arr[$handle] = ;
+				$jscontent .= "\n/*File: $file_url*/\n".$localize.$js;
+				
+				wp_deregister_script($handle);
+			}
+		}
+		if($jscontent){
+			$fileSystem = new WP_Filesystem_Direct( new StdClass() );
+			if(!file_exists($user_dirname)) wp_mkdir_p($user_dirname);
+			$fileSystem->put_contents($user_dirname.'/'.$filename.'.js', $jscontent, 644 );
+			unset($fileSystem);
+		}
+	}
+
+
 	$uniqueid = get_transient( CWVPSB_CACHE_NAME );
     global $wp;
 	$url = home_url( $wp->request );
