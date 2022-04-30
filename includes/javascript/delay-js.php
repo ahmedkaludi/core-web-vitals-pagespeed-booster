@@ -93,7 +93,7 @@ function cwvpsb_delay_js_html($html) {
 			$regex = cwvpsb_delay_exclude_js();
 			if($regex && preg_match( '#(' . $regex . ')#', $atts_array['src'] )){
 				$combined_ex_js_arr[] = $atts_array['src'];
-				$html = str_replace($tag, '', $html);
+				//$html = str_replace($tag, '', $html);
 				$include = false;		
 			}
 		}
@@ -111,7 +111,10 @@ function cwvpsb_delay_js_html($html) {
 				$include = false;		
 			}
 		}
-		if($delay_flag && $include) {
+		if(isset($atts_array['src']) && !$include){
+		    $include = true;
+		}
+		if($delay_flag && $include ) {//
 	
 			$delayed_atts_string = cwvpsb_get_atts_string($atts_array);
 	        $delayed_tag = sprintf('<script %1$s>', $delayed_atts_string) . (!empty($matches[3][$i]) ? $matches[3][$i] : '') .'</script>';
@@ -125,47 +128,47 @@ function cwvpsb_delay_js_html($html) {
 	return $html;
 }
 
-function cwvpsb_combine_js_files($combined_ex_js_arr, $html){
-	if(!count($combined_ex_js_arr)){ return ; }
-	include_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
-     include_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
-     if (!class_exists('WP_Filesystem_Direct')) {
-         return false;
-     }
+// function cwvpsb_combine_js_files($combined_ex_js_arr, $html){
+// 	if(!count($combined_ex_js_arr)){ return ; }
+// 	include_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
+//      include_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
+//      if (!class_exists('WP_Filesystem_Direct')) {
+//          return false;
+//      }
 
-	$uniqueid = get_transient( CWVPSB_CACHE_NAME );
-    global $wp;
-	$url = home_url( $wp->request );
-    $filename = md5($url.$uniqueid);
+// 	$uniqueid = get_transient( CWVPSB_CACHE_NAME );
+//     global $wp;
+// 	$url = home_url( $wp->request );
+//     $filename = md5($url.$uniqueid);
 
-	 $user_dirname = CWVPSB_JS_EXCLUDE_CACHE_DIR;
-	 $user_urlname = CWVPSB_JS_EXCLUDE_CACHE_URL;
-	 $jsUrl = '';
+// 	 $user_dirname = CWVPSB_JS_EXCLUDE_CACHE_DIR;
+// 	 $user_urlname = CWVPSB_JS_EXCLUDE_CACHE_URL;
+// 	 $jsUrl = '';
 	 
-	 if(!file_exists($user_dirname.'/'.$filename.'.js')){
+// 	 if(!file_exists($user_dirname.'/'.$filename.'.js')){
 	 	
-	     $jscontent = '';
-	     foreach($combined_ex_js_arr as $file_url){
-	     	$parse_url = parse_url($file_url);
-	     	$file_path = str_replace(array(get_site_url(),'?'.$parse_url['query']),array(ABSPATH,''),$file_url);
-		    $wp_filesystem = new WP_Filesystem_Direct(null);
-		    $js = $wp_filesystem->get_contents($file_path);
-		    unset($wp_filesystem);
-		    if (empty($js)) {
-		         $request = wp_remote_get($file_url);
-		         $js = wp_remote_retrieve_body($request);
-		    }
-		    $jscontent .= "\n/*File: $file_url*/\n".$js;
-		}
-		if($jscontent){
-			$fileSystem = new WP_Filesystem_Direct( new StdClass() );
-			if(!file_exists($user_dirname)) wp_mkdir_p($user_dirname);
-			$fileSystem->put_contents($user_dirname.'/'.$filename.'.js', $jscontent, 644 );
-			unset($fileSystem);
-		}
-	}
-	return $html;
-}
+// 	     $jscontent = '';
+// 	     foreach($combined_ex_js_arr as $file_url){
+// 	     	$parse_url = parse_url($file_url);
+// 	     	$file_path = str_replace(array(get_site_url(),'?'.$parse_url['query']),array(ABSPATH,''),$file_url);
+// 		    $wp_filesystem = new WP_Filesystem_Direct(null);
+// 		    $js = $wp_filesystem->get_contents($file_path);
+// 		    unset($wp_filesystem);
+// 		    if (empty($js)) {
+// 		         $request = wp_remote_get($file_url);
+// 		         $js = wp_remote_retrieve_body($request);
+// 		    }
+// 		    $jscontent .= "\n/*File: $file_url*/\n".$js;
+// 		}
+// 		if($jscontent){
+// 			$fileSystem = new WP_Filesystem_Direct( new StdClass() );
+// 			if(!file_exists($user_dirname)) wp_mkdir_p($user_dirname);
+// 			$fileSystem->put_contents($user_dirname.'/'.$filename.'.js', $jscontent, 644 );
+// 			unset($fileSystem);
+// 		}
+// 	}
+// 	return $html;
+// }
 
 
 function cwvpsb_delay_exclude_js(){
@@ -250,7 +253,7 @@ function cwvpsb_scripts_styles(){
 				//$combined_ex_js_arr[$handle] = ;
 				$jscontent .= "\n/*File: $file_url*/\n".$localize.$js;
 				
-				wp_deregister_script($handle);
+				//wp_deregister_script($handle);
 			}
 		}
 		if($jscontent){

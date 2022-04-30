@@ -190,6 +190,7 @@ function cwvpsb_google_fonts_swap( $html ) {
 
 add_filter('cwvpsb_complete_html_after_dom_loaded','web_vitals_changes');
 function web_vitals_changes($html){
+    if(!$html){ return $html; }
     if(function_exists('is_feed')&& is_feed()){return $html;}
     $settings = cwvpsb_defaults();
     if (is_admin()) {
