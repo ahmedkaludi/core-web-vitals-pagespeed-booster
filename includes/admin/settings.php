@@ -59,13 +59,14 @@ public function cwvpsb_admin_interface_render(){
         $settings = cwvpsb_defaults();  
         settings_errors();
     }
-    $tab = cwvpsb_get_tab('images', array('images', 'css', 'javascript','cache','advance')); ?>
+    $tab = cwvpsb_get_tab('images', array('images', 'css', 'urls', 'javascript','cache','advance')); ?>
      <div id="cwv-wrap">
     <h1><?php echo esc_html__('Core Web Vitals & PageSpeed Booster Settings', 'cwvpsb'); ?></h1>
      <div id="left-sidebar">
     <h2 class="nav-tab-wrapper cwvpsb-tabs">
     <?php
         echo '<a href="' . esc_url(cwvpsb_admin_link('images')) . '" class="nav-tab ' . esc_attr( $tab == 'images' ? 'nav-tab-active' : '') . '">' . esc_html__('Images','cwvpsb') . '</a>';
+        echo '<a href="' . esc_url(cwvpsb_admin_link('urls')) . '" class="nav-tab ' . esc_attr( $tab == 'urls' ? 'nav-tab-active' : '') . '">' . esc_html__('Urls','cwvpsb') . '</a>';
                     
         echo '<a href="' . esc_url(cwvpsb_admin_link('css')) . '" class="nav-tab ' . esc_attr( $tab == 'css' ? 'nav-tab-active' : '') . '">' . esc_html__('CSS','cwvpsb') . '</a>';
 
@@ -84,9 +85,13 @@ public function cwvpsb_admin_interface_render(){
             echo "<div class='cwvpsb-images' ".( $tab != 'images' ? 'style="display:none;"' : '').">";
             do_settings_sections( 'cwvpsb_images_section' );
             echo "</div>";
-                        
+
             echo "<div class='cwvpsb-css' ".( $tab != 'css' ? 'style="display:none;"' : '').">";
             do_settings_sections( 'cwvpsb_css_section' );
+            echo "</div>";
+
+            echo "<div class='cwvpsb-url' ".( $tab != 'urls' ? 'style="display:none;"' : '').">";
+            do_settings_sections( 'cwvpsb_urls_section' );
             echo "</div>";
 
             echo "<div class='cwvpsb-javascript' ".( $tab != 'javascript' ? 'style="display:none;"' : '').">";
@@ -208,6 +213,15 @@ public function cwvpsb_settings_init(){
         'cwvpsb_css_section',
         'cwvpsb_css_section'
     );    
+    add_settings_section('cwvpsb_urls_section', '', '__return_false', 'cwvpsb_urls_section');
+
+    add_settings_field(
+            'urls_optimization_support',
+            __return_false(),
+             array($this, 'urlslist_callback'),
+            'cwvpsb_urls_section',
+            'cwvpsb_urls_section'
+        );  
 
     add_settings_section('cwvpsb_javascript_section', '', '__return_false', 'cwvpsb_javascript_section');     
     add_settings_field(
@@ -626,7 +640,14 @@ public function advance_url_callback(){
     function all_admin_bar_settings( $wp_admin_bar ){
         require_once( CWVPSB_PLUGIN_DIR.'includes/admin/admin-bar-settings.php');
     }
-}
+
+    /**
+     * Url list will be shows
+     */ 
+    function urlslist_callback(){
+        require_once CWVPSB_PLUGIN_DIR.'/includes/admin/admin-urls-settings.php';
+    }
+}//Class closed
 if (class_exists('cwvpsb_admin_settings')) {
     new cwvpsb_admin_settings;
 };

@@ -172,10 +172,13 @@ function cwvpsb_admin_enqueue($check) {
     if($check != 'toplevel_page_cwvpsb'){
         return; 
     }
+    wp_enqueue_script('cwvpsb-datatable-script', CWVPSB_PLUGIN_DIR_URI . '/includes/admin/js/jquery.dataTables.min.js', ['jquery']);
+    wp_enqueue_style( 'cwvpsb-datatable-style', CWVPSB_PLUGIN_DIR_URI . '/includes/admin/js/jquery.dataTables.min.css' );
+
     wp_register_style( 'cwvpsb-admin-css', CWVPSB_PLUGIN_DIR_URI . '/includes/admin/style.css', false, CWVPSB_VERSION );
     wp_enqueue_style( 'cwvpsb-admin-css' );
 
-    wp_register_script( 'cwvpsb-admin-js', CWVPSB_PLUGIN_DIR_URI . 'includes/admin/script.js', array(), CWVPSB_VERSION , true );
+    wp_register_script( 'cwvpsb-admin-js', CWVPSB_PLUGIN_DIR_URI . 'includes/admin/script.js', array('cwvpsb-datatable-script'), CWVPSB_VERSION , true );
     wp_enqueue_script( 'cwvpsb-admin-js' );
 }
 

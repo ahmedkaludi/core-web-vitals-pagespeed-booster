@@ -302,3 +302,6 @@ h2.vision {
   width: 66px;
   margin-top: 5px;
 }
+th:empty {
+    display: none;
+}

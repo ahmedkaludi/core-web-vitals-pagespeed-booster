@@ -127,4 +127,22 @@ $(".cwvpsb-tabs a").click(function(e){
 			}
 		})
 	}
+
+
+
+
+
+
+
+	var e = '';
+	
+	jQuery("#table_page_cc_style").DataTable({
+		serverSide: true,
+		processing: true,
+        fixedColumns: true,
+		ajax: {
+			type: "GET",
+			url: ajaxurl+"?action=showdetails_data"
+		}
+	});
 });
