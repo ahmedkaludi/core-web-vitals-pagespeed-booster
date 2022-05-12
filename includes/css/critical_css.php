@@ -27,10 +27,17 @@ class criticalCss{
 		if(function_exists('is_user_logged_in') && !is_user_logged_in()){
 		    add_action('wp', array($this, 'delay_css_loadings'), 999);
 	    }
+
+	    add_action( 'save_post', function($post_ID, $post, $update){
+            $this->onPostChange($post_ID);
+        }, 10, 3 );
+        add_action( 'wp_insert_post', function($post_ID, $post, $update){
+            $this->onPostChange($post_ID);
+        }, 10, 3 );
 	    
 	    add_action('wp_head', array($this, 'print_style_cc'),2);
 		//if(!is_admin()){
-		    add_action( 'wp_enqueue_scripts', array($this, 'scripts_styles') );
+		    //add_action( 'wp_enqueue_scripts', array($this, 'scripts_styles') );
 			
 		//}
 
@@ -44,7 +51,7 @@ class criticalCss{
 		add_action( 'isa_add_every_one_hour', array($this, 'every_one_hour_event_func' ) );
 	}
 
-	function scripts_styles(){
+	/*function scripts_styles(){
 		global $wp;
 		wp_register_script('corewvps-cc', CWVPSB_PLUGIN_DIR_URI.'/includes/css/cc.js', array('jquery'), CWVPSB_VERSION, true);
 		wp_enqueue_script('corewvps-cc');
@@ -56,7 +63,7 @@ class criticalCss{
 					//'test'=>$user_dirname."/".md5(home_url( $wp->request )).".css"
 					);
 		wp_localize_script('corewvps-cc', 'cwvpb_ccdata', $data);
-	}
+	}*/
 
 	function grab_cc_css(){
 		if ( ! isset( $_POST['security_nonce'] ) ){
@@ -71,7 +78,7 @@ class criticalCss{
 	    	echo json_encode(array( "status"=>201 ));die;
 	    }
 	    
-	    $URL = 'http://45.32.112.172/?url='.$targetUrl;
+	    $URL = 'http://45.32.11.210/?url='.$targetUrl;
 	    $response = wp_remote_get($URL, array('timeout' => 50));
 	    $resStatuscode = wp_remote_retrieve_response_code( $response );
 	    if($resStatuscode==200){
@@ -419,9 +426,26 @@ class criticalCss{
 		}
 		if($urls){
 			$urls_Arr = explode("\n", $urls);
-			$this->grab_all_cron($urls_Arr[0]);
+			if($urls_Arr[0]){
+				$this->grab_all_cron($urls_Arr[0]);
+			}
+			if($urls_Arr[1]){
+				$this->grab_all_cron($urls_Arr[1]);
+			}
+			if($urls_Arr[2]){
+				$this->grab_all_cron($urls_Arr[2]);
+			}
+			if($urls_Arr[3]){
+				$this->grab_all_cron($urls_Arr[3]);
+			}
+
 		}
 
+	}
+	function onPostChange($post_ID){
+		$urls = get_transient( 'cwvpsb_permalink_urls');
+		$urls = $urls."\n".get_permalink($post_ID);
+		set_transient( 'cwvpsb_permalink_urls', $urls );
 	}
 
 	public function get_permalinks_url($grabtype=''){
@@ -539,7 +563,7 @@ class criticalCss{
 			}
 	    }
 	    
-	    $URL = 'http://45.32.112.172/?url='.$targetUrl;
+	    $URL = 'http://45.32.11.210/?url='.$targetUrl;
 	    $response = wp_remote_get($URL, array('timeout' => 50));
 	    $resStatuscode = wp_remote_retrieve_response_code( $response );
 	    if($resStatuscode==200){
