@@ -60,6 +60,16 @@ final class CWVPSB_Cache {
 				'process_clear_request'
 			)
 		);
+		
+		add_action(
+			'transition_post_status',
+			array(
+				__CLASS__,
+				'clear_homepage_category_cache_on_publish'
+			),
+			10,
+			3
+		);
 
 		// caching
 		if ( !is_admin() ) {
@@ -383,6 +393,34 @@ final class CWVPSB_Cache {
 			),
 			$url
 		);
+	}
+
+	public static function clear_homepage_category_cache_on_publish($new_status, $old_status, $post){
+
+		   	if ( 'publish' !== $new_status ){
+		        	return;
+				}
+			$post_types = array('post');
+
+			if(!in_array(get_post_type($post), $post_types)){
+	        return;
+			}
+			// On new publish only
+			if ( $new_status !== $old_status) {
+			    $category = get_the_category($post->ID);
+			    if(!empty($category)){
+				    foreach ($category as $key => $value) {
+				    $cat_url = get_category_link( $category[$key]->term_id );
+					self::clear_page_cache_by_url($cat_url);
+				   }
+			    }
+			    $home_url = user_trailingslashit(home_url());
+			    if(!empty($home_url)){
+					// clear cache by URL
+					self::clear_page_cache_by_url($home_url);
+			    }  
+			}
+	    return;
 	}
 
 	public static function clear_home_page_cache() {
