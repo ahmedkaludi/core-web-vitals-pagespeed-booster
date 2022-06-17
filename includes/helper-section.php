@@ -30,6 +30,10 @@ class Core_Web_Vital_Helper_Section{
                 $allowedMimeTypes = [];
 	            $allowedMimeTypes[] = 'image/jpeg';
 	            $allowedMimeTypes[] = 'image/png';
+
+	            if(isset($filearray['type']) && $filearray['type'] == 'image/svg+xml'){
+		          return $filearray;
+		        }
 		        
 		        if (!in_array(wp_get_image_mime($filename), $allowedMimeTypes)) {
 		            return false;
