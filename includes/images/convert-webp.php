@@ -78,15 +78,19 @@ function cwvpsb_display_webp( $content ) {
         $url = $node->getAttribute('src');
         $wp_upload_dir = wp_upload_dir();
         $upload_baseurl = $wp_upload_dir['baseurl'] . '/' . 'cwv-webp-images/';
+        $upload_basedir = $wp_upload_dir['basedir'] . '/' . 'cwv-webp-images/';
         $img_name = explode('/', $url);
         $img_name = end($img_name);
         $upload_baseurl .= $img_name;
         $img_webp = $upload_baseurl.".webp";
+        $img_webp_dir = $upload_basedir.$img_name.".webp";
         $img_src = str_replace($url, $img_webp, $url);
         $srcset = $node->getAttribute('srcset');
         $img_srcset = str_replace($srcset, $img_webp, $srcset);
-        $node->setAttribute('src',$img_src);
-        $node->setAttribute('srcset',$img_srcset);
+        if(file_exists($img_webp_dir)){
+            $node->setAttribute('src',$img_src);
+            $node->setAttribute('srcset',$img_srcset);
+        }
     }
     $content = $comp_dom->saveHTML();
     return $content;

@@ -44,6 +44,16 @@ define('CWVPSB_CRITICAL_CSS_CACHE_DIR', WP_CONTENT_DIR . "/cache/cwvpsb/css/");
 define('CWVPSB_JS_EXCLUDE_CACHE_DIR', WP_CONTENT_DIR . "/cache/cwvpsb/excluded-js/");
 define('CWVPSB_JS_EXCLUDE_CACHE_URL', site_url("/wp-content/cache/cwvpsb/excluded-js/"));
 /**
+ * Js Merging File Cache
+ **/ 
+define('CWVPSB_JS_MERGE_FILE_CACHE_DIR', WP_CONTENT_DIR . "/cache/cwvpsb/merged-js/");
+define('CWVPSB_JS_MERGE_FILE_CACHE_CACHE_URL', site_url("/wp-content/cache/cwvpsb/merged-js/"));
+/**
+ * CSS Merging File Cache
+ **/ 
+define('CWVPSB_CSS_MERGE_FILE_CACHE_DIR', WP_CONTENT_DIR . "/cache/cwvpsb/merged-css/");
+define('CWVPSB_CSS_MERGE_FILE_CACHE_CACHE_URL', site_url("/wp-content/cache/cwvpsb/merged-css/"));
+/**
  * Cache transient 
  **/
 define('CWVPSB_CACHE_NAME', 'cwvpsb_cleared_timestamp');

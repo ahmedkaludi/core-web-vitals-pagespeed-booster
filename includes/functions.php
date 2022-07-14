@@ -16,6 +16,7 @@ function cwvpsb_add_settings_link( $links ) {
 }
 
 function cwvpsb_complete_html_after_dom_loaded( $content ) {
+     if(function_exists('is_feed')&& is_feed()){return $content;}
     $content = apply_filters('cwvpsb_complete_html_after_dom_loaded', $content);
     return $content;
 }
@@ -309,7 +310,7 @@ function cwvpsb_on_specific_url(){
 add_filter('the_content', 'cwvpsb_iframe_delay');
        
 function cwvpsb_iframe_delay($content) {
-
+    if(function_exists('is_feed')&& is_feed()){return $content;}
     $content = preg_replace('/<iframe(?!iframe)(.+)youtube\.com\/embed\/(?!iframe)(?!videoseries)(.+?)\?(.+)<\/iframe>/', '<div class="cwvpsb_iframe"><div class="iframe_wrap"><div class="iframe_player" data-embed="${2}" id="player_${2}"><div class="play-button"></div></div></div></div>', $content); 
     
             global $iframe_check;
