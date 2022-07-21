@@ -573,22 +573,45 @@ function cwvpsb_delay_js_load() {
 
            var time = Date.now;
             
-            window.addEventListener("load", event => { 
-                                 var xhttp = new XMLHttpRequest();
-                				 var formData = "delay_request=true";
-                			      var admin_ajax = "'.$submit_url.'"; 
-                			     xhttp.open("POST", admin_ajax, true);
-                			     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"
-                			      );
-			                    xhttp.send(formData);
-	            			    xhttp.onreadystatechange = function() {
-	                                  if (this.readyState == 4 && this.status == 200) {
-	                                       setTimeout(function(){
-	                                                    cwvpsbTriggerDelayedScripts();
-	                                        }, 2500);
-	                                  }
-	            			    }
-	            			});
+		   function automate_delay_script() {
+				// Check performance support
+				if (performance === undefined) {
+					console.log("= Calculate Load Times: performance NOT supported");
+					return;
+				}
+				// Get a list of "resource" performance entries
+				var resources = performance.getEntriesByType("resource");
+				if (resources === undefined  resources.length <= 0) {
+					console.log("= Calculate Load Times: there are NO `resource` performance records");
+					return;
+				}
+				let is_last_resource = 0;
+				for (var i = 0; i < resources.length; i++) {
+					if (resources[i].responseEnd > 0) {
+						is_last_resource = is_last_resource + 1;
+					}
+				}
+				let uag = navigator.userAgent;
+				let gpat = /\sGoogle\s/gm;
+				let gres = uag.match(gpat);
+				let cpat = /\sChrome-/gm;
+				let cres = uag.match(cpat);
+				let wait_till = 400;
+				if (gres  cres) {
+					wait_till = 3000;
+				}
+				if (is_last_resource == resources.length) {
+					setTimeout(function() {
+						cwvpsbTriggerDelayedScripts();
+					}, wait_till);
+				}
+			}
+			
+			document.onreadystatechange = (e) => {
+				if (e.target.readyState === "complete") {
+					automate_delay_script();
+				}
+			};
              //console.log("when delay script executed log");
   		     //console.log(new Date().toLocaleTimeString());
   	        async function cwvpsbTriggerDelayedScripts(){ctl(),cwvpsbDelayEventListeners(),cwvpsbDelayJQueryReady(),cwvpsbProcessDocumentWrite(),cwvpsbSortDelayedScripts(),cwvpsbPreloadDelayedScripts(),await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.normal),await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.defer),await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.async),await cwvpsbTriggerEventListeners()}function cwvpsbDelayEventListeners(){let e={};function t(t,n){function r(n){return e[t].delayedEvents.indexOf(n)>=0?"cwvpsb-"+n:n}e[t]||(e[t]={originalFunctions:{add:t.addEventListener,remove:t.removeEventListener},delayedEvents:[]},t.addEventListener=function(){arguments[0]=r(arguments[0]),e[t].originalFunctions.add.apply(t,arguments)},t.removeEventListener=function(){arguments[0]=r(arguments[0]),e[t].originalFunctions.remove.apply(t,arguments)}),e[t].delayedEvents.push(n)}function n(e,t){const n=e[t];Object.defineProperty(e,t,{get:n||function(){},set:function(n){e["cwvpsb"+t]=n}})}t(document,"DOMContentLoaded"),t(window,"DOMContentLoaded"),t(window,"load"),t(window,"pageshow"),t(document,"readystatechange"),n(document,"onreadystatechange"),n(window,"onload"),n(window,"onpageshow")}function cwvpsbDelayJQueryReady(){let e=window.jQuery;Object.defineProperty(window,"jQuery",{get:()=>e,set(t){if(t&&t.fn&&!jQueriesArray.includes(t)){t.fn.ready=t.fn.init.prototype.ready=function(e){cwvpsbDOMLoaded?e.bind(document)(t):document.addEventListener("cwvpsb-DOMContentLoaded",function(){e.bind(document)(t)})};const e=t.fn.on;t.fn.on=t.fn.init.prototype.on=function(){if(this[0]===window){function t(e){return e.split(" ").map(e=>"load"===e||0===e.indexOf("load.")?"cwvpsb-jquery-load":e).join(" ")}"string"==typeof arguments[0]||arguments[0]instanceof String?arguments[0]=t(arguments[0]):"object"==typeof arguments[0]&&Object.keys(arguments[0]).forEach(function(e){delete Object.assign(arguments[0],{[t(e)]:arguments[0][e]})[e]})}return e.apply(this,arguments),this},jQueriesArray.push(t)}e=t}})}function cwvpsbProcessDocumentWrite(){const e=new Map;document.write=document.writeln=function(t){var n=document.currentScript,r=document.createRange();let a=e.get(n);void 0===a&&(a=n.nextSibling,e.set(n,a));var o=document.createDocumentFragment();r.setStart(o,0),o.appendChild(r.createContextualFragment(t)),n.parentElement.insertBefore(o,a)}}
