@@ -573,43 +573,46 @@ function cwvpsb_delay_js_load() {
 
            var time = Date.now;
             
-		   function automate_delay_script() {
+		   function calculate_load_times() {
 				// Check performance support
 				if (performance === undefined) {
 					console.log("= Calculate Load Times: performance NOT supported");
 					return;
 				}
+			
 				// Get a list of "resource" performance entries
 				var resources = performance.getEntriesByType("resource");
-				if (resources === undefined  resources.length <= 0) {
+				if (resources === undefined || resources.length <= 0) {
 					console.log("= Calculate Load Times: there are NO `resource` performance records");
 					return;
 				}
+			
 				let is_last_resource = 0;
-				for (var i = 0; i < resources.length; i++) {
-					if (resources[i].responseEnd > 0) {
+				for (var i=0; i < resources.length; i++) {
+					if(resources[i].responseEnd>0){
 						is_last_resource = is_last_resource + 1;
 					}
 				}
+			
 				let uag = navigator.userAgent;
 				let gpat = /\sGoogle\s/gm;
 				let gres = uag.match(gpat);
 				let cpat = /\sChrome-/gm;
 				let cres = uag.match(cpat);
-				let wait_till = 400;
-				if (gres  cres) {
+				let wait_till=400;
+				if(gres || cres){
 					wait_till = 3000;
 				}
-				if (is_last_resource == resources.length) {
-					setTimeout(function() {
+				if(is_last_resource==resources.length){
+					setTimeout(function(){
 						cwvpsbTriggerDelayedScripts();
-					}, wait_till);
+					},wait_till);
 				}
 			}
 			
 			document.onreadystatechange = (e) => {
 				if (e.target.readyState === "complete") {
-					automate_delay_script();
+				calculate_load_times();
 				}
 			};
              //console.log("when delay script executed log");
