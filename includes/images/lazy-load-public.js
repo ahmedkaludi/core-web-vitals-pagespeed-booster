@@ -65,10 +65,10 @@
         init: function() {
 
             /* Without observers load everything and bail out early. */
-            if (!root.IntersectionObserver) {
+            //if (!root.IntersectionObserver) {
                 this.loadImages();
                 return;
-            }
+            //}
 
             let self = this;
             let observerConfig = {

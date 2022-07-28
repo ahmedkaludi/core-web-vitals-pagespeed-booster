@@ -641,7 +641,11 @@ class Cwebp extends AbstractConverter
             if ($fileStatistics !== false) {
                 
                 $permissions = $fileStatistics['mode'] & 0000666;
-                WP_Filesystem_Direct::put_contents($this->destination , $permissions);
+                if(class_exists('WebPConvert\Convert\Converters\WP_Filesystem_Direct')){
+                    WP_Filesystem_Direct::put_contents($this->destination , $permissions);
+                }else{
+                  chmod($this->destination, $permissions);
+                }
             }
         } else {
             throw new SystemRequirementsNotMetException('Failed converting. Check the conversion log for details.');
