@@ -36,6 +36,13 @@ function cwvpsb_get_atts_string($atts_array) {
 }
 
 function cwvpsb_delay_js_main() {
+
+    $is_admin = current_user_can('manage_options');
+
+    if(is_admin() || $is_admin){
+        return;
+    }
+
 	if ( function_exists('is_checkout') && is_checkout() || (function_exists('is_feed')&& is_feed()) ) {
         return;
     }
@@ -175,7 +182,7 @@ function cwvpsb_delay_js_html($html) {
 function cwvpsb_remove_js_query_param($html){
 
     
-    $html = preg_replace('/type="cwvpsbdelayedscript"\s+src="(.*?)\.js\?(.*?)"/m',  type="cwvpsbdelayedscript" src="$1.js", $html);
+    $html = preg_replace('/type="cwvpsbdelayedscript"\s+src="(.*?)\.js\?(.*?)"/m',  'type="cwvpsbdelayedscript" src="$1.js"', $html);
     
     return $html;
 }

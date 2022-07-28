@@ -17,6 +17,11 @@ class criticalCss{
 	}
 
 	public function init(){
+	    $is_admin = current_user_can('manage_options');
+        if(is_admin() || $is_admin){
+            return;
+        }
+            
 		if ( function_exists('is_checkout') && is_checkout()  || (function_exists('is_feed')&& is_feed())) {
         	return;
 	    }
