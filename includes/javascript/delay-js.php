@@ -47,6 +47,7 @@ function cwvpsb_delay_js_main() {
     	return;
 	}
 	add_filter('cwvpsb_complete_html_after_dom_loaded', 'cwvpsb_delay_js_html', 2);
+	add_filter('cwvpsb_complete_html_after_dom_loaded', 'cwvpsb_remove_js_query_param', 99);
 	add_action('wp_footer', 'cwvpsb_delay_js_load', PHP_INT_MAX);
 }
 add_action('wp', 'cwvpsb_delay_js_main');
@@ -171,6 +172,13 @@ function cwvpsb_delay_js_html($html) {
 // 	return $html;
 // }
 
+function cwvpsb_remove_js_query_param($html){
+
+    
+    $html = preg_replace('/type="cwvpsbdelayedscript"\s+src="(.*?)\.js\?(.*?)"/m',  type="cwvpsbdelayedscript" src="$1.js", $html);
+    
+    return $html;
+}
 
 function cwvpsb_delay_exclude_js(){
 	$settings = cwvpsb_defaults();

@@ -144,7 +144,20 @@ class criticalCss{
 	}
 
 	public function cwvpsb_delay_css_html($html){
-		if(!$this->check_critical_css()){ return $html; }
+		$return_html = $jetpack_boost = false;
+		if(!$this->check_critical_css()){ 
+		     $return_html = true;
+		}
+
+		if(preg_match('/<style id="jetpack-boost-critical-css">/s', $html)){
+            $return_html = false;
+            $jetpack_boost = true;
+		}
+
+		if($return_html == true){
+			return $html;
+		}
+
 		$html_no_comments = preg_replace('/<!--(.*)-->/Uis', '', $html);
 		preg_match_all('/<link\s?([^>]+)?>/is', $html_no_comments, $matches);
 
@@ -199,6 +212,10 @@ class criticalCss{
 		        $delayed_tag = sprintf('<style %1$s>', $delayed_atts_string) . (!empty($matches1[3][$i]) ? $matches1[3][$i] : '') .'</style>';
 				$html = str_replace($tag, $delayed_tag, $html);
 			}
+		}
+
+		if($jetpack_boost == true && preg_match('/<style\s+id="jetpack-boost-critical-css"\s+type="cwvpsbdelayedstyle">/s', $html)){
+			$html = preg_replace('/<style\s+id="jetpack-boost-critical-css"\s+type="cwvpsbdelayedstyle">/s', '<style id="jetpack-boost-critical-css">', $html);
 		}
 		return $html;
 	}
