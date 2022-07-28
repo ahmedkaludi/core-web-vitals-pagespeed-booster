@@ -78,8 +78,8 @@ class criticalCss{
 	    	echo json_encode(array( "status"=>201 ));die;
 	    }
 	    
-	    $URL = 'http://45.32.11.210/?url='.$targetUrl;
-	    $response = wp_remote_get($URL, array('timeout' => 50));
+	    $URL = 'http://criticalcssapi.com/corewebvitalcrittr?page_setting=cwvpsb&url='.$targetUrl;
+	    $response = wp_remote_get($URL, array('timeout' => 50, 'headers' => array('page_setting' => 'cwvpsb')));
 	    $resStatuscode = wp_remote_retrieve_response_code( $response );
 	    if($resStatuscode==200){
 	    	$response = wp_remote_retrieve_body($response);
@@ -95,7 +95,7 @@ class criticalCss{
 			$content = str_replace("url('wp-content/", "url('https://buildingandinteriors.com/wp-content/", $content); 
 			$content = str_replace('url("wp-content/', 'url("https://buildingandinteriors.com/wp-content/', $content); 
 			
-			if($content){//
+			if($content){
 				$new_file = $user_dirname."/".md5($targetUrl).".css";
 				$ifp = @fopen( $new_file, 'w+' );
 				if ( ! $ifp ) {
@@ -449,6 +449,9 @@ class criticalCss{
 	}
 
 	public function get_permalinks_url($grabtype=''){
+
+		$settings = cwvpsb_defaults();
+
 		$permalinks = '';
         $posts_per_page = 250;
         $offset = $queued_count = 0;
@@ -459,11 +462,13 @@ class criticalCss{
 	            $urls_to_purge = [];
 	        }
 
-	        $urls_to_purge[] = get_home_url(); //always purge home page if any other page is modified
-	        $urls_to_purge[] = get_home_url()."/"; //always purge home page if any other page is modified
-	        $urls_to_purge[] = home_url('/'); //always purge home page if any other page is modified
-	        $urls_to_purge[] = site_url('/'); //always purge home page if any other page is modified
-	        
+			if(isset($settings['critical_css_on_home']) && $settings['critical_css_on_home'] == 1){
+				$urls_to_purge[] = get_home_url(); //always purge home page if any other page is modified
+				$urls_to_purge[] = get_home_url()."/"; //always purge home page if any other page is modified
+				$urls_to_purge[] = home_url('/'); //always purge home page if any other page is modified
+				$urls_to_purge[] = site_url('/'); //always purge home page if any other page is modified
+			}
+	        	        
 	        //clean pagination urls
             if(!empty(get_option('page_for_posts'))){
                 $page_for_posts = get_permalink(get_option('page_for_posts'));
@@ -499,9 +504,18 @@ class criticalCss{
 
 	        $permalink_structure = get_option( 'permalink_structure' );
 	        $append_slash = substr($permalink_structure, -1) == "/" ? true : false;
+
+			$post_types = array('post');
+			if(!empty($settings['critical_css_on_cp_type'])){
+				foreach ($settings['critical_css_on_cp_type'] as $key => $value) {
+					if($value){
+						$post_types[] = $key;
+					}
+				}
+			}
 	        $args = array(
 	            'post_status' => 'publish',
-	            'post_type' => 'any',
+	            'post_type' => $post_types,
 	            'orderby' => 'post_date',
 	            'order' => 'DESC',
 	            'fields' => 'ids', // Only get post IDs
@@ -529,6 +543,40 @@ class criticalCss{
 	                $urls_all[$permalink] = $permalink;
 	            }
 	        }
+			
+			if(!empty($settings['critical_css_on_tax_type'])){
+				foreach ($settings['critical_css_on_tax_type'] as $key => $value) {
+						if($value){
+								$terms = get_terms( array(
+									'taxonomy' => $key,
+									'hide_empty' => false,
+								) );
+
+								if(!empty($terms)){
+									foreach ($terms as $term) {
+										$permalink = get_term_link($term);
+										if(empty($permalink)){
+											continue;
+										}
+										if($append_slash){
+											$permalink = trailingslashit($permalink);
+										}else{
+											$permalink = $permalink.$append_slash;
+										}
+										if(!$this->check_critical_css($permalink)){
+											$permalinks.=$permalink."\n";
+											$urls_not_cached[$permalink] = $permalink;
+											++$queued_count;
+										}
+										$urls_all[$permalink] = $permalink;
+									}
+								}
+															
+						}
+				}
+			}
+
+
 	        
 		}catch(\Throwable $e){
             $msg = "\n".date("c")." ";
@@ -563,8 +611,8 @@ class criticalCss{
 			}
 	    }
 	    
-	    $URL = 'http://45.32.11.210/?url='.$targetUrl;
-	    $response = wp_remote_get($URL, array('timeout' => 50));
+	    $URL = 'http://criticalcssapi.com/corewebvitalcrittr?url='.$targetUrl;
+	    $response = wp_remote_get($URL, array('timeout' => 50, 'headers' => array('page_setting' => 'cwvpsb')));
 	    $resStatuscode = wp_remote_retrieve_response_code( $response );
 	    if($resStatuscode==200){
 	    	$response = wp_remote_retrieve_body($response);

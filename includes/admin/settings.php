@@ -90,7 +90,7 @@ public function cwvpsb_admin_interface_render(){
             do_settings_sections( 'cwvpsb_css_section' );
             echo "</div>";
 
-            echo "<div class='cwvpsb-url' ".( $tab != 'urls' ? 'style="display:none;"' : '').">";
+            echo "<div class='cwvpsb-urls' ".( $tab != 'urls' ? 'style="display:none;"' : '').">";
             do_settings_sections( 'cwvpsb_urls_section' );
             echo "</div>";
 
@@ -217,7 +217,7 @@ public function cwvpsb_settings_init(){
 
     add_settings_field(
             'urls_optimization_support',
-            __return_false(),
+            '',
              array($this, 'urlslist_callback'),
             'cwvpsb_urls_section',
             'cwvpsb_urls_section'
@@ -255,6 +255,13 @@ public function cwvpsb_settings_init(){
         'advance_support',
         'Specific URL',
          array($this, 'advance_url_callback'),
+        'cwvpsb_advance_section',
+        'cwvpsb_advance_section'
+    ); 
+    add_settings_field(
+        'critical_css_for',
+        'Generate Critical Css For',
+         array($this, 'generate_critical_css_callback'),
         'cwvpsb_advance_section',
         'cwvpsb_advance_section'
     );                                      
@@ -412,6 +419,54 @@ public function cache_strategy_callback(){
     <p class="description"><?php echo esc_html__("Highly Optimized will serve by PHP", 'cwvpsb')."<br/>".esc_html__(" Aggressively Optimized will serve cache via htaccess", 'cwvpsb');?></p>
     </fieldset>
     <?php }
+
+public function generate_critical_css_callback(){
+    
+    $settings = cwvpsb_defaults();     
+    
+    $taxonomies = get_taxonomies(array( 'public' => true ), 'names');    
+
+    $post_types = array();
+    $post_types = get_post_types( array( 'public' => true ), 'names' );    
+    $unsetdpost = array(
+        'attachment',
+        'saswp',
+        'saswp_reviews',
+        'saswp-collections',
+    );
+    foreach ($unsetdpost as $value) {
+        unset($post_types[$value]);
+    }
+    
+    if($post_types){
+
+            echo '<ul>';
+            echo '<li>';
+            echo '<input class="" type="checkbox" name="cwvpsb_get_settings[critical_css_on_home]" value="1" '.(isset($settings["critical_css_on_home"]) ? "checked": "").' /> ' . esc_html('Home');
+            echo '</li>';
+
+            foreach ($post_types as $key => $value) {
+                echo '<li>';
+                echo '<input class="" type="checkbox" name="cwvpsb_get_settings[critical_css_on_cp_type]['.esc_attr($key).']" value="1" '.(isset($settings["critical_css_on_cp_type"][$key]) ? "checked": "").' /> ' . ucwords(esc_html($value));
+                echo '</li>';
+            }            
+
+            if($taxonomies){
+                foreach ($taxonomies as $key => $value) {
+                    echo '<li>';
+                    echo '<input class="" type="checkbox" name="cwvpsb_get_settings[critical_css_on_tax_type]['.esc_attr($key).']" value="1" '.(isset($settings["critical_css_on_tax_type"][$key]) ? "checked": "").' /> ' . ucwords(esc_html($value));
+                    echo '</li>';
+                }
+            }
+
+        echo '</ul>';
+    }
+    
+    ?> 
+
+    <?php
+
+}    
 
 public function advance_url_callback(){
     $settings = cwvpsb_defaults(); ?> 
@@ -644,7 +699,7 @@ public function advance_url_callback(){
     /**
      * Url list will be shows
      */ 
-    function urlslist_callback(){
+    public function urlslist_callback(){        
         require_once CWVPSB_PLUGIN_DIR.'/includes/admin/admin-urls-settings.php';
     }
 }//Class closed
