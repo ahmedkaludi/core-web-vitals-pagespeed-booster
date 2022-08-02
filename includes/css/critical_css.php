@@ -391,8 +391,8 @@ class cwvpbcriticalCss{
 
 	function isa_add_every_one_hour( $schedules ) {
 	    $schedules['every_one_hour'] = array(
-	            'interval'  => 60 * 1,
-	            'display'   => __( 'Every 30 seconds', 'cwvpsb' )
+	            'interval'  => 30 * 1,
+	            'display'   => __( 'Every 30 Seconds', 'cwvpsb' )
 	    );
 	    return $schedules;
 	}

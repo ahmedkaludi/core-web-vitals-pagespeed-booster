@@ -697,6 +697,27 @@ public function advance_url_callback(){
         require_once( CWVPSB_PLUGIN_DIR.'includes/admin/admin-bar-settings.php');
     }
 
+    public function generate_time($total_count){
+        $total_count = 830;    
+        $estimate_time = '';      
+        if($total_count > 0){
+            $hours = '';
+            if(intdiv($total_count, 120) > 0){
+                $hours = intdiv($total_count, 120).' Hours, ';
+            }
+            
+            if($hours){
+                $estimate_time = $hours. ($total_count % 60). ' Min';
+            }else{
+                
+                if(($total_count % 60) > 0){
+                    $estimate_time = ($total_count % 60). ' Min';
+                }                
+            }            
+            
+        }
+        return $estimate_time;  
+    }
     /**
      * Url list will be shows
      */ 
@@ -704,35 +725,48 @@ public function advance_url_callback(){
 
         global $wpdb, $table_prefix;
 		$table_name = $table_prefix . 'cwvpb_critical_urls';
-        $total_count     = cwvpbs_get_total_urls();
-        $cached_count    = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'cached'));                
-        $inprogress      = 0;
-        $percentage      = 0;
-        
-        
-        if($cached_count > 0 && $total_count){
-            $inprogress      = $total_count - $cached_count;
+        $total_count        = cwvpbs_get_total_urls();
+        $cached_count       = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'cached'));                
+        $inprogress         = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'inprocess'));                
+        $failed_count       = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'failed'));                
+        $queue_count        = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'queue'));                
+        $inprogress         = 0;
+        $percentage         = 0;
+                
+        if($cached_count > 0 && $total_count){            
             $percentage      = ($cached_count/$total_count) * 100;        
             $percentage      = round($percentage);
-        }
-        
+        }        
+                        
         ?>
-        <div>
-            <div style="padding: 10px; float:right;"><a class="button button-secondary cwvpsb-reset-url-cache"><?php _e('Reset Cache', 'cwvpsb'); ?></a></div>            
+        <div class="cwvpbs_urls_section">
+            <!-- <div style="padding: 10px; float:right;"><a class="button button-secondary cwvpsb-reset-url-cache"><?php _e('Reset Cache', 'cwvpsb'); ?></a></div>             -->
             <!-- process section -->
             <div class="cwvpsb-css-optimization-wrapper">
             
             <strong style="font-size:18px;"><?php echo esc_html__('CSS Optimisation Status', 'cwvpsb') ?></strong>
-                <p><?php echo esc_html__('Optimisation is running in background. Once it is completed. Result table will appear', 'cwvpsb') ?></p>
+                <p><?php echo esc_html__('Optimisation is running in background. You can see latest result on page reload', 'cwvpsb') ?></p>
                 <br>
-                <div><strong><?php echo esc_html__('Total Urls :', 'cwvpsb') ?></strong> <?php echo esc_attr($total_count); ?></div>
-                <div><strong><?php echo esc_html__('Cached  :', 'cwvpsb') ?></strong> <?php echo esc_attr($cached_count); ?></div>
-                <div><strong><?php echo esc_html__('In-progress:', 'cwvpsb') ?></strong> <?php echo esc_attr($inprogress); ?></div>                                        
+                <div class="cwvpsb_progress_bar">
+                    <div class="cwvpsb_progress_bar_body" style="width: <?php echo esc_attr($percentage); ?>%;"><?php echo $percentage; ?>%</div>
+                </div>
                 <br>
-
-            <div class="cwvpsb_progress_bar">
-                <div class="cwvpsb_progress_bar_body" style="width: <?php echo esc_attr($percentage); ?>%;"><?php echo $percentage; ?>%</div>
-            </div>                                    
+                <div class="cwvpsb_cached_status_bar">
+                <div style="margin-top:20px;"><strong><?php echo esc_html__('Total :', 'cwvpsb') ?></strong> <?php echo esc_attr($total_count). ' URLs';                                         
+                 ?></div>
+                 <div><strong><?php echo esc_html__('In Progress :', 'cwvpsb') ?></strong> <?php echo esc_attr($queue_count). ' URLs';                                         
+                 ?></div>
+                <div><strong><?php echo esc_html__('Critical CSS Optimized  :', 'cwvpsb') ?></strong> <?php echo esc_attr($cached_count). ' URLs';                 
+                ?></div>
+                <div><strong><?php echo esc_html__('Remaining Time :', 'cwvpsb') ?></strong> 
+                <?php 
+                if($this->generate_time($queue_count)){
+                    echo $this->generate_time($queue_count);
+                }
+                ?></div>                                        
+                <div><strong><?php echo esc_html__('Failed      :', 'cwvpsb') ?></strong> <?php echo esc_attr($failed_count);?></div>                                                        
+                </div>
+                                                                
             </div> 
             <!-- DataTable section -->
             <div class="cwvpsb-table-url-wrapper">            
