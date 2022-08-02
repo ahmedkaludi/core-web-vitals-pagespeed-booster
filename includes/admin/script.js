@@ -127,22 +127,36 @@ $(".cwvpsb-tabs a").click(function(e){
 			}
 		})
 	}
-
-
-
-
-
-
-
-	var e = '';
-	
+		
 	jQuery("#table_page_cc_style").DataTable({
 		serverSide: true,
 		processing: true,
-        fixedColumns: true,
+        fixedColumns: true,		
 		ajax: {
 			type: "GET",
-			url: ajaxurl+"?action=showdetails_data"
+			url: ajaxurl+"?action=cwvpsb_showdetails_data&cwvpsb_security_nonce="+cwvpsb_localize_data.cwvpsb_security_nonce
 		}
 	});
+
+	$(".cwvpsb-reset-url-cache").on("click", function(e){
+		e.preventDefault();
+		if(!confirm('Are you sure? Because recaching of urls may take long time again.')){
+			return false;
+		}	
+		
+		$.ajax({
+			url: ajaxurl,
+			type:'post',
+			dataType: 'json',
+			data: {'cwvpsb_security_nonce': cwvpsb_localize_data.cwvpsb_security_nonce, action: 'cwvpsb_reset_urls_cache'},
+			success: function(response){
+				if(response.status){
+					location.reload(true);
+				}else{
+					alert('something went wrong');
+				}
+			}
+		})
+
+	})
 });

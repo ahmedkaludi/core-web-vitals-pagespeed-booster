@@ -2,8 +2,12 @@
 /**
  * Critical CSS functionality 
  * @since 1.3
+ * 
  **/
-class criticalCss{
+
+class cwvpbcriticalCss{
+
+
 	public function __construct(){
 		$this->init();
 	}
@@ -17,11 +21,7 @@ class criticalCss{
 	}
 
 	public function init(){
-	    $is_admin = current_user_can('manage_options');
-        if(is_admin() || $is_admin){
-            return;
-        }
-            
+            		
 		if ( function_exists('is_checkout') && is_checkout()  || (function_exists('is_feed')&& is_feed())) {
         	return;
 	    }
@@ -33,11 +33,15 @@ class criticalCss{
 		    add_action('wp', array($this, 'delay_css_loadings'), 999);
 	    }
 
+		add_action( 'create_term', function($term_id, $tt_id, $taxonomy){
+            $this->on_term_create($term_id, $tt_id, $taxonomy);
+        }, 10, 3 );
+
 	    add_action( 'save_post', function($post_ID, $post, $update){
-            $this->onPostChange($post_ID);
+            $this->on_post_change($post_ID, $post);
         }, 10, 3 );
         add_action( 'wp_insert_post', function($post_ID, $post, $update){
-            $this->onPostChange($post_ID);
+            $this->on_post_change($post_ID, $post);
         }, 10, 3 );
 	    
 	    add_action('wp_head', array($this, 'print_style_cc'),2);
@@ -46,7 +50,8 @@ class criticalCss{
 			
 		//}
 
-		add_action("wp_ajax_showdetails_data", array($this, 'showdetails_data'));
+		add_action("wp_ajax_cwvpsb_showdetails_data", array($this, 'cwvpsb_showdetails_data'));
+		add_action("wp_ajax_cwvpsb_reset_urls_cache", array($this, 'cwvpsb_reset_urls_cache'));
 		add_action("wp_ajax_cwvpsb_cc_all_cron", array($this, 'every_one_hour_event_func'));
 		
 		add_filter( 'cron_schedules', array($this, 'isa_add_every_one_hour') );
@@ -69,61 +74,13 @@ class criticalCss{
 					);
 		wp_localize_script('corewvps-cc', 'cwvpb_ccdata', $data);
 	}*/
-
-	function grab_cc_css(){
-		if ( ! isset( $_POST['security_nonce'] ) ){
-	       echo json_encode( array("message"=>"security nonce not found") );die;  
-	    }
-	    if ( !wp_verify_nonce( $_POST['security_nonce'], 'cc_ajax_check_nonce' ) ){
-	       echo json_encode( array("message"=>"security nonce wrong") );die;  
-	    }
-	    $targetUrl = $_POST['current_url'];
-	    $user_dirname = $this->cachepath();
-	    if(file_exists($user_dirname.md5($targetUrl).".css")){ 
-	    	echo json_encode(array( "status"=>201 ));die;
-	    }
-	    
-	    $URL = 'http://criticalcssapi.com/corewebvitalcrittr?page_setting=cwvpsb&url='.$targetUrl;
-	    $response = wp_remote_get($URL, array('timeout' => 50, 'headers' => array('page_setting' => 'cwvpsb')));
-	    $resStatuscode = wp_remote_retrieve_response_code( $response );
-	    if($resStatuscode==200){
-	    	$response = wp_remote_retrieve_body($response);
-	    	$responseArr = json_decode($response, true);
-	    	if($responseArr["status"] != 200){
-	    		echo json_encode( array("status"=>$responseArr["status"]) );die;
-	    	}
-	    	
-			$user_dirname = $this->cachepath();
-			if(!file_exists($user_dirname)) wp_mkdir_p($user_dirname);
-
-			$content = $responseArr['critical_css'];
-			$content = str_replace("url('wp-content/", "url('https://buildingandinteriors.com/wp-content/", $content); 
-			$content = str_replace('url("wp-content/', 'url("https://buildingandinteriors.com/wp-content/', $content); 
-			
-			if($content){
-				$new_file = $user_dirname."/".md5($targetUrl).".css";
-				$ifp = @fopen( $new_file, 'w+' );
-				if ( ! $ifp ) {
-		          echo json_encode(  array( 'error' => sprintf( __( 'Could not write file %s' ), $new_file ) ));die;
-		        }
-		        $result = @fwrite( $ifp, $content );
-			    fclose( $ifp );
-
-		    	echo json_encode(array("status"=>200));die;
-		    }else{
-		    	echo json_encode(array("status"=>401, "message"=> "file content is blank"));die;
-		    }
-	    }else{
-	    	echo json_encode(array("status"=>$resStatuscode, 'message'=> 'return from server', 'response'=>$response));die;
-	    }
-	}
-
-
+	
 	function print_style_cc(){
 		$user_dirname = $this->cachepath();
 		global $wp;
 		$url = home_url( $wp->request );
-		if($this->check_critical_css()){
+		$url = trailingslashit($url);			
+		if(file_exists($user_dirname.md5($url).'.css')){			
 			$css =  file_get_contents($user_dirname.'/'.md5($url).'.css');
 		 	echo "<style type='text/css' id='cc-styles'>$css</style>";
 		}
@@ -145,7 +102,8 @@ class criticalCss{
     		global $wp;
     		$url = home_url( $wp->request );
 		}
-		return file_exists($user_dirname.'/'.md5($url).'.css')? true :  false; 
+		$url = trailingslashit($url);				
+		return file_exists($user_dirname.md5($url).'.css')? true :  false; 
 	}
 
 	public function cwvpsb_delay_css_html($html){
@@ -162,7 +120,6 @@ class criticalCss{
 		if($return_html == true){
 			return $html;
 		}
-
 		$html_no_comments = preg_replace('/<!--(.*)-->/Uis', '', $html);
 		preg_match_all('/<link\s?([^>]+)?>/is', $html_no_comments, $matches);
 
@@ -434,279 +391,489 @@ class criticalCss{
 
 	function isa_add_every_one_hour( $schedules ) {
 	    $schedules['every_one_hour'] = array(
-	            'interval'  => 30 * 1,
+	            'interval'  => 60 * 1,
 	            'display'   => __( 'Every 30 seconds', 'cwvpsb' )
 	    );
 	    return $schedules;
 	}
 
-	function every_one_hour_event_func() {
-	    $urls = get_transient( 'cwvpsb_permalink_urls');
-		if(!$urls){
-			$urls = $this->get_permalinks_url('non_created');
-			set_transient( 'cwvpsb_permalink_urls', $urls );
-		}
-		if($urls){
-			$urls_Arr = explode("\n", $urls);
-			if($urls_Arr[0]){
-				$this->grab_all_cron($urls_Arr[0]);
-			}
-			if($urls_Arr[1]){
-				$this->grab_all_cron($urls_Arr[1]);
-			}
-			if($urls_Arr[2]){
-				$this->grab_all_cron($urls_Arr[2]);
-			}
-			if($urls_Arr[3]){
-				$this->grab_all_cron($urls_Arr[3]);
-			}
+	public function insert_update_posts_url($post_id){
 
+		global $wpdb, $table_prefix;
+			   $table_name = $table_prefix . 'cwvpb_critical_urls';			   
+
+		$permalink = get_permalink($post_id);
+		if(!empty($permalink)){
+		
+		$permalink = $this->append_slash_permalink($permalink);
+		
+		$pid = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT `url` FROM $table_name WHERE `url`=%s limit 1", 
+				$permalink
+			)		
+		);
+
+		if(is_null($pid)){
+			$wpdb->insert( 
+				$table_name, 
+				array(
+					'url_id'          => $post_id,  
+					'type'        	  => get_post_type($post_id),  
+					'type_name'       => get_post_type($post_id), 
+					'url'  			  => $permalink, 					
+					'status'   		  => 'queue', 					
+					'created_at'      => date('Y-m-d'), 					
+				), 
+				array('%d','%s', '%s', '%s', '%s', '%s') 
+			);
+
+		} else{
+			$wpdb->query($wpdb->prepare(
+				"UPDATE $table_name SET `url` = %s WHERE `url_id` = %d",
+				$permalink,
+				$post_id							
+			));
+			
 		}
+
+		}				  
 
 	}
-	function onPostChange($post_ID){
-		$urls = get_transient( 'cwvpsb_permalink_urls');
-		$urls = $urls."\n".get_permalink($post_ID);
-		set_transient( 'cwvpsb_permalink_urls', $urls );
+
+	public function insert_update_terms_url($term){
+
+		global $wpdb, $table_prefix;
+			   $table_name = $table_prefix . 'cwvpb_critical_urls';			   
+
+			$permalink = get_term_link($term);					
+			if(!empty($permalink)){
+				
+			$permalink = $this->append_slash_permalink($permalink);
+
+			$pid = $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT `url` FROM $table_name WHERE `url`=%s limit 1", 
+					$permalink
+				)		
+			);
+
+			if(is_null($pid)){
+				$wpdb->insert( 
+					$table_name, 
+					array(
+						'url_id'          => $term->term_id,  
+						'type'        	  => $term->taxonomy,  
+						'type_name'       => $term->taxonomy, 
+						'url'  			  => $permalink, 					
+						'status'   		  => 'queue', 					
+						'created_at'      => date('Y-m-d'), 					
+					), 
+					array('%d','%s', '%s', '%s', '%s', '%s') 
+				);
+
+			} else{
+				$wpdb->query($wpdb->prepare(
+					"UPDATE $table_name SET `url` = %s WHERE `url_id` = %d",
+					$permalink,
+					$term->term_id							
+				));
+				
+			}
+
+			}			   
+
 	}
 
-	public function get_permalinks_url($grabtype=''){
+	public function save_posts_url(){
 
-		$settings = cwvpsb_defaults();
+			global $wpdb, $table_prefix;
+			$table_name = $table_prefix . 'cwvpb_critical_urls';
 
-		$permalinks = '';
-        $posts_per_page = 250;
-        $offset = $queued_count = 0;
-        $urls_not_cached = array();
-        $urls_all = array();
-		try{
-			if(empty($urls_to_purge)){
-	            $urls_to_purge = [];
-	        }
-
-			if(isset($settings['critical_css_on_home']) && $settings['critical_css_on_home'] == 1){
-				$urls_to_purge[] = get_home_url(); //always purge home page if any other page is modified
-				$urls_to_purge[] = get_home_url()."/"; //always purge home page if any other page is modified
-				$urls_to_purge[] = home_url('/'); //always purge home page if any other page is modified
-				$urls_to_purge[] = site_url('/'); //always purge home page if any other page is modified
-			}
-	        	        
-	        //clean pagination urls
-            if(!empty(get_option('page_for_posts'))){
-                $page_for_posts = get_permalink(get_option('page_for_posts'));
-                if(is_string($page_for_posts) && !empty($page_for_posts) && get_option('show_on_front') == 'page'){
-                    $urls_to_purge[] = $page_for_posts;
-                }
-            }
-            
-            $posts_per_page = get_option('posts_per_page');
-            $published_posts = wp_count_posts()->publish;
-            $page_number_max = min(3, ceil($published_posts / $posts_per_page));
-            for($pn=1; $pn<$page_number_max; $pn++){
-                $urls_to_purge[] = home_url(sprintf('/page/%s/', $pn));
-            }
-
-            //counting URLS
-            if(!empty($urls_to_purge)){
-	            foreach($urls_to_purge as $url){
-	                if(!$this->check_critical_css($url)){
-	                    $permalinks.=$url."\n";
-	                    $urls_not_cached[$url] = $url;
-	                    ++$queued_count;
-	                }
-	                $urls_all[$url] = $url;
-	            }
-	        }
-	        //published posts
-	        $published_count = wp_count_posts()->publish;
-	        $offset = intval($offset);
-	        if($offset>$published_count){
-	            $offset = 0;
-	        }
-
-	        $permalink_structure = get_option( 'permalink_structure' );
-	        $append_slash = substr($permalink_structure, -1) == "/" ? true : false;
+			$settings = cwvpsb_defaults();
 
 			$post_types = array('post');
+			
 			if(!empty($settings['critical_css_on_cp_type'])){
 				foreach ($settings['critical_css_on_cp_type'] as $key => $value) {
 					if($value){
-						$post_types[] = $key;
+						$post_types[] = $key;					
 					}
 				}
 			}
-	        $args = array(
-	            'post_status' => 'publish',
-	            'post_type' => $post_types,
-	            'orderby' => 'post_date',
-	            'order' => 'DESC',
-	            'fields' => 'ids', // Only get post IDs
-	            //'posts_per_page' => $posts_per_page,
-	            'offset'=>0//intval($offset)
-	        );
-
-	        $posts = get_posts($args);
-	        if(!empty($posts)){
-	            foreach($posts as $post_id){
-	                $permalink = get_permalink($post_id);
-	                if(empty($permalink)){
-	                    continue;
-	                }
-	                if($append_slash){
-	                    $permalink = trailingslashit($permalink);
-	                }else{
-	                    $permalink = $permalink.$append_slash;
-	                }
-	                if(!$this->check_critical_css($permalink)){
-	                    $permalinks.=$permalink."\n";
-	                    $urls_not_cached[$permalink] = $permalink;
-	                    ++$queued_count;
-	                }
-	                $urls_all[$permalink] = $permalink;
+			
+			$postimp      = "'".implode("', '", $post_types)."'";
+		    
+			$insert_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `type` IN ($postimp);"));
+					
+			$start = $insert_count;
+			$batch = 30;
+			$posts = $wpdb->get_results(
+				stripslashes($wpdb->prepare(
+					"SELECT `ID` FROM $wpdb->posts WHERE post_status='publish' 
+					AND post_type IN(%s) LIMIT %d, %d",
+					implode("', '", $post_types) , $start, $batch
+				))
+				, ARRAY_A);
+									        
+			if(!empty($posts)){
+	            foreach($posts as $post){					
+	                $this->insert_update_posts_url($post['ID']);									
 	            }
 	        }
-			
-			if(!empty($settings['critical_css_on_tax_type'])){
-				foreach ($settings['critical_css_on_tax_type'] as $key => $value) {
-						if($value){
-								$terms = get_terms( array(
-									'taxonomy' => $key,
-									'hide_empty' => false,
-								) );
 
-								if(!empty($terms)){
-									foreach ($terms as $term) {
-										$permalink = get_term_link($term);
-										if(empty($permalink)){
-											continue;
-										}
-										if($append_slash){
-											$permalink = trailingslashit($permalink);
-										}else{
-											$permalink = $permalink.$append_slash;
-										}
-										if(!$this->check_critical_css($permalink)){
-											$permalinks.=$permalink."\n";
-											$urls_not_cached[$permalink] = $permalink;
-											++$queued_count;
-										}
-										$urls_all[$permalink] = $permalink;
-									}
-								}
-															
-						}
+	}
+
+	public function save_others_urls(){
+		
+		global $wpdb, $table_prefix;
+		$table_name = $table_prefix . 'cwvpb_critical_urls';
+
+		$settings = cwvpsb_defaults();
+		$urls_to  = array();
+		if(isset($settings['critical_css_on_home']) && $settings['critical_css_on_home'] == 1){
+			$urls_to[] = get_home_url(); //always purge home page if any other page is modified
+			$urls_to[] = get_home_url()."/"; //always purge home page if any other page is modified
+			$urls_to[] = home_url('/'); //always purge home page if any other page is modified
+			$urls_to[] = site_url('/'); //always purge home page if any other page is modified
+		}
+		
+		if(!empty($urls_to)){
+			
+			foreach ($urls_to as $key => $value) {
+			
+				$pid = $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT `url` FROM $table_name WHERE `url`=%s limit 1", 
+						$value
+					)		
+				);
+				$id = ($key++) + 999999999;
+				if(is_null($pid)){
+					
+					$wpdb->insert( 
+						$table_name, 
+						array(
+							'url_id'          => $id,  
+							'type'        	  => 'others',  
+							'type_name'       => 'others', 
+							'url'  			  => $value, 					
+							'status'   		  => 'queue', 					
+							'created_at'      => date('Y-m-d'), 					
+						), 
+						array('%d','%s', '%s', '%s', '%s', '%s') 
+					);
+
+				} else{
+					$wpdb->query($wpdb->prepare(
+						"UPDATE $table_name SET `url` = %s WHERE `url_id` = %d",
+						$value,
+						$id							
+					));
+					
+				}
+				
+			}
+		}
+
+
+	}
+
+
+
+	public function save_terms_urls(){
+
+		global $wpdb, $table_prefix;
+		$table_name = $table_prefix . 'cwvpb_critical_urls';
+
+		$settings = cwvpsb_defaults();
+
+		$taxonomy_types = array('category');
+		
+		if(!empty($settings['critical_css_on_tax_type'])){
+			foreach ($settings['critical_css_on_tax_type'] as $key => $value) {
+				if($value){
+					$taxonomy_types[] = $key;					
 				}
 			}
+		}
+		
 
+			$postimp = "'".implode("', '", $taxonomy_types)."'";
 
-	        
-		}catch(\Throwable $e){
-            $msg = "\n".date("c")." ";
-            
-            if(function_exists('is_wp_error') && is_wp_error($exception)){
-                $msg .= $exception->get_error_message();
-            }else if($exception instanceof Exception || $exception instanceof Throwable) {
-                $msg .= $exception->getMessage();
-            }else{
-                $msg .= $exception;
-            }
-            error_log($msg);
-        }
-        if($grabtype=='arr'){
-        	return array('not_cached' => $urls_not_cached,"all"=> $urls_all);
-        }else{
-        	return $permalinks;
+			
+			$insert_count    = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `type` IN ($postimp);"));
+			
+			$start = $insert_count;
+			$batch = 30;
+			$terms = $wpdb->get_results(
+				stripslashes($wpdb->prepare(
+					"SELECT `term_id`, `taxonomy` FROM $wpdb->term_taxonomy 
+					WHERE taxonomy IN(%s) LIMIT %d, %d",
+					implode("', '", $taxonomy_types) , $start, $batch
+				))
+				, ARRAY_A);
+									        			
+			if(!empty($terms)){
+	            foreach($terms as $term){					
+	                $term = get_term( $term['term_id'], $term['taxonomy']);					
+	                $this->insert_update_terms_url($term);					
+	            }
+	        }
 
-        }
 	}
-	public function grab_all_cron($current_url){
+
+	public function generate_css_on_interval(){
+		
+		global $wpdb, $table_prefix;
+		$table_name = $table_prefix . 'cwvpb_critical_urls';
+		
+		$result = $wpdb->get_results(
+			stripslashes($wpdb->prepare(
+				"SELECT * FROM $table_name WHERE `status` = %s LIMIT %d",
+				'queue', 1
+			))
+		, ARRAY_A);
+
+		if(!empty($result)){
+			
+			$user_dirname = $this->cachepath();
+			if(!file_exists($user_dirname)) 
+			wp_mkdir_p($user_dirname);
+
+			foreach ($result as $value) {
+
+				$status      = 'inprocess';
+				$cached_name = '';
+				$this->change_caching_status($value['url'], $status);
+				$result = $this->cwvpsb_save_critical_css_in_dir($value['url']);
+								
+				if($result['status']){
+					$status      = 'cached';							
+					$cached_name = md5($value['url']);
+				}else{
+					$status      = 'failed';
+				}
+
+				$this->change_caching_status($value['url'],$status, $cached_name);
+
+			}
+		}
+
+	}
+
+	public function change_caching_status($url, $status, $cached_name=null){
+
+		global $wpdb, $table_prefix;
+		$table_name = $table_prefix . 'cwvpb_critical_urls';
+
+		$result = $wpdb->query($wpdb->prepare(
+			"UPDATE $table_name SET `status` = %s,  `cached_name` = %s WHERE `url` = %s",
+			$status,
+			$cached_name,
+			$url							
+		));
+
+	}
+
+	public function every_one_hour_event_func() {
+
+		$this->save_posts_url();
+		$this->save_terms_urls();
+		$this->save_others_urls();
+		$this->generate_css_on_interval();
+
+	}
+
+	public function append_slash_permalink($permalink){
+
+		$permalink_structure = get_option( 'permalink_structure' );
+		$append_slash = substr($permalink_structure, -1) == "/" ? true : false;
+		if($append_slash){
+			$permalink = trailingslashit($permalink);
+		}else{
+			$permalink = $permalink.$append_slash;
+		}
+
+		return $permalink;
+	}
+	
+	public function on_term_create($term_id, $tt_id, $taxonomy){
+
+		$settings = cwvpsb_defaults();
+		$post_types = array();
+		if(!empty($settings['critical_css_on_tax_type'])){
+			foreach ($settings['critical_css_on_tax_type'] as $key => $value) {
+				if($value){
+					$post_types[] = $key;					
+				}
+			}
+		}
+
+		if(in_array($taxonomy, $post_types)){
+			$term = get_term( $term_id, $taxonomy);	
+			if($term){
+				$this->insert_update_terms_url($term);					
+			}
+		}
+				
+	}
+	public function on_post_change($post_id, $post){
+
+		$settings = cwvpsb_defaults();
+		$post_types = array('post');
+		if(!empty($settings['critical_css_on_cp_type'])){
+			foreach ($settings['critical_css_on_cp_type'] as $key => $value) {
+				if($value){
+					$post_types[] = $key;					
+				}
+			}
+		}
+
+		if(in_array($post->post_type, $post_types)){
+			$permalink = get_permalink($post_id);
+			$permalink = $this->append_slash_permalink($permalink);
+			if($post->post_status == 'publish'){
+				$this->insert_update_posts_url($post_id);
+			}
+		}				
+
+	}
+
+	
+	public function cwvpsb_save_critical_css_in_dir($current_url){
+
 		$targetUrl = $current_url;
 	    $user_dirname = $this->cachepath();
-	    if(file_exists($user_dirname.md5($targetUrl).".css")){ 
-	    	$urls = get_transient( 'cwvpsb_permalink_urls');
-			if($urls){
-				$urls_Arr = explode("\n", $urls);
-				$urls_Arr = array_flip(array_filter($urls_Arr));
-				unset($urls_Arr[$targetUrl]);
-				$urls_Arr = array_flip($urls_Arr);
-				set_transient( 'cwvpsb_permalink_urls', implode("\n", $urls_Arr) );
-			}
-	    }
-	    
-	    $URL = 'http://criticalcssapi.com/corewebvitalcrittr?url='.$targetUrl;
+
+	    $URL = 'http://45.32.11.210/corewebvitalcrittr?url='.$targetUrl;
+
 	    $response = wp_remote_get($URL, array('timeout' => 50, 'headers' => array('page_setting' => 'cwvpsb')));
 	    $resStatuscode = wp_remote_retrieve_response_code( $response );
+
 	    if($resStatuscode==200){
+
 	    	$response = wp_remote_retrieve_body($response);
 	    	$responseArr = json_decode($response, true);
 	    	if($responseArr["status"] != 200){
 	    		echo json_encode( array("status"=>$responseArr["status"]) );
 	    	}
-	    	
-			$user_dirname = $this->cachepath();
-			if(!file_exists($user_dirname)) wp_mkdir_p($user_dirname);
-
+	    				
 			$content = $responseArr['critical_css'];
 			$content = str_replace("url('wp-content/", "url('".get_site_url()."/wp-content/", $content); 
 			$content = str_replace('url("wp-content/', 'url("'.get_site_url().'/wp-content/', $content); 
+						
+			$new_file = $user_dirname."/".md5($targetUrl).".css";
+			$ifp = @fopen( $new_file, 'w+' );
+			if ( ! $ifp ) {
+				echo json_encode(  array( 'error' => sprintf( __( 'Could not write file %s' ), $new_file ) ));die;
+			}
+			$result = @fwrite( $ifp, $content );
+			fclose( $ifp );
 			
-			if(true){//$content
-				$new_file = $user_dirname."/".md5($targetUrl).".css";
-				$ifp = @fopen( $new_file, 'w+' );
-				if ( ! $ifp ) {
-		          echo json_encode(  array( 'error' => sprintf( __( 'Could not write file %s' ), $new_file ) ));die;
-		        }
-		        $result = @fwrite( $ifp, $content );
-			    fclose( $ifp );
-			    $urls = get_transient( 'cwvpsb_permalink_urls');
-				if($urls){
-					$urls_Arr = explode("\n", $urls);
-					$urls_Arr = array_flip(array_filter($urls_Arr));
-					unset($urls_Arr[$targetUrl]);
-					$urls_Arr = array_flip($urls_Arr);
-					set_transient( 'cwvpsb_permalink_urls', implode("\n", $urls_Arr) );
-				}
-		    }else{
-		    	//echo json_encode(array("status"=>401, "message"=> "file content is blank"));die;
-		    }
+			return array('status' => $result, 'message' => 'Css creted sussfully');
+		    
 	    }else{
-	    	//echo json_encode(array("status"=>$resStatuscode, 'message'=> 'return from server', 'response'=>$response));die;
+			return array('status' => false , 'message' => 'Error on critical css server');	    	
 	    }
 
 	}
 
-	public function showdetails_data(){
-		$urls_data = $this->get_permalinks_url('arr');
-		$formated = array();
-		foreach ($urls_data['all'] as $key => $value) {
-			$status ='Cached';$size = '-';
-			if(isset($urls_data['not_cached'][$value])){
-				$status = 'queued';
-			}else{
-				$user_dirname = $this->cachepath();
-				$size = filesize($user_dirname.'/'.md5($value).'.css');
-			}
-			$formated[] = array(
-								$value,
-								$status,
-								$size,
-								date('d-m-Y')
-						);
+	public function cwvpsb_reset_urls_cache(){
+
+		if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
+			return; 
 		}
-		$sendData =  array_chunk($formated, $_GET['length']);
-		$page = isset($_GET['start']) && $_GET['start']>0? $_GET['start']/$_GET['length'] : 0;
-		$retuernData = array(	"draw"=> $_GET['draw'],
-			"recordsTotal"=> count($urls_data['all']),
-			"recordsFiltered"=> count($urls_data['all']),
-			"data"=>isset($sendData[$page])? $sendData[$page]:array()
+		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+			return;  
+		}
+
+		global $wpdb;	
+		$table = $wpdb->prefix.'cwvpb_critical_urls';
+	    $result = $wpdb->query( "TRUNCATE TABLE {$table}" );
+
+		$dir = $this->cachepath();				
+		WP_Filesystem();
+		global $wp_filesystem;
+		$wp_filesystem->rmdir($dir, true);
+
+		echo json_encode(array('status' => true));die;
+		
+	}
+
+	public function cwvpsb_showdetails_data(){
+		
+
+		if ( ! isset( $_GET['cwvpsb_security_nonce'] ) ){
+			return; 
+		}
+		if ( !wp_verify_nonce( $_GET['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+			return;  
+		}
+
+		$page   = isset($_GET['start']) && $_GET['start']> 0 ? $_GET['start']/$_GET['length'] : 1;
+		$length = isset($_GET['length']) ? intval($_GET['length']) : 10;
+		$page   = ($page + 1);
+		$offset = isset($_GET['start']) ? intval($_GET['start']) : 0;
+		$draw = intval($_GET['draw']);						
+		
+		global $wpdb, $table_prefix;
+		$table_name = $table_prefix . 'cwvpb_critical_urls';
+																
+		if($_GET['search']['value']){
+			$search = sanitize_text_field($_GET['search']['value']);
+			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s ",
+			'%' . $wpdb->esc_like($search) . '%'
+			),			
+			);
+			
+			$result = $wpdb->get_results(
+				stripslashes($wpdb->prepare(
+					"SELECT * FROM $table_name WHERE `url` LIKE %s LIMIT %d, %d",
+					'%' . $wpdb->esc_like($search) . '%', $offset, $length
+				))
+			, ARRAY_A);
+		}else
+		{
+			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name"));
+			$result = $wpdb->get_results(
+				stripslashes($wpdb->prepare(
+					"SELECT * FROM $table_name LIMIT %d, %d", $offset, $length
+				))
+			, ARRAY_A);
+		}
+		
+		$formated_result = array();
+
+		if(!empty($result)){
+
+			foreach ($result as $value) {
+				
+				if($value['status'] == 'cached'){
+					$user_dirname = $this->cachepath();
+					$size = filesize($user_dirname.'/'.md5($value['url']).'.css');					
+				}
+					
+				$formated_result[] = array(
+									$value['url'],
+									$value['status'],
+									$size,
+									$value['created_at']
+							);
+			}				
+
+		}	
+				
+		$retuernData = array(	
+		    "draw"            => $draw,
+			"recordsTotal"    => $total_count,
+			"recordsFiltered" => $total_count,
+			"data"            => $formated_result
 		);
 
 		echo json_encode($retuernData);die;
 
-	}
-
-
-
+	}	
 
 }
-$cwvpbCriticalCss = new criticalCss();
+$cwvpbCriticalCss = new cwvpbcriticalCss();

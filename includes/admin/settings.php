@@ -7,10 +7,11 @@ class cwvpsb_admin_settings{
 public function __construct() {
     add_action( 'admin_menu', array($this, 'cwvpsb_add_menu_links'));
     add_action('admin_init', array($this, 'cwvpsb_settings_init'));
-    add_action( 'init', array( &$this, 'load_settings' ) );
+    add_action( 'init', array( $this, 'load_settings' ) );
     add_action('wp_ajax_list_files_to_convert', array($this, 'get_list_convert_files'));
     add_action('wp_ajax_webvital_webp_convert_file', array($this, 'webp_convert_file'));
     add_action( 'admin_bar_menu',  array($this, 'all_admin_bar_settings'), PHP_INT_MAX - 10 );
+
 }
 
 function load_settings() {
@@ -699,10 +700,67 @@ public function advance_url_callback(){
     /**
      * Url list will be shows
      */ 
-    public function urlslist_callback(){        
-        require_once CWVPSB_PLUGIN_DIR.'/includes/admin/admin-urls-settings.php';
+    public function urlslist_callback(){
+
+        global $wpdb, $table_prefix;
+		$table_name = $table_prefix . 'cwvpb_critical_urls';
+        $total_count     = cwvpbs_get_total_urls();
+        $cached_count    = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'cached'));                
+        $inprogress      = 0;
+        $percentage      = 0;
+        
+        
+        if($cached_count > 0 && $total_count){
+            $inprogress      = $total_count - $cached_count;
+            $percentage      = ($cached_count/$total_count) * 100;        
+            $percentage      = round($percentage);
+        }
+        
+        ?>
+        <div>
+            <div style="padding: 10px; float:right;"><a class="button button-secondary cwvpsb-reset-url-cache"><?php _e('Reset Cache', 'cwvpsb'); ?></a></div>            
+            <!-- process section -->
+            <div class="cwvpsb-css-optimization-wrapper">
+            
+            <strong style="font-size:18px;"><?php echo esc_html__('CSS Optimisation Status', 'cwvpsb') ?></strong>
+                <p><?php echo esc_html__('Optimisation is running in background. Once it is completed. Result table will appear', 'cwvpsb') ?></p>
+                <br>
+                <div><strong><?php echo esc_html__('Total Urls :', 'cwvpsb') ?></strong> <?php echo esc_attr($total_count); ?></div>
+                <div><strong><?php echo esc_html__('Cached  :', 'cwvpsb') ?></strong> <?php echo esc_attr($cached_count); ?></div>
+                <div><strong><?php echo esc_html__('In-progress:', 'cwvpsb') ?></strong> <?php echo esc_attr($inprogress); ?></div>                                        
+                <br>
+
+            <div class="cwvpsb_progress_bar">
+                <div class="cwvpsb_progress_bar_body" style="width: <?php echo esc_attr($percentage); ?>%;"><?php echo $percentage; ?>%</div>
+            </div>                                    
+            </div> 
+            <!-- DataTable section -->
+            <div class="cwvpsb-table-url-wrapper">            
+            <table class="table cwvpsb-table-class" id="table_page_cc_style" style="width:100%">
+            <thead>
+                    <tr>
+                        <th>URL</th>
+                        <th>Status</th>
+                        <th>Size</th>
+                        <th>Created date</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>URL</th>
+                        <th>Status</th>
+                        <th>Size</th>
+                        <th>Created date</th>
+                    </tr>
+                </tfoot>
+                </table></div>
+        </div>
+                                
+        <?php
+
     }
 }//Class closed
+
 if (class_exists('cwvpsb_admin_settings')) {
     new cwvpsb_admin_settings;
 };

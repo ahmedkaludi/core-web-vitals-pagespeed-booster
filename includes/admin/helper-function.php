@@ -118,4 +118,65 @@ if( is_admin() && cwv_is_plugins_page()) {
     add_filter('admin_footer', 'cwv_add_deactivation_feedback_modal');
 }
 
+function cwvpbs_get_total_urls(){
 
+    global $wpdb;		
+    $total_count = 0;
+    $settings = cwvpsb_defaults();
+    $urls_to  = array();
+    if(isset($settings['critical_css_on_home']) && $settings['critical_css_on_home'] == 1){
+        $urls_to[] = get_home_url(); 
+        $urls_to[] = get_home_url()."/"; 
+        $urls_to[] = home_url('/'); 
+        $urls_to[] = site_url('/');
+    }
+
+    $total_count  += count(array_unique($urls_to));
+
+    $post_types = array();
+        if(!empty($settings['critical_css_on_cp_type'])){
+            foreach ($settings['critical_css_on_cp_type'] as $key => $value) {
+                if($value){
+                    $post_types[] = $key;					
+                }
+            }
+        }
+			
+    if(!empty($post_types)){
+        $postimp      = "'".implode("', '", $post_types)."'";
+        $total_count  += $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $wpdb->posts Where post_status='publish' AND post_type IN ($postimp);"));
+    }    
+	
+    $taxonomy_types = array();
+    if(!empty($settings['critical_css_on_tax_type'])){
+        foreach ($settings['critical_css_on_tax_type'] as $key => $value) {
+            if($value){
+                $taxonomy_types[] = $key;					
+            }
+        }
+    }
+    
+    if(!empty($taxonomy_types)){
+        $postimp = "'".implode("', '", $taxonomy_types)."'";
+
+        $total_count  += $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $wpdb->term_taxonomy Where taxonomy IN ($postimp);"));
+    }
+    
+    return $total_count;
+
+}
+
+function cwvpb_get_current_url(){
+ 
+    $link = "http"; 
+      
+    if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on'){
+        $link = "https"; 
+    } 
+  
+    $link .= "://"; 
+    $link .= $_SERVER['HTTP_HOST']; 
+    $link .= $_SERVER['REQUEST_URI']; 
+      
+    return $link;
+}

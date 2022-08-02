@@ -183,7 +183,11 @@ function cwvpsb_admin_enqueue($check) {
     wp_register_style( 'cwvpsb-admin-css', CWVPSB_PLUGIN_DIR_URI . '/includes/admin/style.css', false, CWVPSB_VERSION );
     wp_enqueue_style( 'cwvpsb-admin-css' );
 
+    $data = array(
+        'cwvpsb_security_nonce'         => wp_create_nonce('cwvpsb_ajax_check_nonce')  
+    );
     wp_register_script( 'cwvpsb-admin-js', CWVPSB_PLUGIN_DIR_URI . 'includes/admin/script.js', array('cwvpsb-datatable-script'), CWVPSB_VERSION , true );
+    wp_localize_script( 'cwvpsb-admin-js', 'cwvpsb_localize_data', $data );
     wp_enqueue_script( 'cwvpsb-admin-js' );
 }
 
