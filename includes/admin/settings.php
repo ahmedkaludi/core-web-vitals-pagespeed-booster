@@ -741,7 +741,7 @@ public function advance_url_callback(){
                         
         ?>
         <div class="cwvpbs_urls_section">
-            <!-- <div style="padding: 10px; float:right;"><a class="button button-secondary cwvpsb-reset-url-cache"><?php _e('Reset Cache', 'cwvpsb'); ?></a></div>             -->
+            <div style="padding: 10px; float:right; display:none;"><a class="button button-secondary cwvpsb-reset-url-cache"><?php _e('Reset Cache', 'cwvpsb'); ?></a></div>            
             <!-- process section -->
             <div class="cwvpsb-css-optimization-wrapper">
             
