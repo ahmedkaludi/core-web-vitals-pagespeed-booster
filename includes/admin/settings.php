@@ -736,7 +736,7 @@ public function advance_url_callback(){
                 
         if($cached_count > 0 && $total_count){            
             $percentage      = ($cached_count/$total_count) * 100;        
-            $percentage      = round($percentage);
+            $percentage      = floor($percentage);
         }        
                         
         ?>
