@@ -49,16 +49,16 @@ class cwvpbcriticalCss{
 		    //add_action( 'wp_enqueue_scripts', array($this, 'scripts_styles') );
 			
 		//}
-
+		
 		add_action("wp_ajax_cwvpsb_showdetails_data", array($this, 'cwvpsb_showdetails_data'));
 		add_action("wp_ajax_cwvpsb_reset_urls_cache", array($this, 'cwvpsb_reset_urls_cache'));
-		add_action("wp_ajax_cwvpsb_cc_all_cron", array($this, 'every_one_hour_event_func'));
+		add_action("wp_ajax_cwvpsb_cc_all_cron", array($this, 'every_one_minutes_event_func'));
 		
 		add_filter( 'cron_schedules', array($this, 'isa_add_every_one_hour') );
 		 if ( ! wp_next_scheduled( 'isa_add_every_one_hour' ) ) {
 		     wp_schedule_event( time(), 'every_one_hour',  'isa_add_every_one_hour' );
 		 }
-		add_action( 'isa_add_every_one_hour', array($this, 'every_one_hour_event_func' ) );
+		add_action( 'isa_add_every_one_hour', array($this, 'every_one_minutes_event_func' ) );
 	}
 
 	/*function scripts_styles(){
@@ -76,13 +76,21 @@ class cwvpbcriticalCss{
 	}*/
 	
 	function print_style_cc(){
-		$user_dirname = $this->cachepath();
-		global $wp;
+		$user_dirname = $this->cachepath();		
+		global $wp, $wpdb, $table_prefix;
+			   $table_name = $table_prefix . 'cwvpb_critical_urls';	
 		$url = home_url( $wp->request );
 		$url = trailingslashit($url);			
-		if(file_exists($user_dirname.md5($url).'.css')){			
+		if(file_exists($user_dirname.md5($url).'.css')){
 			$css =  file_get_contents($user_dirname.'/'.md5($url).'.css');
 		 	echo "<style type='text/css' id='cc-styles'>$css</style>";
+		}else{
+			$wpdb->query($wpdb->prepare(
+				"UPDATE $table_name SET `status` = %s,  `cached_name` = %s WHERE `url` = %s",
+				'queue',
+				'',
+				$url							
+			));			
 		}
 	}
 	
@@ -443,10 +451,10 @@ class cwvpbcriticalCss{
 
 	public function insert_update_terms_url($term){
 
-		global $wpdb, $table_prefix;
-			   $table_name = $table_prefix . 'cwvpb_critical_urls';			   
-
-			$permalink = get_term_link($term);					
+		global  $wpdb, $table_prefix;
+			    $table_name = $table_prefix . 'cwvpb_critical_urls';			   			   
+				$permalink = get_term_link($term);
+			
 			if(!empty($permalink)){
 				
 			$permalink = $this->append_slash_permalink($permalink);
@@ -615,9 +623,12 @@ class cwvpbcriticalCss{
 				, ARRAY_A);
 									        			
 			if(!empty($terms)){
-	            foreach($terms as $term){					
-	                $term = get_term( $term['term_id'], $term['taxonomy']);					
-	                $this->insert_update_terms_url($term);					
+	            foreach($terms as $term){										
+	                $term = get_term( $term['term_id']);					
+					if(!is_wp_error($term)){
+						$this->insert_update_terms_url($term);					
+					}					
+	                
 	            }
 	        }
 
@@ -630,34 +641,41 @@ class cwvpbcriticalCss{
 		
 		$result = $wpdb->get_results(
 			stripslashes($wpdb->prepare(
-				"SELECT * FROM $table_name WHERE `status` = %s LIMIT %d",
-				'queue', 1
+				"SELECT * FROM $table_name WHERE `status` IN  (%s, %s) LIMIT %d",
+				'queue', 'failed', 1
 			))
 		, ARRAY_A);
-
+				
 		if(!empty($result)){
 			
 			$user_dirname = $this->cachepath();
-			if(!file_exists($user_dirname)) 
-			wp_mkdir_p($user_dirname);
-
-			foreach ($result as $value) {
-
-				$status      = 'inprocess';
-				$cached_name = '';
-				$this->change_caching_status($value['url'], $status);
-				$result = $this->cwvpsb_save_critical_css_in_dir($value['url']);
-								
-				if($result['status']){
-					$status      = 'cached';							
-					$cached_name = md5($value['url']);
-				}else{
-					$status      = 'failed';
-				}
-
-				$this->change_caching_status($value['url'],$status, $cached_name);
-
+			if(!is_dir($user_dirname)) {
+				wp_mkdir_p($user_dirname);
 			}
+			
+			if(is_dir($user_dirname)){				
+				
+					foreach ($result as $value) {
+
+						if($value['url']){
+							$status      = 'inprocess';
+							$cached_name = '';
+							$this->change_caching_status($value['url'], $status);
+							$result = $this->cwvpsb_save_critical_css_in_dir($value['url']);
+											
+							if($result['status']){
+								$status      = 'cached';							
+								$cached_name = md5($value['url']);
+							}else{
+								$status      = 'failed';
+							}
+			
+							$this->change_caching_status($value['url'],$status, $cached_name);
+						}						
+		
+					}							
+			} 
+						
 		}
 
 	}
@@ -676,7 +694,7 @@ class cwvpbcriticalCss{
 
 	}
 
-	public function every_one_hour_event_func() {
+	public function every_one_minutes_event_func() {
 
 		$this->save_posts_url();
 		$this->save_terms_urls();
@@ -748,34 +766,43 @@ class cwvpbcriticalCss{
 
 	    $URL = 'http://45.32.11.210/corewebvitalcrittr?url='.$targetUrl;
 
-	    $response = wp_remote_get($URL, array('timeout' => 50, 'headers' => array('page_setting' => 'cwvpsb')));
-	    $resStatuscode = wp_remote_retrieve_response_code( $response );
+	    $response = wp_remote_get($URL, array('timeout' => 50, 'headers' => array('page_setting' => 'cwvpsb')));	   
 
-	    if($resStatuscode==200){
+		if( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ){
+			$message =  ( is_wp_error( $response ) && $response->get_error_message() ) ? $response->get_error_message() : __( 'An error occurred, while critical css from server' );
+			return array('status' => false , 'message' => $message);	
+		}else{
 
-	    	$response = wp_remote_retrieve_body($response);
+			$response    = wp_remote_retrieve_body($response);
 	    	$responseArr = json_decode($response, true);
 	    	if($responseArr["status"] != 200){
-	    		echo json_encode( array("status"=>$responseArr["status"]) );
+				return array('status' => false , 'message' => 'Something went wrong');		    		
 	    	}
 	    				
-			$content = $responseArr['critical_css'];
-			$content = str_replace("url('wp-content/", "url('".get_site_url()."/wp-content/", $content); 
-			$content = str_replace('url("wp-content/', 'url("'.get_site_url().'/wp-content/', $content); 
-						
-			$new_file = $user_dirname."/".md5($targetUrl).".css";
-			$ifp = @fopen( $new_file, 'w+' );
-			if ( ! $ifp ) {
-				echo json_encode(  array( 'error' => sprintf( __( 'Could not write file %s' ), $new_file ) ));die;
+			if(!empty($responseArr['critical_css'])){
+
+				$content = $responseArr['critical_css'];
+				$content = str_replace("url('wp-content/", "url('".get_site_url()."/wp-content/", $content); 
+				$content = str_replace('url("wp-content/', 'url("'.get_site_url().'/wp-content/', $content); 
+							
+				$new_file = $user_dirname."/".md5($targetUrl).".css";
+				$ifp = @fopen( $new_file, 'w+' );
+				if ( ! $ifp ) {
+					return array('status' => false, 'message' => sprintf( __( 'Could not write file %s' ), $new_file ));					
+				}
+				$result = @fwrite( $ifp, $content );
+				fclose( $ifp );
+				if($result){
+					return array('status' => true, 'message' => 'Css creted sussfully');
+				}else{
+					return array('status' => false, 'message' => 'Could not write into css file');
+				}
+				
+			}else{
+				return array('status' => false , 'message' => 'critical css does not generated from server');	
 			}
-			$result = @fwrite( $ifp, $content );
-			fclose( $ifp );
 			
-			return array('status' => $result, 'message' => 'Css creted sussfully');
-		    
-	    }else{
-			return array('status' => false , 'message' => 'Error on critical css server');	    	
-	    }
+		}	    
 
 	}
 

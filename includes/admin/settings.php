@@ -725,7 +725,8 @@ public function advance_url_callback(){
 
         global $wpdb, $table_prefix;
 		$table_name = $table_prefix . 'cwvpb_critical_urls';
-        $total_count        = cwvpbs_get_total_urls();
+        //$total_count        = cwvpbs_get_total_urls();
+        $total_count        = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name"));
         $cached_count       = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'cached'));                
         $inprogress         = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'inprocess'));                
         $failed_count       = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'failed'));                
@@ -758,12 +759,18 @@ public function advance_url_callback(){
                  ?></div>
                 <div><strong><?php echo esc_html__('Critical CSS Optimized  :', 'cwvpsb') ?></strong> <?php echo esc_attr($cached_count). ' URLs';                 
                 ?></div>
-                <div><strong><?php echo esc_html__('Remaining Time :', 'cwvpsb') ?></strong> 
-                <?php 
-                if($this->generate_time($queue_count)){
-                    echo $this->generate_time($queue_count);
-                }
-                ?></div>                                        
+                <?php
+                    if($this->generate_time($queue_count)){
+                        ?>
+                        <div>
+                        <strong><?php echo esc_html__('Remaining Time :', 'cwvpsb') ?></strong>
+                        <?php
+                            echo $this->generate_time($queue_count);
+                        ?>
+                        </div>                        
+                        <?php
+                    }
+                ?>                                
                 <div><strong><?php echo esc_html__('Failed      :', 'cwvpsb') ?></strong> <?php echo esc_attr($failed_count);?></div>                                                        
                 </div>
                                                                 
