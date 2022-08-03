@@ -183,7 +183,9 @@ function cwvpsb_remove_js_query_param($html){
 
     
     $html = preg_replace('/type="cwvpsbdelayedscript"\s+src="(.*?)\.js\?(.*?)"/m',  'type="cwvpsbdelayedscript" src="$1.js"', $html);
-    
+    if(preg_match('/<link(.*?)rel="cwvpsbdelayedstyle"(.*?)href="(.*?)\.css\?(.*?)"(.*?)>/m',$html)){
+        $html = preg_replace('/<link(.*?)rel="cwvpsbdelayedstyle"(.*?)href="(.*?)\.css\?(.*?)"(.*?)>/m',  '<link$1rel="cwvpsbdelayedstyle"$2href="$3.css"$5>', $html);
+        }
     return $html;
 }
 

@@ -530,7 +530,8 @@ final class CWVPSB_Cache {
 		if(isset($settings['critical_css_support']) && $settings['critical_css_support']==1){
            global $wp, $cwvpbCriticalCss;
            $url = home_url( $wp->request );
-    		if(!file_exists(CWVPSB_CRITICAL_CSS_CACHE_DIR.'/'.md5($url).'.css')){
+    		$url = trailingslashit($url);	
+    		if(!file_exists(CWVPSB_CRITICAL_CSS_CACHE_DIR.md5($url).'.css')){
     		    return $data;
     		}
         }
