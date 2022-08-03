@@ -698,7 +698,7 @@ public function advance_url_callback(){
     }
 
     public function generate_time($total_count){
-        $total_count = 830;    
+        
         $estimate_time = '';      
         if($total_count > 0){
             $hours = '';
