@@ -431,7 +431,7 @@ class cwvpbcriticalCss{
 					'type_name'       => get_post_type($post_id), 
 					'url'  			  => $permalink, 					
 					'status'   		  => 'queue', 					
-					'created_at'      => date('Y-m-d'), 					
+					'created_at'      => date('Y-m-d h:i:sa'), 					
 				), 
 				array('%d','%s', '%s', '%s', '%s', '%s') 
 			);
