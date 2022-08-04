@@ -431,9 +431,9 @@ public function generate_critical_css_callback(){
     $post_types = get_post_types( array( 'public' => true ), 'names' );    
     $unsetdpost = array(
         'attachment',
-        'saswp',
-        'saswp_reviews',
-        'saswp-collections',
+        'cwvpb',
+        'cwvpb_reviews',
+        'cwvpb-collections',
     );
     foreach ($unsetdpost as $value) {
         unset($post_types[$value]);
@@ -729,7 +729,7 @@ public function advance_url_callback(){
         $total_count        = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name"));
         $cached_count       = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'cached'));                
         $inprogress         = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'inprocess'));                
-        $failed_count       = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'failed'));                
+        $failed_count       = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'failed'));                        
         $queue_count        = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'queue'));                
         $inprogress         = 0;
         $percentage         = 0;
@@ -740,8 +740,7 @@ public function advance_url_callback(){
         }        
                         
         ?>
-        <div class="cwvpbs_urls_section">
-            <div style="padding: 10px; float:right; display:none;"><a class="button button-secondary cwvpsb-reset-url-cache"><?php _e('Reset Cache', 'cwvpsb'); ?></a></div>            
+        <div class="cwvpbs_urls_section">            
             <!-- process section -->
             <div class="cwvpsb-css-optimization-wrapper">
             
@@ -770,14 +769,31 @@ public function advance_url_callback(){
                         </div>                        
                         <?php
                     }
+
+                    if($failed_count > 0){
+                        ?>   
+                            <div>
+                                <strong><?php echo esc_html__('Failed      :', 'cwvpsb') ?></strong> <?php echo esc_attr($failed_count);?>
+                                <a href="#" class="cwvpbs-resend-urls button button-secondary">Resend</a>
+                            </div>                                                        
+                        <?php     
+                    }
                 ?>                                
-                <div><strong><?php echo esc_html__('Failed      :', 'cwvpsb') ?></strong> <?php echo esc_attr($failed_count);?></div>                                                        
+                
                 </div>
                                                                 
             </div> 
             <!-- DataTable section -->
-            <div class="cwvpsb-table-url-wrapper">            
-            <table class="table cwvpsb-table-class" id="table_page_cc_style" style="width:100%">
+            <div class="cwvpsb-table-url-wrapper">     
+
+             <div id="cwvpb-global-tabs" style="margin-top: 10px;">
+                <a data-id="cwvpb-general-container">All</a> |
+                <a data-id="cwvpb-knowledge-container">Completed</a> |
+                <a data-id="cwvpb-default-container" >Failed</a>
+             </div>
+                                                        
+                <div class="cwvpb-global-container" id="cwvpb-general-container">
+                <table class="table cwvpsb-table-class" id="table_page_cc_style_all" style="width:100%">
             <thead>
                     <tr>
                         <th>URL</th>
@@ -794,7 +810,61 @@ public function advance_url_callback(){
                         <th>Created date</th>
                     </tr>
                 </tfoot>
-                </table></div>
+                </table>
+                </div>
+                <div class="cwvpb-global-container" id="cwvpb-knowledge-container">
+                <table class="table cwvpsb-table-class" id="table_page_cc_style_completed" style="width:100%">
+            <thead>
+                    <tr>
+                        <th>URL</th>
+                        <th>Status</th>
+                        <th>Size</th>
+                        <th>Created date</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>URL</th>
+                        <th>Status</th>
+                        <th>Size</th>
+                        <th>Created date</th>
+                    </tr>
+                </tfoot>
+                </table>
+                </div>
+
+                <div class="cwvpb-global-container" id="cwvpb-default-container">
+                <table class="table cwvpsb-table-class" id="table_page_cc_style_failed" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>URL</th>
+                        <th>Status</th>
+                        <th>Failed Date</th>
+                        <th>Error</th>
+                        
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>URL</th>
+                        <th>Status</th>
+                        <th>Failed Date</th>
+                        <th>Error</th>                        
+                    </tr>
+                </tfoot>
+                </table>
+                </div>
+            
+            </div>
+
+             <div class="cwvpbs-advance-urls-container">
+                <span class="cwvpbs-advance-toggle">Advance Settings <span class="dashicons dashicons-admin-generic"></span></span>
+                <div class="cwvpbs-advance-btn-div cwvpb-display-none">
+                <a class="button button-primary cwvpsb-recheck-url-cache"><?php _e('Recheck', 'cwvpsb'); ?></a>                                
+                    <a class="button button-primary cwvpsb-reset-url-cache"><?php _e('Reset Cache', 'cwvpsb'); ?></a>                                
+                </div>
+             </div>       
+            
         </div>
                                 
         <?php

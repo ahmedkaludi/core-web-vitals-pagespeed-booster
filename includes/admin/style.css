@@ -26,7 +26,36 @@
   background-color: rgb(192, 192, 192);
   width: 99%;
   border-radius: 4px;  
+}
+.cwvpb-display-none{
+  display: none;
+}
+.cwvpbs-advance-toggle{
+  font-weight: 700;
+  padding-top: 5px;
+  cursor: pointer;
+}
+.cwvpb-global-selected{
+  border-bottom: 1px solid #f1f1f1;  
+  color: #000000;
+  font-weight: 500;
+  margin-bottom: -1px;
+}
+#cwvpb-global-tabs{
+  margin-top: 10px;
+  padding: 10px;
+  text-align: center;
+  font-size: 15px;
+}
+.cwvpbs-advance-btn-div{
+  padding-top:20px;
+}
+.cwvpsb-table-class abbr{
+    text-decoration:none;  
 }      
+.cwvpbs-advance-urls-container{
+  margin-top: 10px;
+}
 .cwvpsb_progress_bar_body {    
   background-color: rgb(116, 194, 92);
   color: white;

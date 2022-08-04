@@ -127,8 +127,11 @@ $(".cwvpsb-tabs a").click(function(e){
 			}
 		})
 	}
+
+
+
 		
-	jQuery("#table_page_cc_style").DataTable({
+	jQuery("#table_page_cc_style_all").DataTable({
 		serverSide: true,
 		processing: true,
         fixedColumns: true,		
@@ -137,12 +140,147 @@ $(".cwvpsb-tabs a").click(function(e){
 			url: ajaxurl+"?action=cwvpsb_showdetails_data&cwvpsb_security_nonce="+cwvpsb_localize_data.cwvpsb_security_nonce
 		}
 	});
+	jQuery("#table_page_cc_style_completed").DataTable({
+		serverSide: true,
+		processing: true,
+        fixedColumns: true,		
+		ajax: {
+			type: "GET",
+			url: ajaxurl+"?action=cwvpsb_showdetails_data_completed&cwvpsb_security_nonce="+cwvpsb_localize_data.cwvpsb_security_nonce
+		}
+	});
+	jQuery("#table_page_cc_style_failed").DataTable({
+		serverSide: true,
+		processing: true,
+        fixedColumns: true,		
+		ajax: {
+			type: "GET",
+			url: ajaxurl+"?action=cwvpsb_showdetails_data_failed&cwvpsb_security_nonce="+cwvpsb_localize_data.cwvpsb_security_nonce
+		}
+	});
+// tabs section for datatable starts here
+	$('.cwvpb-global-container').hide();
+	$('.cwvpb-global-container:first').show();
+	$('#cwvpb-global-tabs a:first').addClass('cwvpb-global-selected');
+	
+	$('#cwvpb-global-tabs a').click(function(){
+		var t = $(this).attr('data-id');
+		
+	  if(!$(this).hasClass('cwvpb-global-selected')){ 
+		$('#cwvpb-global-tabs a').removeClass('cwvpb-global-selected');           
+		$(this).addClass('cwvpb-global-selected');
+
+		$('.cwvpb-global-container').hide();
+		$('#'+t).show();
+	 }
+	});
+
+// tabs section for datatable ends here
+
+$(".cwvpbs-resend-urls").on("click", function(e){
+	e.preventDefault();
+	var current = $(this);
+	current.addClass('updating-message');		
+	$.ajax({
+		url: ajaxurl,
+		type:'post',
+		dataType: 'json',
+		data: {'cwvpsb_security_nonce': cwvpsb_localize_data.cwvpsb_security_nonce, 
+				action: 'cwvpsb_resend_urls_for_cache'},
+		success: function(response){
+			current.removeClass('updating-message');		
+			if(response.status){
+				location.reload(true);
+			}else{
+				alert('something went wrong');
+			}
+		}
+	})
+
+})
+	$(".cwvpbs-advance-toggle").on("click", function(e){
+		e.preventDefault();
+		$(".cwvpbs-advance-btn-div").toggleClass('cwvpb-display-none');		
+	});
+
+	$(document).on("click", ".cwvpb-resend-single-url", function(e) {
+		e.preventDefault();
+		
+		var current = $(this);
+		var url_id = $(this).attr('data-id');
+		var d_section = $(this).attr('data-section');
+		current.addClass('updating-message');		
+		
+		$.ajax({
+			url: ajaxurl,
+			type:'post',
+			dataType: 'json',
+			data: {'cwvpsb_security_nonce': cwvpsb_localize_data.cwvpsb_security_nonce,
+			action: 'cwvpsb_resend_single_url_for_cache',
+			url_id: url_id
+			},
+			success: function(response){
+				current.removeClass('updating-message');	
+				if(response.status){
+					
+					if(d_section == 'all'){
+						current.parent().parent().parent().find(".cwvpb-status-t").text('queue');
+					}
+					if(d_section == 'failed'){
+						current.parent().parent().parent().remove();
+					}
+
+				}else{
+					alert('something went wrong');
+				}
+			}
+		});
+
+	}
+	);
+
+	function cwvpb_recheck_urls(current, page){
+		current.addClass('updating-message');		
+		$.ajax({
+			url: ajaxurl,
+			type:'post',
+			dataType: 'json',
+			data: {'cwvpsb_security_nonce': cwvpsb_localize_data.cwvpsb_security_nonce, 
+					action: 'cwvpsb_recheck_urls_cache', page:page},
+			success: function(response){
+				current.removeClass('updating-message');	
+				if(response.status){
+					if(response.count > 0){
+						page++;
+						cwvpb_recheck_urls(current);
+					}else{
+						alert('Recheck is done');	
+						location.reload(true);
+					}										
+				}else{
+					alert('something went wrong');
+				}
+			}
+		});
+	}
+
+	$(".cwvpsb-recheck-url-cache").on("click", function(e){
+		e.preventDefault();
+		if(!confirm('It will check all cached urls. if any one has issue will optimize it again. Proceed?')){
+			return false;
+		}	
+		var current = $(this);		
+		var page    = 1;
+		cwvpb_recheck_urls(current, page);		
+	});
 
 	$(".cwvpsb-reset-url-cache").on("click", function(e){
 		e.preventDefault();
-		if(!confirm('Are you sure? Because recaching of urls may take long time again.')){
+		if(!confirm('Are you sure? It will start optimize process from beginning again.')){
 			return false;
 		}	
+		var current = $(this);
+		current.addClass('updating-message');		
 		
 		$.ajax({
 			url: ajaxurl,
@@ -150,6 +288,7 @@ $(".cwvpsb-tabs a").click(function(e){
 			dataType: 'json',
 			data: {'cwvpsb_security_nonce': cwvpsb_localize_data.cwvpsb_security_nonce, action: 'cwvpsb_reset_urls_cache'},
 			success: function(response){
+				current.removeClass('updating-message');	
 				if(response.status){
 					location.reload(true);
 				}else{
@@ -158,5 +297,5 @@ $(".cwvpsb-tabs a").click(function(e){
 			}
 		})
 
-	})
+	});
 });

@@ -3,7 +3,7 @@
 /**
  * Helper Functions
  *
- * @package     saswp
+ * @package     cwvpb
  * @subpackage  Helper/Templates
  * @copyright   Copyright (c) 2016, René Hermenau
  * @license     http://opensource.org/licenses/gpl-2.0.php GNU Public License

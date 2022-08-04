@@ -107,6 +107,8 @@ function cwvpb_on_install(){
 			`status` varchar(20) NOT NULL default 'queue',											
 			`cached_name` varchar(100),
 			`created_at` datetime NOT NULL,
+			`updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+			`failed_error` text  NOT NULL Default '',
 			 KEY `url` ( `url` ),				
 			 PRIMARY KEY (`id`)
 		) ".$charset_collate.$engine.";");                

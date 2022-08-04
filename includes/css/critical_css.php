@@ -51,7 +51,13 @@ class cwvpbcriticalCss{
 		//}
 		
 		add_action("wp_ajax_cwvpsb_showdetails_data", array($this, 'cwvpsb_showdetails_data'));
+		add_action("wp_ajax_cwvpsb_showdetails_data_completed", array($this, 'cwvpsb_showdetails_data_completed'));
+		add_action("wp_ajax_cwvpsb_showdetails_data_failed", array($this, 'cwvpsb_showdetails_data_failed'));
+
+		add_action("wp_ajax_cwvpsb_resend_urls_for_cache", array($this, 'cwvpsb_resend_urls_for_cache'));
+		add_action("wp_ajax_cwvpsb_resend_single_url_for_cache", array($this, 'cwvpsb_resend_single_url_for_cache'));
 		add_action("wp_ajax_cwvpsb_reset_urls_cache", array($this, 'cwvpsb_reset_urls_cache'));
+		add_action("wp_ajax_cwvpsb_recheck_urls_cache", array($this, 'cwvpsb_recheck_urls_cache'));
 		add_action("wp_ajax_cwvpsb_cc_all_cron", array($this, 'every_one_minutes_event_func'));
 		
 		add_filter( 'cron_schedules', array($this, 'isa_add_every_one_hour') );
@@ -641,8 +647,8 @@ class cwvpbcriticalCss{
 		
 		$result = $wpdb->get_results(
 			stripslashes($wpdb->prepare(
-				"SELECT * FROM $table_name WHERE `status` IN  (%s, %s) LIMIT %d",
-				'queue', 'failed', 1
+				"SELECT * FROM $table_name WHERE `status` IN  (%s) LIMIT %d",
+				'queue', 1
 			))
 		, ARRAY_A);
 				
@@ -658,8 +664,9 @@ class cwvpbcriticalCss{
 					foreach ($result as $value) {
 
 						if($value['url']){
-							$status      = 'inprocess';
-							$cached_name = '';
+							$status       = 'inprocess';
+							$cached_name  = '';
+							$failed_error = '';
 							$this->change_caching_status($value['url'], $status);
 							$result = $this->cwvpsb_save_critical_css_in_dir($value['url']);
 											
@@ -667,10 +674,11 @@ class cwvpbcriticalCss{
 								$status      = 'cached';							
 								$cached_name = md5($value['url']);
 							}else{
-								$status      = 'failed';
+								$status       = 'failed';
+								$failed_error = $result['message'];
 							}
 			
-							$this->change_caching_status($value['url'],$status, $cached_name);
+							$this->change_caching_status($value['url'],$status, $cached_name, $failed_error);
 						}						
 		
 					}							
@@ -680,16 +688,18 @@ class cwvpbcriticalCss{
 
 	}
 
-	public function change_caching_status($url, $status, $cached_name=null){
+	public function change_caching_status($url, $status, $cached_name=null, $failed_error = null){
 
 		global $wpdb, $table_prefix;
 		$table_name = $table_prefix . 'cwvpb_critical_urls';
 
 		$result = $wpdb->query($wpdb->prepare(
-			"UPDATE $table_name SET `status` = %s,  `cached_name` = %s WHERE `url` = %s",
+			"UPDATE $table_name SET `status` = %s,  `cached_name` = %s,  `updated_at` = %s,  `failed_error` = %s WHERE `url` = %s",
 			$status,
 			$cached_name,
-			$url							
+			date('Y-m-d h:i:sa'),
+			$failed_error,
+			$url								
 		));
 
 	}
@@ -805,7 +815,111 @@ class cwvpbcriticalCss{
 		}	    
 
 	}
+	public function cwvpsb_resend_single_url_for_cache(){
 
+		if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
+			return; 
+		}
+		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+			return;  
+		}
+
+		global $wpdb, $table_prefix;
+		$table_name = $table_prefix . 'cwvpb_critical_urls';
+
+		$url_id = $_POST['url_id'] ? intval($_POST['url_id']) : null;
+		
+		if($url_id){
+			
+			$result = $wpdb->query($wpdb->prepare(
+				"UPDATE $table_name SET `status` = %s, `cached_name` = %s, `failed_error` = %s, WHERE `id` = %d",
+				'queue',
+				'',
+				'',			
+				$url_id
+			));		
+			print_r($wpdb->show_errors());die;	
+			if($result){
+				echo json_encode(array('status' => true));
+			}else{
+				echo json_encode(array('status' => false));
+			}
+
+		}else{
+			echo json_encode(array('status' => false));	
+		}			    
+		
+		die;
+	}	
+	public function cwvpsb_resend_urls_for_cache(){
+
+		if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
+			return; 
+		}
+		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+			return;  
+		}
+
+		global $wpdb, $table_prefix;
+		$table_name = $table_prefix . 'cwvpb_critical_urls';
+
+		$result = $wpdb->query($wpdb->prepare(
+			"UPDATE $table_name SET `status` = %s, `cached_name` = %s, `failed_error` = %s, WHERE `status` = %s",
+			'queue',
+			'',
+			'',			
+			'failed'	
+		));
+	    if($result){
+			echo json_encode(array('status' => true));
+		}else{
+			echo json_encode(array('status' => false));
+		}
+		
+		die;
+	}
+	public function cwvpsb_recheck_urls_cache(){
+
+		if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
+			return; 
+		}
+		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+			return;  
+		}
+		
+		$limit = 100;
+		$page  = $_POST['page'] ? intval($_POST['page']) : 1;
+		$offset = $page * $limit;
+		global $wpdb, $table_prefix;
+		$table_name = $table_prefix . 'cwvpb_critical_urls';
+
+		$result = $wpdb->get_results(
+			stripslashes($wpdb->prepare(
+				"SELECT * FROM $table_name LIMIT %d, %d",
+				$offset, $limit
+			))
+		, ARRAY_A);
+		
+		if($result && count($result) > 0){
+			$user_dirname = $this->cachepath();		
+			foreach($result as $value){
+				
+				if(!file_exists($user_dirname.md5($value['url']).'.css') ){
+					$wpdb->query($wpdb->prepare(
+						"UPDATE $table_name SET `status` = %s,  `cached_name` = %s WHERE `url` = %s",
+						'queue',
+						'',
+						$value['url']							
+					));	
+				}
+			}
+
+			echo json_encode(array('status' => true, 'count' => count($result)));die;
+		}else{
+			echo json_encode(array('status' => true, 'count' => 0));die;
+		}
+						
+	}	
 	public function cwvpsb_reset_urls_cache(){
 
 		if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
@@ -882,10 +996,154 @@ class cwvpbcriticalCss{
 				}
 					
 				$formated_result[] = array(
-									$value['url'],
-									$value['status'],
+									'<div><abbr title="'.$value['cached_name'].'">'.$value['url'].'</abbr>'.($value['status'] == 'failed' ? '<a href="#" data-section="all" data-id="'.$value['id'].'" class="cwvpb-resend-single-url dashicons dashicons-controls-repeat"></a>' : '').' </div>',								   
+									'<span class="cwvpb-status-t">'.$value['status'].'</span>',
 									$size,
-									$value['created_at']
+									$value['updated_at']
+							);
+			}				
+
+		}	
+				
+		$retuernData = array(	
+		    "draw"            => $draw,
+			"recordsTotal"    => $total_count,
+			"recordsFiltered" => $total_count,
+			"data"            => $formated_result
+		);
+
+		echo json_encode($retuernData);die;
+
+	}	
+	public function cwvpsb_showdetails_data_completed(){
+		
+		if ( ! isset( $_GET['cwvpsb_security_nonce'] ) ){
+			return; 
+		}
+		if ( !wp_verify_nonce( $_GET['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+			return;  
+		}
+
+		$page   = isset($_GET['start']) && $_GET['start']> 0 ? $_GET['start']/$_GET['length'] : 1;
+		$length = isset($_GET['length']) ? intval($_GET['length']) : 10;
+		$page   = ($page + 1);
+		$offset = isset($_GET['start']) ? intval($_GET['start']) : 0;
+		$draw = intval($_GET['draw']);						
+		
+		global $wpdb, $table_prefix;
+		$table_name = $table_prefix . 'cwvpb_critical_urls';
+																
+		if($_GET['search']['value']){
+			$search = sanitize_text_field($_GET['search']['value']);
+			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`='cached'",
+			'%' . $wpdb->esc_like($search) . '%'
+			),			
+			);
+			
+			$result = $wpdb->get_results(
+				stripslashes($wpdb->prepare(
+					"SELECT * FROM $table_name WHERE `url` LIKE %s AND `status`='cached' LIMIT %d, %d",
+					'%' . $wpdb->esc_like($search) . '%', $offset, $length
+				))
+			, ARRAY_A);
+		}else
+		{
+			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`='cached'"));
+			$result = $wpdb->get_results(
+				stripslashes($wpdb->prepare(
+					"SELECT * FROM $table_name Where `status`='cached' LIMIT %d, %d", $offset, $length
+				))
+			, ARRAY_A);
+		}
+		
+		$formated_result = array();
+
+		if(!empty($result)){
+
+			foreach ($result as $value) {
+				
+				if($value['status'] == 'cached'){
+					$user_dirname = $this->cachepath();
+					$size = filesize($user_dirname.'/'.md5($value['url']).'.css');					
+				}
+					
+				$formated_result[] = array(
+									'<abbr title="'.$value['cached_name'].'">'.$value['url'].'</abbr>',
+									'<span class="cwvpb-status-t">'.$value['status'].'</span>',
+									$size,
+									$value['updated_at']
+							);
+			}				
+
+		}	
+				
+		$retuernData = array(	
+		    "draw"            => $draw,
+			"recordsTotal"    => $total_count,
+			"recordsFiltered" => $total_count,
+			"data"            => $formated_result
+		);
+
+		echo json_encode($retuernData);die;
+
+	}		
+	public function cwvpsb_showdetails_data_failed(){
+		
+		if ( ! isset( $_GET['cwvpsb_security_nonce'] ) ){
+			return; 
+		}
+		if ( !wp_verify_nonce( $_GET['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+			return;  
+		}
+
+		$page   = isset($_GET['start']) && $_GET['start']> 0 ? $_GET['start']/$_GET['length'] : 1;
+		$length = isset($_GET['length']) ? intval($_GET['length']) : 10;
+		$page   = ($page + 1);
+		$offset = isset($_GET['start']) ? intval($_GET['start']) : 0;
+		$draw = intval($_GET['draw']);						
+		
+		global $wpdb, $table_prefix;
+		$table_name = $table_prefix . 'cwvpb_critical_urls';
+																
+		if($_GET['search']['value']){
+			$search = sanitize_text_field($_GET['search']['value']);
+			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`='failed'",
+			'%' . $wpdb->esc_like($search) . '%'
+			),			
+			);
+			
+			$result = $wpdb->get_results(
+				stripslashes($wpdb->prepare(
+					"SELECT * FROM $table_name WHERE `url` LIKE %s AND `status`='failed' LIMIT %d, %d",
+					'%' . $wpdb->esc_like($search) . '%', $offset, $length
+				))
+			, ARRAY_A);
+		}else
+		{
+			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`='failed'"));
+			$result = $wpdb->get_results(
+				stripslashes($wpdb->prepare(
+					"SELECT * FROM $table_name Where `status`='failed' LIMIT %d, %d", $offset, $length
+				))
+			, ARRAY_A);
+		}
+		
+		$formated_result = array();
+
+		if(!empty($result)){
+
+			foreach ($result as $value) {
+				
+				if($value['status'] == 'cached'){
+					$user_dirname = $this->cachepath();
+					$size = filesize($user_dirname.'/'.md5($value['url']).'.css');					
+				}
+					
+				$formated_result[] = array(
+									'<div>'.$value['url'].' <a href="#" data-section="failed" data-id="'.$value['id'].'" class="cwvpb-resend-single-url dashicons dashicons-controls-repeat"></a></div>',
+									'<span class="cwvpb-status-t">'.$value['status'].'</span>',
+									$value['updated_at'],
+									$value['failed_error']									
 							);
 			}				
 
