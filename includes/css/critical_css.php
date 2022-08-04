@@ -832,13 +832,13 @@ class cwvpbcriticalCss{
 		if($url_id){
 			
 			$result = $wpdb->query($wpdb->prepare(
-				"UPDATE $table_name SET `status` = %s, `cached_name` = %s, `failed_error` = %s, WHERE `id` = %d",
+				"UPDATE $table_name SET `status` = %s, `cached_name` = %s, `failed_error` = %s WHERE `id` = %d",
 				'queue',
 				'',
 				'',			
 				$url_id
-			));		
-			print_r($wpdb->show_errors());die;	
+			));
+						
 			if($result){
 				echo json_encode(array('status' => true));
 			}else{
@@ -864,7 +864,7 @@ class cwvpbcriticalCss{
 		$table_name = $table_prefix . 'cwvpb_critical_urls';
 
 		$result = $wpdb->query($wpdb->prepare(
-			"UPDATE $table_name SET `status` = %s, `cached_name` = %s, `failed_error` = %s, WHERE `status` = %s",
+			"UPDATE $table_name SET `status` = %s, `cached_name` = %s, `failed_error` = %s WHERE `status` = %s",
 			'queue',
 			'',
 			'',			
@@ -993,6 +993,9 @@ class cwvpbcriticalCss{
 				if($value['status'] == 'cached'){
 					$user_dirname = $this->cachepath();
 					$size = filesize($user_dirname.'/'.md5($value['url']).'.css');					
+					if(!$size){
+						$size = '<abbr title="File is not in cached directory. Please recheck in advance option">Deleted</abbr>';
+					}
 				}
 					
 				$formated_result[] = array(

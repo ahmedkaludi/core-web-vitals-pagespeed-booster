@@ -209,7 +209,8 @@ $(".cwvpbs-resend-urls").on("click", function(e){
 		var current = $(this);
 		var url_id = $(this).attr('data-id');
 		var d_section = $(this).attr('data-section');
-		current.addClass('updating-message');		
+		current.addClass('cwvpb-display-none');
+		current.after('<span class="spinner is-active"></span>');		
 		
 		$.ajax({
 			url: ajaxurl,
@@ -224,13 +225,16 @@ $(".cwvpbs-resend-urls").on("click", function(e){
 				if(response.status){
 					
 					if(d_section == 'all'){
-						current.parent().parent().parent().find(".cwvpb-status-t").text('queue');
+						current.parent().parent().parent().find(".cwvpb-status-t").text('queue');						
+						$(current).next('span').remove();
+						current.remove();
 					}
 					if(d_section == 'failed'){
 						current.parent().parent().parent().remove();
 					}
 
 				}else{
+					current.removeClass('cwvpb-display-none');		
 					alert('something went wrong');
 				}
 			}
