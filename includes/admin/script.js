@@ -278,6 +278,16 @@ $(".cwvpbs-resend-urls").on("click", function(e){
 		});
 	}
 
+	$(document).on("click", ".cwb-copy-urls-error", function(e){
+		e.preventDefault();
+		var element = $(this).parent().find(".cwb-copy-urls-text");
+		var $temp = $("<input>");
+		$("body").append($temp);
+		$temp.val($(element).val()).select();
+		document.execCommand("copy");
+		$temp.remove();
+		$('<div>Copied!</div>').insertBefore($(this)).delay(3000).fadeOut();
+	});
 	$(".cwvpsb-recheck-url-cache").on("click", function(e){
 		e.preventDefault();
 		if(!confirm('It will check all cached urls. if any one has issue will optimize it again. Proceed?')){

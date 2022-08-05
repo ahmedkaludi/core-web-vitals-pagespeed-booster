@@ -1147,7 +1147,7 @@ class cwvpbcriticalCss{
 									'<div>'.$value['url'].' <a href="#" data-section="failed" data-id="'.$value['id'].'" class="cwvpb-resend-single-url dashicons dashicons-controls-repeat"></a></div>',
 									'<span class="cwvpb-status-t">'.$value['status'].'</span>',
 									$value['updated_at'],
-									$value['failed_error']									
+									'<div><a data-id="id-'.$value['id'].'" href="#" class="cwb-copy-urls-error button button-secondary">Copy Error</a><input id="id-'.$value['id'].'" class="cwb-copy-urls-text" type="hidden" value="'.$value['failed_error'].'"></div>'									
 							);
 			}				
 
