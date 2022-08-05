@@ -253,18 +253,19 @@ $(".cwvpbs-resend-urls").on("click", function(e){
 	);
 
 	function cwvpb_recheck_urls(current, page){
+		var new_page = page;
 		current.addClass('updating-message');		
 		$.ajax({
 			url: ajaxurl,
 			type:'post',
 			dataType: 'json',
 			data: {'cwvpsb_security_nonce': cwvpsb_localize_data.cwvpsb_security_nonce, 
-					action: 'cwvpsb_recheck_urls_cache', page:page},
+					action: 'cwvpsb_recheck_urls_cache', page:new_page},
 			success: function(response){
 				current.removeClass('updating-message');	
 				if(response.status){
 					if(response.count > 0){
-						page++;
+						new_page++;
 						cwvpb_recheck_urls(current);
 					}else{
 						alert('Recheck is done');	
@@ -283,7 +284,7 @@ $(".cwvpbs-resend-urls").on("click", function(e){
 			return false;
 		}	
 		var current = $(this);		
-		var page    = 1;
+		var page    = 0;
 		cwvpb_recheck_urls(current, page);		
 	});
 

@@ -649,7 +649,7 @@ class cwvpbcriticalCss{
 		$result = $wpdb->get_results(
 			stripslashes($wpdb->prepare(
 				"SELECT * FROM $table_name WHERE `status` IN  (%s) LIMIT %d",
-				'queue', 1
+				'queue', 5
 			))
 		, ARRAY_A);
 				
@@ -889,29 +889,29 @@ class cwvpbcriticalCss{
 		}
 		
 		$limit = 100;
-		$page  = $_POST['page'] ? intval($_POST['page']) : 1;
+		$page  = $_POST['page'] ? intval($_POST['page']) : 0;
 		$offset = $page * $limit;
 		global $wpdb, $table_prefix;
 		$table_name = $table_prefix . 'cwvpb_critical_urls';
 
 		$result = $wpdb->get_results(
 			stripslashes($wpdb->prepare(
-				"SELECT * FROM $table_name LIMIT %d, %d",
-				$offset, $limit
+				"SELECT * FROM $table_name WHERE `status` = %s LIMIT %d, %d",
+				'cached', $offset, $limit
 			))
 		, ARRAY_A);
 		
 		if($result && count($result) > 0){
 			$user_dirname = $this->cachepath();		
 			foreach($result as $value){
-				
-				if(!file_exists($user_dirname.md5($value['url']).'.css') ){
-					$wpdb->query($wpdb->prepare(
+					
+				if(!file_exists($user_dirname.$value['cached_name'].'.css') ){
+				$updated = $wpdb->query($wpdb->prepare(
 						"UPDATE $table_name SET `status` = %s,  `cached_name` = %s WHERE `url` = %s",
 						'queue',
 						'',
 						$value['url']							
-					));	
+					));						
 				}
 			}
 

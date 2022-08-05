@@ -702,8 +702,8 @@ public function advance_url_callback(){
         $estimate_time = '';      
         if($total_count > 0){
             $hours = '';
-            if(intdiv($total_count, 120) > 0){
-                $hours = intdiv($total_count, 120).' Hours, ';
+            if(intdiv($total_count, 300) > 0){
+                $hours = intdiv($total_count, 300).' Hours, ';
             }
             
             if($hours){
