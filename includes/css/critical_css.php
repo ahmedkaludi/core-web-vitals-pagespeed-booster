@@ -1216,8 +1216,8 @@ class cwvpbcriticalCss{
 				}
 					
 				$formated_result[] = array(
-									'<div>'.$value['url'].' <a href="#" data-section="failed" data-id="'.$value['id'].'" class="cwvpb-resend-single-url dashicons dashicons-controls-repeat"></a></div>',
-									'<span class="cwvpb-status-t">'.$value['status'].'</span>',
+									$value['url'],
+									$value['status'],
 									$value['updated_at'],
 									$value['failed_error']									
 							);
