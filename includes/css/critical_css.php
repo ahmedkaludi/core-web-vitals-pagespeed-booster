@@ -457,7 +457,9 @@ class cwvpbcriticalCss{
 	}
 
 	public function insert_update_terms_url($term){
-
+        if(!is_object($term)){
+			return; 
+		}
 		global  $wpdb, $table_prefix;
 			    $table_name = $table_prefix . 'cwvpb_critical_urls';			   			   
 				$permalink = get_term_link($term);
@@ -482,7 +484,7 @@ class cwvpbcriticalCss{
 						'type_name'       => $term->taxonomy, 
 						'url'  			  => $permalink, 					
 						'status'   		  => 'queue', 					
-						'created_at'      => date('Y-m-d'), 					
+						'created_at'      => date('Y-m-d h:i:sa')					
 					), 
 					array('%d','%s', '%s', '%s', '%s', '%s') 
 				);
@@ -633,7 +635,7 @@ class cwvpbcriticalCss{
 	            foreach($terms as $term){										
 	                $term = get_term( $term['term_id']);					
 					if(!is_wp_error($term)){
-						$this->insert_update_terms_url($term);					
+					//	$this->insert_update_terms_url($term);					
 					}					
 	                
 	            }
@@ -649,7 +651,7 @@ class cwvpbcriticalCss{
 		$result = $wpdb->get_results(
 			stripslashes($wpdb->prepare(
 				"SELECT * FROM $table_name WHERE `status` IN  (%s) LIMIT %d",
-				'queue', 5
+				'queue', 4
 			))
 		, ARRAY_A);
 				
@@ -740,7 +742,7 @@ class cwvpbcriticalCss{
 		}
 
 		if(in_array($taxonomy, $post_types)){
-			$term = get_term( $term_id, $taxonomy);	
+			$term = get_term( $term_id);	
 			if($term){
 				$this->insert_update_terms_url($term);					
 			}
@@ -1218,8 +1220,9 @@ class cwvpbcriticalCss{
 				$formated_result[] = array(
 									$value['url'],
 									$value['status'],
+									$size,
 									$value['updated_at'],
-									$value['failed_error']									
+																
 							);
 			}				
 
