@@ -778,23 +778,21 @@ public function advance_url_callback(){
                             </div>                                                        
                         <?php     
                     }
-                ?>                                
-                
-                </div>
-                                                                
+                ?>                                                
+                </div>                                                                
             </div> 
             <!-- DataTable section -->
-            <div class="cwvpsb-table-url-wrapper">     
-
+            <div class="cwvpsb-table-url-wrapper">                         
              <div id="cwvpb-global-tabs" style="margin-top: 10px;">
-                <a data-id="cwvpb-general-container">All</a> |
-                <a data-id="cwvpb-knowledge-container">Completed</a> |
-                <a data-id="cwvpb-default-container" >Failed</a>
+                <a data-id="cwvpb-general-container">All (<?php echo $total_count; ?>)</a> |
+                <a data-id="cwvpb-queue-container">In Queue (<?php echo $queue_count; ?>)</a> |
+                <a data-id="cwvpb-knowledge-container">Completed (<?php echo $cached_count; ?>)</a> |
+                <a data-id="cwvpb-default-container" >Failed (<?php echo $failed_count; ?>)</a>
              </div>
                                                         
-                <div class="cwvpb-global-container" id="cwvpb-general-container">
-                <table class="table cwvpsb-table-class" id="table_page_cc_style_all" style="width:100%">
-            <thead>
+                <div class="cwvpb-global-container" id="cwvpb-queue-container">
+                <table class="table cwvpsb-table-class" id="table_page_cc_style_queue" style="width:100%">
+                <thead>
                     <tr>
                         <th>URL</th>
                         <th>Status</th>
@@ -812,6 +810,28 @@ public function advance_url_callback(){
                 </tfoot>
                 </table>
                 </div>
+
+                <div class="cwvpb-global-container" id="cwvpb-general-container">
+                <table class="table cwvpsb-table-class" id="table_page_cc_style_all" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>URL</th>
+                        <th>Status</th>
+                        <th>Size</th>
+                        <th>Created date</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>URL</th>
+                        <th>Status</th>
+                        <th>Size</th>
+                        <th>Created date</th>
+                    </tr>
+                </tfoot>
+                </table>
+                </div>
+
                 <div class="cwvpb-global-container" id="cwvpb-knowledge-container">
                 <table class="table cwvpsb-table-class" id="table_page_cc_style_completed" style="width:100%">
             <thead>

@@ -158,6 +158,15 @@ $(".cwvpsb-tabs a").click(function(e){
 			url: ajaxurl+"?action=cwvpsb_showdetails_data_failed&cwvpsb_security_nonce="+cwvpsb_localize_data.cwvpsb_security_nonce
 		}
 	});
+	jQuery("#table_page_cc_style_queue").DataTable({
+		serverSide: true,
+		processing: true,
+        fixedColumns: true,		
+		ajax: {
+			type: "GET",
+			url: ajaxurl+"?action=cwvpsb_showdetails_data_queue&cwvpsb_security_nonce="+cwvpsb_localize_data.cwvpsb_security_nonce
+		}
+	});
 // tabs section for datatable starts here
 	$('.cwvpb-global-container').hide();
 	$('.cwvpb-global-container:first').show();
