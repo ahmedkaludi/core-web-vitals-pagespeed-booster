@@ -47,6 +47,9 @@
   text-align: center;
   font-size: 15px;
 }
+#cwvpb-global-tabs a{
+  cursor: pointer;
+}
 .cwvpbs-advance-btn-div{
   padding-top:20px;
 }

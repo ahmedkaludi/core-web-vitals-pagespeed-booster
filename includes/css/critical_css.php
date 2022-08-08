@@ -443,14 +443,15 @@ class cwvpbcriticalCss{
 				array('%d','%s', '%s', '%s', '%s', '%s') 
 			);
 
-		} else{
-			$wpdb->query($wpdb->prepare(
-				"UPDATE $table_name SET `url` = %s WHERE `url_id` = %d",
-				$permalink,
-				$post_id							
-			));
+		} 
+		// else{
+		// 	$wpdb->query($wpdb->prepare(
+		// 		"UPDATE $table_name SET `url` = %s WHERE `url` = %s",
+		// 		$permalink,
+		// 		$post_id							
+		// 	));
 			
-		}
+		// }
 
 		}				  
 
@@ -489,14 +490,15 @@ class cwvpbcriticalCss{
 					array('%d','%s', '%s', '%s', '%s', '%s') 
 				);
 
-			} else{
-				$wpdb->query($wpdb->prepare(
-					"UPDATE $table_name SET `url` = %s WHERE `url_id` = %d",
-					$permalink,
-					$term->term_id							
-				));
+			} 
+			// else{
+			// 	$wpdb->query($wpdb->prepare(
+			// 		"UPDATE $table_name SET `url` = %s WHERE `url_id` = %d",
+			// 		$permalink,
+			// 		$term->term_id							
+			// 	));
 				
-			}
+			// }
 
 			}			   
 
@@ -519,25 +521,30 @@ class cwvpbcriticalCss{
 				}
 			}
 			
-			$postimp      = "'".implode("', '", $post_types)."'";
+			//$postimp      = "'".implode("', '", $post_types)."'";
 		    
-			$insert_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `type` IN ($postimp);"));
+			//$insert_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `type` IN ($postimp);"));
 					
-			$start = $insert_count;
+			$start = get_option('save_posts_offset') ? get_option('save_posts_offset') : 0 ;
 			$batch = 30;
+			$offset = $start * $batch;
 			$posts = $wpdb->get_results(
 				stripslashes($wpdb->prepare(
 					"SELECT `ID` FROM $wpdb->posts WHERE post_status='publish' 
 					AND post_type IN(%s) LIMIT %d, %d",
-					implode("', '", $post_types) , $start, $batch
+					implode("', '", $post_types) , $offset, $batch
 				))
 				, ARRAY_A);
 									        
 			if(!empty($posts)){
+				$start = $start + 1;					
 	            foreach($posts as $post){					
 	                $this->insert_update_posts_url($post['ID']);									
 	            }
-	        }
+	        }else{
+				$start = 0;				
+			}
+			update_option('save_posts_offset', $start);				
 
 	}
 
@@ -616,30 +623,33 @@ class cwvpbcriticalCss{
 		}
 		
 
-			$postimp = "'".implode("', '", $taxonomy_types)."'";
-
+			//$postimp = "'".implode("', '", $taxonomy_types)."'";
 			
-			$insert_count    = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `type` IN ($postimp);"));
+			//$insert_count    = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `type` IN ($postimp);"));
 			
-			$start = $insert_count;
+			$start = get_option('save_terms_offset') ? get_option('save_terms_offset') : 0 ;
 			$batch = 30;
+			$offset = $start * $batch;
 			$terms = $wpdb->get_results(
 				stripslashes($wpdb->prepare(
 					"SELECT `term_id`, `taxonomy` FROM $wpdb->term_taxonomy 
 					WHERE taxonomy IN(%s) LIMIT %d, %d",
-					implode("', '", $taxonomy_types) , $start, $batch
+					implode("', '", $taxonomy_types) , $offset, $batch
 				))
 				, ARRAY_A);
 									        			
 			if(!empty($terms)){
+				$start = $start + 1;				
 	            foreach($terms as $term){										
 	                $term = get_term( $term['term_id']);					
 					if(!is_wp_error($term)){
-					//	$this->insert_update_terms_url($term);					
-					}					
-	                
+						$this->insert_update_terms_url($term);					
+					}						                
 	            }
-	        }
+	        }else{
+				$start = 0;				
+			}
+			update_option('save_terms_offset', $start);				
 
 	}
 
@@ -747,6 +757,8 @@ class cwvpbcriticalCss{
 				$this->insert_update_terms_url($term);					
 			}
 		}
+
+		update_option('save_terms_offset', 0);	
 				
 	}
 	public function on_post_change($post_id, $post){
@@ -768,7 +780,7 @@ class cwvpbcriticalCss{
 				$this->insert_update_posts_url($post_id);
 			}
 		}				
-
+		update_option('save_posts_offset', 0);
 	}
 
 	

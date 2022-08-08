@@ -789,9 +789,9 @@ public function advance_url_callback(){
                 <a data-id="cwvpb-knowledge-container">Completed (<?php echo $cached_count; ?>)</a> |
                 <a data-id="cwvpb-default-container" >Failed (<?php echo $failed_count; ?>)</a>
              </div>
-                                                        
-                <div class="cwvpb-global-container" id="cwvpb-queue-container">
-                <table class="table cwvpsb-table-class" id="table_page_cc_style_queue" style="width:100%">
+                                                                        
+                <div class="cwvpb-global-container" id="cwvpb-general-container">
+                <table class="table cwvpsb-table-class" id="table_page_cc_style_all" style="width:100%">
                 <thead>
                     <tr>
                         <th>URL</th>
@@ -811,8 +811,8 @@ public function advance_url_callback(){
                 </table>
                 </div>
 
-                <div class="cwvpb-global-container" id="cwvpb-general-container">
-                <table class="table cwvpsb-table-class" id="table_page_cc_style_all" style="width:100%">
+                <div class="cwvpb-global-container" id="cwvpb-queue-container">
+                <table class="table cwvpsb-table-class" id="table_page_cc_style_queue" style="width:100%">
                 <thead>
                     <tr>
                         <th>URL</th>
