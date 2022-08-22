@@ -36,7 +36,7 @@ class Core_Web_Vital_Helper_Section{
         		}
 		        
 		        if (!in_array(wp_get_image_mime($filename), $allowedMimeTypes)) {
-		            return false;
+		            return $filearray;
 		        }
 		        self::convert_to_webp($filename);
             } catch (Exception $e) {
