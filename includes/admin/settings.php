@@ -906,15 +906,13 @@ function cwvpsb_purge_cache(){
         CWVPSB_Cache::clear_total_cache(true);
         cwvpsb_delete_folder(
                 CWVPSB_CACHE_DIR
-            );
-        $host = parse_url(get_site_url())['host'];
-        $fontsPath = str_replace("/fonts/$host/", "", CWVPSB_CACHE_FONTS_DIR);
+            );                
         cwvpsb_delete_folder(
-                $fontsPath
+            CWVPSB_CACHE_FONTS_DIR
             );
-        cwvpsb_delete_folder(
-                CWVPSB_CRITICAL_CSS_CACHE_DIR
-            );
+        // cwvpsb_delete_folder(
+        //         CWVPSB_CRITICAL_CSS_CACHE_DIR
+        //     );
         cwvpsb_delete_folder(
                 CWVPSB_JS_EXCLUDE_CACHE_DIR
             );

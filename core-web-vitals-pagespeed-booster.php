@@ -34,8 +34,8 @@ $host = parse_url(get_site_url())['host'];
 /**
  * Font cache path
  **/
-define('CWVPSB_CACHE_FONTS_DIR', WP_CONTENT_DIR . "/cache/cwvpsb/fonts/$host/");
-define('CWVPSB_CACHE_FONTS_URL', site_url("/wp-content/cache/cwvpsb/fonts/$host/"));
+define('CWVPSB_CACHE_FONTS_DIR', WP_CONTENT_DIR . "/cache/cwvpsb/fonts/");
+define('CWVPSB_CACHE_FONTS_URL', site_url("/wp-content/cache/cwvpsb/fonts/"));
 /**
  * Critical css cache path
  **/
