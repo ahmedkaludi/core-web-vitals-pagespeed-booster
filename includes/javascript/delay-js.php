@@ -397,7 +397,7 @@ function cwvpsb_merge_js_scripts(){
 
 // Merged CSS Code Starts here....
 
-add_action( 'wp_enqueue_scripts',  'cwvpsb_merge_css_scripts_styles' , 99999);
+//add_action( 'wp_enqueue_scripts',  'cwvpsb_merge_css_scripts_styles' , 99999);
 function cwvpsb_merge_css_scripts_styles(){
 	global $wp_styles;
 	$wp_styles->all_deps($wp_styles->queue);
@@ -642,34 +642,17 @@ function cwvpsb_delay_js_load() {
   	        
   	        function cwvpsbPreloadDelayedScripts(){var e=document.createDocumentFragment();[...cwvpsbDelayedScripts.normal,...cwvpsbDelayedScripts.defer,...cwvpsbDelayedScripts.async].forEach(function(t){var n=t.getAttribute("src");if(n){var r=document.createElement("link");r.href=n,r.rel="preload",r.as="script",e.appendChild(r)}}),document.head.appendChild(e)}async function cwvpsbLoadDelayedScripts(e){var t=e.shift();return t?(await cwvpsbReplaceScript(t),cwvpsbLoadDelayedScripts(e)):Promise.resolve()}async function cwvpsbReplaceScript(e){return await cwvpsbNextFrame(),new Promise(function(t){const n=document.createElement("script");[...e.attributes].forEach(function(e){let t=e.nodeName;"type"!==t&&("data-type"===t&&(t="type"),n.setAttribute(t,e.nodeValue))}),e.hasAttribute("src")?(n.addEventListener("load",t),n.addEventListener("error",t)):(n.text=e.text,t()),e.parentNode.replaceChild(n,e)})}
   	function ctl(){
-				var cssEle = document.querySelectorAll("link[rel=cwvpsbdelayedstyle]");
-					var mergecssEle = document.querySelectorAll("link[id=corewvps-mergecssfile-css]");
-					if (mergecssEle[0]) {
+			var cssEle = document.querySelectorAll("link[rel=cwvpsbdelayedstyle]");
+				console.log(cssEle.length);
+				for(var i=0; i <= cssEle.length;i++){
+					if(cssEle[i]){
 						var cssMain = document.createElement("link");
-						cssMain.href = mergecssEle[0].href;
-						console.log(mergecssEle[0].href);
+						cssMain.href = cssEle[i].href;
 						cssMain.rel = "stylesheet";
 						cssMain.type = "text/css";
 						document.getElementsByTagName("head")[0].appendChild(cssMain);
 					}
-					console.log(cssEle.length);
-					for(var i=0; i <= cssEle.length;i++){
-				    	var enqueue_style = true;
-    					if(cssEle[i]){
-    						if( (typeof cssEle[i].title !== "undefined" && cssEle[i].title == "cwvpsbenqueuedstyles") || (typeof cssEle[i].id !== "undefined" && cssEle[i].id == "corewvps-mergecssfile-css")){
-    						    enqueue_style = false;
-    						}
-    						
-    						if(enqueue_style){
-    						    var cssMain = document.createElement("link");
-    					        cssMain.href = cssEle[i].href;
-    						    cssMain.rel = "stylesheet";
-        						cssMain.type = "text/css";
-        						cssMain.title = "cwvpsbenqueuedstyles";
-        						document.getElementsByTagName("head")[0].appendChild(cssMain);
-    						}
-    					}
-    				}
+				}
 				
 				
 				var cssEle = document.querySelectorAll("style[type=cwvpsbdelayedstyle]");
