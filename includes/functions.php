@@ -159,6 +159,8 @@ function cwvpsb_defaults(){
        'whitelist_css'=>array(),
        'critical_css_support'=>1,
        'cache_support_method'=>'Highly Optimized',
+       'cache_support'=>1,
+       'advance_support'=>'',
        'critical_css_on_home' => 1,
        'critical_css_on_cp_type' => array(
             'post' => 1

@@ -530,9 +530,9 @@ class cwvpbcriticalCss{
 			$offset = $start * $batch;
 			$posts = $wpdb->get_results(
 				stripslashes($wpdb->prepare(
-					"SELECT `ID` FROM $wpdb->posts WHERE post_status='publish' 
+					"SELECT `ID` FROM $wpdb->posts WHERE post_status=%s 
 					AND post_type IN(%s) LIMIT %d, %d",
-					implode("', '", $post_types) , $offset, $batch
+					'publish',implode("', '", $post_types) , $offset, $batch
 				))
 				, ARRAY_A);
 									        
@@ -681,7 +681,6 @@ class cwvpbcriticalCss{
 							$cached_name  = '';
 							$failed_error = '';
 							$this->change_caching_status($value['url'], $status);
-							//$result = $this->cwvpsb_save_critical_css_in_dir($value['url']);
 							$result = $this->cwvpsb_save_critical_css_in_dir_php($value['url']);
 											
 							if($result['status']){
@@ -784,54 +783,7 @@ class cwvpbcriticalCss{
 		update_option('save_posts_offset', 0);
 	}
 
-	
-	public function cwvpsb_save_critical_css_in_dir($current_url){
 
-		$targetUrl = $current_url;
-	    $user_dirname = $this->cachepath();
-
-	    $URL = 'http://45.32.11.210/corewebvitalcrittr?url='.$targetUrl;
-
-	    $response = wp_remote_get($URL, array('timeout' => 50, 'headers' => array('page_setting' => 'cwvpsb')));	   
-
-		if( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ){
-			$message =  ( is_wp_error( $response ) && $response->get_error_message() ) ? $response->get_error_message() : __( 'An error occurred, while critical css from server' );
-			return array('status' => false , 'message' => $message);	
-		}else{
-
-			$response    = wp_remote_retrieve_body($response);
-	    	$responseArr = json_decode($response, true);
-	    	if($responseArr["status"] != 200){
-				return array('status' => false , 'message' => 'Something went wrong');		    		
-	    	}
-	    				
-			if(!empty($responseArr['critical_css'])){
-
-				$content = $responseArr['critical_css'];
-				$content = str_replace("url('wp-content/", "url('".get_site_url()."/wp-content/", $content); 
-				$content = str_replace('url("wp-content/', 'url("'.get_site_url().'/wp-content/', $content); 
-							
-				$new_file = $user_dirname."/".md5($targetUrl).".css";
-				$ifp = @fopen( $new_file, 'w+' );
-				if ( ! $ifp ) {
-					return array('status' => false, 'message' => sprintf( __( 'Could not write file %s' ), $new_file ));					
-				}
-				$result = @fwrite( $ifp, $content );
-				fclose( $ifp );
-				if($result){
-					return array('status' => true, 'message' => 'Css creted sussfully');
-				}else{
-					return array('status' => false, 'message' => 'Could not write into css file');
-				}
-				
-			}else{
-				return array('status' => false , 'message' => 'critical css does not generated from server');	
-			}
-			
-		}	    
-
-	}
-	
 	public function cwvpsb_save_critical_css_in_dir_php($current_url){
 		
 		$targetUrl = $current_url;
@@ -1158,23 +1110,23 @@ class cwvpbcriticalCss{
 																
 		if($_GET['search']['value']){
 			$search = sanitize_text_field($_GET['search']['value']);
-			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`='cached'",
-			'%' . $wpdb->esc_like($search) . '%'
+			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
+			'%' . $wpdb->esc_like($search) . '%','cached'
 			),			
 			);
 			
 			$result = $wpdb->get_results(
 				stripslashes($wpdb->prepare(
-					"SELECT * FROM $table_name WHERE `url` LIKE %s AND `status`='cached' LIMIT %d, %d",
-					'%' . $wpdb->esc_like($search) . '%', $offset, $length
+					"SELECT * FROM $table_name WHERE `url` LIKE %s AND `status`=%s LIMIT %d, %d",
+					'%' . $wpdb->esc_like($search) . '%', 'cached',$offset, $length
 				))
 			, ARRAY_A);
 		}else
 		{
-			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`='cached'"));
+			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s",'cached'));
 			$result = $wpdb->get_results(
 				stripslashes($wpdb->prepare(
-					"SELECT * FROM $table_name Where `status`='cached' LIMIT %d, %d", $offset, $length
+					"SELECT * FROM $table_name Where `status`=%s LIMIT %d, %d", 'cached',$offset, $length
 				))
 			, ARRAY_A);
 		}
@@ -1230,23 +1182,23 @@ class cwvpbcriticalCss{
 																
 		if($_GET['search']['value']){
 			$search = sanitize_text_field($_GET['search']['value']);
-			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`='failed'",
-			'%' . $wpdb->esc_like($search) . '%'
+			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
+			'%' . $wpdb->esc_like($search) . '%','failed'
 			),			
 			);
 			
 			$result = $wpdb->get_results(
 				stripslashes($wpdb->prepare(
-					"SELECT * FROM $table_name WHERE `url` LIKE %s AND `status`='failed' LIMIT %d, %d",
-					'%' . $wpdb->esc_like($search) . '%', $offset, $length
+					"SELECT * FROM $table_name WHERE `url` LIKE %s AND `status`=%s LIMIT %d, %d",
+					'%' . $wpdb->esc_like($search) . '%', 'failed',$offset, $length
 				))
 			, ARRAY_A);
 		}else
 		{
-			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`='failed'"));
+			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s",'failed'));
 			$result = $wpdb->get_results(
 				stripslashes($wpdb->prepare(
-					"SELECT * FROM $table_name Where `status`='failed' LIMIT %d, %d", $offset, $length
+					"SELECT * FROM $table_name Where `status`=%s LIMIT %d, %d", 'failed',$offset, $length
 				))
 			, ARRAY_A);
 		}
@@ -1302,23 +1254,23 @@ class cwvpbcriticalCss{
 																
 		if($_GET['search']['value']){
 			$search = sanitize_text_field($_GET['search']['value']);
-			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`='queue'",
-			'%' . $wpdb->esc_like($search) . '%'
+			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
+			'%' . $wpdb->esc_like($search) . '%','queue'
 			),			
 			);
 			
 			$result = $wpdb->get_results(
 				stripslashes($wpdb->prepare(
-					"SELECT * FROM $table_name WHERE `url` LIKE %s AND `status`='queue' LIMIT %d, %d",
-					'%' . $wpdb->esc_like($search) . '%', $offset, $length
+					"SELECT * FROM $table_name WHERE `url` LIKE %s AND `status`=%s LIMIT %d, %d",
+					'%' . $wpdb->esc_like($search) . '%','queue', $offset, $length
 				))
 			, ARRAY_A);
 		}else
 		{
-			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`='queue'"));
+			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s",'queue'));
 			$result = $wpdb->get_results(
 				stripslashes($wpdb->prepare(
-					"SELECT * FROM $table_name Where `status`='queue' LIMIT %d, %d", $offset, $length
+					"SELECT * FROM $table_name Where `status`=%s LIMIT %d, %d", 'queue',$offset, $length
 				))
 			, ARRAY_A);
 		}

@@ -726,7 +726,7 @@ public function advance_url_callback(){
         global $wpdb, $table_prefix;
 		$table_name = $table_prefix . 'cwvpb_critical_urls';
         //$total_count        = cwvpbs_get_total_urls();
-        $total_count        = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name"));
+        $total_count        = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
         $cached_count       = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'cached'));                
         $inprogress         = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'inprocess'));                
         $failed_count       = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'failed'));                        
