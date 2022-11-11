@@ -65,7 +65,7 @@ class cwvpbcriticalCss{
 		 if ( ! wp_next_scheduled( 'isa_add_every_one_hour' ) ) {
 		     wp_schedule_event( time(), 'every_one_hour',  'isa_add_every_one_hour' );
 		 }
-		add_action( 'isa_add_every_one_hour', array($this, 'every_one_minutes_event_func' ) );
+		add_action( 'isa_add_every_one_hour', array($this, 'every_one_minutes_event_func' ) );		
 	}
 
 	/*function scripts_styles(){
@@ -681,7 +681,8 @@ class cwvpbcriticalCss{
 							$cached_name  = '';
 							$failed_error = '';
 							$this->change_caching_status($value['url'], $status);
-							$result = $this->cwvpsb_save_critical_css_in_dir($value['url']);
+							//$result = $this->cwvpsb_save_critical_css_in_dir($value['url']);
+							$result = $this->cwvpsb_save_critical_css_in_dir_php($value['url']);
 											
 							if($result['status']){
 								$status      = 'cached';							
@@ -828,6 +829,110 @@ class cwvpbcriticalCss{
 			}
 			
 		}	    
+
+	}
+	
+	public function cwvpsb_save_critical_css_in_dir_php($current_url){
+		
+		$targetUrl = $current_url;
+	    $user_dirname = $this->cachepath();
+		$content = file_get_contents($targetUrl);
+		
+		$regex = '/<link(.*?)href="(.*?)" (.*?)>/';
+		preg_match_all( $regex, $content, $matches , PREG_SET_ORDER );
+		if(!$matches){
+			$regex = "/<link(.*?)href='(.*?)' (.*?)>/";
+			preg_match_all( $regex, $content, $matches , PREG_SET_ORDER );
+		}
+		$rowcss = '';
+		$all_css = [];
+		
+		if($matches){        
+			
+			foreach($matches as $mat){						
+				if(strpos($mat[2], '.css') !== false) {
+					$all_css[] = $mat[2];
+					$rowcss .= @file_get_contents($mat[2]);            
+				}				
+				
+			}
+		}
+		$d = new DOMDocument;
+		$mock = new DOMDocument;
+		libxml_use_internal_errors(true);
+		$d->loadHTML($content);
+		$body = $d->getElementsByTagName('body')->item(0);
+		foreach ($body->childNodes as $child){
+			$mock->appendChild($mock->importNode($child, true));
+		}
+		
+		$rawHtml =  $mock->saveHTML();	
+
+		require_once CWVPSB_DIR."/css-extractor/vendor/autoload.php";	    	
+				
+		$extracted_css_arr = array();
+
+		$page_specific = new \PageSpecificCss\PageSpecificCss();
+		$page_specific->addBaseRules($rowcss);
+		$page_specific->addHtmlToStore($rawHtml);
+		$extractedCss = $page_specific->buildExtractedRuleSet();					
+		$extracted_css_arr[] = $extractedCss;		
+		
+		preg_match_all( "/@media [^{]*+{([^{}]++|{[^{}]*+})*+}/", $rowcss, $matchess , PREG_SET_ORDER );
+
+		if($matchess){
+		
+			foreach ($matchess as $key => $value) {
+												
+				if(isset($value[0])){
+					$explod = explode("{", $value[0]);
+					if($explod[0]){
+						$value[0] = str_replace($explod[0]."{", "",  $value[0]);
+						$value[0] = str_replace($explod[0]." {", "",  $value[0]);
+						$value[0] = str_replace($explod[0]."  {", "",  $value[0]);					
+						$value[0] = substr($value[0], 0, -1);	
+	
+						if($value[0]){		
+							$page_specific = new \PageSpecificCss\PageSpecificCss();											
+							$page_specific->addBaseRules($value[0]);
+							$page_specific->addHtmlToStore($rawHtml);
+							$extractedCss = $page_specific->buildExtractedRuleSet();												
+							if($extractedCss){
+								$extractedCss   = $explod[0]."{".$extractedCss."}";
+								$extracted_css_arr[] = $extractedCss;
+							}						
+						}
+						
+					}	
+				}
+				
+			}
+		}
+				
+		if(!empty($extracted_css_arr) && is_array($extracted_css_arr)){
+
+				$critical_css = implode("", $extracted_css_arr);
+			    
+				$critical_css = str_replace("url('wp-content/", "url('".get_site_url()."/wp-content/", $critical_css); 
+				$critical_css = str_replace('url("wp-content/', 'url("'.get_site_url().'/wp-content/', $critical_css); 
+							
+				$new_file = $user_dirname."/".md5($targetUrl).".css";
+				$ifp = @fopen( $new_file, 'w+' );
+				if ( ! $ifp ) {
+					return array('status' => false, 'message' => sprintf( __( 'Could not write file %s' ), $new_file ));					
+				}
+				$result = @fwrite( $ifp, $critical_css );
+				fclose( $ifp );
+				if($result){
+					return array('status' => true, 'message' => 'Css creted sussfully');
+				}else{
+					return array('status' => false, 'message' => 'Could not write into css file');
+				}
+
+		}else{
+			return array('status' => false , 'message' => 'critical css does not generated from server');	
+		}
+	    	    
 
 	}
 	public function cwvpsb_resend_single_url_for_cache(){

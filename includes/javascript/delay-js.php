@@ -229,7 +229,7 @@ function cwvpsb_scripts_styles(){
 	 $user_dirname = CWVPSB_JS_EXCLUDE_CACHE_DIR;
 	 $user_urlname = CWVPSB_JS_EXCLUDE_CACHE_URL;
 	
-
+	
 	if(!file_exists($user_dirname.'/'.$filename.'.js')){
 		$combined_ex_js_arr= array();
 		$jscontent = '';
@@ -296,8 +296,7 @@ function cwvpsb_scripts_styles(){
 	 	wp_register_script('corewvps-mergejsfile', $user_urlname.'/'.$filename.'.js', array(), CWVPSB_VERSION, true);
 		wp_enqueue_script('corewvps-mergejsfile');
 	 }
-	 
-	
+	 	
 }
 add_filter( 'script_loader_src', 'cwvpsb_remove_css_js_version', 9999, 2 );
 function cwvpsb_remove_css_js_version($src, $handle ){
