@@ -45,7 +45,7 @@ class TokenStream
      *
      * @return $this
      */
-    public function push(Token $token): static
+    public function push(Token $token): self
     {
         $this->tokens[] = $token;
 
@@ -57,7 +57,7 @@ class TokenStream
      *
      * @return $this
      */
-    public function freeze(): static
+    public function freeze(): self
     {
         return $this;
     }
