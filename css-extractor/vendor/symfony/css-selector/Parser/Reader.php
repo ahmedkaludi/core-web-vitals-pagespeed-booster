@@ -60,7 +60,7 @@ class Reader
         return false === $position ? false : $position - $this->position;
     }
 
-    public function findPattern(string $pattern): array|false
+    public function findPattern(string $pattern)
     {
         $source = substr($this->source, $this->position);
 
