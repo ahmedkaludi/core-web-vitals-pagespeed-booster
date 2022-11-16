@@ -1061,10 +1061,10 @@ class cwvpbcriticalCss{
 		if(!empty($result)){
 
 			foreach ($result as $value) {
-				
+				$size="NA";
 				if($value['status'] == 'cached'){
 					$user_dirname = $this->cachepath();
-					$size = filesize($user_dirname.'/'.md5($value['url']).'.css');					
+					$size = round(filesize($user_dirname.'/'.md5($value['url']).'.css')/1024,2).' KB';					
 					if(!$size){
 						$size = '<abbr title="File is not in cached directory. Please recheck in advance option">Deleted</abbr>';
 					}
@@ -1280,10 +1280,10 @@ class cwvpbcriticalCss{
 		if(!empty($result)){
 
 			foreach ($result as $value) {
-				
+				$size="NA";
 				if($value['status'] == 'cached'){
 					$user_dirname = $this->cachepath();
-					$size = filesize($user_dirname.'/'.md5($value['url']).'.css');					
+					$size = round(filesize($user_dirname.'/'.md5($value['url']).'.css')/1024,2).' KB';				
 				}
 					
 				$formated_result[] = array(
