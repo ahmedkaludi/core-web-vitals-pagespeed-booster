@@ -385,8 +385,12 @@ var css_check_interval=setInterval(function(){
 						if((response.queue_count % 60) > 0){
 							estimate_time = (response.queue_count % 60)+ ' Min';
 						}                
-					}   
-					jQuery('#cwvpsb_css_generate_time').text(estimate_time);
+					}  
+					if(estimate_time) 
+					{
+						jQuery('#cwvpsb_css_generate_time').text(estimate_time);
+					}
+					
 					
 					
 				}
