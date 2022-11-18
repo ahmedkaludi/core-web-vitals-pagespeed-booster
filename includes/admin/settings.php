@@ -745,27 +745,27 @@ public function advance_url_callback(){
             <div class="cwvpsb-css-optimization-wrapper">
             
             <strong style="font-size:18px;"><?php echo esc_html__('CSS Optimisation Status', 'cwvpsb') ?></strong>
-                <p><?php echo esc_html__('Optimisation is running in background. You can see latest result on page reload', 'cwvpsb') ?></p>
+                <p><?php echo esc_html__('Optimisation is running in background.', 'cwvpsb') ?></p>
                 <br>
                 <div class="cwvpsb_progress_bar">
                     <div class="cwvpsb_progress_bar_body" style="width: <?php echo esc_attr($percentage); ?>%;"><?php echo $percentage; ?>%</div>
                 </div>
                 <br>
                 <div class="cwvpsb_cached_status_bar">
-                <div style="margin-top:20px;"><strong><?php echo esc_html__('Total :', 'cwvpsb') ?></strong> <?php echo esc_attr($total_count). ' URLs';                                         
+                <div style="margin-top:20px;"><strong><?php echo esc_html__('Total :', 'cwvpsb') ?></strong> <span id="cwvpsb_css_total_count"><?php echo esc_attr($total_count). ' URLs</span>';                                         
                  ?></div>
-                 <div><strong><?php echo esc_html__('In Progress :', 'cwvpsb') ?></strong> <?php echo esc_attr($queue_count). ' URLs';                                         
+                 <div><strong><?php echo esc_html__('In Progress :', 'cwvpsb') ?></strong> <span id="cwvpsb_css_queue_count"><?php echo esc_attr($queue_count). ' URLs</span>';                                         
                  ?></div>
-                <div><strong><?php echo esc_html__('Critical CSS Optimized  :', 'cwvpsb') ?></strong> <?php echo esc_attr($cached_count). ' URLs';                 
+                <div><strong><?php echo esc_html__('Critical CSS Optimized  :', 'cwvpsb') ?></strong> <span id="cwvpsb_css_cached_count"><?php echo esc_attr($cached_count). ' URLs</span>';                 
                 ?></div>
                 <?php
                     if($this->generate_time($queue_count)){
                         ?>
                         <div>
                         <strong><?php echo esc_html__('Remaining Time :', 'cwvpsb') ?></strong>
-                        <?php
+                        <span id="cwvpsb_css_generate_time"><?php
                             echo $this->generate_time($queue_count);
-                        ?>
+                        ?> </span>
                         </div>                        
                         <?php
                     }
@@ -773,7 +773,7 @@ public function advance_url_callback(){
                     if($failed_count > 0){
                         ?>   
                             <div>
-                                <strong><?php echo esc_html__('Failed      :', 'cwvpsb') ?></strong> <?php echo esc_attr($failed_count);?>
+                                <strong><?php echo esc_html__('Failed      :', 'cwvpsb') ?></strong> <span id="cwvpsb_css_failed_count"><?php echo esc_attr($failed_count);?>,</span>
                                 <a href="#" class="cwvpbs-resend-urls button button-secondary">Resend</a>
                             </div>                                                        
                         <?php     
@@ -896,9 +896,50 @@ if (class_exists('cwvpsb_admin_settings')) {
     new cwvpsb_admin_settings;
 };
 
+
+
 if(is_admin()){
     //add_action( 'wp_ajax_admin_bar_cwvpsb_purge_cache', 'cwvpsb_purge_cache', 0 );
     add_action( 'wp_ajax_cwvpsb_purge_cache', 'cwvpsb_purge_cache', 0 );
+    add_action( 'wp_ajax_cwvpsb_update_critical_css_stat', 'cwvpsb_update_critical_css_stat');
+}
+
+function cwvpsb_update_critical_css_stat()
+{
+    $response=array('status'=>'fail');
+    if( wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce') ){ 
+        global $wpdb, $table_prefix;
+		$table_name = $table_prefix . 'cwvpb_critical_urls';
+        //$total_count        = cwvpbs_get_total_urls();
+        $response['total_count']        = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
+        $response['cached_count']       = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'cached'));                
+        $response['inprogress']        = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'inprocess'));                
+        $response['failed_count']       = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'failed'));                        
+        $response['queue_count']      = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'queue'));                
+        $percentage         = 0;
+                
+        if($response['cached_count'] > 0 && $response['total_count'] ){            
+            $percentage      = ($response['cached_count']/$response['total_count'] ) * 100;        
+            $percentage      = floor($percentage);
+        }  
+        $response['percentage'] = $percentage ;
+        $response['status'] = 'success' ;
+        
+        if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+            $response = json_encode($response);
+            echo $response;
+         }
+         else {
+            header("Location: ".$_SERVER["HTTP_REFERER"]);
+         }
+      
+         die();
+        
+    }
+    else{
+            exit("No naughty business please");
+    }
+
 }
 
 function cwvpsb_purge_cache(){

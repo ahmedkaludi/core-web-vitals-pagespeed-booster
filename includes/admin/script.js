@@ -266,7 +266,7 @@ $(".cwvpbs-resend-urls").on("click", function(e){
 				if(response.status){
 					if(response.count > 0){
 						new_page++;
-						cwvpb_recheck_urls(current);
+						cwvpb_recheck_urls(current,new_page);
 					}else{
 						alert('Recheck is done');	
 						location.reload(true);
@@ -322,4 +322,90 @@ $(".cwvpbs-resend-urls").on("click", function(e){
 		})
 
 	});
+
+	$(".cwvpsb-reset-url-cache").on("click", function(e){
+		e.preventDefault();
+		if(!confirm('Are you sure? It will start optimize process from beginning again.')){
+			return false;
+		}	
+		var current = $(this);
+		current.addClass('updating-message');		
+		
+		$.ajax({
+			url: ajaxurl,
+			type:'post',
+			dataType: 'json',
+			data: {'cwvpsb_security_nonce': cwvpsb_localize_data.cwvpsb_security_nonce, action: 'cwvpsb_reset_urls_cache'},
+			success: function(response){
+				current.removeClass('updating-message');	
+				if(response.status){
+					location.reload(true);
+				}else{
+					alert('something went wrong');
+				}
+			}
+		})
+
+	});
 });
+
+var css_check_interval=setInterval(function(){
+	jQuery.ajax({
+		url: ajaxurl,
+		type:'post',
+		dataType: 'json',
+		data: {'cwvpsb_security_nonce': cwvpsb_localize_data.cwvpsb_security_nonce, action: 'cwvpsb_update_critical_css_stat'},
+		success: function(response){
+		
+			if(response.status=='success'){
+
+				if(response.percentage )
+				{
+					jQuery('.cwvpsb_progress_bar_body').css('width',response.percentage+'%');
+					jQuery('.cwvpsb_progress_bar_body').text(response.percentage+'%');
+				}
+				if(response.total_count)
+				{
+					jQuery('#cwvpsb_css_total_count').text(response.total_count+' URLs');
+				}
+				if(response.queue_count)
+				{
+					jQuery('#cwvpsb_css_queue_count').text(response.queue_count+' URLs');
+
+					var hours=null;
+					var estimate_time="NA";
+					if( Math.floor(response.queue_count/300) >0 )
+					{
+						hours= Math.floor(response.queue_count/300)+' Hours';
+					}
+					if(hours){
+						estimate_time = hours+ (response.queue_count % 60)+ ' Min';
+					}else{
+						
+						if((response.queue_count % 60) > 0){
+							estimate_time = (response.queue_count % 60)+ ' Min';
+						}                
+					}   
+					jQuery('#cwvpsb_css_generate_time').text(estimate_time);
+					
+					
+				}
+				if(response.cached_count)
+				{
+					jQuery('#cwvpsb_css_cached_count').text(response.cached_count+' URLs');
+				}
+				if(jQuery('#cwvpsb_css_failed_count').length && response.failed_count)
+				{
+					jQuery('#cwvpsb_css_failed_count').text(response.failed_count+' URLs');
+				}
+
+				if(response.total_count==Number(response.cached_count)+Number(response.failed_count))
+				{
+					clearInterval(css_check_interval);
+				}
+				
+			}
+		}
+	})
+
+}, 10000);
