@@ -38,9 +38,12 @@ function cwvpsb_convert_webp(){
         $logo = wp_get_attachment_url( get_theme_mod( 'custom_logo' ));
         array_push($img_src , $logo);
     }
-
     foreach ($img_src as $key => $img_dir) {
         $img_dir = explode('/wp-content', $img_dir);
+        if(count($img_dir)==1)
+        {
+         continue;
+        }
         $upload_dir = wp_upload_dir();
         $upload_dir = $upload_dir['path'];
         $upload_dir = explode('/uploads', $upload_dir);
