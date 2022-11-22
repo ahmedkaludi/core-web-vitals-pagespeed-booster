@@ -597,12 +597,16 @@ function cwvpsb_delay_js_load() {
 				}
 			
 				// Get a list of "resource" performance entries
+				var resources_length=0;
 				var resources = performance.getEntriesByType("resource");
 				if (resources === undefined || resources.length <= 0) {
 					console.log("= Calculate Load Times: there are NO `resource` performance records");
-					return;
 				}
-			
+				if(resources.length)
+				{
+					resources_length=resources.length;
+				}
+
 				let is_last_resource = 0;
 				for (var i=0; i < resources.length; i++) {
 					if(resources[i].responseEnd>0){

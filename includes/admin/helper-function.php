@@ -144,7 +144,7 @@ function cwvpbs_get_total_urls(){
 			
     if(!empty($post_types)){
         $postimp      = "'".implode("', '", $post_types)."'";
-        $total_count  += $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $wpdb->posts Where post_status='publish' AND post_type IN ($postimp);"));
+        $total_count  += $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $wpdb->posts Where post_status='%s' AND post_type IN (%s);","publish",$postimp));
     }    
 	
     $taxonomy_types = array();
@@ -159,7 +159,7 @@ function cwvpbs_get_total_urls(){
     if(!empty($taxonomy_types)){
         $postimp = "'".implode("', '", $taxonomy_types)."'";
 
-        $total_count  += $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $wpdb->term_taxonomy Where taxonomy IN ($postimp);"));
+        $total_count  += $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $wpdb->term_taxonomy Where taxonomy IN (%s);",$postimp));
     }
     
     return $total_count;

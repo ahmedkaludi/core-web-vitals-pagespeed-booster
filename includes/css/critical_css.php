@@ -28,7 +28,7 @@ class cwvpbcriticalCss{
 	    if ( function_exists('elementor_load_plugin_textdomain') && \Elementor\Plugin::$instance->preview->is_preview_mode() ) {
 	    	return;
 		}
-		add_action('wp_footer', array($this,'cwvpsb_delay_js_load'), PHP_INT_MAX);
+		//add_action('wp_footer', array($this,'cwvpsb_delay_js_load'), PHP_INT_MAX);
 		if(function_exists('is_user_logged_in') && !is_user_logged_in()){
 		    add_action('wp', array($this, 'delay_css_loadings'), 999);
 	    }
@@ -393,9 +393,7 @@ class cwvpbcriticalCss{
 		    })
 		}
 		cwvpsbUserInteractions.forEach(function(e) {
-		    window.addEventListener(e, 
-
-		    , {
+		    window.addEventListener(e,  {
 		        passive: !0
 		    })
 		});
@@ -424,8 +422,8 @@ class cwvpbcriticalCss{
 		
 		$pid = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT `url` FROM $table_name WHERE `url`=%s limit 1", 
-				$permalink
+				"SELECT `url` FROM $table_name WHERE `url`=%s limit %d", 
+				$permalink,1
 			)		
 		);
 
@@ -568,8 +566,9 @@ class cwvpbcriticalCss{
 			
 				$pid = $wpdb->get_var(
 					$wpdb->prepare(
-						"SELECT `url` FROM $table_name WHERE `url`=%s limit 1", 
-						$value
+						"SELECT `url` FROM $table_name WHERE `url`=%s limit %d", 
+						$value,
+						1
 					)		
 				);
 				$id = ($key++) + 999999999;
