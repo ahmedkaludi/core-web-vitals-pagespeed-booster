@@ -372,7 +372,7 @@ public function critical_css_callback(){
     <select name="cwvpsb_get_settings[delay_js]">
         <option value="">Select Method</option>
      <?php
-        $delay = array('js' => 'JS Method','php' => 'PHP Method');
+        $delay = array('php' => 'PHP Method (Recommend)','js' => 'JS Method',);
         foreach ($delay as $key => $value ) {
         ?>
             <option value="<?php echo $key;?>" <?php selected( $settings['delay_js'], $key);?>><?php echo $value;?></option>

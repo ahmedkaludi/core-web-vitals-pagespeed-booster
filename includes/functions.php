@@ -155,7 +155,7 @@ function cwvpsb_defaults(){
        'unused_css_support'  => 0,
        'google_fonts_support'  => 1,
        'js_optimization' => 1,
-       'delay_js' => 'js',
+       'delay_js' => 'php',
        'whitelist_css'=>array(),
        'critical_css_support'=>1,
        'cache_support_method'=>'Highly Optimized',

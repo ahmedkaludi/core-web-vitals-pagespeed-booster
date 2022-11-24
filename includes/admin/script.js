@@ -322,31 +322,6 @@ $(".cwvpbs-resend-urls").on("click", function(e){
 		})
 
 	});
-
-	$(".cwvpsb-reset-url-cache").on("click", function(e){
-		e.preventDefault();
-		if(!confirm('Are you sure? It will start optimize process from beginning again.')){
-			return false;
-		}	
-		var current = $(this);
-		current.addClass('updating-message');		
-		
-		$.ajax({
-			url: ajaxurl,
-			type:'post',
-			dataType: 'json',
-			data: {'cwvpsb_security_nonce': cwvpsb_localize_data.cwvpsb_security_nonce, action: 'cwvpsb_reset_urls_cache'},
-			success: function(response){
-				current.removeClass('updating-message');	
-				if(response.status){
-					location.reload(true);
-				}else{
-					alert('something went wrong');
-				}
-			}
-		})
-
-	});
 });
 
 var css_check_interval=setInterval(function(){
