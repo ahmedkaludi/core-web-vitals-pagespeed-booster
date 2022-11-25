@@ -37,8 +37,8 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 == Changelog ==
 
 = 1.0.7 (25th November 2022) =
-* Improvement: Code improvements and Optimizations
-* Added: Critical CSS Optimisation Tab
+* Improvement: Updated Critical CSS Optimisation
+* Improvement: Code improvements and fixes
 * Added: Support Tab
 
 = 1.0.6 (21st April 2022) =
