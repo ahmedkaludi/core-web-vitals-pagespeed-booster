@@ -217,7 +217,8 @@ h2.nav-tab-wrapper.cwvpsb-tabs a {
   color: #fff;
   text-align: center;
   outline: 0;
-  padding: 0px 30px;
+  /*padding: 0px 30px;*/
+  padding: 0px 3%;
   font-size: 16px;
   color: #111;
   background: none;
@@ -314,10 +315,10 @@ div#right-sidebar {
   background: #fff;
   border-radius: 25px;
   display: inline-block;
-  height: 300px;
+  /*height: 300px;*/
   margin: 1rem;
   position: relative;
-  width: 300px;
+  /*width: 300px;*/
   padding: 0px 20px;
 }
 
@@ -344,6 +345,7 @@ section .bio{
   float:left;
   margin: 4px;
   text-align: center;
+  width:46%;
 }
 .bio-wrap img{
   border-radius: 50%;
@@ -355,9 +357,39 @@ h2.vision {
 }
 
 .bio-wrap p {
-  width: 66px;
+  width: 100%;
   margin-top: 5px;
 }
 th:empty {
     display: none;
+}
+.boxdesc{
+  clear:both;
+}
+.cwvpsb-hide{
+  display:none;
+}
+#cwv-wrap .cwvpsb-send-query{
+padding: 10px 35px;
+line-height: 30px;
+background-color: #d84315;
+font-weight: 700;
+text-align: center;
+color: #fff;
+text-transform: uppercase;
+}
+#cwvpsb_query_message{
+ width:auto;
+}
+
+span.cwvpsb-hide
+{
+  position: absolute;
+  margin-top:10px;
+}
+
+.support_heading{
+  position: absolute;
+    left: 6%;
+    top: 10%;
 }

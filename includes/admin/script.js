@@ -322,7 +322,77 @@ $(".cwvpbs-resend-urls").on("click", function(e){
 		})
 
 	});
+
+	$(".nav-tab").on("click", function(e){
+		if($(".cwvpsb-support").is(":visible"))
+		{
+			$('#submit').hide();
+		}
+		else
+		{
+			$('#submit').show();
+		}
+	
+	});
+
+	$(".cwvpsb-send-query").on("click", function(e){
+		e.preventDefault();   
+		$(".cwvpsb-query-error").hide();
+		$(".cwvpsb-query-success").hide(); 
+		var message     = $("#cwvpsb_query_message").val();  
+		var email       = $("#cwvpsb_query_email").val(); 
+		
+		if($.trim(message) !='' && $.trim(email) !='' && cwvpsbIsEmail(email) == true){
+			$(".cwvpsb-send-query").text('Sending ...');
+		 $.ajax({
+						type: "POST",    
+						url:ajaxurl,                    
+						dataType: "json",
+						data:{action:"cwvpsb_send_query_message",message:message,email:email,cwvpsb_wpnonce:cwvpsb_script_vars.nonce},
+						success:function(response){                       
+						  if(response['status'] =='t'){
+							$(".cwvpsb-query-success").show();
+							$(".cwvpsb-query-error").hide();
+							$("#cwvpsb_query_message").val('');
+							$("#cwvpsb_query_email").val(''); 
+							$(".cwvpsb-send-query").text('Send Support Request');
+						  }else{                                  
+							$(".cwvpsb-query-success").hide();  
+							$(".cwvpsb-query-error").show();
+							$(".cwvpsb-send-query").text('Send Support Request');
+						  }
+						},
+						error: function(response){                    
+						console.log(response);
+						}
+						});   
+		}else{
+			
+			if($.trim(message) =='' && $.trim(email) ==''){
+				alert('Please enter the message, email');
+			}else{
+			
+			if($.trim(message) == ''){
+				alert('Please enter the message');
+			}
+			if($.trim(email) == ''){
+				alert('Please enter the email');
+			}
+			if(cwvpsbIsEmail(email) == false){
+				alert('Please enter a valid email');
+			}
+				
+			}
+			
+		}                        
+	
+	});
 });
+
+function cwvpsbIsEmail(email) {
+    var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+    return regex.test(email);
+}
 
 var css_check_interval=setInterval(function(){
 	jQuery.ajax({
@@ -388,3 +458,4 @@ var css_check_interval=setInterval(function(){
 	})
 
 }, 10000);
+

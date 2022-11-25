@@ -207,6 +207,7 @@ class cwvLazyLoadScripts {
                 { return '';}
                 const url = new URL(link);
                 url.searchParams.delete('ver');
+                url.searchParams.delete('time');
                 return url.href;
             }
 

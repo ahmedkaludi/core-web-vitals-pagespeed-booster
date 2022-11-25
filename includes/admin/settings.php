@@ -75,7 +75,9 @@ public function cwvpsb_admin_interface_render(){
 
         echo '<a href="' . esc_url(cwvpsb_admin_link('cache')) . '" class="nav-tab ' . esc_attr( $tab == 'cache' ? 'nav-tab-active' : '') . '">' . esc_html__('Cache','cwvpsb') . '</a>';
 
-        echo '<a href="' . esc_url(cwvpsb_admin_link('advance')) . '" class="nav-tab ' . esc_attr( $tab == 'advance' ? 'nav-tab-active' : '') . '">' . esc_html__('Advance','cwvpsb') . '</a>';                                  
+        echo '<a href="' . esc_url(cwvpsb_admin_link('advance')) . '" class="nav-tab ' . esc_attr( $tab == 'advance' ? 'nav-tab-active' : '') . '">' . esc_html__('Advance','cwvpsb') . '</a>';
+
+        echo '<a href="' . esc_url(cwvpsb_admin_link('support')) . '" class="nav-tab ' . esc_attr( $tab == 'support' ? 'nav-tab-active' : '') . '">' . esc_html__('Support','cwvpsb') . '</a>';                                  
     ?>
     </h2>
     <form action="options.php" method="post" enctype="multipart/form-data" class="cwvpsb-settings-form">      
@@ -106,6 +108,9 @@ public function cwvpsb_admin_interface_render(){
             echo "<div class='cwvpsb-advance' ".( $tab != 'advance' ? 'style="display:none;"' : '').">";
             do_settings_sections( 'cwvpsb_advance_section' ); 
             echo "</div>";
+            echo "<div class='cwvpsb-support' ".( $tab != 'support' ? 'style="display:none;"' : '').">";
+            do_settings_sections( 'cwvpsb_support_section' ); 
+            echo "</div>";
             ?>
         </div>
         <div class="button-wrapper">                            
@@ -121,20 +126,22 @@ public function cwvpsb_admin_interface_render(){
          <p>We breath and live CWV technology and no body can beat us in this game.</p>
          <section class="bio">
           <div class="bio-wrap">
-            <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/ahmed-kaludi.jpg' ?>" alt="ahmed kaludi">
-            <p>Lead Developer</p>
+            <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/ahmed-kaludi.jpg' ?>" alt="Ahmed Kaludi">
+            <p>Ahmed Kaludi <br><b>Lead Developer</b></p>
           </div>
           <div class="bio-wrap">
-             <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/Mohammed-kaludi.jpeg' ?>" alt="Mohammed">
-                <p>Developer</p>
+             <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/Mohammed-kaludi.jpeg' ?>" alt="Mohammed Kaludi">
+                <p>Mohammed Kaludi <br><b>Developer</b></p>
+          </div>
+        </section>
+        <section class="bio">
+          <div class="bio-wrap">
+             <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/sanjeev-kumar.jpg' ?>" alt="Sanjeev Kumar">
+              <p>Sanjeev Kumar<br><b>Developer</b></p>
           </div>
           <div class="bio-wrap">
-             <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/zabi.jpg' ?>" alt="zabi">
-              <p>Developer</p>
-          </div>
-          <div class="bio-wrap">
-             <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/jamal.jpg' ?>" alt="jamal">
-             <p>Support Developer</p>
+             <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/akshay-wali.jpg' ?>" alt="Akshay Wali">
+             <p>Akshay Wali <br><b>Developer</b></p>
           </div>
         </section>
     <p class="boxdesc">Delivering a good user experience means a lot to us, so we try our best to reply each and every question.</p>
@@ -265,9 +272,36 @@ public function cwvpsb_settings_init(){
          array($this, 'generate_critical_css_callback'),
         'cwvpsb_advance_section',
         'cwvpsb_advance_section'
-    );                                      
+    ); 
+    
+    add_settings_section('cwvpsb_support_section', '','__return_false','cwvpsb_support_section');
+    add_settings_field(
+        'critical_css_for',
+        '',
+         array($this, 'support_section_callback'),
+        'cwvpsb_support_section',
+        'cwvpsb_support_section'
+    );
+    
 }
 
+public function support_section_callback(){
+
+
+    
+    echo '<tr>
+            <td> </td><td width="100%"><p class="support_heading">'.esc_html__('We are dedicated to provide Technical support &amp; Help to our users. Use the below form for sending your questions. ', 'cwvpsb').'</p></td></tr>
+          <tr><th scope="row">'.esc_html__('Email', 'cwvpsb').'<span class="cwvpsb-star-mark"> *</span></th><td> 
+                <input type="text" id="cwvpsb_query_email" name="cwvpsb_query_email" size="47" placeholder="Enter your Email"></td>
+         </tr>
+    <tr><th scope="row">'.esc_html__('Query', 'cwvpsb').'<span class="cwvpsb-star-mark"> *</span></th><td> 
+    <textarea rows="5" cols="50" id="cwvpsb_query_message" name="cwvpsb_query_message" placeholder="Write your query"></textarea>
+    </td></tr>
+    <tr><th scope="row"><button class="button button-primary cwvpsb-send-query">'.esc_html__('Send Support Request', 'cwvpsb').'</button><br>
+    <div class="clear"> </div>
+    <span class="cwvpsb-query-success cwvpsb-result cwvpsb-hide">'.esc_html__('Message sent successfully, Please wait we will get back to you shortly', 'cwvpsb').'</span>
+    <span class="cwvpsb-query-error cwvpsb-result cwvpsb-hide">'.esc_html__('Message not sent. please check your network connection', 'cwvpsb').'</span></th></tr>';
+}
 public function image_optimization_callback(){
    $settings = cwvpsb_defaults(); ?>  
     <div class="label-align">
@@ -372,7 +406,7 @@ public function critical_css_callback(){
     <select name="cwvpsb_get_settings[delay_js]">
         <option value="">Select Method</option>
      <?php
-        $delay = array('php' => 'PHP Method (Recommend)','js' => 'JS Method',);
+        $delay = array('php' => 'PHP Method (Recommended)','js' => 'JS Method',);
         foreach ($delay as $key => $value ) {
         ?>
             <option value="<?php echo $key;?>" <?php selected( $settings['delay_js'], $key);?>><?php echo $value;?></option>
