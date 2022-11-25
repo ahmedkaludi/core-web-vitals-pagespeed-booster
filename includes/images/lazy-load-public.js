@@ -14,6 +14,7 @@
         src: "data-src",
         srcset: "data-srcset",
 		sizes: "data-sizes",
+        style: "data-style",
         selector: ".cwvlazyload"
     };
 
@@ -64,10 +65,10 @@
         init: function() {
 
             /* Without observers load everything and bail out early. */
-            if (!root.IntersectionObserver) {
+            //if (!root.IntersectionObserver) {
                 this.loadImages();
                 return;
-            }
+            //}
 
             let self = this;
             let observerConfig = {
@@ -94,7 +95,8 @@
                                 entry.target.sizes = sizes;
                             }
                         } else {
-                            entry.target.style.backgroundImage = "url(" + src + ")";
+                            //entry.target.style.backgroundImage = "url(" + src + ")";
+                            entry.target.style = entry.target.getAttribute(self.settings.style);
                         }
                     }
                 });
@@ -130,7 +132,8 @@
                         image.sizes = sizes;
                     }
                 } else {
-                    image.style.backgroundImage = "url('" + src + "')";
+                    //image.style.backgroundImage = "url('" + src + "')";
+                    image.style = image.getAttribute(self.settings.style);
                 }
             });
         },

@@ -3,237 +3,89 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly.
 }
 
-class CWVPSB_Google_Fonts
-{
-	private $do_optimize;
+add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_google_fonts');
+function cwvpsb_google_fonts( $html ) { 
+		//create our fonts cache directory
+        if(!is_dir(CWVPSB_CACHE_FONTS_DIR . 'fonts/')) {
+            @mkdir(CWVPSB_CACHE_FONTS_DIR . 'fonts/', 0755, true);
+        }
+	preg_match_all('#<link[^>]+?href=(["\'])([^>]*?fonts\.googleapis\.com\/css.*?)\1.*?>#i', $html, $google_fonts, PREG_SET_ORDER);
+	if(!empty($google_fonts)) {
+            foreach($google_fonts as $google_font) {
+     
+                //create unique file details
+                $file_name = substr(md5($google_font[2]), 0, 12) . ".google-fonts.css";
+                $file_path = CWVPSB_CACHE_FONTS_DIR . 'fonts/' . $file_name;
+                $file_url = CWVPSB_CACHE_FONTS_URL . 'fonts/' . $file_name;
 
-	/**
-	 * constructor.
-	 */
-	public function __construct()
-	{
-		$this->do_optimize = true;
+                //download file if it doesn't exist
+                if(!file_exists($file_path)) {
+                    if(!download_google_font($google_font[2], $file_path)) {
+                        continue;
+                    }
+                }
 
-		add_action('wp_head', [$this, 'add_preloads'], 3);
-		add_action('wp_print_styles', [$this, 'process_fonts'], PHP_INT_MAX - 1000);
-		add_action('wp_footer', [$this, 'process_fonts_footer'], 3);
-		add_action('rest_api_init', [$this, 'register_routes']);
-	}
-
-	/**
-	 * TODO: When setting all preloads at once (different stylesheet handles) combined with unloads, not all URLs are rewritten with their cache keys properly.
-	 *       When configured handle by handle, it works fine. PHP multi-threading issues?
-	 */
-	public function add_preloads()
-	{
-		static $preloaded_fonts = [];
-
-		$preloaded_fonts = apply_filters('cwvpsb_frontend_preloaded_fonts', $preloaded_fonts);
-
-		if (!$preloaded_fonts) {
-			return;
-		}
-
-		static $optimized_fonts = [];
-
-		$stylesheets = apply_filters('cwvpsb_frontend_optimized_fonts', $optimized_fonts);
-
-		$i = 0;
-
-		foreach ($stylesheets as $stylesheet => $fonts) {
-			foreach ($fonts as $font) {
-				$preloads_stylesheet = $preloaded_fonts[$stylesheet] ?? [];
-
-				if (!in_array($font->id, array_keys($preloads_stylesheet))) {
-					continue;
-				}
-
-				$font_id          = $font->id;
-				$preload_variants = array_filter(
-					$font->variants,
-					function ($variant) use ($preloads_stylesheet, $font_id) {
-						return in_array($variant->id, $preloads_stylesheet[$font_id]);
-					}
-				);
-
-				foreach ($preload_variants as $variant) {
-					$url = $variant->woff2;
-					echo "<link id='wvpb-preload-$i' rel='preload' href='$url' as='font' type='font/woff2' crossorigin />\n";
-					$i++;
-				}
-			}
-		}
-	}
-	
-	/**
-	 * Update footer fonts
-	 */
-	function process_fonts_footer(){
-		$this->replace_registered_fonts("abc");
-	}
-
-	/**
-	 * Check if the Remove Google Fonts option is enabled.
-	 */
-	public function process_fonts()
-	{
-		if (!$this->do_optimize) {
-			return;
-		}
-
-		if (is_admin()) {
-			return;
-		}
-
-		$cached_file = '/uploads/web-vital-fonts/';	
-		if (!file_exists(WP_CONTENT_DIR . $cached_file)) {
-			return;
-		}
-
-		if (apply_filters('cwvpsb_advanced_processing_enabled', false)) {
-			return;
-		}
-		$processing_option = 'replace';//remove
-
-		switch ($processing_option) {
-			case 'remove':
-				add_action('wp_print_styles', [$this, 'remove_registered_fonts'], PHP_INT_MAX - 500);
-				break;
-			default:
-				add_action('wp_print_styles', [$this, 'replace_registered_fonts'], PHP_INT_MAX - 500);
-		}
-	}
-
-	/**
-	 * This function contains a nice little hack, to avoid messing with potential dependency issues. We simply set the source to an empty string!
-	 */
-	public function remove_registered_fonts()
-	{
-		global $wp_styles;
-
-		$registered = $wp_styles->registered;
-		$fonts      = apply_filters('cwvpsb_auto_remove', $this->detect_registered_google_fonts($registered));
-
-		foreach ($fonts as $handle => $font) {
-			$wp_styles->registered[$handle]->src = '';
-		}
-	}
-
-	/**
-	 * Retrieve stylesheets from Google Fonts' API and modify the stylesheet for local storage.
-	 */
-	public function replace_registered_fonts()
-	{
-		global $wp_styles;
-
-		$registered           = $wp_styles->registered;
-		$fonts                = apply_filters('cwvpsb_auto_replace', $this->detect_registered_google_fonts($registered));
-		$unloaded_stylesheets = self::unloaded_stylesheets();
-		$unloaded_fonts       = self::unloaded_fonts();
-
-		foreach ($fonts as $handle => $font) {
-			// If this stylesheet has been marked for unload, empty the src and skip out early.
-			if (in_array($handle, $unloaded_stylesheets)) {
-				$wp_styles->registered[$handle]->src = '';
-
-				continue;
-			}
-
-			$updated_handle = $handle;
-
-			if ($unloaded_fonts) {
-				$updated_handle = self::get_cache_key($handle);
-			}
-
-			$cached_file = '/wp-content/uploads/web-vital-fonts/' . $updated_handle . "/$updated_handle.";
-
-			if (file_exists(WP_CONTENT_DIR . $cached_file)) {
-				$wp_styles->registered[$handle]->src = content_url($cached_file);
-
-				continue;
-			}
-			/**
-			 * if files are not cached local then this restAPI will use
-			 */
-			$modetype = 'auto';
-			if ( $modetype == 'auto' ) {
-				$api_url  = str_replace(['http:', 'https:'], '', home_url($cached_file));
-				$protocol = '';
-
-				if (substr($font->src, 0, 2) == '//') {
-					$protocol = 'https:';
-				}
-
-				$wp_styles->registered[$handle]->src = $protocol . str_replace('//fonts.googleapis.com/', $api_url, $font->src) . "&handle=$updated_handle&original_handle=$handle";
-			}
-		}
-	}
-
-	/**
-	 * @param $registered_styles
-	 *
-	 * @return array
-	 */
-	private function detect_registered_google_fonts($registered_styles)
-	{
-		return array_filter(
-			$registered_styles,
-			function ($contents) {
-				return strpos($contents->src, 'fonts.googleapis.com/css') !== false
-					|| strpos($contents->src, 'fonts.gstatic.com') !== false;
-			}
-		);
-	}
-
-	/**
-	 * @return array
-	 */
-	public static function unloaded_stylesheets()
-	{
-		static $unloaded_stylesheets = [];
-
-	 
-
-		return array_filter($unloaded_stylesheets);
-	}
-	/**
-	 * @return array
-	 */
-	public static function unloaded_fonts()
-	{
-		static $unloaded_fonts = [];
-
-	 
-
-		return $unloaded_fonts;
-	}
-	/**
-	 * @param $handle
-	 *
-	 * @return string
-	 */
-	public static function get_cache_key($handle)
-	{
-		static $cache_keys = [];
-		 
-		$cache_keys = array_filter($cache_keys);
-
-		//$cache_keys = self::cache_keys();
-
-		foreach ($cache_keys as $index => $key) {
-			if (strpos($key, $handle) !== false) {
-				return $key;
-			}
-		}
-
-		return '';
-	}
-
-	public function register_routes()
-	{
-		require_once CWVPSB_PLUGIN_DIR."includes/css/google-fonts-api.php";
-		$proxy = new CWVPSB_Google_Fonts_API();
-		$proxy->register_routes();
-	}
+                //create font tag with new url
+                $new_google_font = str_replace($google_font[2], $file_url, $google_font[0]);
+                //replace original font tag
+                $html = str_replace($google_font[0], $new_google_font, $html);
+            }
+        }
+	return $html;
 }
-$webvital_font = new CWVPSB_Google_Fonts();
+
+function download_google_font($url, $file_path)
+    {
+        //add https if using relative scheme
+        if(substr($url, 0, 2) === '//') {
+            $url = 'https:' . $url;
+        }
+
+        //download css file
+        $css_response = wp_remote_get(html_entity_decode($url), array('user-agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36'));
+
+        //check valid response
+        if(wp_remote_retrieve_response_code($css_response) !== 200) {
+            return false;
+        }
+
+        //css content
+        $css = $css_response['body'];
+
+        //find font files inside the css
+        $regex = '/url\((https:\/\/fonts\.gstatic\.com\/.*?)\)/';
+        preg_match_all($regex, $css, $matches);
+        $font_urls = array_unique($matches[1]);
+
+        $font_requests = array();
+        foreach($font_urls as $font_url) {
+
+            if(!file_exists(CWVPSB_CACHE_FONTS_DIR . 'fonts/' . basename($font_url))) {
+                $font_requests[] = array('url' => $font_url, 'type' => 'GET');
+            }
+
+            $cached_font_url = CWVPSB_CACHE_FONTS_URL . 'fonts/' . basename($font_url);
+            $css = str_replace($font_url, $cached_font_url, $css);
+        }
+
+        //download new font files to cache directory
+        if(method_exists(Requests::class, 'request_multiple')) {
+            $font_responses = Requests::request_multiple($font_requests);
+
+            foreach($font_responses as $font_response) { 
+
+                if(is_a($font_response, 'Requests_Response')) {
+
+                    $font_path = CWVPSB_CACHE_FONTS_DIR . 'fonts/' . basename($font_response->url);
+ 
+                    //save font file
+                    file_put_contents($font_path, $font_response->body);
+                }
+            }
+        }
+
+        //save final css file
+        file_put_contents($file_path, $css);
+
+        return true;
+    }

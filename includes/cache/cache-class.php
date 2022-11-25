@@ -60,16 +60,34 @@ final class CWVPSB_Cache {
 				'process_clear_request'
 			)
 		);
+		
+		add_action(
+			'transition_post_status',
+			array(
+				__CLASS__,
+				'clear_homepage_category_cache_on_publish'
+			),
+			10,
+			3
+		);
 
 		// caching
 		if ( !is_admin() ) {
 			add_action(
-				'template_redirect',
+				'sanitize_comment_cookies',
+				array(
+					__CLASS__,
+					'handle_serving_cache'
+				),
+				0
+			);
+			add_filter(
+				'cwvpsb_complete_html_after_dom_loaded',
 				array(
 					__CLASS__,
 					'handle_cache'
 				),
-				0
+				99
 			);
 		} 
 
@@ -377,6 +395,34 @@ final class CWVPSB_Cache {
 		);
 	}
 
+	public static function clear_homepage_category_cache_on_publish($new_status, $old_status, $post){
+
+		   	if ( 'publish' !== $new_status ){
+		        	return;
+				}
+			$post_types = array('post');
+
+			if(!in_array(get_post_type($post), $post_types)){
+	        return;
+			}
+			// On new publish only
+			if ( $new_status !== $old_status) {
+			    $category = get_the_category($post->ID);
+			    if(!empty($category)){
+				    foreach ($category as $key => $value) {
+				    $cat_url = get_category_link( $category[$key]->term_id );
+					self::clear_page_cache_by_url($cat_url);
+				   }
+			    }
+			    $home_url = user_trailingslashit(home_url());
+			    if(!empty($home_url)){
+					// clear cache by URL
+					self::clear_page_cache_by_url($home_url);
+			    }  
+			}
+	    return;
+	}
+
 	public static function clear_home_page_cache() {
 
 		call_user_func(
@@ -419,10 +465,15 @@ final class CWVPSB_Cache {
 			return true;
 		}
 
-		// conditional tags
-		if ( self::_is_index() OR is_search() OR is_404() OR is_feed() OR is_trackback() OR is_robots() OR is_preview() OR post_password_required() ) {
+		// if logged in
+		if ( self::_is_logged_in() ) {
 			return true;
 		}
+
+		// conditional tags
+		/*if ( self::_is_index() OR (function_exists('is_search') && is_search()) OR is_404() OR is_feed() OR is_trackback() OR is_robots() OR is_preview() OR post_password_required() ) {
+			return true;
+		}*/
 
 		// DONOTCACHEPAGE check e.g. woocommerce
 		if ( defined('DONOTCACHEPAGE') && DONOTCACHEPAGE ) {
@@ -436,11 +487,6 @@ final class CWVPSB_Cache {
 
 		// Request with query strings
 		if ( ! empty($_GET) && ! isset( $_GET['utm_source'], $_GET['utm_medium'], $_GET['utm_campaign'] ) && get_option('permalink_structure') ) {
-			return true;
-		}
-
-		// if logged in
-		if ( self::_is_logged_in() ) {
 			return true;
 		}
 
@@ -475,12 +521,20 @@ final class CWVPSB_Cache {
 		return $data;
 	}
 
-	public static function handle_cache() {
-
+	public static function handle_cache($data) {
 		// bypass cache
 		if ( self::_bypass_cache() ) {
-			return;
+			return $data;
 		}
+		$settings = cwvpsb_defaults();
+		if(isset($settings['critical_css_support']) && $settings['critical_css_support']==1){
+           global $wp, $cwvpbCriticalCss;
+           $url = home_url( $wp->request );
+    		$url = trailingslashit($url);	
+    		if(!file_exists(CWVPSB_CRITICAL_CSS_CACHE_DIR.md5($url).'.css')){
+    		    return $data;
+    		}
+        }
 
 		// get asset cache status
 		$cached = call_user_func(
@@ -492,16 +546,41 @@ final class CWVPSB_Cache {
 
 		// check if cache empty
 		if ( empty($cached) ) {
-			ob_start('CWVPSB_Cache::set_cache');
-			return;
+			CWVPSB_Cache::set_cache($data);
+			//ob_start('CWVPSB_Cache::set_cache');
+			return $data;
 		}
-
+        /*return "hello obstart ".self::$disk::get_asset($data);*/ //To track cache serve on obstart
+        return self::$disk::get_asset($data);
 		// return cached asset
-		call_user_func(
+		/* call_user_func(
 			array(
 				self::$disk,
 				'get_asset'
 			)
+		);*/
+	}
+	
+	public static function handle_serving_cache(){
+	    // bypass cache
+		if ( self::_bypass_cache() ) {
+			return;
+		}
+		$cached = call_user_func(
+			array(
+				self::$disk,
+				'check_asset'
+			)
 		);
+		if ( !empty($cached) ) {
+		    /*echo "runs on setup_theme ";*/ //To track cache serve on setup theme
+		    call_user_func(
+			array(
+				self::$disk,
+				'get_asset_readfile'
+			));
+		    exit();
+		}
+		
 	}
 }

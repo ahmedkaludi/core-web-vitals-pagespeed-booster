@@ -46,12 +46,13 @@ class CWV_Lazy_Load {
 
     $plugin_public = new CWV_Lazy_Load_Public( $this->get_plugin_name(), $this->get_version() );
    
-     if ( !is_admin() && function_exists('is_checkout') && is_checkout()) {
+     if ( !is_admin() || !function_exists('is_checkout') || (function_exists('is_checkout') && !is_checkout()) ) {
       
-        $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
+        //$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-        $this->loader->add_action( 'wp_loaded', $plugin_public, 'buffer_start_cwv', 45 );
-        $this->loader->add_action( 'shutdown', $plugin_public, 'buffer_end_cwv', 45 );
+        //$this->loader->add_action( 'wp_loaded', $plugin_public, 'buffer_start_cwv', 45 );
+        add_filter( 'cwvpsb_complete_html_after_dom_loaded', array($plugin_public, 'buffer_start_cwv'), 45 );
+        //$this->loader->add_action( 'shutdown', $plugin_public, 'buffer_end_cwv', 45 );
       
     }
   }
@@ -153,9 +154,9 @@ class CWV_Lazy_Load_Public {
     wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'lazy-load-public.js', array( 'jquery' ), $this->version, false );
 
   }
-  public function buffer_start_cwv() { 
-    function lazy_load_img($wphtml) {
-      if ( function_exists( 'ampforwp_is_amp_endpoint' ) && ampforwp_is_amp_endpoint() ) {
+  public function buffer_start_cwv($wphtml) { 
+    //function lazy_load_img($wphtml) {
+    if ( function_exists( 'ampforwp_is_amp_endpoint' ) && ampforwp_is_amp_endpoint() ) {
       return $wphtml;
     }
       $lazy_jq_selector = 'img';   
@@ -177,9 +178,26 @@ class CWV_Lazy_Load_Public {
        }
               
       }
+      //return json_encode(count($pq->xpath->query('//*[@style]')));
+      foreach($pq->xpath->query('//*[@style]') as $node)
+      {
+        $style =  $node->getAttribute('style');
+        $gotmatches = preg_match_all("/url\(.*?(gif|png|jpg|jpeg)\'\)/", $style, $matches);
+        if($gotmatches){
+          //return json_encode($matches[0]);
+          foreach ($matches[0] as $key => $value) {
+            $newstyle = str_replace($value, "url('data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw==')", $style); 
+            pq($node)->attr("data-style", $style);
+            pq($node)->attr("style", $newstyle);
+            pq($node)->addClass('cwvlazyload');
+          }
+          
+          //return json_encode($matches);die;
+        }
+      }
         return $pq->html();
-    }
-    ob_start("lazy_load_img"); 
+    //}
+    //ob_start("lazy_load_img"); 
   }
 
   public function buffer_end_cwv() { ob_end_flush(); }
