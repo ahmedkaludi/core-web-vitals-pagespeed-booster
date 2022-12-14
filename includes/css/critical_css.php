@@ -180,7 +180,7 @@ class cwvpbcriticalCss{
 		if(isset($matches1[0])){
 			foreach($matches1[0] as $i => $tag) {
 				$atts_array = !empty($matches1[2][$i]) ? $this->cwvpsb_get_atts_array($matches1[2][$i]) : array();
-				if($atts_array['id'] == 'cc-styles'){ continue; }
+				if(isset($atts_array['id']) && $atts_array['id'] == 'cc-styles'){ continue; }
 				if(isset($atts_array['type'])){
 					$atts_array['data-cwvpsb-cc-type'] = $atts_array['type'];
 				}
@@ -789,12 +789,12 @@ class cwvpbcriticalCss{
 	    $user_dirname = $this->cachepath();
 		$content = file_get_contents($targetUrl);
 		
-		$regex = '/<link(.*?)href="(.*?)" (.*?)>/';
-		preg_match_all( $regex, $content, $matches , PREG_SET_ORDER );
-		if(!$matches){
-			$regex = "/<link(.*?)href='(.*?)' (.*?)>/";
-			preg_match_all( $regex, $content, $matches , PREG_SET_ORDER );
-		}
+		$regex1 = '/<link(.*?)href="(.*?)"(.*?)>/';
+		preg_match_all( $regex1, $content, $matches1 , PREG_SET_ORDER );
+		$regex2 = "/<link(.*?)href='(.*?)'(.*?)>/";
+		preg_match_all( $regex2, $content, $matches2 , PREG_SET_ORDER );
+		$matches=array_merge($matches1,$matches2);
+		
 		$rowcss = '';
 		$all_css = [];
 		
@@ -1047,7 +1047,7 @@ class cwvpbcriticalCss{
 			, ARRAY_A);
 		}else
 		{
-			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name"));
+			$total_count  = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
 			$result = $wpdb->get_results(
 				stripslashes($wpdb->prepare(
 					"SELECT * FROM $table_name LIMIT %d, %d", $offset, $length
