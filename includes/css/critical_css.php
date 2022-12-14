@@ -1047,7 +1047,7 @@ class cwvpbcriticalCss{
 			, ARRAY_A);
 		}else
 		{
-			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name"));
+			$total_count  = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
 			$result = $wpdb->get_results(
 				stripslashes($wpdb->prepare(
 					"SELECT * FROM $table_name LIMIT %d, %d", $offset, $length
