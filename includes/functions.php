@@ -161,6 +161,7 @@ function cwvpsb_defaults(){
        'cache_support_method'=>'Highly Optimized',
        'cache_support'=>1,
        'advance_support'=>'',
+       'exclude_delay_js'=>'',
        'critical_css_on_home' => 1,
        'critical_css_on_cp_type' => array(
             'post' => 1
