@@ -180,7 +180,7 @@ class cwvpbcriticalCss{
 		if(isset($matches1[0])){
 			foreach($matches1[0] as $i => $tag) {
 				$atts_array = !empty($matches1[2][$i]) ? $this->cwvpsb_get_atts_array($matches1[2][$i]) : array();
-				if($atts_array['id'] == 'cc-styles'){ continue; }
+				if(isset($atts_array['id']) && $atts_array['id'] == 'cc-styles'){ continue; }
 				if(isset($atts_array['type'])){
 					$atts_array['data-cwvpsb-cc-type'] = $atts_array['type'];
 				}
