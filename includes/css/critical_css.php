@@ -184,7 +184,7 @@ class cwvpbcriticalCss{
 				if(isset($atts_array['type'])){
 					$atts_array['data-cwvpsb-cc-type'] = $atts_array['type'];
 				}
-				$atts_array['type'] = 'cwvpsbdelayedstyle';
+				//$atts_array['type'] = 'cwvpsbdelayedstyle';
 				$delayed_atts_string = $this->cwvpsb_get_atts_string($atts_array);
 		        $delayed_tag = sprintf('<style %1$s>', $delayed_atts_string) . (!empty($matches1[3][$i]) ? $matches1[3][$i] : '') .'</style>';
 				$html = str_replace($tag, $delayed_tag, $html);
