@@ -28,6 +28,7 @@ class cwvpbcriticalCss{
 	    if ( function_exists('elementor_load_plugin_textdomain') && \Elementor\Plugin::$instance->preview->is_preview_mode() ) {
 	    	return;
 		}
+		add_action('admin_notices', array($this,'cwvpsb_add_admin_notices'));
 		//add_action('wp_footer', array($this,'cwvpsb_delay_js_load'), PHP_INT_MAX);
 		if(function_exists('is_user_logged_in') && !is_user_logged_in()){
 		    add_action('wp', array($this, 'delay_css_loadings'), 999);
@@ -801,35 +802,59 @@ class cwvpbcriticalCss{
 		if($matches){        
 			
 			foreach($matches as $mat){						
-				if(strpos($mat[2], '.css') !== false) {
+				if((strpos($mat[2], '.css') !== false) && (strpos($mat[1], 'preload') === false)) {
 					$all_css[] = $mat[2];
-					$rowcss .= @file_get_contents($mat[2]);            
+					$rowcssdata = @file_get_contents($mat[2]);
+					
+					$regexn = '/@import\s*(url)?\s*\(?([^;]+?)\)?;/';
+
+					preg_match_all( $regexn, $rowcssdata, $matchen , PREG_SET_ORDER );
+					
+					if(!empty($matchen)){
+						foreach($matchen as $matn){
+							if(isset($matn[2])){								
+								$explod = explode('/',$matn[2]);
+								if(is_array($explod)){
+									$style = trim(end($explod),'"');
+									if(strpos($style, '.css') !== false) {
+										$pthemestyle = get_template_directory_uri().'/'.$style;
+										$rowcss     .= @file_get_contents($pthemestyle);
+									}																		
+								}								
+							}
+						}
+					}
+					$rowcss .= $rowcssdata;
 				}				
 				
 			}
 		}
-		$d = new DOMDocument;
-		$mock = new DOMDocument;
-		libxml_use_internal_errors(true);
-		$d->loadHTML($content);
-		$body = $d->getElementsByTagName('body')->item(0);
-		foreach ($body->childNodes as $child){
-			$mock->appendChild($mock->importNode($child, true));
+
+		if($content){
+			$d = new DOMDocument;
+			$mock = new DOMDocument;
+			libxml_use_internal_errors(true);
+			$d->loadHTML($content);
+			$body = $d->getElementsByTagName('body')->item(0);
+			foreach ($body->childNodes as $child){
+				$mock->appendChild($mock->importNode($child, true));
+			}
+			
+			$rawHtml =  $mock->saveHTML();	
+
+			require_once CWVPSB_DIR."/css-extractor/vendor/autoload.php";	    	
+					
+			$extracted_css_arr = array();
+
+			$page_specific = new \PageSpecificCss\PageSpecificCss();
+			$page_specific_css = preg_replace( "/@media[^{]*+{([^{}]++|{[^{}]*+})*+}/",'', $rowcss);
+			$page_specific->addBaseRules($page_specific_css);
+			$page_specific->addHtmlToStore($rawHtml);
+			$extractedCss = $page_specific->buildExtractedRuleSet();					
+			$extracted_css_arr[] = $extractedCss;		
 		}
-		
-		$rawHtml =  $mock->saveHTML();	
 
-		require_once CWVPSB_DIR."/css-extractor/vendor/autoload.php";	    	
-				
-		$extracted_css_arr = array();
-
-		$page_specific = new \PageSpecificCss\PageSpecificCss();
-		$page_specific->addBaseRules($rowcss);
-		$page_specific->addHtmlToStore($rawHtml);
-		$extractedCss = $page_specific->buildExtractedRuleSet();					
-		$extracted_css_arr[] = $extractedCss;		
-		
-		preg_match_all( "/@media [^{]*+{([^{}]++|{[^{}]*+})*+}/", $rowcss, $matchess , PREG_SET_ORDER );
+		preg_match_all( "/@media[^{]*+{([^{}]++|{[^{}]*+})*+}/", $rowcss, $matchess , PREG_SET_ORDER );
 
 		if($matchess){
 		
@@ -1306,6 +1331,17 @@ class cwvpbcriticalCss{
 		echo json_encode($retuernData);die;
 
 	}	
+
+	function cwvpsb_add_admin_notices(){
+		if(!filter_var( ini_get( 'allow_url_fopen' ), FILTER_VALIDATE_BOOLEAN )) {
+			$user = wp_get_current_user();
+			if ( in_array( 'administrator', (array) $user->roles ) ) {
+				echo '<div class="notice notice-warning is-dismissible">
+					  <p>'.esc_html('Core Web Vitals &amp; PageSpeed Booster ').'<strong>'.esc_html('"allow_url_fopen"').'</strong>'.esc_html(' option to be enabled in PHP configuration to work.').' </p>
+					 </div>';
+				}
+		}
+		}
 
 }
 $cwvpbCriticalCss = new cwvpbcriticalCss();
