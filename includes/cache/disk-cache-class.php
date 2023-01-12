@@ -14,7 +14,13 @@ final class CWVPSB_Cache_Disk {
 	const FILE_GZIP = 'index.html.gz';
 
 	public static function is_permalink() {
-		return get_option('permalink_structure');
+		if(is_multisite() && is_plugin_active_for_network(CWVPSB_BASE)){
+			return get_site_option('permalink_structure');
+		}
+		else{
+			return get_option('permalink_structure');
+		}
+		
 	}
 
 	public static function store_asset($data) {
@@ -57,11 +63,18 @@ final class CWVPSB_Cache_Disk {
 	}
 
 	public static function clear_home() {
+		
+		if ( is_multisite() && is_plugin_active_for_network(CWVPSB_BASE) ) {
+			$cwvps_siteurl=get_option('siteurl');
+		}
+		else{
+			$cwvps_siteurl=get_site_option('siteurl');
+		}
 		$path = sprintf(
 			'%s%s%s%s',
 			CWVPSB_CACHE_DIR,
 			DIRECTORY_SEPARATOR,
-			preg_replace('#^https?://#', '', get_option('siteurl')),
+			preg_replace('#^https?://#', '', $cwvps_siteurl),
 			DIRECTORY_SEPARATOR
 		);
 

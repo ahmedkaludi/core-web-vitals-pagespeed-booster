@@ -757,8 +757,8 @@ public function advance_url_callback(){
      */ 
     public function urlslist_callback(){
 
-        global $wpdb, $table_prefix;
-		$table_name = $table_prefix . 'cwvpb_critical_urls';
+        global $wpdb;
+		$table_name = $wpdb->prefix . 'cwvpb_critical_urls';
         //$total_count        = cwvpbs_get_total_urls();
         $total_count        = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
         $cached_count       = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'cached'));                
@@ -942,8 +942,8 @@ function cwvpsb_update_critical_css_stat()
 {
     $response=array('status'=>'fail');
     if( wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce') ){ 
-        global $wpdb, $table_prefix;
-		$table_name = $table_prefix . 'cwvpb_critical_urls';
+        global $wpdb;
+		$table_name = $wpdb->prefix . 'cwvpb_critical_urls';  
         //$total_count        = cwvpbs_get_total_urls();
         $response['total_count']        = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
         $response['cached_count']       = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'cached'));                

@@ -71,7 +71,22 @@ function cwv_pse_initiate(){
 	add_filter('wp_handle_upload', array('Core_Web_Vital_Helper_Section', 'do_upload_with_webp'), 10, 2);
 }
 
-register_activation_hook( __FILE__, 'cwvpb_on_install' );
+register_activation_hook( __FILE__, 'cwvpb_on_activate' );
+
+function cwvpb_on_activate( $network_wide ) {
+    global $wpdb;
+
+    if ( is_multisite() && $network_wide ) {
+        $blog_ids = $wpdb->get_col( "SELECT blog_id FROM $wpdb->blogs" );
+        foreach ( $blog_ids as $blog_id ) {
+            switch_to_blog( $blog_id );
+            cwvpb_on_install();
+            restore_current_blog();
+        }
+    } else {
+        cwvpb_on_install();
+    }
+}
 
 function cwvpb_on_install(){
 
