@@ -21,7 +21,7 @@ function cwvpsb_get_atts_string($atts_array) {
 	if(!empty($atts_array)) {
 		$assigned_atts_array = array_map(
 		function($name, $value) {
-			if($value === '') {
+			if($value === '' || $value === null || $value == "null" ) {
 				return $name;
 			}
 			return sprintf('%s="%s"', $name, esc_attr($value));
@@ -672,12 +672,34 @@ function cwvpsb_delay_js_load() {
 			}
 			function removeVersionFromLink(link)
             {
-                if(!link)
-                { return "";}
-                const url = new URL(link);
-                url.searchParams.delete("ver");
-                url.searchParams.delete("time");
-                return url.href;
+                if(cwvpbIsValidUrl(link))
+				{
+					const url = new URL(cwvpbFormatLink(link));
+					url.searchParams.delete("ver");
+					url.searchParams.delete("time");
+					return url.href;
+				}
+				return link;
+            }
+
+			            function cwvpbIsValidUrl(urlString)
+            {
+                if(urlString){
+                    var expression =/[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+                    var regex = new RegExp(expression);
+                    return urlString.match(regex);
+                }
+				return false;
+            }
+            function cwvpbFormatLink(link)
+            {
+                let http_check=link.match("http:");
+                let https_check=link.match("https:");
+                if(!http_check && !https_check)
+                {
+                    return location.protocol+link;
+                }
+                return link;
             }
 		
   	async function cwvpsbTriggerEventListeners(){cwvpsbDOMLoaded=!0,await cwvpsbNextFrame(),document.dispatchEvent(new Event("cwvpsb-DOMContentLoaded")),await cwvpsbNextFrame(),window.dispatchEvent(new Event("cwvpsb-DOMContentLoaded")),await cwvpsbNextFrame(),document.dispatchEvent(new Event("cwvpsb-readystatechange")),await cwvpsbNextFrame(),document.cwvpsbonreadystatechange&&document.cwvpsbonreadystatechange(),await cwvpsbNextFrame(),window.dispatchEvent(new Event("cwvpsb-load")),await cwvpsbNextFrame(),window.cwvpsbonload&&window.cwvpsbonload(),await cwvpsbNextFrame(),jQueriesArray.forEach(function(e){e(window).trigger("cwvpsb-jquery-load")}),window.dispatchEvent(new Event("cwvpsb-pageshow")),await cwvpsbNextFrame(),window.cwvpsbonpageshow&&window.cwvpsbonpageshow()}async function cwvpsbNextFrame(){return new Promise(function(e){requestAnimationFrame(e)})}cwvpsbUserInteractions.forEach(function(e){window.addEventListener(e,cwvpsbTriggerDOMListener,{passive:!0})});</script>';

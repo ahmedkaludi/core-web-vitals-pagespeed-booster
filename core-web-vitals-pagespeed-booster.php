@@ -2,7 +2,7 @@
 /*
 Plugin Name: Core Web Vitals & PageSpeed Booster
 Description: Do you want to speed up your WordPress site? Fast loading pages improve user experience, increase your pageviews, and help with your WordPress SEO.
-Version: 1.0.8
+Version: 1.0.9
 Author: Magazine3
 Author URI: https://magazine3.company/
 Donate link: https://www.paypal.me/Kaludi/25
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 define('CWVPSB_PLUGIN_DIR', plugin_dir_path( __FILE__ ));
 define('CWVPSB_PLUGIN_DIR_URI', plugin_dir_url(__FILE__));
-define('CWVPSB_VERSION','1.0.8');
+define('CWVPSB_VERSION','1.0.9');
 define('CWVPSB_DIR', dirname(__FILE__));
 define('CWVPSB_BASE', plugin_basename(__FILE__));
 
@@ -71,7 +71,22 @@ function cwv_pse_initiate(){
 	add_filter('wp_handle_upload', array('Core_Web_Vital_Helper_Section', 'do_upload_with_webp'), 10, 2);
 }
 
-register_activation_hook( __FILE__, 'cwvpb_on_install' );
+register_activation_hook( __FILE__, 'cwvpb_on_activate' );
+
+function cwvpb_on_activate( $network_wide ) {
+    global $wpdb;
+
+    if ( is_multisite() && $network_wide ) {
+        $blog_ids = $wpdb->get_col( "SELECT blog_id FROM $wpdb->blogs" );
+        foreach ( $blog_ids as $blog_id ) {
+            switch_to_blog( $blog_id );
+            cwvpb_on_install();
+            restore_current_blog();
+        }
+    } else {
+        cwvpb_on_install();
+    }
+}
 
 function cwvpb_on_install(){
 

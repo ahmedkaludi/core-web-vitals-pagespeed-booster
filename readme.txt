@@ -2,7 +2,7 @@
 Contributors: magazine3
 Requires at least: 3.0
 Tested up to: 6.1
-Stable tag: 1.0.8
+Stable tag: 1.0.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: core web vitals, optimization, pagespeed, performance, cache
@@ -35,6 +35,10 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 * PHP CSS Parser library used https://github.com/sabberworm/PHP-CSS-Parser - License URI: https://github.com/sabberworm/PHP-CSS-Parser#license (PHP-CSS-Parser is freely distributable under the terms of an MIT-style license.)
 
 == Changelog ==
+
+= 1.0.9 (17 January 2023) =
+* Fixed: DataTables warning: table id=table_page_cc_style_completed – Ajax error. #73
+* Fixed: In multisite setup it shows "Sorry, you are not allowed to access this page." #74
 
 = 1.0.8 (10 January 2023) =
 * Improvement: Improved Critical CSS generation.

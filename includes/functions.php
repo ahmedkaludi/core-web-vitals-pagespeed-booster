@@ -121,7 +121,7 @@ function cwvpsb_admin_link($tab = '', $args = array()){
         $link = admin_url( 'admin.php?page=' . $page );
     }
     else {
-        $link = network_admin_url( 'admin.php?page=' . $page );
+        $link = get_dashboard_url(0,'admin.php?page=' . $page );
     }
 
     if ( $tab ) {
@@ -166,8 +166,15 @@ function cwvpsb_defaults(){
        'critical_css_on_cp_type' => array(
             'post' => 1
        )
-    );        
-    $settings = get_option( 'cwvpsb_get_settings', $defaults );   
+    ); 
+    if ( is_multisite() && is_plugin_active_for_network(CWVPSB_BASE) ) {
+        $settings = get_site_option( 'cwvpsb_get_settings', $defaults );
+    }  
+    else
+    {
+        $settings = get_option( 'cwvpsb_get_settings', $defaults );
+    }     
+       
     $settings['unused_css_support'] = 0;
     return $settings;
 }
@@ -309,7 +316,14 @@ function cwvpsb_on_specific_url(){
     $url_id = url_to_postid( $url );
     $id = get_the_ID();
     if (is_home() &&  $url == home_url( '/' )) {
-        $page_for_posts  =  get_option( 'page_for_posts' );
+        if ( is_multisite() && is_plugin_active_for_network(CWVPSB_BASE) ) {
+            $page_for_posts  =  get_site_option( 'page_for_posts' );
+        }  
+        else
+        {
+            $page_for_posts  =  get_option( 'page_for_posts' );
+        }  
+        
         $post = get_post($page_for_posts);
         $url_id = $post->ID;
     }
@@ -369,3 +383,5 @@ function cwvpsb_amp_support_enabled(){
     
     return false;
 }
+
+
