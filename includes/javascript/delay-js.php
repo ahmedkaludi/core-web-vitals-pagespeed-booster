@@ -588,7 +588,7 @@ function cwvpsb_delay_js_load() {
   	$js_content = '<script type="text/javascript" id="cwvpsb-delayed-scripts">' . 'cwvpsbUserInteractions=["keydown","mousemove","wheel","touchmove","touchstart","touchend","touchcancel","touchforcechange"],cwvpsbDelayedScripts={normal:[],defer:[],async:[]},jQueriesArray=[];var cwvpsbDOMLoaded=!1;function cwvpsbTriggerDOMListener(){' . 'cwvpsbUserInteractions.forEach(function(e){window.removeEventListener(e,cwvpsbTriggerDOMListener,{passive:!0})}),"loading"===document.readyState?document.addEventListener("DOMContentLoaded",cwvpsbTriggerDelayedScripts):cwvpsbTriggerDelayedScripts()}
 
            var time = Date.now;
-            
+		   var ccfw_loaded = false; 
 		   function calculate_load_times() {
 				// Check performance support
 				if (performance === undefined) {
@@ -635,25 +635,125 @@ function cwvpsb_delay_js_load() {
 				calculate_load_times();
 				}
 			};
-             //console.log("when delay script executed log");
-  		     //console.log(new Date().toLocaleTimeString());
-  	        async function cwvpsbTriggerDelayedScripts(){ctl(),cwvpsbDelayEventListeners(),cwvpsbDelayJQueryReady(),cwvpsbProcessDocumentWrite(),cwvpsbSortDelayedScripts(),cwvpsbPreloadDelayedScripts(),await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.normal),await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.defer),await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.async),await cwvpsbTriggerEventListeners()}function cwvpsbDelayEventListeners(){let e={};function t(t,n){function r(n){return e[t].delayedEvents.indexOf(n)>=0?"cwvpsb-"+n:n}e[t]||(e[t]={originalFunctions:{add:t.addEventListener,remove:t.removeEventListener},delayedEvents:[]},t.addEventListener=function(){arguments[0]=r(arguments[0]),e[t].originalFunctions.add.apply(t,arguments)},t.removeEventListener=function(){arguments[0]=r(arguments[0]),e[t].originalFunctions.remove.apply(t,arguments)}),e[t].delayedEvents.push(n)}function n(e,t){const n=e[t];Object.defineProperty(e,t,{get:n||function(){},set:function(n){e["cwvpsb"+t]=n}})}t(document,"DOMContentLoaded"),t(window,"DOMContentLoaded"),t(window,"load"),t(window,"pageshow"),t(document,"readystatechange"),n(document,"onreadystatechange"),n(window,"onload"),n(window,"onpageshow")}function cwvpsbDelayJQueryReady(){let e=window.jQuery;Object.defineProperty(window,"jQuery",{get:()=>e,set(t){if(t&&t.fn&&!jQueriesArray.includes(t)){t.fn.ready=t.fn.init.prototype.ready=function(e){cwvpsbDOMLoaded?e.bind(document)(t):document.addEventListener("cwvpsb-DOMContentLoaded",function(){e.bind(document)(t)})};const e=t.fn.on;t.fn.on=t.fn.init.prototype.on=function(){if(this[0]===window){function t(e){return e.split(" ").map(e=>"load"===e||0===e.indexOf("load.")?"cwvpsb-jquery-load":e).join(" ")}"string"==typeof arguments[0]||arguments[0]instanceof String?arguments[0]=t(arguments[0]):"object"==typeof arguments[0]&&Object.keys(arguments[0]).forEach(function(e){delete Object.assign(arguments[0],{[t(e)]:arguments[0][e]})[e]})}return e.apply(this,arguments),this},jQueriesArray.push(t)}e=t}})}function cwvpsbProcessDocumentWrite(){const e=new Map;document.write=document.writeln=function(t){var n=document.currentScript,r=document.createRange();let a=e.get(n);void 0===a&&(a=n.nextSibling,e.set(n,a));var o=document.createDocumentFragment();r.setStart(o,0),o.appendChild(r.createContextualFragment(t)),n.parentElement.insertBefore(o,a)}}
+
+			async function cwvpsbTriggerDelayedScripts() {
+				if(ccfw_loaded){ return ;}
+				ctl(), cwvpsbDelayEventListeners(), cwvpsbDelayJQueryReady(), cwvpsbProcessDocumentWrite(), cwvpsbSortDelayedScripts(), cwvpsbPreloadDelayedScripts(), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.normal), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.defer), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.async), await cwvpsbTriggerEventListeners()	
+			}
+			
+			function cwvpsbDelayEventListeners() {
+				let e = {};
+			
+				function t(t, n) {
+					function r(n) {
+						return e[t].delayedEvents.indexOf(n) >= 0 ? "cwvpsb-" + n : n
+					}
+					e[t] || (e[t] = {
+						originalFunctions: {
+							add: t.addEventListener,
+							remove: t.removeEventListener
+						},
+						delayedEvents: []
+					}, t.addEventListener = function() {
+						arguments[0] = r(arguments[0]), e[t].originalFunctions.add.apply(t, arguments)
+					}, t.removeEventListener = function() {
+						arguments[0] = r(arguments[0]), e[t].originalFunctions.remove.apply(t, arguments)
+					}), e[t].delayedEvents.push(n)
+				}
+			
+				function n(e, t) {
+					const n = e[t];
+					Object.defineProperty(e, t, {
+						get: n || function() {},
+						set: function(n) {
+							e["cwvpsb" + t] = n
+						}
+					})
+				}
+				t(document, "DOMContentLoaded"), t(window, "DOMContentLoaded"), t(window, "load"), t(window, "pageshow"), t(document, "readystatechange"), n(document, "onreadystatechange"), n(window, "onload"), n(window, "onpageshow")
+			}
+			
+			function cwvpsbDelayJQueryReady() {
+				let e = window.jQuery;
+				Object.defineProperty(window, "jQuery", {
+					get: () => e,
+					set(t) {
+						if (t && t.fn && !jQueriesArray.includes(t)) {
+							t.fn.ready = t.fn.init.prototype.ready = function(e) {
+								cwvpsbDOMLoaded ? e.bind(document)(t) : document.addEventListener("cwvpsb-DOMContentLoaded", function() {
+									e.bind(document)(t)
+								})
+							};
+							const e = t.fn.on;
+							t.fn.on = t.fn.init.prototype.on = function() {
+								if (this[0] === window) {
+									function t(e) {
+										return e.split(" ").map(e => "load" === e || 0 === e.indexOf("load.") ? "cwvpsb-jquery-load" : e).join(" ")
+									}
+									"string" == typeof arguments[0] || arguments[0] instanceof String ? arguments[0] = t(arguments[0]) : "object" == typeof arguments[0] && Object.keys(arguments[0]).forEach(function(e) {
+										delete Object.assign(arguments[0], {
+											[t(e)]: arguments[0][e]
+										})[e]
+									})
+								}
+								return e.apply(this, arguments), this
+							}, jQueriesArray.push(t)
+						}
+						e = t
+					}
+				})
+			}
+			
+			function cwvpsbProcessDocumentWrite() {
+				const e = new Map;
+				document.write = document.writeln = function(t) {
+					var n = document.currentScript,
+						r = document.createRange();
+					let a = e.get(n);
+					void 0 === a && (a = n.nextSibling, e.set(n, a));
+					var o = document.createDocumentFragment();
+					r.setStart(o, 0), o.appendChild(r.createContextualFragment(t)), n.parentElement.insertBefore(o, a)
+				}
+			}
+			
+			function cwvpsbSortDelayedScripts() {
+				document.querySelectorAll("script[type=cwvpsbdelayedscript]").forEach(function(e) {
+					e.hasAttribute("src") ? e.hasAttribute("defer") && !1 !== e.defer ? cwvpsbDelayedScripts.defer.push(e) : e.hasAttribute("async") && !1 !== e.async ? cwvpsbDelayedScripts.async.push(e) : cwvpsbDelayedScripts.normal.push(e) : cwvpsbDelayedScripts.normal.push(e)
+				})
+			}
   	        
-          	        function cwvpsbSortDelayedScripts(){
-              	           document.querySelectorAll("script[type=cwvpsbdelayedscript]").forEach(function(e){e.hasAttribute("src")?e.hasAttribute("defer")&&!1!==e.defer?cwvpsbDelayedScripts.defer.push(e):e.hasAttribute("async")&&!1!==e.async?cwvpsbDelayedScripts.async.push(e):cwvpsbDelayedScripts.normal.push(e):cwvpsbDelayedScripts.normal.push(e)})
-          	        }
-  	        
-  	        function cwvpsbPreloadDelayedScripts(){var e=document.createDocumentFragment();[...cwvpsbDelayedScripts.normal,...cwvpsbDelayedScripts.defer,...cwvpsbDelayedScripts.async].forEach(function(t){var n=removeVersionFromLink(t.getAttribute("src"));t.setAttribute("src",n);if(n){var r=document.createElement("link");r.href=n,r.rel="preload",r.as="script",e.appendChild(r)}}),document.head.appendChild(e)}async function cwvpsbLoadDelayedScripts(e){var t=e.shift();return t?(await cwvpsbReplaceScript(t),cwvpsbLoadDelayedScripts(e)):Promise.resolve()}async function cwvpsbReplaceScript(e){return await cwvpsbNextFrame(),new Promise(function(t){const n=document.createElement("script");[...e.attributes].forEach(function(e){let t=e.nodeName;"type"!==t&&("data-type"===t&&(t="type"),n.setAttribute(t,e.nodeValue))}),e.hasAttribute("src")?(n.addEventListener("load",t),n.addEventListener("error",t)):(n.text=e.text,t()),e.parentNode.replaceChild(n,e)})}
+			function cwvpsbPreloadDelayedScripts() {
+				var e = document.createDocumentFragment();
+				[...cwvpsbDelayedScripts.normal, ...cwvpsbDelayedScripts.defer, ...cwvpsbDelayedScripts.async].forEach(function(t) {
+					var n = removeVersionFromLink(t.getAttribute("src"));
+					if (n) {
+						t.setAttribute("src", n);
+						var r = document.createElement("link");
+						r.href = n, r.rel = "preload", r.as = "script", e.appendChild(r)
+					}
+				}), document.head.appendChild(e)
+			}
+			async function cwvpsbLoadDelayedScripts(e) {
+				var t = e.shift();
+				return t ? (await cwvpsbReplaceScript(t), cwvpsbLoadDelayedScripts(e)) : Promise.resolve()
+			}
+			async function cwvpsbReplaceScript(e) {
+				return await cwvpsbNextFrame(), new Promise(function(t) {
+					const n = document.createElement("script");
+					[...e.attributes].forEach(function(e) {
+						let t = e.nodeName;
+						"type" !== t && ("data-type" === t && (t = "type"), n.setAttribute(t, e.nodeValue))
+					}), e.hasAttribute("src") ? (n.addEventListener("load", t), n.addEventListener("error", t)) : (n.text = e.text, t()), e.parentNode.replaceChild(n, e)
+				})
+			}
+
   	function ctl(){
 			var cssEle = document.querySelectorAll("link[rel=cwvpsbdelayedstyle]");
-				console.log(cssEle.length);
 				for(var i=0; i <= cssEle.length;i++){
 					if(cssEle[i]){
-						var cssMain = document.createElement("link");
-						cssMain.href = removeVersionFromLink(cssEle[i].href);
-						cssMain.rel = "stylesheet";
-						cssMain.type = "text/css";
-						document.getElementsByTagName("head")[0].appendChild(cssMain);
+						cssEle[i].href = removeVersionFromLink(cssEle[i].href);
+                        cssEle[i].rel = "stylesheet";
+                        cssEle[i].type = "text/css";
 					}
 				}
 				
@@ -661,14 +761,10 @@ function cwvpsb_delay_js_load() {
 				var cssEle = document.querySelectorAll("style[type=cwvpsbdelayedstyle]");
 				for(var i=0; i <= cssEle.length;i++){
 					if(cssEle[i]){
-						var cssMain = document.createElement("style");
-						cssMain.type = "text/css";
-						/*cssMain.rel = "stylesheet";*/
-						/*cssMain.type = "text/css";*/
-						cssMain.textContent = cssEle[i].textContent;
-						document.getElementsByTagName("head")[0].appendChild(cssMain);
+						cssEle[i].type = "text/css";
 					}
 				}
+				ccfw_loaded=true;
 			}
 			function removeVersionFromLink(link)
             {
@@ -702,6 +798,20 @@ function cwvpsb_delay_js_load() {
                 return link;
             }
 		
-  	async function cwvpsbTriggerEventListeners(){cwvpsbDOMLoaded=!0,await cwvpsbNextFrame(),document.dispatchEvent(new Event("cwvpsb-DOMContentLoaded")),await cwvpsbNextFrame(),window.dispatchEvent(new Event("cwvpsb-DOMContentLoaded")),await cwvpsbNextFrame(),document.dispatchEvent(new Event("cwvpsb-readystatechange")),await cwvpsbNextFrame(),document.cwvpsbonreadystatechange&&document.cwvpsbonreadystatechange(),await cwvpsbNextFrame(),window.dispatchEvent(new Event("cwvpsb-load")),await cwvpsbNextFrame(),window.cwvpsbonload&&window.cwvpsbonload(),await cwvpsbNextFrame(),jQueriesArray.forEach(function(e){e(window).trigger("cwvpsb-jquery-load")}),window.dispatchEvent(new Event("cwvpsb-pageshow")),await cwvpsbNextFrame(),window.cwvpsbonpageshow&&window.cwvpsbonpageshow()}async function cwvpsbNextFrame(){return new Promise(function(e){requestAnimationFrame(e)})}cwvpsbUserInteractions.forEach(function(e){window.addEventListener(e,cwvpsbTriggerDOMListener,{passive:!0})});</script>';
+			async function cwvpsbTriggerEventListeners() {
+				cwvpsbDOMLoaded = !0, await cwvpsbNextFrame(), document.dispatchEvent(new Event("cwvpsb-DOMContentLoaded")), await cwvpsbNextFrame(), window.dispatchEvent(new Event("cwvpsb-DOMContentLoaded")), await cwvpsbNextFrame(), document.dispatchEvent(new Event("cwvpsb-readystatechange")), await cwvpsbNextFrame(), document.cwvpsbonreadystatechange && document.cwvpsbonreadystatechange(), await cwvpsbNextFrame(), window.dispatchEvent(new Event("cwvpsb-load")), await cwvpsbNextFrame(), window.cwvpsbonload && window.cwvpsbonload(), await cwvpsbNextFrame(), jQueriesArray.forEach(function(e) {
+					e(window).trigger("cwvpsb-jquery-load")
+				}), window.dispatchEvent(new Event("cwvpsb-pageshow")), await cwvpsbNextFrame(), window.cwvpsbonpageshow && window.cwvpsbonpageshow()
+			}
+			async function cwvpsbNextFrame() {
+				return new Promise(function(e) {
+					requestAnimationFrame(e)
+				})
+			}
+			cwvpsbUserInteractions.forEach(function(e) {
+				window.addEventListener(e, cwvpsbTriggerDOMListener, {
+					passive: !0
+				})
+			});</script>';
   	echo $js_content;
 }
