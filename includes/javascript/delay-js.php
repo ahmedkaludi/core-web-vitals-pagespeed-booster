@@ -53,6 +53,10 @@ function cwvpsb_delay_js_main() {
 	if ( function_exists('elementor_load_plugin_textdomain') && \Elementor\Plugin::$instance->preview->is_preview_mode() ) {
     	return;
 	}
+	if(cwvpsb_wprocket_lazyjs()){
+        add_filter('rocket_delay_js_exclusions', 'cwvpsb_add_rocket_delay_js_exclusions');
+        return;   
+     }
 	add_filter('cwvpsb_complete_html_after_dom_loaded', 'cwvpsb_delay_js_html', 2);
 	add_filter('cwvpsb_complete_html_after_dom_loaded', 'cwvpsb_remove_js_query_param', 99);
 	add_action('wp_footer', 'cwvpsb_delay_js_load', PHP_INT_MAX);
@@ -814,4 +818,23 @@ function cwvpsb_delay_js_load() {
 				})
 			});</script>';
   	echo $js_content;
+}
+
+function cwvpsb_wprocket_lazyjs()
+{
+    if(defined('WP_ROCKET_VERSION'))
+    {
+        $cwvpsb_wprocket_options=get_option('wp_rocket_settings',null);
+
+        if(isset($cwvpsb_wprocket_options['defer_all_js']) && $cwvpsb_wprocket_options['defer_all_js']==1)
+        {
+            return true;   
+        }
+    }
+    return false;
+}
+
+function cwvpsb_add_rocket_delay_js_exclusions( $patterns ) {
+    $patterns[] = 'cwvpsb-delayed-scripts';	
+	return $patterns;
 }
