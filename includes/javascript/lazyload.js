@@ -31,19 +31,6 @@ class cwvLazyLoadScripts {
             e.hasAttribute("src") ? e.hasAttribute("async") && !1 !== e.async ? this.delayedScripts.async.push(e) : e.hasAttribute("defer") && !1 !== e.defer || "module" === e.getAttribute("data-cwv-type") ? this.delayedScripts.defer.push(e) : this.delayedScripts.normal.push(e) : this.delayedScripts.normal.push(e)
         }))
     }
-    /*
-    async _transformScript(e) {
-        return await this._requestAnimFrame(), new Promise((t => {
-            const n = document.createElement("script");
-            let r;
-            console.log('here it is');
-            [...e.attributes].forEach((e => {
-                let t = e.nodeName;
-                "type" !== t && ("data-cwv-type" === t && (t = "type", r = e.nodeValue), n.setAttribute(t, e.nodeValue))
-            })), e.hasAttribute("src") ? (n.addEventListener("load", t), n.addEventListener("error", t)) : (n.text = e.text, t()), e.parentNode.replaceChild(n, e)
-        }))
-    }
-    */
     _preloadAllScripts() {
         var e = document.createDocumentFragment();
         [...this.delayedScripts.normal, ...this.delayedScripts.defer, ...this.delayedScripts.async].forEach((t => {
@@ -189,13 +176,11 @@ class cwvLazyLoadScripts {
 
             for(var i=0; i <= scriptEle.length;i++){
                 if(scriptEle[i] && scriptEle[i].id !='jquery-core-js' && scriptEle[i].id !='jquery-migrate-js'){
-                    var scriptMain = document.createElement("script");
-                    scriptMain.type = "text/javascript";
+                    scriptEle[i].type = "text/javascript";
                     if(scriptEle[i].src)
-                    {scriptMain.src = this.removeVersionFromLink(scriptEle[i].src);}
-                    scriptMain.textContent = scriptEle[i].textContent;
-                    document.body.appendChild(scriptMain);
-                    
+                    {
+                        scriptEle[i].src = this.removeVersionFromLink(scriptEle[i].src);
+                    }                
                 }
             }
             }
@@ -215,7 +200,7 @@ class cwvLazyLoadScripts {
     static run() {
         const e = new cwvLazyLoadScripts(["keydown","mouseover","mousemove", "touchmove", "touchstart", "touchend", "wheel","load"]);
         e._addUserInteractionListener(e);
-       // setTimeout(function(){this.dispatchEvent(new CustomEvent('cwvdelayevent'));}, 1000);
+      
     }
 }
 cwvLazyLoadScripts.run();

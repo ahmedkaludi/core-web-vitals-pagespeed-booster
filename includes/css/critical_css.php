@@ -22,7 +22,7 @@ class cwvpbcriticalCss{
 
 	public function init(){
             		
-		if ( function_exists('is_checkout') && is_checkout()  || (function_exists('is_feed')&& is_feed())) {
+		if ( function_exists('is_checkout') && is_checkout()  || (function_exists('is_feed') && is_feed())) {
         	return;
 	    }
 	    if ( function_exists('elementor_load_plugin_textdomain') && \Elementor\Plugin::$instance->preview->is_preview_mode() ) {
@@ -46,10 +46,6 @@ class cwvpbcriticalCss{
         }, 10, 3 );
 	    
 	    add_action('wp_head', array($this, 'print_style_cc'),2);
-		//if(!is_admin()){
-		    //add_action( 'wp_enqueue_scripts', array($this, 'scripts_styles') );
-			
-		//}
 		
 		add_action("wp_ajax_cwvpsb_showdetails_data", array($this, 'cwvpsb_showdetails_data'));
 		add_action("wp_ajax_cwvpsb_showdetails_data_completed", array($this, 'cwvpsb_showdetails_data_completed'));
@@ -66,22 +62,11 @@ class cwvpbcriticalCss{
 		 if ( ! wp_next_scheduled( 'isa_add_every_one_hour' ) ) {
 		     wp_schedule_event( time(), 'every_one_hour',  'isa_add_every_one_hour' );
 		 }
-		add_action( 'isa_add_every_one_hour', array($this, 'every_one_minutes_event_func' ) );		
+		add_action( 'isa_add_every_one_hour', array($this, 'every_one_minutes_event_func' ) );
+		if(defined('DISABLE_WP_CRON') && DISABLE_WP_CRON==true){					
+			add_action( 'admin_init', array($this, 'every_one_minutes_event_func' ) );	
+		}		
 	}
-
-	/*function scripts_styles(){
-		global $wp;
-		wp_register_script('corewvps-cc', CWVPSB_PLUGIN_DIR_URI.'/includes/css/cc.js', array('jquery'), CWVPSB_VERSION, true);
-		wp_enqueue_script('corewvps-cc');
-		$user_dirname =  $this->cachepath();
-		$data = array('ajaxurl'=>admin_url( 'admin-ajax.php' ),
-					'cc_nonce'   => wp_create_nonce('cc_ajax_check_nonce'),
-					'current_url' => home_url( $wp->request ),
-					'grab_cc_check'=> ($this->check_critical_css()? 1: 2), 
-					//'test'=>$user_dirname."/".md5(home_url( $wp->request )).".css"
-					);
-		wp_localize_script('corewvps-cc', 'cwvpb_ccdata', $data);
-	}*/
 	
 	function print_style_cc(){
 		$user_dirname = $this->cachepath();		
@@ -443,15 +428,6 @@ class cwvpbcriticalCss{
 			);
 
 		} 
-		// else{
-		// 	$wpdb->query($wpdb->prepare(
-		// 		"UPDATE $table_name SET `url` = %s WHERE `url` = %s",
-		// 		$permalink,
-		// 		$post_id							
-		// 	));
-			
-		// }
-
 		}				  
 
 	}
@@ -490,15 +466,7 @@ class cwvpbcriticalCss{
 				);
 
 			} 
-			// else{
-			// 	$wpdb->query($wpdb->prepare(
-			// 		"UPDATE $table_name SET `url` = %s WHERE `url_id` = %d",
-			// 		$permalink,
-			// 		$term->term_id							
-			// 	));
-				
-			// }
-
+	
 			}			   
 
 	}
@@ -519,11 +487,7 @@ class cwvpbcriticalCss{
 					}
 				}
 			}
-			
-			//$postimp      = "'".implode("', '", $post_types)."'";
-		    
-			//$insert_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `type` IN ($postimp);"));
-					
+						
 			$start = get_option('save_posts_offset') ? get_option('save_posts_offset') : 0 ;
 			$batch = 30;
 			$offset = $start * $batch;
@@ -621,12 +585,6 @@ class cwvpbcriticalCss{
 				}
 			}
 		}
-		
-
-			//$postimp = "'".implode("', '", $taxonomy_types)."'";
-			
-			//$insert_count    = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `type` IN ($postimp);"));
-			
 			$start = get_option('save_terms_offset') ? get_option('save_terms_offset') : 0 ;
 			$batch = 30;
 			$offset = $start * $batch;
