@@ -150,7 +150,9 @@ class CWV_Lazy_Load_Public {
 
   
   public function enqueue_scripts() {
-
+    if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+      return ;
+    }
     wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'lazy-load-public.js', array( 'jquery' ), $this->version, false );
 
   }

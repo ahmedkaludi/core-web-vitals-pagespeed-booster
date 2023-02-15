@@ -194,7 +194,11 @@ function cwvpsb_admin_enqueue($check) {
     wp_enqueue_style( 'cwvpsb-admin-css' );
 
     $data = array(
-        'cwvpsb_security_nonce'         => wp_create_nonce('cwvpsb_ajax_check_nonce')  
+        'cwvpsb_security_nonce'                     => wp_create_nonce('cwvpsb_ajax_check_nonce') ,
+        'cwvpsb_showdetails_data_nonce'             => wp_create_nonce('cwvpsb_showdetails_data_nonce') ,
+        'cwvpsb_showdetails_data_completed_nonce'   => wp_create_nonce('cwvpsb_showdetails_data_completed_nonce') ,
+        'cwvpsb_showdetails_data_failed_nonce'      => wp_create_nonce('cwvpsb_showdetails_data_failed_nonce') ,
+        'cwvpsb_showdetails_data_queue_nonce'       => wp_create_nonce('cwvpsb_showdetails_data_queue_nonce')
     );
     wp_register_script( 'cwvpsb-admin-js', CWVPSB_PLUGIN_DIR_URI . 'includes/admin/script.js', array('cwvpsb-datatable-script'), CWVPSB_VERSION , true );
     wp_localize_script( 'cwvpsb-admin-js', 'cwvpsb_localize_data', $data );

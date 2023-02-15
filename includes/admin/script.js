@@ -136,8 +136,12 @@ $(".cwvpsb-tabs a").click(function(e){
 		processing: true,
         fixedColumns: true,		
 		ajax: {
-			type: "GET",
-			url: ajaxurl+"?action=cwvpsb_showdetails_data&cwvpsb_security_nonce="+cwvpsb_localize_data.cwvpsb_security_nonce
+			type: "POST",
+			url: ajaxurl,
+			data:{
+				'action': 'cwvpsb_showdetails_data',
+				'cwvpsb_showdetails_data_nonce' : cwvpsb_localize_data.cwvpsb_showdetails_data_nonce,
+			},
 		}
 	});
 	jQuery("#table_page_cc_style_completed").DataTable({
@@ -145,8 +149,12 @@ $(".cwvpsb-tabs a").click(function(e){
 		processing: true,
         fixedColumns: true,		
 		ajax: {
-			type: "GET",
-			url: ajaxurl+"?action=cwvpsb_showdetails_data_completed&cwvpsb_security_nonce="+cwvpsb_localize_data.cwvpsb_security_nonce
+			type: "POST",
+			url: ajaxurl,
+			data:{
+				'action': 'cwvpsb_showdetails_data_completed',
+				'cwvpsb_showdetails_data_completed_nonce' : cwvpsb_localize_data.cwvpsb_showdetails_data_completed_nonce,
+			},
 		}
 	});
 	jQuery("#table_page_cc_style_failed").DataTable({
@@ -154,8 +162,12 @@ $(".cwvpsb-tabs a").click(function(e){
 		processing: true,
         fixedColumns: true,		
 		ajax: {
-			type: "GET",
-			url: ajaxurl+"?action=cwvpsb_showdetails_data_failed&cwvpsb_security_nonce="+cwvpsb_localize_data.cwvpsb_security_nonce
+			type: "POST",
+			url: ajaxurl,
+			data:{
+				'action': 'cwvpsb_showdetails_data_failed',
+				'cwvpsb_showdetails_data_failed_nonce' : cwvpsb_localize_data.cwvpsb_showdetails_data_failed_nonce,
+			},
 		}
 	});
 	jQuery("#table_page_cc_style_queue").DataTable({
@@ -163,8 +175,12 @@ $(".cwvpsb-tabs a").click(function(e){
 		processing: true,
         fixedColumns: true,		
 		ajax: {
-			type: "GET",
-			url: ajaxurl+"?action=cwvpsb_showdetails_data_queue&cwvpsb_security_nonce="+cwvpsb_localize_data.cwvpsb_security_nonce
+			type: "POST",
+			url: ajaxurl,
+			data:{
+				'action': 'cwvpsb_showdetails_data_queue',
+				'cwvpsb_showdetails_data_queue_nonce' : cwvpsb_localize_data.cwvpsb_showdetails_data_queue_nonce,
+			},
 		}
 	});
 // tabs section for datatable starts here
