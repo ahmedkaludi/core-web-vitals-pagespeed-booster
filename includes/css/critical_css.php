@@ -63,11 +63,24 @@ class cwvpbcriticalCss{
 		     wp_schedule_event( time(), 'every_one_hour',  'isa_add_every_one_hour' );
 		 }
 		add_action( 'isa_add_every_one_hour', array($this, 'every_one_minutes_event_func' ) );
+
 		if(defined('DISABLE_WP_CRON') && DISABLE_WP_CRON==true){					
-			add_action( 'admin_init', array($this, 'every_one_minutes_event_func' ) );	
-		}		
+			//add_action( 'admin_init', array($this, 'every_one_minutes_event_func' ) );	
+			add_action( 'current_screen', array($this,'cwvpsb_custom_critical_css_generate' ));
+		}	
 	}
 	
+	public function cwvpsb_custom_critical_css_generate()
+	{
+		if ( is_admin() ) {
+			$current_screen = get_current_screen();
+			if(isset($current_screen->id) && $current_screen->id == 'toplevel_page_cwvpsb')
+			{
+				$this->every_one_minutes_event_func();
+			}
+		}
+	}
+
 	function print_style_cc(){
 		$user_dirname = $this->cachepath();		
 		global $wp, $wpdb, $table_prefix;
