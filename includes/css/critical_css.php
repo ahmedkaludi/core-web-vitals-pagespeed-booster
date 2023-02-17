@@ -22,7 +22,7 @@ class cwvpbcriticalCss{
 
 	public function init(){
             		
-		if ( function_exists('is_checkout') && is_checkout()  || (function_exists('is_feed')&& is_feed())) {
+		if ( function_exists('is_checkout') && is_checkout()  || (function_exists('is_feed') && is_feed())) {
         	return;
 	    }
 	    if ( function_exists('elementor_load_plugin_textdomain') && \Elementor\Plugin::$instance->preview->is_preview_mode() ) {
@@ -46,10 +46,6 @@ class cwvpbcriticalCss{
         }, 10, 3 );
 	    
 	    add_action('wp_head', array($this, 'print_style_cc'),2);
-		//if(!is_admin()){
-		    //add_action( 'wp_enqueue_scripts', array($this, 'scripts_styles') );
-			
-		//}
 		
 		add_action("wp_ajax_cwvpsb_showdetails_data", array($this, 'cwvpsb_showdetails_data'));
 		add_action("wp_ajax_cwvpsb_showdetails_data_completed", array($this, 'cwvpsb_showdetails_data_completed'));
@@ -66,23 +62,25 @@ class cwvpbcriticalCss{
 		 if ( ! wp_next_scheduled( 'isa_add_every_one_hour' ) ) {
 		     wp_schedule_event( time(), 'every_one_hour',  'isa_add_every_one_hour' );
 		 }
-		add_action( 'isa_add_every_one_hour', array($this, 'every_one_minutes_event_func' ) );		
+		add_action( 'isa_add_every_one_hour', array($this, 'every_one_minutes_event_func' ) );
+
+		if(defined('DISABLE_WP_CRON') && DISABLE_WP_CRON==true){					
+			//add_action( 'admin_init', array($this, 'every_one_minutes_event_func' ) );	
+			add_action( 'current_screen', array($this,'cwvpsb_custom_critical_css_generate' ));
+		}	
+	}
+	
+	public function cwvpsb_custom_critical_css_generate()
+	{
+		if ( is_admin() ) {
+			$current_screen = get_current_screen();
+			if(isset($current_screen->id) && $current_screen->id == 'toplevel_page_cwvpsb')
+			{
+				$this->every_one_minutes_event_func();
+			}
+		}
 	}
 
-	/*function scripts_styles(){
-		global $wp;
-		wp_register_script('corewvps-cc', CWVPSB_PLUGIN_DIR_URI.'/includes/css/cc.js', array('jquery'), CWVPSB_VERSION, true);
-		wp_enqueue_script('corewvps-cc');
-		$user_dirname =  $this->cachepath();
-		$data = array('ajaxurl'=>admin_url( 'admin-ajax.php' ),
-					'cc_nonce'   => wp_create_nonce('cc_ajax_check_nonce'),
-					'current_url' => home_url( $wp->request ),
-					'grab_cc_check'=> ($this->check_critical_css()? 1: 2), 
-					//'test'=>$user_dirname."/".md5(home_url( $wp->request )).".css"
-					);
-		wp_localize_script('corewvps-cc', 'cwvpb_ccdata', $data);
-	}*/
-	
 	function print_style_cc(){
 		$user_dirname = $this->cachepath();		
 		global $wp, $wpdb, $table_prefix;
@@ -443,15 +441,6 @@ class cwvpbcriticalCss{
 			);
 
 		} 
-		// else{
-		// 	$wpdb->query($wpdb->prepare(
-		// 		"UPDATE $table_name SET `url` = %s WHERE `url` = %s",
-		// 		$permalink,
-		// 		$post_id							
-		// 	));
-			
-		// }
-
 		}				  
 
 	}
@@ -490,15 +479,7 @@ class cwvpbcriticalCss{
 				);
 
 			} 
-			// else{
-			// 	$wpdb->query($wpdb->prepare(
-			// 		"UPDATE $table_name SET `url` = %s WHERE `url_id` = %d",
-			// 		$permalink,
-			// 		$term->term_id							
-			// 	));
-				
-			// }
-
+	
 			}			   
 
 	}
@@ -519,11 +500,7 @@ class cwvpbcriticalCss{
 					}
 				}
 			}
-			
-			//$postimp      = "'".implode("', '", $post_types)."'";
-		    
-			//$insert_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `type` IN ($postimp);"));
-					
+						
 			$start = get_option('save_posts_offset') ? get_option('save_posts_offset') : 0 ;
 			$batch = 30;
 			$offset = $start * $batch;
@@ -621,12 +598,6 @@ class cwvpbcriticalCss{
 				}
 			}
 		}
-		
-
-			//$postimp = "'".implode("', '", $taxonomy_types)."'";
-			
-			//$insert_count    = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `type` IN ($postimp);"));
-			
 			$start = get_option('save_terms_offset') ? get_option('save_terms_offset') : 0 ;
 			$batch = 30;
 			$offset = $start * $batch;
@@ -788,8 +759,8 @@ class cwvpbcriticalCss{
 		
 		$targetUrl = $current_url;
 	    $user_dirname = $this->cachepath();
-		$content = file_get_contents($targetUrl);
-		
+		$response = wp_remote_get($targetUrl);
+		$content = wp_remote_retrieve_body( $response );
 		$regex1 = '/<link(.*?)href="(.*?)"(.*?)>/';
 		preg_match_all( $regex1, $content, $matches1 , PREG_SET_ORDER );
 		$regex2 = "/<link(.*?)href='(.*?)'(.*?)>/";
@@ -804,7 +775,8 @@ class cwvpbcriticalCss{
 			foreach($matches as $mat){						
 				if((strpos($mat[2], '.css') !== false) && (strpos($mat[1], 'preload') === false)) {
 					$all_css[] = $mat[2];
-					$rowcssdata = @file_get_contents($mat[2]);
+					$response2 = wp_remote_get($mat[2]);
+					$rowcssdata = wp_remote_retrieve_body( $response2 );
 					
 					$regexn = '/@import\s*(url)?\s*\(?([^;]+?)\)?;/';
 
@@ -818,7 +790,8 @@ class cwvpbcriticalCss{
 									$style = trim(end($explod),'"');
 									if(strpos($style, '.css') !== false) {
 										$pthemestyle = get_template_directory_uri().'/'.$style;
-										$rowcss     .= @file_get_contents($pthemestyle);
+										$response3 = wp_remote_get($pthemestyle);
+										$rowcss   .= wp_remote_retrieve_body( $response3 );
 									}																		
 								}								
 							}
@@ -1040,24 +1013,24 @@ class cwvpbcriticalCss{
 	public function cwvpsb_showdetails_data(){
 		
 
-		if ( ! isset( $_GET['cwvpsb_security_nonce'] ) ){
+		if ( ! isset( $_POST['cwvpsb_showdetails_data_nonce'] ) ){
 			return; 
 		}
-		if ( !wp_verify_nonce( $_GET['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+		if ( !wp_verify_nonce( $_POST['cwvpsb_showdetails_data_nonce'], 'cwvpsb_showdetails_data_nonce' ) ){
 			return;  
 		}
 
-		$page   = isset($_GET['start']) && $_GET['start']> 0 ? $_GET['start']/$_GET['length'] : 1;
-		$length = isset($_GET['length']) ? intval($_GET['length']) : 10;
+		$page   = isset($_POST['start']) && $_POST['start']> 0 ? $_POST['start']/$_POST['length'] : 1;
+		$length = isset($_POST['length']) ? intval($_POST['length']) : 10;
 		$page   = ($page + 1);
-		$offset = isset($_GET['start']) ? intval($_GET['start']) : 0;
-		$draw = intval($_GET['draw']);						
+		$offset = isset($_POST['start']) ? intval($_POST['start']) : 0;
+		$draw = intval($_POST['draw']);						
 		
 		global $wpdb, $table_prefix;
 		$table_name = $table_prefix . 'cwvpb_critical_urls';
 																
-		if($_GET['search']['value']){
-			$search = sanitize_text_field($_GET['search']['value']);
+		if($_POST['search']['value']){
+			$search = sanitize_text_field($_POST['search']['value']);
 			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s ",
 			'%' . $wpdb->esc_like($search) . '%'
 			),			
@@ -1115,24 +1088,24 @@ class cwvpbcriticalCss{
 	}	
 	public function cwvpsb_showdetails_data_completed(){
 		
-		if ( ! isset( $_GET['cwvpsb_security_nonce'] ) ){
+		if ( ! isset( $_POST['cwvpsb_showdetails_data_completed_nonce'] ) ){
 			return; 
 		}
-		if ( !wp_verify_nonce( $_GET['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+		if ( !wp_verify_nonce( $_POST['cwvpsb_showdetails_data_completed_nonce'], 'cwvpsb_showdetails_data_completed_nonce' ) ){
 			return;  
 		}
 
-		$page   = isset($_GET['start']) && $_GET['start']> 0 ? $_GET['start']/$_GET['length'] : 1;
-		$length = isset($_GET['length']) ? intval($_GET['length']) : 10;
+		$page   = isset($_POST['start']) && $_POST['start']> 0 ? $_POST['start']/$_POST['length'] : 1;
+		$length = isset($_POST['length']) ? intval($_POST['length']) : 10;
 		$page   = ($page + 1);
-		$offset = isset($_GET['start']) ? intval($_GET['start']) : 0;
-		$draw = intval($_GET['draw']);						
+		$offset = isset($_POST['start']) ? intval($_POST['start']) : 0;
+		$draw = intval($_POST['draw']);						
 		
 		global $wpdb, $table_prefix;
 		$table_name = $table_prefix . 'cwvpb_critical_urls';
 																
-		if($_GET['search']['value']){
-			$search = sanitize_text_field($_GET['search']['value']);
+		if($_POST['search']['value']){
+			$search = sanitize_text_field($_POST['search']['value']);
 			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
 			'%' . $wpdb->esc_like($search) . '%','cached'
 			),			
@@ -1187,24 +1160,24 @@ class cwvpbcriticalCss{
 	}		
 	public function cwvpsb_showdetails_data_failed(){
 		
-		if ( ! isset( $_GET['cwvpsb_security_nonce'] ) ){
+		if ( ! isset( $_POST['cwvpsb_showdetails_data_failed_nonce'] ) ){
 			return; 
 		}
-		if ( !wp_verify_nonce( $_GET['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+		if ( !wp_verify_nonce( $_POST['cwvpsb_showdetails_data_failed_nonce'], 'cwvpsb_showdetails_data_failed_nonce' ) ){
 			return;  
 		}
 
-		$page   = isset($_GET['start']) && $_GET['start']> 0 ? $_GET['start']/$_GET['length'] : 1;
-		$length = isset($_GET['length']) ? intval($_GET['length']) : 10;
+		$page   = isset($_POST['start']) && $_POST['start']> 0 ? $_POST['start']/$_POST['length'] : 1;
+		$length = isset($_POST['length']) ? intval($_POST['length']) : 10;
 		$page   = ($page + 1);
-		$offset = isset($_GET['start']) ? intval($_GET['start']) : 0;
-		$draw = intval($_GET['draw']);						
+		$offset = isset($_POST['start']) ? intval($_POST['start']) : 0;
+		$draw = intval($_POST['draw']);						
 		
 		global $wpdb, $table_prefix;
 		$table_name = $table_prefix . 'cwvpb_critical_urls';
 																
-		if($_GET['search']['value']){
-			$search = sanitize_text_field($_GET['search']['value']);
+		if($_POST['search']['value']){
+			$search = sanitize_text_field($_POST['search']['value']);
 			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
 			'%' . $wpdb->esc_like($search) . '%','failed'
 			),			
@@ -1259,24 +1232,24 @@ class cwvpbcriticalCss{
 	}
 	public function cwvpsb_showdetails_data_queue(){
 		
-		if ( ! isset( $_GET['cwvpsb_security_nonce'] ) ){
+		if ( ! isset( $_POST['cwvpsb_showdetails_data_queue_nonce'] ) ){
 			return; 
 		}
-		if ( !wp_verify_nonce( $_GET['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+		if ( !wp_verify_nonce( $_POST['cwvpsb_showdetails_data_queue_nonce'], 'cwvpsb_showdetails_data_queue_nonce' ) ){
 			return;  
 		}
 
-		$page   = isset($_GET['start']) && $_GET['start']> 0 ? $_GET['start']/$_GET['length'] : 1;
-		$length = isset($_GET['length']) ? intval($_GET['length']) : 10;
+		$page   = isset($_POST['start']) && $_POST['start']> 0 ? $_POST['start']/$_POST['length'] : 1;
+		$length = isset($_POST['length']) ? intval($_POST['length']) : 10;
 		$page   = ($page + 1);
-		$offset = isset($_GET['start']) ? intval($_GET['start']) : 0;
-		$draw = intval($_GET['draw']);						
+		$offset = isset($_POST['start']) ? intval($_POST['start']) : 0;
+		$draw = intval($_POST['draw']);						
 		
 		global $wpdb, $table_prefix;
 		$table_name = $table_prefix . 'cwvpb_critical_urls';
 																
-		if($_GET['search']['value']){
-			$search = sanitize_text_field($_GET['search']['value']);
+		if($_POST['search']['value']){
+			$search = sanitize_text_field($_POST['search']['value']);
 			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
 			'%' . $wpdb->esc_like($search) . '%','queue'
 			),			

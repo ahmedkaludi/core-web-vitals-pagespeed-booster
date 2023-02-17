@@ -42,11 +42,11 @@ class CWV_Lazy_Load {
 
   }
   
-  private function define_public_hooks() {
+  private function define_public_hooks() { 
 
-    $plugin_public = new CWV_Lazy_Load_Public( $this->get_plugin_name(), $this->get_version() );
-   
-     if ( !is_admin() || !function_exists('is_checkout') || (function_exists('is_checkout') && !is_checkout()) ) {
+    if ( !is_admin() || !function_exists('is_checkout') || (function_exists('is_checkout') && !is_checkout()) ) {
+
+        $plugin_public = new CWV_Lazy_Load_Public( $this->get_plugin_name(), $this->get_version() );
       
         //$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
@@ -150,13 +150,18 @@ class CWV_Lazy_Load_Public {
 
   
   public function enqueue_scripts() {
-
+    if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+      return ;
+    }
     wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'lazy-load-public.js', array( 'jquery' ), $this->version, false );
 
   }
   public function buffer_start_cwv($wphtml) { 
     //function lazy_load_img($wphtml) {
     if ( function_exists( 'ampforwp_is_amp_endpoint' ) && ampforwp_is_amp_endpoint() ) {
+      return $wphtml;
+    }
+    if ( function_exists( 'is_checkout' ) && is_checkout() ) {
       return $wphtml;
     }
       $lazy_jq_selector = 'img';   

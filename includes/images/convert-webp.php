@@ -56,16 +56,20 @@ function cwvpsb_convert_webp(){
         $upload_dir_base .= '/'.$img_dir;
         $check_dir = $upload_dir_base . '.webp';
         if(!file_exists($check_dir) && file_exists($new_dir)){
-            $image = imagecreatefromstring(file_get_contents($new_dir));
-            ob_start();
-            imagejpeg($image,NULL,100);
-            $get_contents = ob_get_contents();
-            ob_end_clean();
-            imagedestroy($image);
-            $content = imagecreatefromstring($get_contents);
-            $output = $upload_dir_base . '.webp';
-            imagewebp($content,$output);
-            imagedestroy($content);
+            $check_svg = strpos(file_get_contents($new_dir),'</svg>');
+            if(!$check_svg && $check_svg!=0)
+            {
+                $image = imagecreatefromstring(file_get_contents($new_dir));
+                ob_start();
+                imagejpeg($image,NULL,100);
+                $get_contents = ob_get_contents();
+                ob_end_clean();
+                imagedestroy($image);
+                $content = imagecreatefromstring($get_contents);
+                $output = $upload_dir_base . '.webp';
+                imagewebp($content,$output);
+                imagedestroy($content);
+            }
         }
     }
 }
