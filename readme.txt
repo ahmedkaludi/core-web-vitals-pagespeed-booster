@@ -36,8 +36,9 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 
 == Changelog ==
 
-= 1.0.11 (02 February 2023) =
+= 1.0.11 (17 February 2023) =
 * Fixed: Woocommerce payment page is not working. #77 
+* Improvement : Remove plugin dependency from file_get_contents function #78
 
 = 1.0.10 (02 February 2023) =
 * Improvement: Optimized code and fixed frontend js issue 
