@@ -934,8 +934,14 @@ if (class_exists('cwvpsb_admin_settings')) {
 
 if(is_admin()){
     //add_action( 'wp_ajax_admin_bar_cwvpsb_purge_cache', 'cwvpsb_purge_cache', 0 );
-    add_action( 'wp_ajax_cwvpsb_purge_cache', 'cwvpsb_purge_cache', 0 );
-    add_action( 'wp_ajax_cwvpsb_update_critical_css_stat', 'cwvpsb_update_critical_css_stat');
+    add_action('wp_ajax_cwvpsb_purge_cache', 'cwvpsb_purge_cache', 0 );
+    add_action('wp_ajax_cwvpsb_update_critical_css_stat', 'cwvpsb_update_critical_css_stat');
+    add_action("wp_ajax_cwvpsb_showdetails_data",'cwvpsb_showdetails_data',10);
+    add_action("wp_ajax_cwvpsb_resend_urls_for_cache",  'cwvpsb_resend_urls_for_cache');
+    add_action("wp_ajax_cwvpsb_resend_single_url_for_cache",  'cwvpsb_resend_single_url_for_cache');
+    add_action("wp_ajax_cwvpsb_reset_urls_cache",'cwvpsb_reset_urls_cache');
+    add_action("wp_ajax_cwvpsb_recheck_urls_cache", 'cwvpsb_recheck_urls_cache');
+    
 }
 
 function cwvpsb_update_critical_css_stat()
@@ -1032,4 +1038,255 @@ function cwvpsb_delete_folder($dir){
 
         // delete
         @rmdir($dir);
+}
+
+function cwvpsb_cachepath(){
+    if(defined(CWVPSB_CRITICAL_CSS_CACHE_DIR)){
+        return CWVPSB_CRITICAL_CSS_CACHE_DIR;
+    }else{
+        return WP_CONTENT_DIR . "/cache/cwvpsb/css/";
+    }
+}
+function cwvpsb_showdetails_data(){
+		
+
+    if ( ! isset( $_POST['cwvpsb_showdetails_data_nonce'] ) ){
+        return; 
+    }
+    if ( !wp_verify_nonce( $_POST['cwvpsb_showdetails_data_nonce'], 'cwvpsb_showdetails_data_nonce' ) ){
+        return;  
+    }
+    if(! isset( $_POST['cwvpsb_type']) || empty($_POST['cwvpsb_type']))
+    {
+      return;  
+    }
+    $type=sanitize_text_field($_POST['cwvpsb_type']);
+    $page   = isset($_POST['start']) && $_POST['start']> 0 ? $_POST['start']/$_POST['length'] : 1;
+    $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
+    $page   = ($page + 1);
+    $offset = isset($_POST['start']) ? intval($_POST['start']) : 0;
+    $draw = intval($_POST['draw']);						
+    
+    global $wpdb, $table_prefix;
+    $table_name = $table_prefix . 'cwvpb_critical_urls';
+                                                            
+    if($_POST['search']['value']){
+        $search = sanitize_text_field($_POST['search']['value']);
+        if($type=="all")
+        {
+            $total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s ",
+            '%' . $wpdb->esc_like($search) . '%'
+            ),			
+            );
+        }
+        else{
+			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
+			'%' . $wpdb->esc_like($search) . '%',$type),			
+			); 
+        }
+        if($type=="all")
+        {
+        
+        $result = $wpdb->get_results(
+            stripslashes($wpdb->prepare(
+                "SELECT * FROM $table_name WHERE `url` LIKE %s LIMIT %d, %d",
+                '%' . $wpdb->esc_like($search) . '%', $offset, $length
+            ))
+        , ARRAY_A);
+
+        }
+        else{
+            $result = $wpdb->get_results(
+                stripslashes($wpdb->prepare(
+                    "SELECT * FROM $table_name WHERE `url` LIKE %s AND `status`=%s LIMIT %d, %d",
+                    '%' . $wpdb->esc_like($search) . '%', $type,$offset, $length
+                ))
+            , ARRAY_A);
+        }
+
+
+
+    }else
+    {
+        if($type=="all")
+        {
+        
+            $total_count  = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
+            $result = $wpdb->get_results(
+                stripslashes($wpdb->prepare(
+                    "SELECT * FROM $table_name LIMIT %d, %d", $offset, $length
+                ))
+            , ARRAY_A);
+        }
+        else
+        {
+            $total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s",$type));
+			$result = $wpdb->get_results(
+				stripslashes($wpdb->prepare(
+					"SELECT * FROM $table_name Where `status`=%s LIMIT %d, %d", $type,$offset, $length
+				))
+			, ARRAY_A);
+        }
+    }
+    
+    $formated_result = array();
+
+    if(!empty($result)){
+
+        foreach ($result as $value) {
+            $size="NA";
+            if($value['status'] == 'cached'){
+                $user_dirname = cwvpsb_cachepath();
+                $size = round(filesize($user_dirname.'/'.md5($value['url']).'.css')/1024,2).' KB';					
+                if(!$size){
+                    $size = '<abbr title="File is not in cached directory. Please recheck in advance option">Deleted</abbr>';
+                }
+            }
+                
+            $formated_result[] = array(
+                                '<div><abbr title="'.$value['cached_name'].'">'.$value['url'].'</abbr>'.($value['status'] == 'failed' ? '<a href="#" data-section="all" data-id="'.$value['id'].'" class="cwvpb-resend-single-url dashicons dashicons-controls-repeat"></a>' : '').' </div>',								   
+                                '<span class="cwvpb-status-t">'.$value['status'].'</span>',
+                                $size,
+                                $value['updated_at']
+                        );
+        }				
+
+    }	
+            
+    $retuernData = array(	
+        "draw"            => $draw,
+        "recordsTotal"    => $total_count,
+        "recordsFiltered" => $total_count,
+        "data"            => $formated_result
+    );
+
+    echo json_encode($retuernData);die;
+
+}	
+
+function cwvpsb_resend_single_url_for_cache(){
+
+    if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
+        return; 
+    }
+    if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+        return;  
+    }
+
+    global $wpdb, $table_prefix;
+    $table_name = $table_prefix . 'cwvpb_critical_urls';
+
+    $url_id = $_POST['url_id'] ? intval($_POST['url_id']) : null;
+    
+    if($url_id){
+        
+        $result = $wpdb->query($wpdb->prepare(
+            "UPDATE $table_name SET `status` = %s, `cached_name` = %s, `failed_error` = %s WHERE `id` = %d",
+            'queue',
+            '',
+            '',			
+            $url_id
+        ));
+                    
+        if($result){
+            echo json_encode(array('status' => true));
+        }else{
+            echo json_encode(array('status' => false));
+        }
+
+    }else{
+        echo json_encode(array('status' => false));	
+    }			    
+    
+    die;
+}	
+function cwvpsb_resend_urls_for_cache(){
+
+    if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
+        return; 
+    }
+    if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+        return;  
+    }
+
+    global $wpdb, $table_prefix;
+    $table_name = $table_prefix . 'cwvpb_critical_urls';
+
+    $result = $wpdb->query($wpdb->prepare(
+        "UPDATE $table_name SET `status` = %s, `cached_name` = %s, `failed_error` = %s WHERE `status` = %s",
+        'queue',
+        '',
+        '',			
+        'failed'	
+    ));
+    if($result){
+        echo json_encode(array('status' => true));
+    }else{
+        echo json_encode(array('status' => false));
+    }
+    
+    die;
+}
+function cwvpsb_recheck_urls_cache(){
+
+    if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
+        return; 
+    }
+    if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+        return;  
+    }
+    
+    $limit = 100;
+    $page  = $_POST['page'] ? intval($_POST['page']) : 0;
+    $offset = $page * $limit;
+    global $wpdb, $table_prefix;
+    $table_name = $table_prefix . 'cwvpb_critical_urls';
+
+    $result = $wpdb->get_results(
+        stripslashes($wpdb->prepare(
+            "SELECT * FROM $table_name WHERE `status` = %s LIMIT %d, %d",
+            'cached', $offset, $limit
+        ))
+    , ARRAY_A);
+    
+    if($result && count($result) > 0){
+        $user_dirname = cwvpsb_cachepath();		
+        foreach($result as $value){
+                
+            if(!file_exists($user_dirname.$value['cached_name'].'.css') ){
+            $updated = $wpdb->query($wpdb->prepare(
+                    "UPDATE $table_name SET `status` = %s,  `cached_name` = %s WHERE `url` = %s",
+                    'queue',
+                    '',
+                    $value['url']							
+                ));						
+            }
+        }
+
+        echo json_encode(array('status' => true, 'count' => count($result)));die;
+    }else{
+        echo json_encode(array('status' => true, 'count' => 0));die;
+    }
+                    
+}	
+function cwvpsb_reset_urls_cache(){
+
+    if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
+        return; 
+    }
+    if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+        return;  
+    }
+
+    global $wpdb;	
+    $table = $wpdb->prefix.'cwvpb_critical_urls';
+    $result = $wpdb->query( "TRUNCATE TABLE {$table}" );
+
+    $dir = cwvpsb_cachepath();				
+    WP_Filesystem();
+    global $wp_filesystem;
+    $wp_filesystem->rmdir($dir, true);
+
+    echo json_encode(array('status' => true));die;
+    
 }
