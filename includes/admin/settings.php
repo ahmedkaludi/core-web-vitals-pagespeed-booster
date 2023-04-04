@@ -404,7 +404,7 @@ public function critical_css_callback(){
     $settings = cwvpsb_defaults(); ?>  
     <div class="label-align delay_js">
     <select name="cwvpsb_get_settings[delay_js]">
-        <option value="">Select Method</option>
+        <option value=""><?php echo esc_html__('Select Method', 'cwvpsb');?></option>
      <?php
         $delay = array('php' => 'PHP Method (Recommended)','js' => 'JS Method',);
         foreach ($delay as $key => $value ) {
@@ -414,10 +414,11 @@ public function critical_css_callback(){
         }
         ?>
     </select>
-    
     <br/>
     <br/>
-    <textarea cols="70" rows="5" class="" name="cwvpsb_get_settings[exclude_delay_js]"><?php echo isset($settings['exclude_delay_js'])? $settings['exclude_delay_js']:''; ?></textarea>
+    <b><?php echo esc_html__('Exclude JS from Delay method', 'cwvpsb');?></b>
+    <br/>
+    <textarea cols="70" rows="5" class="" placeholder="Enter comma seprated js file to be excluded by Delay method (Ex: jquery.min.js,/plugin/assets/render.min.js,popup.js)" name="cwvpsb_get_settings[exclude_delay_js]"><?php echo isset($settings['exclude_delay_js'])? $settings['exclude_delay_js']:''; ?></textarea>
     </div>  
              
     <?php 
