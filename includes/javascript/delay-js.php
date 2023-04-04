@@ -588,14 +588,10 @@ function cwvpsb_delay_ajax_request(){
 	}
 
 function cwvpsb_delay_js_load() {
-    $submit_url =  admin_url('admin-ajax.php?action=cwvpsb_delay_ajax_request');
   	$js_content = '<script type="text/javascript" id="cwvpsb-delayed-scripts">
 	cwvpsbUserInteractions=["keydown","mousemove","wheel","touchmove","touchstart","touchend","touchcancel","touchforcechange"],cwvpsbDelayedScripts={normal:[],defer:[],async:[]},jQueriesArray=[];var cwvpsbDOMLoaded=!1;
 	function cwvpsbTriggerDOMListener(){cwvpsbUserInteractions.forEach(function(e){window.removeEventListener(e,cwvpsbTriggerDOMListener,{passive:!0})}),"loading"===document.readyState?document.addEventListener("DOMContentLoaded",cwvpsbTriggerDelayedScripts):cwvpsbTriggerDelayedScripts()}
 
-	cwvpsbUserInteractions.forEach(function(e){
-		window.addEventListener(e,calculate_load_times);
-	});
            var time = Date.now;
 		   var ccfw_loaded = false; 
 		   function calculate_load_times() {
@@ -610,6 +606,7 @@ function cwvpsb_delay_js_load() {
 				var resources = performance.getEntriesByType("resource");
 				if (resources === undefined || resources.length <= 0) {
 					console.log("= Calculate Load Times: there are NO `resource` performance records");
+					return;
 				}
 				if(resources.length)
 				{
@@ -628,10 +625,11 @@ function cwvpsb_delay_js_load() {
                 let gres = uag.match(gpat);
                 let cpat = /Chrome-Lighthouse/gm;
                 let cres = uag.match(cpat);
-                let wait_till=500;
+                let wait_till=100;
                 if(gres || cres){
                     wait_till = 3000;
                   }
+				  console.log(is_last_resource+"="+resources.length);
 				if(is_last_resource==resources.length){
 					setTimeout(function(){
 						cwvpsbTriggerDelayedScripts();
@@ -642,8 +640,8 @@ function cwvpsb_delay_js_load() {
 			window.addEventListener("load", function(e) {
 				console.log("load complete");
 				 setTimeout(function(){
-					 calculate_load_times();
-				 },500);
+					calculate_load_times();
+				 },100);
 		 });
 
 			async function cwvpsbTriggerDelayedScripts() {
