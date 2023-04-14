@@ -91,6 +91,14 @@ function cwvpsb_delay_js_html($html) {
 				}
 			}
 		}
+		// Fix for recaptcha
+		if(strpos($tag,'recaptcha') !== false) {
+			continue 1;
+		}
+		// Fix for google analytics
+		if((strpos($tag,'google-analytics') !== false) || (strpos($tag,'googletagmanager') !== false)) {
+			continue 1;
+		}
 
 		$delay_flag = true;
 		if(!empty($atts_array['type'])) {
