@@ -418,7 +418,7 @@ public function critical_css_callback(){
     <br/>
     <b><?php echo esc_html__('Exclude JS from Delay method', 'cwvpsb');?></b>
     <br/>
-    <textarea cols="70" rows="5" class="" placeholder="Enter comma seprated js file to be excluded by Delay method (Ex: jquery.min.js,/plugin/assets/render.min.js,popup.js)" name="cwvpsb_get_settings[exclude_delay_js]"><?php echo isset($settings['exclude_delay_js'])? $settings['exclude_delay_js']:''; ?></textarea>
+    <textarea cols="70" rows="5" class="" placeholder="Enter JS URL One per line (Ex: popup.js)" name="cwvpsb_get_settings[exclude_delay_js]"><?php echo isset($settings['exclude_delay_js'])? $settings['exclude_delay_js']:''; ?></textarea>
     </div>  
              
     <?php 
