@@ -614,7 +614,6 @@ function cwvpsb_delay_js_load() {
 				var resources = performance.getEntriesByType("resource");
 				if (resources === undefined || resources.length <= 0) {
 					console.log("= Calculate Load Times: there are NO `resource` performance records");
-					return;
 				}
 				if(resources.length)
 				{
@@ -633,7 +632,7 @@ function cwvpsb_delay_js_load() {
                 let gres = uag.match(gpat);
                 let cpat = /Chrome-Lighthouse/gm;
                 let cres = uag.match(cpat);
-                let wait_till=100;
+                let wait_till=1000;
                 if(gres || cres){
                     wait_till = 3000;
                   }
@@ -649,7 +648,7 @@ function cwvpsb_delay_js_load() {
 				console.log("load complete");
 				 setTimeout(function(){
 					calculate_load_times();
-				 },100);
+				 },200);
 		 });
 
 			async function cwvpsbTriggerDelayedScripts() {
