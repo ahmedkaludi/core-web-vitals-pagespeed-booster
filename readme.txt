@@ -37,7 +37,7 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 == Changelog ==
 
 = 1.0.12 (14 April 2023) =
-* Fixed: Warning: Undefined array key "advance_support" #80
+* Fixed: Warning Undefined array key "advance_support" #80
 * Fixed: Conflict with the Google reCAPTCHA v3 #82
 * Improvement : Add a label to the Exclude URL box #81
 * Improvement : Exclude Google analytics from js delay #62
