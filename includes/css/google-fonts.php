@@ -74,10 +74,10 @@ function download_google_font($url, $file_path)
 
             foreach($font_responses as $font_response) { 
 
-                if(is_a($font_response, 'Requests_Response')) {
+                if(isset($font_response->url) && isset($font_response->body)) {
 
                     $font_path = CWVPSB_CACHE_FONTS_DIR . 'fonts/' . basename($font_response->url);
- 
+                    
                     //save font file
                     file_put_contents($font_path, $font_response->body);
                 }
