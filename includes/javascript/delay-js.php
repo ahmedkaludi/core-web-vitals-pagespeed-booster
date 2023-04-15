@@ -597,7 +597,7 @@ function cwvpsb_delay_ajax_request(){
 
 function cwvpsb_delay_js_load() {
   	$js_content = '<script type="text/javascript" id="cwvpsb-delayed-scripts">
-	cwvpsbUserInteractions=["keydown","mousemove","wheel","touchmove","touchstart","touchend","touchcancel","touchforcechange"],cwvpsbDelayedScripts={normal:[],defer:[],async:[]},jQueriesArray=[];var cwvpsbDOMLoaded=!1;
+	cwvpsbUserInteractions=["keydown","mousemove","wheel","touchmove","touchstart","touchend","touchcancel","touchforcechange"],cwvpsbDelayedScripts={normal:[],defer:[],async:[],jquery:[]},jQueriesArray=[];var cwvpsbDOMLoaded=!1;
 	function cwvpsbTriggerDOMListener(){cwvpsbUserInteractions.forEach(function(e){window.removeEventListener(e,cwvpsbTriggerDOMListener,{passive:!0})}),"loading"===document.readyState?document.addEventListener("DOMContentLoaded",cwvpsbTriggerDelayedScripts):cwvpsbTriggerDelayedScripts()}
 
            var time = Date.now;
@@ -636,7 +636,6 @@ function cwvpsb_delay_js_load() {
                 if(gres || cres){
                     wait_till = 3000;
                   }
-				  console.log(is_last_resource+"="+resources.length);
 				if(is_last_resource==resources.length){
 					setTimeout(function(){
 						cwvpsbTriggerDelayedScripts();
@@ -653,7 +652,7 @@ function cwvpsb_delay_js_load() {
 
 			async function cwvpsbTriggerDelayedScripts() {
 				if(ccfw_loaded){ return ;}
-				ctl(), cwvpsbDelayEventListeners(), cwvpsbDelayJQueryReady(), cwvpsbProcessDocumentWrite(), cwvpsbSortDelayedScripts(), cwvpsbPreloadDelayedScripts(), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.normal), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.defer), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.async), await cwvpsbTriggerEventListeners()	
+				ctl(), cwvpsbDelayEventListeners(), cwvpsbDelayJQueryReady(), cwvpsbProcessDocumentWrite(), cwvpsbSortDelayedScripts(), cwvpsbPreloadDelayedScripts(),await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.jquery), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.normal), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.defer), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.async), await cwvpsbTriggerEventListeners()	
 			}
 			
 			function cwvpsbDelayEventListeners() {
@@ -733,7 +732,7 @@ function cwvpsb_delay_js_load() {
 			
 			function cwvpsbSortDelayedScripts() {
 				document.querySelectorAll("script[type=cwvpsbdelayedscript]").forEach(function(e) {
-					e.hasAttribute("src") ? e.hasAttribute("defer") && !1 !== e.defer ? cwvpsbDelayedScripts.defer.push(e) : e.hasAttribute("async") && !1 !== e.async ? cwvpsbDelayedScripts.async.push(e) : cwvpsbDelayedScripts.normal.push(e) : cwvpsbDelayedScripts.normal.push(e)
+					e.hasAttribute("src")&&(e.getAttribute("src").match("jquery.min.js")||e.getAttribute("src").match("jquery-migrate.min.js"))?cwvpsbDelayedScripts.jquery.push(e):e.hasAttribute("src")?e.hasAttribute("defer")&&!1!==e.defer?cwvpsbDelayedScripts.defer.push(e):e.hasAttribute("async")&&!1!==e.async?cwvpsbDelayedScripts.async.push(e):cwvpsbDelayedScripts.normal.push(e):cwvpsbDelayedScripts.normal.push(e);
 				})
 			}
   	        
