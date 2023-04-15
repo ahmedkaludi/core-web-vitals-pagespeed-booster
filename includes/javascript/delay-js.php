@@ -91,6 +91,14 @@ function cwvpsb_delay_js_html($html) {
 				}
 			}
 		}
+		// Fix for recaptcha
+		if(strpos($tag,'recaptcha') !== false) {
+			continue 1;
+		}
+		// Fix for google analytics
+		if((strpos($tag,'google-analytics') !== false) || (strpos($tag,'googletagmanager') !== false)) {
+			continue 1;
+		}
 
 		$delay_flag = true;
 		if(!empty($atts_array['type'])) {
@@ -588,8 +596,9 @@ function cwvpsb_delay_ajax_request(){
 	}
 
 function cwvpsb_delay_js_load() {
-    $submit_url =  admin_url('admin-ajax.php?action=cwvpsb_delay_ajax_request');
-  	$js_content = '<script type="text/javascript" id="cwvpsb-delayed-scripts">' . 'cwvpsbUserInteractions=["keydown","mousemove","wheel","touchmove","touchstart","touchend","touchcancel","touchforcechange"],cwvpsbDelayedScripts={normal:[],defer:[],async:[]},jQueriesArray=[];var cwvpsbDOMLoaded=!1;function cwvpsbTriggerDOMListener(){' . 'cwvpsbUserInteractions.forEach(function(e){window.removeEventListener(e,cwvpsbTriggerDOMListener,{passive:!0})}),"loading"===document.readyState?document.addEventListener("DOMContentLoaded",cwvpsbTriggerDelayedScripts):cwvpsbTriggerDelayedScripts()}
+  	$js_content = '<script type="text/javascript" id="cwvpsb-delayed-scripts">
+	cwvpsbUserInteractions=["keydown","mousemove","wheel","touchmove","touchstart","touchend","touchcancel","touchforcechange"],cwvpsbDelayedScripts={normal:[],defer:[],async:[],jquery:[]},jQueriesArray=[];var cwvpsbDOMLoaded=!1;
+	function cwvpsbTriggerDOMListener(){cwvpsbUserInteractions.forEach(function(e){window.removeEventListener(e,cwvpsbTriggerDOMListener,{passive:!0})}),"loading"===document.readyState?document.addEventListener("DOMContentLoaded",cwvpsbTriggerDelayedScripts):cwvpsbTriggerDelayedScripts()}
 
            var time = Date.now;
 		   var ccfw_loaded = false; 
@@ -619,14 +628,14 @@ function cwvpsb_delay_js_load() {
 				}
 			
 				let uag = navigator.userAgent;
-				let gpat = /\sGoogle\s/gm;
-				let gres = uag.match(gpat);
-				let cpat = /\sChrome-/gm;
-				let cres = uag.match(cpat);
-				let wait_till=400;
-				if(gres || cres){
-					wait_till = 3000;
-				}
+                let gpat = /Google Page Speed Insights/gm;
+                let gres = uag.match(gpat);
+                let cpat = /Chrome-Lighthouse/gm;
+                let cres = uag.match(cpat);
+                let wait_till=1000;
+                if(gres || cres){
+                    wait_till = 3000;
+                  }
 				if(is_last_resource==resources.length){
 					setTimeout(function(){
 						cwvpsbTriggerDelayedScripts();
@@ -634,15 +643,16 @@ function cwvpsb_delay_js_load() {
 				}
 			}
 			
-			document.onreadystatechange = (e) => {
-				if (e.target.readyState === "complete") {
-				calculate_load_times();
-				}
-			};
+			window.addEventListener("load", function(e) {
+				console.log("load complete");
+				 setTimeout(function(){
+					calculate_load_times();
+				 },200);
+		 });
 
 			async function cwvpsbTriggerDelayedScripts() {
 				if(ccfw_loaded){ return ;}
-				ctl(), cwvpsbDelayEventListeners(), cwvpsbDelayJQueryReady(), cwvpsbProcessDocumentWrite(), cwvpsbSortDelayedScripts(), cwvpsbPreloadDelayedScripts(), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.normal), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.defer), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.async), await cwvpsbTriggerEventListeners()	
+				ctl(), cwvpsbDelayEventListeners(), cwvpsbDelayJQueryReady(), cwvpsbProcessDocumentWrite(), cwvpsbSortDelayedScripts(), cwvpsbPreloadDelayedScripts(),await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.jquery), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.normal), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.defer), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.async), await cwvpsbTriggerEventListeners()	
 			}
 			
 			function cwvpsbDelayEventListeners() {
@@ -722,7 +732,7 @@ function cwvpsb_delay_js_load() {
 			
 			function cwvpsbSortDelayedScripts() {
 				document.querySelectorAll("script[type=cwvpsbdelayedscript]").forEach(function(e) {
-					e.hasAttribute("src") ? e.hasAttribute("defer") && !1 !== e.defer ? cwvpsbDelayedScripts.defer.push(e) : e.hasAttribute("async") && !1 !== e.async ? cwvpsbDelayedScripts.async.push(e) : cwvpsbDelayedScripts.normal.push(e) : cwvpsbDelayedScripts.normal.push(e)
+					e.hasAttribute("src")&&(e.getAttribute("src").match("jquery.min.js")||e.getAttribute("src").match("jquery-migrate.min.js"))?cwvpsbDelayedScripts.jquery.push(e):e.hasAttribute("src")?e.hasAttribute("defer")&&!1!==e.defer?cwvpsbDelayedScripts.defer.push(e):e.hasAttribute("async")&&!1!==e.async?cwvpsbDelayedScripts.async.push(e):cwvpsbDelayedScripts.normal.push(e):cwvpsbDelayedScripts.normal.push(e);
 				})
 			}
   	        

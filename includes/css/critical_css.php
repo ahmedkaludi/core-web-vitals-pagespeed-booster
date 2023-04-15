@@ -47,10 +47,10 @@ class cwvpbcriticalCss{
 	    
 	    add_action('wp_head', array($this, 'print_style_cc'),2);
 		
-		add_action("wp_ajax_cwvpsb_showdetails_data", array($this, 'cwvpsb_showdetails_data'));
-		add_action("wp_ajax_cwvpsb_showdetails_data_completed", array($this, 'cwvpsb_showdetails_data_completed'));
-		add_action("wp_ajax_cwvpsb_showdetails_data_failed", array($this, 'cwvpsb_showdetails_data_failed'));
-		add_action("wp_ajax_cwvpsb_showdetails_data_queue", array($this, 'cwvpsb_showdetails_data_queue'));
+		// add_action("wp_ajax_cwvpsb_showdetails_data", array($this, 'cwvpsb_showdetails_data'));
+		// add_action("wp_ajax_cwvpsb_showdetails_data_completed", array($this, 'cwvpsb_showdetails_data_completed'));
+		// add_action("wp_ajax_cwvpsb_showdetails_data_failed", array($this, 'cwvpsb_showdetails_data_failed'));
+		// add_action("wp_ajax_cwvpsb_showdetails_data_queue", array($this, 'cwvpsb_showdetails_data_queue'));
 
 		add_action("wp_ajax_cwvpsb_resend_urls_for_cache", array($this, 'cwvpsb_resend_urls_for_cache'));
 		add_action("wp_ajax_cwvpsb_resend_single_url_for_cache", array($this, 'cwvpsb_resend_single_url_for_cache'));
@@ -72,6 +72,7 @@ class cwvpbcriticalCss{
 	
 	public function cwvpsb_custom_critical_css_generate()
 	{
+		//date("i",time())%5;
 		if ( is_admin() ) {
 			$current_screen = get_current_screen();
 			if(isset($current_screen->id) && $current_screen->id == 'toplevel_page_cwvpsb')

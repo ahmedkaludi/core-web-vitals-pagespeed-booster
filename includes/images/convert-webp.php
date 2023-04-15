@@ -10,6 +10,7 @@ if (function_exists('imagewebp')) {
 
 function cwvpsb_convert_webp(){
     $post = get_post( get_the_ID() );
+    if(!$post){return;}
     $content = $post->post_content;
     if ( is_dynamic_sidebar() ) {
         ob_start();

@@ -141,6 +141,7 @@ $(".cwvpsb-tabs a").click(function(e){
 			data:{
 				'action': 'cwvpsb_showdetails_data',
 				'cwvpsb_showdetails_data_nonce' : cwvpsb_localize_data.cwvpsb_showdetails_data_nonce,
+				'cwvpsb_type':'all'
 			},
 		}
 	});
@@ -152,8 +153,9 @@ $(".cwvpsb-tabs a").click(function(e){
 			type: "POST",
 			url: ajaxurl,
 			data:{
-				'action': 'cwvpsb_showdetails_data_completed',
-				'cwvpsb_showdetails_data_completed_nonce' : cwvpsb_localize_data.cwvpsb_showdetails_data_completed_nonce,
+				'action': 'cwvpsb_showdetails_data',
+				'cwvpsb_showdetails_data_nonce' : cwvpsb_localize_data.cwvpsb_showdetails_data_nonce,
+				'cwvpsb_type':'cached'
 			},
 		}
 	});
@@ -165,8 +167,9 @@ $(".cwvpsb-tabs a").click(function(e){
 			type: "POST",
 			url: ajaxurl,
 			data:{
-				'action': 'cwvpsb_showdetails_data_failed',
-				'cwvpsb_showdetails_data_failed_nonce' : cwvpsb_localize_data.cwvpsb_showdetails_data_failed_nonce,
+				'action': 'cwvpsb_showdetails_data',
+				'cwvpsb_showdetails_data_nonce' : cwvpsb_localize_data.cwvpsb_showdetails_data_nonce,
+				'cwvpsb_type':'failed'
 			},
 		}
 	});
@@ -178,8 +181,9 @@ $(".cwvpsb-tabs a").click(function(e){
 			type: "POST",
 			url: ajaxurl,
 			data:{
-				'action': 'cwvpsb_showdetails_data_queue',
-				'cwvpsb_showdetails_data_queue_nonce' : cwvpsb_localize_data.cwvpsb_showdetails_data_queue_nonce,
+				'action': 'cwvpsb_showdetails_data',
+				'cwvpsb_showdetails_data_nonce' : cwvpsb_localize_data.cwvpsb_showdetails_data_nonce,
+				'cwvpsb_type':'queue'
 			},
 		}
 	});
