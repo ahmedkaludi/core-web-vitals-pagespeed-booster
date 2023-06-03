@@ -1000,9 +1000,10 @@ function cwvpsb_purge_cache(){
             );
         delete_transient( CWVPSB_CACHE_NAME );
         set_transient( CWVPSB_CACHE_NAME, time() );
-    }
-    wp_redirect( stripslashes( $_GET['_wp_http_referer']  ));
+        wp_safe_redirect( stripslashes( $_GET['_wp_http_referer']  ));
         exit;
+    }
+   
 }
 
 
