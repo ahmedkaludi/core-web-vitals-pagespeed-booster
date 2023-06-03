@@ -1,8 +1,8 @@
 === Core Web Vitals & PageSpeed Booster ===
 Contributors: magazine3
 Requires at least: 3.0
-Tested up to: 6.1
-Stable tag: 1.0.12
+Tested up to: 6.2
+Stable tag: 1.0.13
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: core web vitals, optimization, pagespeed, performance, cache
@@ -36,8 +36,11 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 
 == Changelog ==
 
-= 1.0.12 (14 April 2023) =
+= 1.0.13 (03 June 2023) =
+* Improvement: Improved CSS load 
+* Fixed: Redirection Issue
 
+= 1.0.12 (14 April 2023) =
 * Fixed: TypeError jQuery is not a function on console #84
 * Fixed: Google fonts not loading on PHP 8.0+ #83
 * Fixed: Conflict with the Google reCAPTCHA v3 #82
