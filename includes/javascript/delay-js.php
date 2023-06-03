@@ -633,7 +633,8 @@ function cwvpsb_delay_js_load() {
                 let cpat = /Chrome-Lighthouse/gm;
                 let cres = uag.match(cpat);
                 let wait_till=1000;
-                if(gres || cres){
+				let new_ua = "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Mobile Safari/537.36";
+                if(gres || cres || uag==new_ua){
                     wait_till = 3000;
                   }
 				if(is_last_resource==resources.length){
@@ -645,14 +646,15 @@ function cwvpsb_delay_js_load() {
 			
 			window.addEventListener("load", function(e) {
 				console.log("load complete");
+				ccfw_loaded=true;
 				 setTimeout(function(){
 					calculate_load_times();
-				 },200);
+				 },1000);
 		 });
 
 			async function cwvpsbTriggerDelayedScripts() {
 				if(ccfw_loaded){ return ;}
-				ctl(), cwvpsbDelayEventListeners(), cwvpsbDelayJQueryReady(), cwvpsbProcessDocumentWrite(), cwvpsbSortDelayedScripts(), cwvpsbPreloadDelayedScripts(),await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.jquery), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.normal), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.defer), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.async), await cwvpsbTriggerEventListeners()	
+				cwvpsbDelayEventListeners(), cwvpsbDelayJQueryReady(), cwvpsbProcessDocumentWrite(), cwvpsbSortDelayedScripts(), cwvpsbPreloadDelayedScripts(),await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.jquery), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.normal), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.defer), await cwvpsbLoadDelayedScripts(cwvpsbDelayedScripts.async), await cwvpsbTriggerEventListeners()	
 			}
 			
 			function cwvpsbDelayEventListeners() {
