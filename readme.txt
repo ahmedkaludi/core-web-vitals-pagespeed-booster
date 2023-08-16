@@ -5,10 +5,10 @@ Tested up to: 6.2
 Stable tag: 1.0.13
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Tags: core web vitals, optimization, pagespeed, performance, cache
+Tags: core web vitals, optimization, pagespeed, performance, cache , cwv
 
 == Description ==
-<h4>Core Web Vitals is the new ranking factor</h4>
+<h4>Core Web Vitals (CWV) is the new ranking factor</h4>
 
 Google announced that "Core Web Vitals" are going to be a significant ranking signal for websites. In fact, Core Web Vitals or the page experience signal is going to become a requirement for a page to appear in Google's Top Stories.
 
