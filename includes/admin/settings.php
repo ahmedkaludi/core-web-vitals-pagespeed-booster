@@ -619,8 +619,8 @@ public function advance_url_callback(){
         if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vitals-security-nonce')){
             echo json_encode(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified' , 'cwvpsb') ) );die;
         }
-        $filename = sanitize_text_field(stripslashes($_POST['filename']));
-        $filename = wp_unslash($_POST['filename']);
+        $filename = isset($_POST['filename'])?sanitize_text_field(stripslashes($_POST['filename'])):'';
+        $filename = isset($_POST['filename'])?wp_unslash($_POST['filename']):'';
 
         $upload = wp_upload_dir();
         $destinationPath = $upload['basedir']."/web-vital-webp";
@@ -934,7 +934,6 @@ if (class_exists('cwvpsb_admin_settings')) {
 
 
 if(is_admin()){
-    //add_action( 'wp_ajax_admin_bar_cwvpsb_purge_cache', 'cwvpsb_purge_cache', 0 );
     add_action('wp_ajax_cwvpsb_purge_cache', 'cwvpsb_purge_cache', 0 );
     add_action('wp_ajax_cwvpsb_update_critical_css_stat', 'cwvpsb_update_critical_css_stat');
     add_action("wp_ajax_cwvpsb_showdetails_data",'cwvpsb_showdetails_data',10);
@@ -948,7 +947,7 @@ if(is_admin()){
 function cwvpsb_update_critical_css_stat()
 {
     $response=array('status'=>'fail');
-    if( wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce') ){ 
+    if( wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce') && current_user_can( 'manage_options' )){ 
         global $wpdb;
 		$table_name = $wpdb->prefix . 'cwvpb_critical_urls';  
         //$total_count        = cwvpbs_get_total_urls();
@@ -984,7 +983,7 @@ function cwvpsb_update_critical_css_stat()
 }
 
 function cwvpsb_purge_cache(){
-    if( wp_verify_nonce( $_GET['_wpnonce'], 'cwvpsb_purge_cache_all' ) ){ 
+    if( isset($_GET['_wpnonce']) && wp_verify_nonce( $_GET['_wpnonce'], 'cwvpsb_purge_cache_all' ) && current_user_can( 'manage_options' ) ){ 
         CWVPSB_Cache::clear_total_cache(true);
         cwvpsb_delete_folder(
                 CWVPSB_CACHE_DIR
@@ -1062,7 +1061,12 @@ function cwvpsb_showdetails_data(){
     {
       return;  
     }
-    $type=sanitize_text_field($_POST['cwvpsb_type']);
+
+    if(!current_user_can( 'manage_options' ))
+    {
+      return;  
+    }
+    $type=isset($_POST['cwvpsb_type'])?sanitize_text_field($_POST['cwvpsb_type']):'';
     $page   = isset($_POST['start']) && $_POST['start']> 0 ? $_POST['start']/$_POST['length'] : 1;
     $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
     $page   = ($page + 1);
@@ -1072,7 +1076,7 @@ function cwvpsb_showdetails_data(){
     global $wpdb, $table_prefix;
     $table_name = $table_prefix . 'cwvpb_critical_urls';
                                                             
-    if($_POST['search']['value']){
+    if(isset($_POST['search']['value']) && $_POST['search']['value']){
         $search = sanitize_text_field($_POST['search']['value']);
         if($type=="all")
         {
@@ -1172,6 +1176,10 @@ function cwvpsb_resend_single_url_for_cache(){
         return;  
     }
 
+    if(!current_user_can( 'manage_options' ))
+    {
+      return;  
+    }
     global $wpdb, $table_prefix;
     $table_name = $table_prefix . 'cwvpb_critical_urls';
 
@@ -1207,6 +1215,10 @@ function cwvpsb_resend_urls_for_cache(){
     if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
         return;  
     }
+    if(!current_user_can( 'manage_options' ))
+    {
+      return;  
+    }
 
     global $wpdb, $table_prefix;
     $table_name = $table_prefix . 'cwvpb_critical_urls';
@@ -1233,6 +1245,11 @@ function cwvpsb_recheck_urls_cache(){
     }
     if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
         return;  
+    }
+
+    if(!current_user_can( 'manage_options' ))
+    {
+      return;  
     }
     
     $limit = 100;
@@ -1275,6 +1292,11 @@ function cwvpsb_reset_urls_cache(){
     }
     if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
         return;  
+    }
+
+    if(!current_user_can( 'manage_options' ))
+    {
+      return;  
     }
 
     global $wpdb;	

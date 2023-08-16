@@ -2,7 +2,6 @@
 require_once CWVPSB_PLUGIN_DIR."/includes/vendor/autoload.php";
 use Sabberworm\CSS\RuleSet\DeclarationBlock;
 use Sabberworm\CSS\CSSList\CSSList;
-use Sabberworm\CSS\Property\Selector;
 use Sabberworm\CSS\RuleSet\RuleSet;
 use Sabberworm\CSS\Property\AtRule;
 use Sabberworm\CSS\Rule\Rule;
@@ -14,7 +13,6 @@ use Sabberworm\CSS\CSSList\AtRuleBlockList;
 use Sabberworm\CSS\Value\RuleValueList;
 use Sabberworm\CSS\Value\URL;
 use Sabberworm\CSS\Value\Value;
-use Sabberworm\CSS\CSSList\Document as CSSDocument;
 class cwvpsb_treeshaking {
 
 	const STYLE_AMP_CUSTOM_SPEC_NAME    = 'style';
@@ -79,9 +77,9 @@ class cwvpsb_treeshaking {
 	private $current_sources;
 	private $processed_imported_stylesheet_urls = [];
 	private $selector_mappings = [];
-	private $video_autoplay_elements = [];
 	private $remote_request;
 	private $is_customize_preview;
+	private $dom;
 	public static function get_css_parser_validation_error_codes() {
 		return [
 			self::CSS_SYNTAX_INVALID_AT_RULE,
@@ -374,8 +372,7 @@ class cwvpsb_treeshaking {
 			}
 			$shake_css_duration += $pending_stylesheet['shake_time'];
 		}
-		/*do_action( 'amp_server_timing_log', 'amp_parse_css', '', [ 'dur' => $parse_css_duration * 1000 ], true );
-		do_action( 'amp_server_timing_log', 'amp_shake_css', '', [ 'dur' => $shake_css_duration * 1000 ], true );*/
+
 	}
 	private function get_stylesheet_priority( DOMNode $node ) {
 		$print_priority_base = 100;
@@ -779,7 +776,6 @@ class cwvpsb_treeshaking {
 		$cache_key      = null;
 		$cached         = true;
 		$cache_group    = 'web-vital-parsed-stylesheet-v30'; // This should be bumped whenever the PHP-CSS-Parser is updated or parsed format is updated.
-		/*$use_transients = $this->should_use_transient_caching();*/
 
 		$cache_impacting_options = array_merge(
 			wp_array_slice_assoc(
@@ -799,11 +795,6 @@ class cwvpsb_treeshaking {
 
 		$parsed = cwvpsb_style_get_file_transient( $cache_group . '-' . $cache_key );
 
-		/*if ( $use_transients ) {
-			$parsed = get_transient( $cache_group . '-' . $cache_key );
-		} else {
-			$parsed = wp_cache_get( $cache_key, $cache_group );
-		}*/
 		if ( ! empty( $parsed['validation_results'] ) ) {
 			foreach ( $parsed['validation_results'] as $validation_result ) {
 				$sanitized = '';
@@ -821,12 +812,7 @@ class cwvpsb_treeshaking {
 			$parsed = $this->parse_stylesheet( $stylesheet, $options );
 			
 			cwvpsb_set_file_transient( $cache_group . '-' . $cache_key, $parsed, MONTH_IN_SECONDS );
-			/*$cached = false;
-			if ( $use_transients ) {
-				set_transient( $cache_group . '-' . $cache_key, $parsed, MONTH_IN_SECONDS );
-			} else {
-				wp_cache_set( $cache_key, $parsed, $cache_group );
-			}*/
+
 		}
 
 		$parsed['cached'] = $cached;
@@ -2180,7 +2166,6 @@ function cwvpsb_set_file_transient( $transient, $value, $expiration = 0 ) {
 	        }
 	        $result = @fwrite( $ifp, json_encode($value) );
 		    fclose( $ifp );
-		    //set_transient($transient_option, true, 30 * 24 * 60);
 		}
 
 	}

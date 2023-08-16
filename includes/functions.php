@@ -10,8 +10,8 @@ require_once CWVPSB_PLUGIN_DIR."includes/gravatar.php";
 add_filter('plugin_action_links_core-web-vitals-page-speed-booster/core-web-vitals-page-speed-booster.php', 'cwvpsb_add_settings_link');
 function cwvpsb_add_settings_link( $links ) {
     $links[] = '<a href="' .
-        admin_url( 'admin.php?page=cwvpsb-images' ) .
-        '">' . 'Settings' . '</a>';
+        esc_url(admin_url( 'admin.php?page=cwvpsb-images' )) .
+        '">' . esc_attr( 'Settings' ). '</a>';
     return $links;
 }
 
@@ -89,6 +89,9 @@ add_action('wp_ajax_cwvpsb_clear_cached_css', 'cwvpsb_clear_cached_css');
 function cwvpsb_clear_cached_css(){
         if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'cwv-security-nonce')){
             echo json_encode(array("status"=> 400, "msg"=>esc_html__("Security verification failed, Refresh the page", 'cwvpsb') ));die;
+        }
+        if ( ! current_user_can( 'manage_options' ) ) {
+            echo json_encode(array("status"=> 400, "msg"=>esc_html__("Permission verification failed", 'cwvpsb') ));die;
         }
         $clean_types = array('css');
         if(!in_array($_POST['cleaning'], $clean_types)){
@@ -212,8 +215,8 @@ function cwvpsb_google_fonts_swap( $html ) {
     return $html;
 }
 
-add_filter('cwvpsb_complete_html_after_dom_loaded','web_vitals_changes');
-function web_vitals_changes($html){
+add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_web_vitals_changes');
+function cwvpsb_web_vitals_changes($html){
     if(!$html){ return $html; }
     if(function_exists('is_feed')&& is_feed()){return $html;}
     $settings = cwvpsb_defaults();
@@ -351,13 +354,11 @@ function cwvpsb_iframe_delay_enqueue(){
     
     global $iframe_check;
     if ( $iframe_check == 1 ) {
-        
-        
         wp_enqueue_script( 'cwvpsb_iframe', plugin_dir_url(__FILE__) . 'cwvpsb_iframe.js', array(), NULL);
         wp_enqueue_style( 'cwvpsb_iframe', plugin_dir_url(__FILE__) . 'cwvpsb_iframe.css', array(), NULL);
- 
-        echo '<style>.cwvpsb_iframe {max-width:600px !important}</style>';
-   
+        $cus_style= '<style>.cwvpsb_iframe {max-width:600px !important}</style>';
+        wp_add_inline_style( 'cwvpsb_iframe', $cus_style );
+        
     }
 }
 
@@ -385,5 +386,3 @@ function cwvpsb_amp_support_enabled(){
     
     return false;
 }
-
-

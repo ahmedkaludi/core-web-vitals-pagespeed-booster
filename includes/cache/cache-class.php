@@ -102,7 +102,7 @@ final class CWVPSB_Cache {
 	}
 
 	public static function on_activation() {
-		$networkwide = sanitize_text_field($_GET['networkwide']);
+		$networkwide = isset($_GET['networkwide'])?sanitize_text_field($_GET['networkwide']):'';
 		// multisite and network
 		if ( is_multisite() && ! empty($networkwide) ) {
 			// blog ids

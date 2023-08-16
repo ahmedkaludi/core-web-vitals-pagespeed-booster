@@ -2,6 +2,7 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly.
 }
+global $whitelist_css;
 add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_unused_css');
 function cwvpsb_unused_css($html){
 	$settings = cwvpsb_defaults();
@@ -22,7 +23,7 @@ function cwvpsb_unused_css($html){
 	$sanitize = $parser->sanitize();
 	$custom_style_element = $tmpDoc->createElement( 'style' );
 	$tmpDoc->head->appendChild( $custom_style_element );
-	$whitelist = cwvpsb_css_whitelist_selectors($html);
+	$whitelist = $whitelist_css;
 	  	if(!empty($whitelist)){
 		    $custom_style_element = $tmpDoc->createElement( 'style' );
 		    $custom_style_element->appendChild($tmpDoc->createTextNode( $whitelist ));
@@ -30,11 +31,6 @@ function cwvpsb_unused_css($html){
 	  	}	
 	$html = $tmpDoc->saveHTML($tmpDoc->documentElement);
 	return $html;
-}
-$whitelist_css = '';
-function cwvpsb_css_whitelist_selectors($html){
-    global $whitelist_css;
-    return $whitelist_css;
 }
 add_action('cwvpsb_css_whitelist_data', 'cwvpsb_get_whitelist_css', 10, 1);
 function cwvpsb_get_whitelist_css($html){

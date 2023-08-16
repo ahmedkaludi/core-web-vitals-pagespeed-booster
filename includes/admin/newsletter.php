@@ -16,7 +16,7 @@ class CWVPB_newsletter {
 	function __construct () {
          
                         add_filter( 'cwvpsb_localize_filter',array($this,'cwvpb_add_localize_footer_data'),10,2);
-                        add_action('wp_ajax_cwvp        b_subscribe_to_news_letter', array($this, 'cwvpb_subscribe_to_news_letter'));    
+                        add_action('wp_ajax_cwvpb_subscribe_to_news_letter', array($this, 'cwvpb_subscribe_to_news_letter'));    
 
         }
         
@@ -31,9 +31,9 @@ class CWVPB_newsletter {
                 if ( ! ( current_user_can( 'manage_options' ) ) ){
                         return;      
                 }           
-	        $name    = sanitize_text_field($_POST['name']);
-                $email   = sanitize_text_field($_POST['email']);
-                $website = sanitize_text_field($_POST['website']);
+	        $name    = isset($_POST['name'])?sanitize_text_field($_POST['name']):'';
+                $email   = isset($_POST['email'])?sanitize_text_field($_POST['email']):'';
+                $website = isset($_POST['website'])?sanitize_text_field($_POST['website']):'';
                 
                 if($email){
                         
