@@ -563,7 +563,7 @@ final class CWVPSB_Cache {
 	
 	public static function handle_serving_cache(){
 	    // bypass cache
-		if ( self::_bypass_cache() ) {
+		if ( self::_bypass_cache() || empty(self::$disk)) {
 			return;
 		}
 		$cached = call_user_func(
