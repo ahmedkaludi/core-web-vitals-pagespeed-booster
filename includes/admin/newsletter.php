@@ -14,10 +14,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class CWVPB_newsletter {
         
 	function __construct () {
-                if (current_user_can( 'manage_options' )){
+         
                         add_filter( 'cwvpsb_localize_filter',array($this,'cwvpb_add_localize_footer_data'),10,2);
-                        add_action('wp_ajax_cwvp        b_subscribe_to_news_letter', array($this, 'cwvpb_subscribe_to_news_letter'));     
-                } 
+                        add_action('wp_ajax_cwvp        b_subscribe_to_news_letter', array($this, 'cwvpb_subscribe_to_news_letter'));    
 
         }
         
