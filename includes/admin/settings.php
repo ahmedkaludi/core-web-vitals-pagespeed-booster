@@ -1077,14 +1077,11 @@ function cwvpsb_showdetails_data(){
         if($type=="all")
         {
             $total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s ",
-            '%' . $wpdb->esc_like($search) . '%'
-            ),			
-            );
+            '%' . $wpdb->esc_like($search) . '%'));
         }
         else{
 			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
-			'%' . $wpdb->esc_like($search) . '%',$type),			
-			); 
+			'%' . $wpdb->esc_like($search) . '%',$type)); 
         }
         if($type=="all")
         {
