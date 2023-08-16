@@ -198,6 +198,7 @@ function cwvpsb_admin_enqueue($check) {
         'cwvpsb_showdetails_data_nonce'             => wp_create_nonce('cwvpsb_showdetails_data_nonce') ,
     );
     wp_register_script( 'cwvpsb-admin-js', CWVPSB_PLUGIN_DIR_URI . 'includes/admin/script.js', array('cwvpsb-datatable-script'), CWVPSB_VERSION , true );
+    $data = apply_filters('cwvpsb_localize_filter',$data,'cwvpsb_localize_data');		
     wp_localize_script( 'cwvpsb-admin-js', 'cwvpsb_localize_data', $data );
     wp_enqueue_script( 'cwvpsb-admin-js' );
 }
