@@ -609,7 +609,6 @@ jQuery(document).ready(function($) {
                       });
                 }
       };
-      console.log('content', setup);
 
       if (wp_pointers_tour_opts.position && wp_pointers_tour_opts.position.defer_loading) {
               $(window).bind('load.wp-pointers', setup);

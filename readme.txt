@@ -1,8 +1,8 @@
 === Core Web Vitals & PageSpeed Booster ===
 Contributors: magazine3
 Requires at least: 3.0
-Tested up to: 6.2
-Stable tag: 1.0.13
+Tested up to: 6.3
+Stable tag: 1.0.14
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: core web vitals, optimization, pagespeed, performance, cache , cwv
@@ -35,6 +35,14 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 * PHP CSS Parser library used https://github.com/sabberworm/PHP-CSS-Parser - License URI: https://github.com/sabberworm/PHP-CSS-Parser#license (PHP-CSS-Parser is freely distributable under the terms of an MIT-style license.)
 
 == Changelog ==
+
+= 1.0.14 (16 August 2023) =
+
+* Fixed: Parse error unexpected ')' #87
+* Fixed: Error in core-web-vitals-pagespeed-booster Plugin. #99
+* Fixed: Compatibility with 10Web Booster #96
+* Improvement: Added newsletter form  #4
+* Improvement: WordPress 6.3 compatibility check #100 
 
 = 1.0.13 (03 June 2023) =
 * Improvement: Improved CSS load 
