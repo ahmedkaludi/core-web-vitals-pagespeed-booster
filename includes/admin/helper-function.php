@@ -240,7 +240,7 @@ function cwvpsb_sanitize_textarea_field( $str ) {
        return;
     }
     $message        = isset($_POST['message'])?cwvpsb_sanitize_textarea_field($_POST['message']):''; 
-    $email          = isset($_POST['email'])?cwvpsb_sanitize_textarea_field($_POST['email']):'';   
+    $email          = isset($_POST['email'])?sanitize_email($_POST['email']):'';   
                             
     if(function_exists('wp_get_current_user')){
 

@@ -2,7 +2,6 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly.
 }
-global $whitelist_css;
 add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_unused_css');
 function cwvpsb_unused_css($html){
 	$settings = cwvpsb_defaults();
@@ -23,6 +22,7 @@ function cwvpsb_unused_css($html){
 	$sanitize = $parser->sanitize();
 	$custom_style_element = $tmpDoc->createElement( 'style' );
 	$tmpDoc->head->appendChild( $custom_style_element );
+	global $whitelist_css;
 	$whitelist = $whitelist_css;
 	  	if(!empty($whitelist)){
 		    $custom_style_element = $tmpDoc->createElement( 'style' );
