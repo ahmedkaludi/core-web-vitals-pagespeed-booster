@@ -42,7 +42,7 @@ function download_google_font($url, $file_path)
         }
 
         //download css file
-        $css_response = wp_remote_get(html_entity_decode($url), array('user-agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36'));
+        $css_response = wp_remote_get(esc_url_raw($url), array('user-agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36'));
 
         //check valid response
         if(wp_remote_retrieve_response_code($css_response) !== 200) {

@@ -46,11 +46,6 @@ class cwvpbcriticalCss{
         }, 10, 3 );
 	    
 	    add_action('wp_head', array($this, 'print_style_cc'),2);
-		
-		// add_action("wp_ajax_cwvpsb_showdetails_data", array($this, 'cwvpsb_showdetails_data'));
-		// add_action("wp_ajax_cwvpsb_showdetails_data_completed", array($this, 'cwvpsb_showdetails_data_completed'));
-		// add_action("wp_ajax_cwvpsb_showdetails_data_failed", array($this, 'cwvpsb_showdetails_data_failed'));
-		// add_action("wp_ajax_cwvpsb_showdetails_data_queue", array($this, 'cwvpsb_showdetails_data_queue'));
 
 		add_action("wp_ajax_cwvpsb_resend_urls_for_cache", array($this, 'cwvpsb_resend_urls_for_cache'));
 		add_action("wp_ajax_cwvpsb_resend_single_url_for_cache", array($this, 'cwvpsb_resend_single_url_for_cache'));
@@ -893,6 +888,11 @@ class cwvpbcriticalCss{
 			return;  
 		}
 
+		if(!current_user_can( 'manage_options' ))
+		{
+		  return;  
+		}
+
 		global $wpdb, $table_prefix;
 		$table_name = $table_prefix . 'cwvpb_critical_urls';
 
@@ -928,6 +928,10 @@ class cwvpbcriticalCss{
 		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
 			return;  
 		}
+		if(!current_user_can( 'manage_options' ))
+		{
+		  return;  
+		}
 
 		global $wpdb, $table_prefix;
 		$table_name = $table_prefix . 'cwvpb_critical_urls';
@@ -955,7 +959,10 @@ class cwvpbcriticalCss{
 		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
 			return;  
 		}
-		
+		if(!current_user_can( 'manage_options' ))
+		{
+		  return;  
+		}
 		$limit = 100;
 		$page  = $_POST['page'] ? intval($_POST['page']) : 0;
 		$offset = $page * $limit;
@@ -996,6 +1003,11 @@ class cwvpbcriticalCss{
 		}
 		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
 			return;  
+		}
+
+		if(!current_user_can( 'manage_options' ))
+		{
+		  return;  
 		}
 
 		global $wpdb;	
@@ -1105,7 +1117,7 @@ class cwvpbcriticalCss{
 		global $wpdb, $table_prefix;
 		$table_name = $table_prefix . 'cwvpb_critical_urls';
 																
-		if($_POST['search']['value']){
+		if(isset($_POST['search']['value']) && $_POST['search']['value']){
 			$search = sanitize_text_field($_POST['search']['value']);
 			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
 			'%' . $wpdb->esc_like($search) . '%','cached'
@@ -1177,7 +1189,7 @@ class cwvpbcriticalCss{
 		global $wpdb, $table_prefix;
 		$table_name = $table_prefix . 'cwvpb_critical_urls';
 																
-		if($_POST['search']['value']){
+		if(isset($_POST['search']['value']) && $_POST['search']['value']){
 			$search = sanitize_text_field($_POST['search']['value']);
 			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
 			'%' . $wpdb->esc_like($search) . '%','failed'
@@ -1249,7 +1261,7 @@ class cwvpbcriticalCss{
 		global $wpdb, $table_prefix;
 		$table_name = $table_prefix . 'cwvpb_critical_urls';
 																
-		if($_POST['search']['value']){
+		if(isset($_POST['search']['value']) && $_POST['search']['value']){
 			$search = sanitize_text_field($_POST['search']['value']);
 			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
 			'%' . $wpdb->esc_like($search) . '%','queue'
@@ -1310,7 +1322,7 @@ class cwvpbcriticalCss{
 			$user = wp_get_current_user();
 			if ( in_array( 'administrator', (array) $user->roles ) ) {
 				echo '<div class="notice notice-warning is-dismissible">
-					  <p>'.esc_html('Core Web Vitals &amp; PageSpeed Booster ').'<strong>'.esc_html('"allow_url_fopen"').'</strong>'.esc_html(' option to be enabled in PHP configuration to work.').' </p>
+					  <p>'.esc_html__('Core Web Vitals &amp; PageSpeed Booster ','cwvpsb').'<strong>'.esc_html__('"allow_url_fopen"','cwvpsb').'</strong>'.esc_html__(' option to be enabled in PHP configuration to work.','cwvpsb').' </p>
 					 </div>';
 				}
 		}

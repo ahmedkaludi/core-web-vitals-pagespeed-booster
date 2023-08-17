@@ -57,6 +57,11 @@ function cwv_add_deactivation_feedback_modal() {
  */
 function cwv_send_feedback() {
 
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        echo json_encode(array("status"=> 400, "msg"=>esc_html__("Permission verification failed", 'cwvpsb') ));die;
+    }
+    
     if( isset( $_POST['data'] ) ) {
         parse_str( $_POST['data'], $form );
     }
@@ -230,8 +235,12 @@ function cwvpsb_sanitize_textarea_field( $str ) {
     if ( !wp_verify_nonce( $_POST['cwvpsb_wpnonce'], 'cwvpsb-admin-nonce' ) ){
        return;  
     }   
-    $message        = cwvpsb_sanitize_textarea_field($_POST['message']); 
-    $email          = cwvpsb_sanitize_textarea_field($_POST['email']);   
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+       return;
+    }
+    $message        = isset($_POST['message'])?cwvpsb_sanitize_textarea_field($_POST['message']):''; 
+    $email          = isset($_POST['email'])?sanitize_email($_POST['email']):'';   
                             
     if(function_exists('wp_get_current_user')){
 
