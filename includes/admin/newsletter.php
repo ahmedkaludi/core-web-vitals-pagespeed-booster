@@ -16,11 +16,11 @@ class CWVPB_newsletter {
 	function __construct () {
          
                         add_filter( 'cwvpsb_localize_filter',array($this,'cwvpb_add_localize_footer_data'),10,2);
-                        add_action('wp_ajax_cwvpb_subscribe_to_news_letter', array($this, 'cwvpb_subscribe_to_news_letter'));    
+                        add_action('wp_ajax_cwvpsb_subscribe_to_news_letter', array($this, 'cwvpsb_subscribe_to_news_letter'));    
 
         }
         
-        function cwvpb_subscribe_to_news_letter(){
+        function cwvpsb_subscribe_to_news_letter(){
 
                 if ( ! isset( $_POST['cwvpb_security_nonce'] ) ){
                     return; 
@@ -60,10 +60,10 @@ class CWVPB_newsletter {
         function cwvpb_add_localize_footer_data($object, $object_name){
             
         $dismissed = explode (',', get_user_meta (wp_get_current_user()->ID, 'dismissed_wp_pointers', true));
-        $do_tour   = !in_array ('cwvpb_subscribe_pointer', $dismissed);
+        $do_tour   = !in_array ('cwvpsb_subscribe_pointer', $dismissed);
         
         if ($do_tour) {
-                wp_enqueue_style ('wp-pointer');
+                wp_enqueue_style ('wp-pointer');        
                 wp_enqueue_script ('wp-pointer');						
 	}
                         
