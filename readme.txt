@@ -36,13 +36,14 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 
 == Changelog ==
 
-= 1.0.14 (16 August 2023) =
+= 1.0.14 (17 August 2023) =
 
 * Fixed: Parse error unexpected ')' #87
 * Fixed: Error in core-web-vitals-pagespeed-booster Plugin. #99
 * Fixed: Compatibility with 10Web Booster #96
 * Improvement: Added newsletter form  #4
 * Improvement: WordPress 6.3 compatibility check #100 
+* Improvement: Improved and optimized the code according to WP standards #101
 
 = 1.0.13 (03 June 2023) =
 * Improvement: Improved CSS load 
