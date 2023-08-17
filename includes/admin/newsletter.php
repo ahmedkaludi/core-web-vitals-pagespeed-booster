@@ -82,7 +82,8 @@ class CWVPB_newsletter {
 			$object['displayID']          = '#menu-settings';                        
                         $object['button1']            = 'No Thanks';
                         $object['button2']            = false;
-                        $object['function_name']      = '';                        
+                        $object['function_name']      = '';   
+                        $object['ajax_url']           = admin_url( 'admin-ajax.php' );                        
 		}
 		                                                                                                                                                    
         }
