@@ -2,7 +2,7 @@
 /*
 Plugin Name: Core Web Vitals & PageSpeed Booster
 Description: Do you want to speed up your WordPress site? Fast loading pages improve user experience, increase your pageviews, and help with your WordPress SEO.
-Version: 1.0.14
+Version: 1.0.15
 Author: Magazine3
 Author URI: https://magazine3.company/
 Donate link: https://www.paypal.me/Kaludi/25
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 define('CWVPSB_PLUGIN_DIR', plugin_dir_path( __FILE__ ));
 define('CWVPSB_PLUGIN_DIR_URI', plugin_dir_url(__FILE__));
-define('CWVPSB_VERSION','1.0.14');
+define('CWVPSB_VERSION','1.0.15');
 define('CWVPSB_DIR', dirname(__FILE__));
 define('CWVPSB_BASE', plugin_basename(__FILE__));
 
@@ -120,11 +120,11 @@ function cwvpb_on_install(){
 			`type` varchar(20),
 			`type_name` varchar(50),
 			`url` varchar(300) NOT NULL,			
-			`status` varchar(20) NOT NULL default 'queue',											
+			`status` varchar(20) NOT NULL DEFAULT 'queue',											
 			`cached_name` varchar(100),
 			`created_at` datetime NOT NULL,
 			`updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-			`failed_error` text  NOT NULL Default '',
+			`failed_error` text  NOT NULL,
 			 KEY `url` ( `url` ),				
 			 PRIMARY KEY (`id`),
 			 CONSTRAINT cwvpb_unique UNIQUE (`url`)

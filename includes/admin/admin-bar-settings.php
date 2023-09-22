@@ -52,7 +52,8 @@ global $pagenow, $post;
 		);
 	}
 
-	if ( current_user_can( 'manage_options' ) ) {
+	$settings = cwvpsb_defaults();
+	if ( current_user_can( 'manage_options' ) && isset($settings['cache_support']) && $settings['cache_support'] == 1 ) {
 		/**
 		 * Purge Cache.
 		 */
