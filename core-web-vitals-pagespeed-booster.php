@@ -120,11 +120,11 @@ function cwvpb_on_install(){
 			`type` varchar(20),
 			`type_name` varchar(50),
 			`url` varchar(300) NOT NULL,			
-			`status` varchar(20) NOT NULL default 'queue',											
+			`status` varchar(20) NOT NULL DEFAULT 'queue',											
 			`cached_name` varchar(100),
 			`created_at` datetime NOT NULL,
 			`updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-			`failed_error` text  NOT NULL Default '',
+			`failed_error` text  NOT NULL,
 			 KEY `url` ( `url` ),				
 			 PRIMARY KEY (`id`),
 			 CONSTRAINT cwvpb_unique UNIQUE (`url`)
