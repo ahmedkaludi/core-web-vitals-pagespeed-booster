@@ -6,7 +6,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Add Settings Page
 require_once CWVPSB_PLUGIN_DIR."includes/admin/settings.php";
 require_once CWVPSB_PLUGIN_DIR."includes/gravatar.php";
-
+// load if network
+if ( ! function_exists('is_plugin_active_for_network') ) {
+    require_once( ABSPATH. 'wp-admin/includes/plugin.php' );
+}
 add_filter('plugin_action_links_core-web-vitals-page-speed-booster/core-web-vitals-page-speed-booster.php', 'cwvpsb_add_settings_link');
 function cwvpsb_add_settings_link( $links ) {
     $links[] = '<a href="' .
