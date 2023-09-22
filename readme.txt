@@ -2,7 +2,7 @@
 Contributors: magazine3
 Requires at least: 3.0
 Tested up to: 6.3
-Stable tag: 1.0.14
+Stable tag: 1.0.15
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: core web vitals, optimization, pagespeed, performance, cache , cwv
@@ -35,6 +35,12 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 * PHP CSS Parser library used https://github.com/sabberworm/PHP-CSS-Parser - License URI: https://github.com/sabberworm/PHP-CSS-Parser#license (PHP-CSS-Parser is freely distributable under the terms of an MIT-style license.)
 
 == Changelog ==
+
+= 1.0.15 (22 September 2023) =
+* Added: Compatibility with  MYSQL v5.5 #97
+* Fixed: Fatal Error on Multisite Activation: is_plugin_active_for_network() Undefined #106
+* Fixed: Youtube embed video Not showing in AMP #105
+* Improvement: Cache is off but still in header it's showing clear cache #104
 
 = 1.0.14 (17 August 2023) =
 * Fixed: Parse error unexpected ')' #87
