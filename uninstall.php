@@ -32,6 +32,8 @@ if($cwvpb_settings && isset($cwvpb_settings['delete_on_uninstall']) && $cwvpb_se
 	require_once ( ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php' );
 	require_once ( ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php' );
 	$fileSystemDirect = new WP_Filesystem_Direct(false);
-	$fileSystemDirect->rmdir(CWVPSB_CACHE_DIR, true);
-	$fileSystemDirect->rmdir(CWVPSB_GRAVATARS_DIR, true);
+	if($fileSystemDirect){
+		$fileSystemDirect->rmdir(CWVPSB_CACHE_DIR, true);
+		$fileSystemDirect->rmdir(CWVPSB_GRAVATARS_DIR, true);
+	}
 }

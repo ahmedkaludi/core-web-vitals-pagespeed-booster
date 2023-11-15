@@ -1,8 +1,8 @@
 === Core Web Vitals & PageSpeed Booster ===
 Contributors: magazine3
 Requires at least: 3.0
-Tested up to: 6.3
-Stable tag: 1.0.15
+Tested up to: 6.4
+Stable tag: 1.0.16
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: core web vitals, optimization, pagespeed, performance, cache , cwv
@@ -35,6 +35,13 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 * PHP CSS Parser library used https://github.com/sabberworm/PHP-CSS-Parser - License URI: https://github.com/sabberworm/PHP-CSS-Parser#license (PHP-CSS-Parser is freely distributable under the terms of an MIT-style license.)
 
 == Changelog ==
+
+= 1.0.16 (15 November 2023) =
+* Fixed: Robots.txt error appears when you we enable our CWV plugin. #114
+* Fixed: wp-content/gravatars folder not removed upon uninstall #112
+* Fixed: Uninstall.php only removes main critical URLs table from database in multisite #111
+* Improvement: Updated settings link #113
+* Compatibility: Checked compatibility with wordpress v6.4 #115
 
 = 1.0.15 (22 September 2023) =
 * Added: Compatibility with  MYSQL v5.5 #97

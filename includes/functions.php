@@ -20,7 +20,7 @@ function cwvpsb_add_settings_link( $links ) {
 
 function cwvpsb_complete_html_after_dom_loaded( $content ) {
     global $wp;
-    if(strpos($wp->request,'robots.txt')!==false){return $content;}
+    if(isset($wp->request) && strpos($wp->request,'robots.txt')!==false){return $content;}
     if(function_exists('is_feed')&& is_feed()){return $content;}
     $content = apply_filters('cwvpsb_complete_html_after_dom_loaded', $content);
     return $content;
