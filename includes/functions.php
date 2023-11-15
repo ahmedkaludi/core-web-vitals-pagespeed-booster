@@ -10,16 +10,18 @@ require_once CWVPSB_PLUGIN_DIR."includes/gravatar.php";
 if ( ! function_exists('is_plugin_active_for_network') ) {
     require_once( ABSPATH. 'wp-admin/includes/plugin.php' );
 }
-add_filter('plugin_action_links_core-web-vitals-page-speed-booster/core-web-vitals-page-speed-booster.php', 'cwvpsb_add_settings_link');
+add_filter('plugin_action_links_' . CWVPSB_BASE, 'cwvpsb_add_settings_link');
 function cwvpsb_add_settings_link( $links ) {
     $links[] = '<a href="' .
-        esc_url(admin_url( 'admin.php?page=cwvpsb-images' )) .
+        esc_url(admin_url( 'admin.php?page=cwvpsb' )) .
         '">' . esc_attr( 'Settings' ). '</a>';
     return $links;
 }
 
 function cwvpsb_complete_html_after_dom_loaded( $content ) {
-     if(function_exists('is_feed')&& is_feed()){return $content;}
+    global $wp;
+    if(isset($wp->request) && strpos($wp->request,'robots.txt')!==false){return $content;}
+    if(function_exists('is_feed')&& is_feed()){return $content;}
     $content = apply_filters('cwvpsb_complete_html_after_dom_loaded', $content);
     return $content;
 }
@@ -171,7 +173,8 @@ function cwvpsb_defaults(){
        'critical_css_on_home' => 1,
        'critical_css_on_cp_type' => array(
             'post' => 1
-       )
+       ),
+       'delete_on_uninstall' => 0,
     ); 
     if ( is_multisite() && is_plugin_active_for_network(CWVPSB_BASE) ) {
         $settings = get_site_option( 'cwvpsb_get_settings', $defaults );

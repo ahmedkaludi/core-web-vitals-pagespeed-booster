@@ -273,6 +273,14 @@ public function cwvpsb_settings_init(){
         'cwvpsb_advance_section',
         'cwvpsb_advance_section'
     ); 
+
+    add_settings_field(
+        'delete_on_uninstall',
+        'Delete Data on Uninstall',
+         array($this, 'delete_on_uninstall_callback'),
+        'cwvpsb_advance_section',
+        'cwvpsb_advance_section'
+    ); 
     
     add_settings_section('cwvpsb_support_section', '','__return_false','cwvpsb_support_section');
     add_settings_field(
@@ -508,7 +516,12 @@ public function advance_url_callback(){
     $settings = cwvpsb_defaults(); ?> 
     <textarea rows='5' cols='70' name="cwvpsb_get_settings[advance_support]" id='cwvpsb_add_advance_support'><?php echo isset($settings['advance_support'])? esc_html($settings['advance_support']) : ''; ?></textarea>
     <p class="description"><?php echo esc_html__("The Core Web Vital will only work on this URL, So that you can compare the speed on this URL with others", 'cwvpsb');?></p>
-    <?php }    
+    <?php }
+public function delete_on_uninstall_callback(){
+    $settings = cwvpsb_defaults(); ?> 
+    <input class="" type="checkbox" name="cwvpsb_get_settings[delete_on_uninstall]" value="1" <?php echo (isset($settings["delete_on_uninstall"]) ? "checked": "");?> />
+    <?php echo esc_html__("This will delete all Core Web Vital generated files and settings when you uninstall the plugin", 'cwvpsb');?>
+    <?php }        
     function get_list_convert_files(){
         if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vitals-security-nonce')){
             echo json_encode(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified', 'cwvpsb' ) ) );die;
