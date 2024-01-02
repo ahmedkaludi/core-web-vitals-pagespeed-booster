@@ -47,11 +47,18 @@ class CWVPB_newsletter {
                     );
                     
 		    $response = wp_remote_post( $api_url, array( 'timeout' => 15, 'sslverify' => false, 'body' => $api_params ) );
-                    $response = wp_remote_retrieve_body( $response );                    
-		    echo $response;
+                    if ( is_wp_error( $response ) ) {
+                        $error_message = $response->get_error_message();
+                        echo "Something went wrong: $error_message";
+                        esc_html__('Email id required','cwvpsb');    
+                        } else {
+                                $response = wp_remote_retrieve_body( $response );                    
+		                wp_send_json( $response );
+                        }
+                   
 
                 }else{
-                        echo 'Email id required';                      
+                        echo esc_html__('Email id required','cwvpsb');                      
                 }                        
 
                 wp_die();

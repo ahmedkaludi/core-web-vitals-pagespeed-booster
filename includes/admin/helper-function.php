@@ -59,7 +59,7 @@ function cwv_send_feedback() {
 
 
     if ( ! current_user_can( 'manage_options' ) ) {
-        echo json_encode(array("status"=> 400, "msg"=>esc_html__("Permission verification failed", 'cwvpsb') ));die;
+        wp_send_json(array("status"=> 400, "msg"=>esc_html__("Permission verification failed", 'cwvpsb') ));
     }
     
     if( isset( $_POST['data'] ) ) {
@@ -113,13 +113,13 @@ function cwv_enqueue_makebetter_email_js(){
     if( !is_admin() && !cwv_is_plugins_page()) {
         return;
     }
-
-    wp_enqueue_script( 'cwv-make-better-js', CWVPSB_PLUGIN_DIR_URI . 'includes/admin/make-better-admin.js', array( 'jquery' ), CWVPSB_VERSION);
+    $min = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';	
+    wp_enqueue_script( 'cwv-make-better-js', CWVPSB_PLUGIN_DIR_URI . "includes/admin/make-better-admin{$min}.js", array( 'jquery' ), CWVPSB_VERSION);
     wp_localize_script('cwv-make-better-js', 'cwvpsb_script_vars', array(
         'nonce' => wp_create_nonce( 'cwvpsb-admin-nonce' ),
       )
       );
-    wp_enqueue_style( 'cwv-make-better-css', CWVPSB_PLUGIN_DIR_URI . 'includes/admin/make-better-admin.css', false , CWVPSB_VERSION );
+    wp_enqueue_style( 'cwv-make-better-css', CWVPSB_PLUGIN_DIR_URI . "includes/admin/make-better-admin{$min}.css", false , CWVPSB_VERSION );
 }
 
 if( is_admin() && cwv_is_plugins_page()) {
@@ -267,11 +267,11 @@ function cwvpsb_sanitize_textarea_field( $str ) {
 
         if($sent){
 
-             echo json_encode(array('status'=>'t'));  
+            wp_send_json(array('status'=>'t'));  
 
         }else{
 
-            echo json_encode(array('status'=>'f'));            
+            wp_send_json(array('status'=>'f'));            
 
         }
         

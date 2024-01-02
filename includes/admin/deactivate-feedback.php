@@ -18,7 +18,7 @@ shuffle($reasons);
 <div id="cwv-reloaded-feedback-overlay" style="display: none;">
     <div id="cwv-reloaded-feedback-content">
 	<form action="" method="post">
-	    <h3><strong><?php _e('If you have a moment, please let us know why you are deactivating:', 'cwvpsb'); ?></strong></h3>
+	    <h3><strong><?php esc_html_e('If you have a moment, please let us know why you are deactivating:', 'cwvpsb'); ?></strong></h3>
 	    <ul>
                 <?php 
                 foreach ($reasons as $reason){
@@ -29,9 +29,9 @@ shuffle($reasons);
 	    <?php if ($email) : ?>
     	    <input type="hidden" name="cwv_disable_from" value="<?php echo $email; ?>"/>
 	    <?php endif; ?>
-	    <input id="cwv-reloaded-feedback-submit" class="button button-primary" type="submit" name="cwv_disable_submit" value="<?php _e('Submit & Deactivate', 'cwvpsb'); ?>"/>
-	    <a class="button"><?php _e('Only Deactivate', 'cwvpsb'); ?></a>
-	    <a class="cwv-feedback-not-deactivate" href="#"><?php _e('Don\'t deactivate', 'cwvpsb'); ?></a>
+	    <input id="cwv-reloaded-feedback-submit" class="button button-primary" type="submit" name="cwv_disable_submit" value="<?php esc_html_e('Submit & Deactivate', 'cwvpsb'); ?>"/>
+	    <a class="button"><?php esc_html_e('Only Deactivate', 'cwvpsb'); ?></a>
+	    <a class="cwv-feedback-not-deactivate" href="#"><?php esc_html_e('Don\'t deactivate', 'cwvpsb'); ?></a>
 	</form>
     </div>
 </div>

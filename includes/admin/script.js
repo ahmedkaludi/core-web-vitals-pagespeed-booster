@@ -140,7 +140,7 @@ $(".cwvpsb-tabs a").click(function(e){
 			url: ajaxurl,
 			data:{
 				'action': 'cwvpsb_showdetails_data',
-				'cwvpsb_showdetails_data_nonce' : cwvpsb_localize_data.cwvpsb_showdetails_data_nonce,
+				'cwvpsb_ajax_check_nonce' : cwvpsb_localize_data.cwvpsb_ajax_check_nonce,
 				'cwvpsb_type':'all'
 			},
 		}
@@ -154,7 +154,7 @@ $(".cwvpsb-tabs a").click(function(e){
 			url: ajaxurl,
 			data:{
 				'action': 'cwvpsb_showdetails_data',
-				'cwvpsb_showdetails_data_nonce' : cwvpsb_localize_data.cwvpsb_showdetails_data_nonce,
+				'cwvpsb_ajax_check_nonce' : cwvpsb_localize_data.cwvpsb_ajax_check_nonce,
 				'cwvpsb_type':'cached'
 			},
 		}
@@ -168,7 +168,7 @@ $(".cwvpsb-tabs a").click(function(e){
 			url: ajaxurl,
 			data:{
 				'action': 'cwvpsb_showdetails_data',
-				'cwvpsb_showdetails_data_nonce' : cwvpsb_localize_data.cwvpsb_showdetails_data_nonce,
+				'cwvpsb_ajax_check_nonce' : cwvpsb_localize_data.cwvpsb_ajax_check_nonce,
 				'cwvpsb_type':'failed'
 			},
 		}
@@ -182,7 +182,7 @@ $(".cwvpsb-tabs a").click(function(e){
 			url: ajaxurl,
 			data:{
 				'action': 'cwvpsb_showdetails_data',
-				'cwvpsb_showdetails_data_nonce' : cwvpsb_localize_data.cwvpsb_showdetails_data_nonce,
+				'cwvpsb_ajax_check_nonce' : cwvpsb_localize_data.cwvpsb_ajax_check_nonce,
 				'cwvpsb_type':'queue'
 			},
 		}

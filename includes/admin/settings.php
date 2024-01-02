@@ -524,7 +524,7 @@ public function delete_on_uninstall_callback(){
     <?php }        
     function get_list_convert_files(){
         if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vitals-security-nonce')){
-            echo json_encode(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified', 'cwvpsb' ) ) );die;
+            wp_send_json(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified', 'cwvpsb' ) ) );
         }
         $listOpt = array();
         $upload = wp_upload_dir();
@@ -543,14 +543,18 @@ public function delete_on_uninstall_callback(){
             $fileArray = array_merge($fileArray, $images);
         }
         $sort = array();
-        foreach($fileArray as $keys=>$file){
-            $sort[$file[1]][] = $file[0];
+        if(!empty($fileArray) && is_array($fileArray)){
+            foreach($fileArray as $keys=>$file){
+                $sort[$file[1]][] = $file[0];
+            }
         }
         krsort($sort);
         $files = array();
-        foreach($sort as $asort){
-            foreach($asort as $file){
-                $files[] = $file;
+        if(!empty($sort) && is_array($sort)){
+            foreach($sort as $asort){
+                foreach($asort as $file){
+                    $files[] = $file;
+                }
             }
         }
         $response['files'] = array_filter($files);
@@ -558,7 +562,7 @@ public function delete_on_uninstall_callback(){
         $response['status'] = 200;
         $response['message'] = ($response['files'])? esc_html__('Files are available to convert', 'cwvpsb'): esc_html__('All files are converted', 'cwvpsb');
         $response['count'] = count($response['files']);
-        echo json_encode($response);die;
+        wp_send_json($response);
     }
 
     function getFilesListRecursively($currentDir, &$listOpt){
@@ -621,8 +625,10 @@ public function delete_on_uninstall_callback(){
 
           // Remove parts containing '..' and the preceding
           $keys = array_keys($parts, '..');
-          foreach($keys as $keypos => $key) {
-            array_splice($parts, $key - ($keypos * 2 + 1), 2);
+          if(!empty($keys) && is_array($keys)){
+            foreach($keys as $keypos => $key) {
+                array_splice($parts, $key - ($keypos * 2 + 1), 2);
+              }
           }
           return implode('/', $parts);
         
@@ -630,7 +636,7 @@ public function delete_on_uninstall_callback(){
 
     function webp_convert_file(){
         if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vitals-security-nonce')){
-            echo json_encode(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified' , 'cwvpsb') ) );die;
+            wp_send_json(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified' , 'cwvpsb') ) );
         }
         $filename = isset($_POST['filename'])?sanitize_text_field(stripslashes($_POST['filename'])):'';
         $filename = isset($_POST['filename'])?wp_unslash($_POST['filename']):'';
@@ -652,7 +658,7 @@ public function delete_on_uninstall_callback(){
             $message = 'An exception was thrown!';
             if(function_exists('error_log')){ error_log($e->getMessage()); }
         }
-        echo json_encode(array('status'=>200 ,"msg"=>esc_html__('File converted successfully', 'cwvpsb') ));die;
+        wp_send_json(array('status'=>200 ,"msg"=>esc_html__('File converted successfully', 'cwvpsb') ));
     }
 
     public function cwvpsb_reWriteCacheHtaccess(){
@@ -928,8 +934,8 @@ public function delete_on_uninstall_callback(){
              <div class="cwvpbs-advance-urls-container">
                 <span class="cwvpbs-advance-toggle">Advance Settings <span class="dashicons dashicons-admin-generic"></span></span>
                 <div class="cwvpbs-advance-btn-div cwvpb-display-none">
-                <a class="button button-primary cwvpsb-recheck-url-cache"><?php _e('Recheck', 'cwvpsb'); ?></a>                                
-                    <a class="button button-primary cwvpsb-reset-url-cache"><?php _e('Reset Cache', 'cwvpsb'); ?></a>                                
+                <a class="button button-primary cwvpsb-recheck-url-cache"><?php esc_html_e('Recheck', 'cwvpsb'); ?></a>                                
+                    <a class="button button-primary cwvpsb-reset-url-cache"><?php esc_html_e('Reset Cache', 'cwvpsb'); ?></a>                                
                 </div>
              </div>       
             
@@ -979,7 +985,7 @@ function cwvpsb_update_critical_css_stat()
         $response['status'] = 'success' ;
         
         if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-            $response = json_encode($response);
+            $response = wp_json_encode($response);
             echo $response;
          }
          else {
@@ -1176,7 +1182,7 @@ function cwvpsb_showdetails_data(){
         "data"            => $formated_result
     );
 
-    echo json_encode($retuernData);die;
+    wp_send_json($retuernData);
 
 }	
 
@@ -1209,16 +1215,16 @@ function cwvpsb_resend_single_url_for_cache(){
         ));
                     
         if($result){
-            echo json_encode(array('status' => true));
+            wp_send_json(array('status' => true));
         }else{
-            echo json_encode(array('status' => false));
+            wp_send_json(array('status' => false));
         }
 
     }else{
-        echo json_encode(array('status' => false));	
+        wp_send_json(array('status' => false));	
     }			    
     
-    die;
+    wp_die();
 }	
 function cwvpsb_resend_urls_for_cache(){
 
@@ -1244,12 +1250,11 @@ function cwvpsb_resend_urls_for_cache(){
         'failed'	
     ));
     if($result){
-        echo json_encode(array('status' => true));
+        wp_send_json(array('status' => true));
     }else{
-        echo json_encode(array('status' => false));
+        wp_send_json(array('status' => false));
     }
     
-    die;
 }
 function cwvpsb_recheck_urls_cache(){
 
@@ -1292,9 +1297,9 @@ function cwvpsb_recheck_urls_cache(){
             }
         }
 
-        echo json_encode(array('status' => true, 'count' => count($result)));die;
+        wp_send_json(array('status' => true, 'count' => count($result)));
     }else{
-        echo json_encode(array('status' => true, 'count' => 0));die;
+        wp_send_json(array('status' => true, 'count' => 0));
     }
                     
 }	
@@ -1321,6 +1326,6 @@ function cwvpsb_reset_urls_cache(){
     global $wp_filesystem;
     $wp_filesystem->rmdir($dir, true);
 
-    echo json_encode(array('status' => true));die;
+    wp_send_json(array('status' => true));
     
 }

@@ -14,7 +14,7 @@ add_filter('plugin_action_links_' . CWVPSB_BASE, 'cwvpsb_add_settings_link');
 function cwvpsb_add_settings_link( $links ) {
     $links[] = '<a href="' .
         esc_url(admin_url( 'admin.php?page=cwvpsb' )) .
-        '">' . esc_attr( 'Settings' ). '</a>';
+        '">' . esc_html__( 'Settings','cwvpsb' ). '</a>';
     return $links;
 }
 
@@ -93,16 +93,16 @@ function cwvpsb_load_textdomain() {
 add_action('wp_ajax_cwvpsb_clear_cached_css', 'cwvpsb_clear_cached_css');
 function cwvpsb_clear_cached_css(){
         if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'cwv-security-nonce')){
-            echo json_encode(array("status"=> 400, "msg"=>esc_html__("Security verification failed, Refresh the page", 'cwvpsb') ));die;
+            wp_send_json(array("status"=> 400, "msg"=>esc_html__("Security verification failed, Refresh the page", 'cwvpsb') ));
         }
         if ( ! current_user_can( 'manage_options' ) ) {
-            echo json_encode(array("status"=> 400, "msg"=>esc_html__("Permission verification failed", 'cwvpsb') ));die;
+            wp_send_json(array("status"=> 400, "msg"=>esc_html__("Permission verification failed", 'cwvpsb') ));
         }
         $clean_types = array('css');
         if(!in_array($_POST['cleaning'], $clean_types)){
-            echo json_encode(array("status"=> 400, "msg"=>esc_html__("Cache type not found", 'cwvpsb') ));die;
+            wp_send_json(array("status"=> 400, "msg"=>esc_html__("Cache type not found", 'cwvpsb') ));
         }
-        $cleaning = $_POST['cleaning'];
+        $cleaning = isset($_POST['cleaning'])?sanitize_text_field($_POST['cleaning']):'';
 
         $upload_dir = wp_upload_dir(); 
         
@@ -111,7 +111,7 @@ function cwvpsb_clear_cached_css(){
             $user_dirname = $upload_dir['basedir'] . '/' . 'web_vital';
             $dir_handle = opendir($user_dirname);
             if (!$dir_handle){
-              echo json_encode(array("status"=> 400, "msg"=>esc_html__("cache not found", 'cwvpsb') ));die;
+                wp_send_json(array("status"=> 400, "msg"=>esc_html__("cache not found", 'cwvpsb') ));
             }
             while($file = readdir($dir_handle)) {
                 if (strpos($file, '.css') !== false){
@@ -120,7 +120,7 @@ function cwvpsb_clear_cached_css(){
             }
             closedir($dir_handle);
         }
-        echo json_encode(array("status"=> 200, "msg"=>esc_html__("CSS Cleared", 'cwvpsb') ));die;
+        wp_send_json(array("status"=> 200, "msg"=>esc_html__("CSS Cleared", 'cwvpsb') ));
     }
 
 function cwvpsb_admin_link($tab = '', $args = array()){   
@@ -196,17 +196,17 @@ function cwvpsb_admin_enqueue($check) {
     if($check != 'toplevel_page_cwvpsb'){
         return; 
     }
+    $min = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';	
     wp_enqueue_script('cwvpsb-datatable-script', CWVPSB_PLUGIN_DIR_URI . '/includes/admin/js/jquery.dataTables.min.js', ['jquery']);
     wp_enqueue_style( 'cwvpsb-datatable-style', CWVPSB_PLUGIN_DIR_URI . '/includes/admin/js/jquery.dataTables.min.css' );
 
-    wp_register_style( 'cwvpsb-admin-css', CWVPSB_PLUGIN_DIR_URI . '/includes/admin/style.css', false, CWVPSB_VERSION );
+    wp_register_style( 'cwvpsb-admin-css', CWVPSB_PLUGIN_DIR_URI . "/includes/admin/style{$min}.css", false, CWVPSB_VERSION );
     wp_enqueue_style( 'cwvpsb-admin-css' );
 
     $data = array(
-        'cwvpsb_security_nonce'                     => wp_create_nonce('cwvpsb_ajax_check_nonce') ,
-        'cwvpsb_showdetails_data_nonce'             => wp_create_nonce('cwvpsb_showdetails_data_nonce') ,
+        'cwvpsb_security_nonce'                     => wp_create_nonce('cwvpsb_ajax_check_nonce') 
     );
-    wp_register_script( 'cwvpsb-admin-js', CWVPSB_PLUGIN_DIR_URI . 'includes/admin/script.js', array('cwvpsb-datatable-script'), CWVPSB_VERSION , true );
+    wp_register_script( 'cwvpsb-admin-js', CWVPSB_PLUGIN_DIR_URI . "includes/admin/script{$min}.js", array('cwvpsb-datatable-script'), CWVPSB_VERSION , true );
     $data = apply_filters('cwvpsb_localize_filter',$data,'cwvpsb_localize_data');		
     wp_localize_script( 'cwvpsb-admin-js', 'cwvpsb_localize_data', $data );
     wp_enqueue_script( 'cwvpsb-admin-js' );

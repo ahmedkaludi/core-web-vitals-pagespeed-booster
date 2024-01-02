@@ -72,9 +72,9 @@ function cwv_pse_initiate(){
 	add_filter('wp_handle_upload', array('Core_Web_Vital_Helper_Section', 'do_upload_with_webp'), 10, 2);
 }
 
-register_activation_hook( __FILE__, 'cwvpb_on_activate' );
+register_activation_hook( __FILE__, 'cwvpsb_on_activate' );
 
-function cwvpb_on_activate( $network_wide ) {
+function cwvpsb_on_activate( $network_wide ) {
     global $wpdb;
 
     if ( is_multisite() && $network_wide ) {
@@ -85,11 +85,11 @@ function cwvpb_on_activate( $network_wide ) {
             restore_current_blog();
         }
     } else {
-        cwvpb_on_install();
+        cwvpsb_on_install();
     }
 }
 
-function cwvpb_on_install(){
+function cwvpsb_on_install(){
 
 	global $wpdb;
 	

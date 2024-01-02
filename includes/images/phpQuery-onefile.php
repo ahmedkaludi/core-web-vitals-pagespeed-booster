@@ -475,7 +475,6 @@ class DOMDocumentWrapper {
 		return $contentType[1];
 	}
 	protected function charsetFromXML($markup) {
-		$matches;
 		// find declaration
 		preg_match('@<'.'?xml[^>]+encoding\\s*=\\s*(["|\'])(.*?)\\1@i',
 			$markup, $matches
@@ -559,30 +558,6 @@ class DOMDocumentWrapper {
 		$return = array();
 		if ($source instanceof DOMNODE && !($source instanceof DOMNODELIST))
 			$source = array($source);
-//		if (is_array($source)) {
-//			foreach($source as $node) {
-//				if (is_string($node)) {
-//					// string markup
-//					$fake = $this->documentFragmentCreate($node, $sourceCharset);
-//					if ($fake === false)
-//						throw new Exception("Error loading documentFragment markup");
-//					else
-//						$return = array_merge($return, 
-//							$this->import($fake->root->childNodes)
-//						);
-//				} else {
-//					$return[] = $this->document->importNode($node, true);
-//				}
-//			}
-//			return $return;
-//		} else {
-//			// string markup
-//			$fake = $this->documentFragmentCreate($source, $sourceCharset);
-//			if ($fake === false)
-//				throw new Exception("Error loading documentFragment markup");
-//			else
-//				return $this->import($fake->root->childNodes);
-//		}
 		if (is_array($source) || $source instanceof DOMNODELIST) {
 			// dom nodes
 			self::debug('Importing nodes to document');
@@ -1361,7 +1336,6 @@ class phpQueryObject
 			->andSelf()
 			->not('form');
 		$return = array();
-//		$source->dumpDie();
 		foreach($source as $input) {
 			$input = phpQuery::pq($input);
 			if ($input->is('[disabled]'))
@@ -4691,22 +4665,16 @@ abstract class phpQuery {
 			while (preg_match($regex, $php, $matches)) {
 				$php = preg_replace_callback(
 					$regex,
-//					create_function('$m, $charset = "'.$charset.'"',
-//						'return $m[1].$m[2]
-//							.htmlspecialchars("<"."?php".$m[4]."?".">", ENT_QUOTES|ENT_NOQUOTES, $charset)
-//							.$m[5].$m[2];'
-//					),
 					array('phpQuery', '_phpToMarkupCallback'),
 					$php
 				);
 			}
 		$regex = '@(^|>[^<]*)+?(<\?php(.*?)(\?>))@s';
-//preg_match_all($regex, $php, $matches);
-//var_dump($matches);
+
 		$php = preg_replace($regex, '\\1<php><!-- \\3 --></php>', $php);
 		return $php;
 	}
-	public static function _phpToMarkupCallback($php, $charset = 'utf-8') {
+	public static function _phpToMarkupCallback($m, $charset = 'utf-8') {
 		return $m[1].$m[2]
 			.htmlspecialchars("<"."?php".$m[4]."?".">", ENT_QUOTES|ENT_NOQUOTES, $charset)
 			.$m[5].$m[2];
@@ -5288,8 +5256,8 @@ abstract class phpQuery {
 	 * @return string
 	 */
 	public static function toJSON($data) {
-		if (function_exists('json_encode'))
-			return json_encode($data);
+		if (function_exists('wp_json_encode'))
+			return wp_json_encode($data);
 		require_once('Zend/Json/Encoder.php');
 		return Zend_Json_Encoder::encode($data);
 	}

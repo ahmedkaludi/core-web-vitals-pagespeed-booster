@@ -20,7 +20,7 @@ function cwvpsb_google_fonts( $html ) {
 
                 //download file if it doesn't exist
                 if(!file_exists($file_path)) {
-                    if(!download_google_font($google_font[2], $file_path)) {
+                    if(!cwvpsb_download_google_font($google_font[2], $file_path)) {
                         continue;
                     }
                 }
@@ -34,7 +34,7 @@ function cwvpsb_google_fonts( $html ) {
 	return $html;
 }
 
-function download_google_font($url, $file_path)
+function cwvpsb_download_google_font($url, $file_path)
     {
         //add https if using relative scheme
         if(substr($url, 0, 2) === '//') {
@@ -56,30 +56,32 @@ function download_google_font($url, $file_path)
         $regex = '/url\((https:\/\/fonts\.gstatic\.com\/.*?)\)/';
         preg_match_all($regex, $css, $matches);
         $font_urls = array_unique($matches[1]);
-
         $font_requests = array();
-        foreach($font_urls as $font_url) {
+        if(!empty($font_urls)){
+            foreach($font_urls as $font_url) {
 
-            if(!file_exists(CWVPSB_CACHE_FONTS_DIR . 'fonts/' . basename($font_url))) {
-                $font_requests[] = array('url' => $font_url, 'type' => 'GET');
+                if(!file_exists(CWVPSB_CACHE_FONTS_DIR . 'fonts/' . basename($font_url))) {
+                    $font_requests[] = array('url' => $font_url, 'type' => 'GET');
+                }
+    
+                $cached_font_url = CWVPSB_CACHE_FONTS_URL . 'fonts/' . basename($font_url);
+                $css = str_replace($font_url, $cached_font_url, $css);
             }
-
-            $cached_font_url = CWVPSB_CACHE_FONTS_URL . 'fonts/' . basename($font_url);
-            $css = str_replace($font_url, $cached_font_url, $css);
         }
 
         //download new font files to cache directory
         if(method_exists(Requests::class, 'request_multiple')) {
             $font_responses = Requests::request_multiple($font_requests);
+            if(!empty($font_responses)){
+                foreach($font_responses as $font_response) { 
 
-            foreach($font_responses as $font_response) { 
+                    if(isset($font_response->url) && isset($font_response->body)) {
 
-                if(isset($font_response->url) && isset($font_response->body)) {
-
-                    $font_path = CWVPSB_CACHE_FONTS_DIR . 'fonts/' . basename($font_response->url);
-                    
-                    //save font file
-                    file_put_contents($font_path, $font_response->body);
+                        $font_path = CWVPSB_CACHE_FONTS_DIR . 'fonts/' . basename($font_response->url);
+                        
+                        //save font file
+                        file_put_contents($font_path, $font_response->body);
+                    }
                 }
             }
         }
