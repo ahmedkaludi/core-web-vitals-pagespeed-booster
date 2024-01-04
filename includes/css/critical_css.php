@@ -881,7 +881,7 @@ class cwvpbcriticalCss{
 		if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
 			return; 
 		}
-		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce' ) ){
 			return;  
 		}
 
@@ -921,7 +921,7 @@ class cwvpbcriticalCss{
 		if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
 			return; 
 		}
-		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce' ) ){
 			return;  
 		}
 		if(!current_user_can( 'manage_options' ))
@@ -951,7 +951,7 @@ class cwvpbcriticalCss{
 		if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
 			return; 
 		}
-		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce' ) ){
 			return;  
 		}
 		if(!current_user_can( 'manage_options' ))
@@ -996,7 +996,7 @@ class cwvpbcriticalCss{
 		if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
 			return; 
 		}
-		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce' ) ){
 			return;  
 		}
 
@@ -1021,10 +1021,10 @@ class cwvpbcriticalCss{
 	public function cwvpsb_showdetails_data(){
 		
 
-		if ( ! isset( $_POST['cwvpsb_ajax_check_nonce'] ) ){
+		if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
 			return; 
 		}
-		if ( !wp_verify_nonce( $_POST['cwvpsb_ajax_check_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce' ) ){
 			return;  
 		}
 

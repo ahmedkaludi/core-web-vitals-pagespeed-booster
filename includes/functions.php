@@ -204,7 +204,7 @@ function cwvpsb_admin_enqueue($check) {
     wp_enqueue_style( 'cwvpsb-admin-css' );
 
     $data = array(
-        'cwvpsb_security_nonce'                     => wp_create_nonce('cwvpsb_ajax_check_nonce') 
+        'cwvpsb_security_nonce'=> wp_create_nonce('cwvpsb_security_nonce') 
     );
     wp_register_script( 'cwvpsb-admin-js', CWVPSB_PLUGIN_DIR_URI . "includes/admin/script{$min}.js", array('cwvpsb-datatable-script'), CWVPSB_VERSION , true );
     $data = apply_filters('cwvpsb_localize_filter',$data,'cwvpsb_localize_data');		
