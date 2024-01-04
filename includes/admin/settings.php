@@ -639,7 +639,6 @@ public function delete_on_uninstall_callback(){
             wp_send_json(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified' , 'cwvpsb') ) );
         }
         $filename = isset($_POST['filename'])?sanitize_text_field(stripslashes($_POST['filename'])):'';
-        $filename = isset($_POST['filename'])?wp_unslash($_POST['filename']):'';
 
         $upload = wp_upload_dir();
         $destinationPath = $upload['basedir']."/web-vital-webp";
@@ -802,15 +801,15 @@ public function delete_on_uninstall_callback(){
                 <p><?php echo esc_html__('Optimisation is running in background.', 'cwvpsb') ?></p>
                 <br>
                 <div class="cwvpsb_progress_bar">
-                    <div class="cwvpsb_progress_bar_body" style="width: <?php echo esc_attr($percentage); ?>%;"><?php echo $percentage; ?>%</div>
+                    <div class="cwvpsb_progress_bar_body" style="width: <?php echo esc_attr($percentage); ?>%;"><?php echo esc_attr($percentage).esc_html__('%', 'cwvpsb');?></div>
                 </div>
                 <br>
                 <div class="cwvpsb_cached_status_bar">
-                <div style="margin-top:20px;"><strong><?php echo esc_html__('Total :', 'cwvpsb') ?></strong> <span id="cwvpsb_css_total_count"><?php echo esc_attr($total_count). ' URLs</span>';                                         
+                <div style="margin-top:20px;"><strong><?php echo esc_html__('Total :', 'cwvpsb') ?></strong> <span id="cwvpsb_css_total_count"><?php echo esc_attr($total_count).  esc_html__('URLs:', 'cwvpsb').' </span>';                                         
                  ?></div>
-                 <div><strong><?php echo esc_html__('In Progress :', 'cwvpsb') ?></strong> <span id="cwvpsb_css_queue_count"><?php echo esc_attr($queue_count). ' URLs</span>';                                         
+                 <div><strong><?php echo esc_html__('In Progress :', 'cwvpsb') ?></strong> <span id="cwvpsb_css_queue_count"><?php echo esc_attr($queue_count).  esc_html__('URLs:', 'cwvpsb').' </span>';                                         
                  ?></div>
-                <div><strong><?php echo esc_html__('Critical CSS Optimized  :', 'cwvpsb') ?></strong> <span id="cwvpsb_css_cached_count"><?php echo esc_attr($cached_count). ' URLs</span>';                 
+                <div><strong><?php echo esc_html__('Critical CSS Optimized  :', 'cwvpsb') ?></strong> <span id="cwvpsb_css_cached_count"><?php echo esc_attr($cached_count). esc_html__('URLs:', 'cwvpsb').' </span>';                 
                 ?></div>
                 <?php
                     if($this->generate_time($queue_count)){
@@ -818,7 +817,7 @@ public function delete_on_uninstall_callback(){
                         <div>
                         <strong><?php echo esc_html__('Remaining Time :', 'cwvpsb') ?></strong>
                         <span id="cwvpsb_css_generate_time"><?php
-                            echo $this->generate_time($queue_count);
+                            esc_html( $this->generate_time($queue_count));
                         ?> </span>
                         </div>                        
                         <?php
@@ -828,7 +827,7 @@ public function delete_on_uninstall_callback(){
                         ?>   
                             <div>
                                 <strong><?php echo esc_html__('Failed      :', 'cwvpsb') ?></strong> <span id="cwvpsb_css_failed_count"><?php echo esc_attr($failed_count);?>,</span>
-                                <a href="#" class="cwvpbs-resend-urls button button-secondary">Resend</a>
+                                <a href="#" class="cwvpbs-resend-urls button button-secondary"><?php echo esc_html__('Resend', 'cwvpsb');?></a>
                             </div>                                                        
                         <?php     
                     }
@@ -838,28 +837,28 @@ public function delete_on_uninstall_callback(){
             <!-- DataTable section -->
             <div class="cwvpsb-table-url-wrapper">                         
              <div id="cwvpb-global-tabs" style="margin-top: 10px;">
-                <a data-id="cwvpb-general-container">All (<?php echo $total_count; ?>)</a> |
-                <a data-id="cwvpb-queue-container">In Queue (<?php echo $queue_count; ?>)</a> |
-                <a data-id="cwvpb-knowledge-container">Completed (<?php echo $cached_count; ?>)</a> |
-                <a data-id="cwvpb-default-container" >Failed (<?php echo $failed_count; ?>)</a>
+                <a data-id="cwvpb-general-container"><?php echo esc_html__('All', 'cwvpsb');?> (<?php echo esc_attr($total_count); ?>)</a> |
+                <a data-id="cwvpb-queue-container"><?php echo esc_html__('In Queue', 'cwvpsb');?> (<?php echo esc_attr($queue_count); ?>)</a> |
+                <a data-id="cwvpb-knowledge-container"><?php echo esc_html__('Completed', 'cwvpsb');?> (<?php echo esc_attr($cached_count); ?>)</a> |
+                <a data-id="cwvpb-default-container" ><?php echo esc_html__('Failed', 'cwvpsb');?> (<?php echo esc_attr($failed_count); ?>)</a>
              </div>
                                                                         
                 <div class="cwvpb-global-container" id="cwvpb-general-container">
                 <table class="table cwvpsb-table-class" id="table_page_cc_style_all" style="width:100%">
                 <thead>
                     <tr>
-                        <th>URL</th>
-                        <th>Status</th>
-                        <th>Size</th>
-                        <th>Created date</th>
+                        <th><?php  esc_html_e('URL', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Status', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Size', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Created date', 'cwvpsb');?></th>
                     </tr>
                 </thead>
                 <tfoot>
                     <tr>
-                        <th>URL</th>
-                        <th>Status</th>
-                        <th>Size</th>
-                        <th>Created date</th>
+                        <th><?php  esc_html_e('URL', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Status', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Size', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Created date', 'cwvpsb');?></th>
                     </tr>
                 </tfoot>
                 </table>
@@ -869,18 +868,18 @@ public function delete_on_uninstall_callback(){
                 <table class="table cwvpsb-table-class" id="table_page_cc_style_queue" style="width:100%">
                 <thead>
                     <tr>
-                        <th>URL</th>
-                        <th>Status</th>
-                        <th>Size</th>
-                        <th>Created date</th>
+                        <th><?php  esc_html_e('URL', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Status', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Size', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Created date', 'cwvpsb');?></th>
                     </tr>
                 </thead>
                 <tfoot>
                     <tr>
-                        <th>URL</th>
-                        <th>Status</th>
-                        <th>Size</th>
-                        <th>Created date</th>
+                        <th><?php  esc_html_e('URL', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Status', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Size', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Created date', 'cwvpsb');?></th>
                     </tr>
                 </tfoot>
                 </table>
@@ -890,18 +889,18 @@ public function delete_on_uninstall_callback(){
                 <table class="table cwvpsb-table-class" id="table_page_cc_style_completed" style="width:100%">
             <thead>
                     <tr>
-                        <th>URL</th>
-                        <th>Status</th>
-                        <th>Size</th>
-                        <th>Created date</th>
+                        <th><?php  esc_html_e('URL', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Status', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Size', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Created date', 'cwvpsb');?></th>
                     </tr>
                 </thead>
                 <tfoot>
                     <tr>
-                        <th>URL</th>
-                        <th>Status</th>
-                        <th>Size</th>
-                        <th>Created date</th>
+                        <th><?php  esc_html_e('URL', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Status', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Size', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Created date', 'cwvpsb');?></th>
                     </tr>
                 </tfoot>
                 </table>
@@ -911,19 +910,19 @@ public function delete_on_uninstall_callback(){
                 <table class="table cwvpsb-table-class" id="table_page_cc_style_failed" style="width:100%">
                 <thead>
                     <tr>
-                        <th>URL</th>
-                        <th>Status</th>
-                        <th>Failed Date</th>
-                        <th>Error</th>
+                        <th><?php  esc_html_e('URL', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Status', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Failed Date', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Error', 'cwvpsb');?></th>
                         
                     </tr>
                 </thead>
                 <tfoot>
                     <tr>
-                        <th>URL</th>
-                        <th>Status</th>
-                        <th>Failed Date</th>
-                        <th>Error</th>                        
+                        <th><?php  esc_html_e('URL', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Status', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Failed Date', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('Error', 'cwvpsb');?></th>                       
                     </tr>
                 </tfoot>
                 </table>
@@ -932,7 +931,7 @@ public function delete_on_uninstall_callback(){
             </div>
 
              <div class="cwvpbs-advance-urls-container">
-                <span class="cwvpbs-advance-toggle">Advance Settings <span class="dashicons dashicons-admin-generic"></span></span>
+                <span class="cwvpbs-advance-toggle"> <?php  esc_html_e('Advance Settings', 'cwvpsb');?> <span class="dashicons dashicons-admin-generic"></span></span>
                 <div class="cwvpbs-advance-btn-div cwvpb-display-none">
                 <a class="button button-primary cwvpsb-recheck-url-cache"><?php esc_html_e('Recheck', 'cwvpsb'); ?></a>                                
                     <a class="button button-primary cwvpsb-reset-url-cache"><?php esc_html_e('Reset Cache', 'cwvpsb'); ?></a>                                
@@ -1070,10 +1069,10 @@ function cwvpsb_cachepath(){
 function cwvpsb_showdetails_data(){
 		
 
-    if ( ! isset( $_POST['cwvpsb_showdetails_data_nonce'] ) ){
+    if ( ! isset( $_POST['cwvpsb_ajax_check_nonce'] ) ){
         return; 
     }
-    if ( !wp_verify_nonce( $_POST['cwvpsb_showdetails_data_nonce'], 'cwvpsb_showdetails_data_nonce' ) ){
+    if ( !wp_verify_nonce( $_POST['cwvpsb_ajax_check_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
         return;  
     }
     if(! isset( $_POST['cwvpsb_type']) || empty($_POST['cwvpsb_type']))
@@ -1085,12 +1084,12 @@ function cwvpsb_showdetails_data(){
     {
       return;  
     }
-    $type=isset($_POST['cwvpsb_type'])?sanitize_text_field($_POST['cwvpsb_type']):'';
+    $type   = isset($_POST['cwvpsb_type'])?sanitize_text_field($_POST['cwvpsb_type']):'';
     $page   = isset($_POST['start']) && $_POST['start']> 0 ? $_POST['start']/$_POST['length'] : 1;
     $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
     $page   = ($page + 1);
     $offset = isset($_POST['start']) ? intval($_POST['start']) : 0;
-    $draw = intval($_POST['draw']);						
+    $draw = isset($_POST['draw'])?intval($_POST['draw']):1;						
     
     global $wpdb, $table_prefix;
     $table_name = $table_prefix . 'cwvpb_critical_urls';
@@ -1159,18 +1158,18 @@ function cwvpsb_showdetails_data(){
             $size="NA";
             if($value['status'] == 'cached'){
                 $user_dirname = cwvpsb_cachepath();
-                $size = round(filesize($user_dirname.'/'.md5($value['url']).'.css')/1024,2).' KB';					
+                $size = round(filesize($user_dirname.'/'.md5($value['url']).'.css')/1024,2).esc_html__('KB','cwvpsb');					
                 if(!$size){
-                    $size = '<abbr title="File is not in cached directory. Please recheck in advance option">Deleted</abbr>';
+                    $size = '<abbr title="'.esc_attr__('File is not in cached directory. Please recheck in advance option','cwvpsb').'">'.esc_html__('Deleted','cwvpsb').'</abbr>';
                 }
             }
                 
             $formated_result[] = array(
-                                '<div><abbr title="'.$value['cached_name'].'">'.$value['url'].'</abbr>'.($value['status'] == 'failed' ? '<a href="#" data-section="all" data-id="'.$value['id'].'" class="cwvpb-resend-single-url dashicons dashicons-controls-repeat"></a>' : '').' </div>',								   
-                                '<span class="cwvpb-status-t">'.$value['status'].'</span>',
-                                $size,
-                                $value['updated_at']
-                        );
+                '<div><abbr title="'.esc_attr($value['cached_name']).'">'.esc_html($value['url']).'</abbr>'.(esc_attr($value['status']) == 'failed' ? '<a href="#" data-section="all" data-id="'.esc_attr($value['id']).'" class="cwvpb-resend-single-url dashicons dashicons-controls-repeat"></a>' : '').' </div>',								   
+                '<span class="cwvpb-status-t">'.esc_html($value['status']).'</span>',
+                $size,
+                $value['updated_at']
+        );
         }				
 
     }	

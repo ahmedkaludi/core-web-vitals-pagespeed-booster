@@ -227,7 +227,7 @@ class Wpc extends AbstractConverter
 
         $postData = [
             'file' => curl_file_create($this->source),
-            'options' => json_encode($this->createOptionsToSend()),
+            'options' => wp_json_encode($this->createOptionsToSend()),
             'servername' => (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '')
         ];
 

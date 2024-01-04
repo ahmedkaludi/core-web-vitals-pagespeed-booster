@@ -320,7 +320,7 @@ function cwvpsb_amp_support(){
 add_action('wp' , 'cwvpsb_on_specific_url');
 function cwvpsb_on_specific_url(){
     $settings = cwvpsb_defaults(); 
-    $url = $settings['advance_support'];
+    $url = isset($settings['advance_support'])?$settings['advance_support']:'';
     if (empty($url)) {
         return;
     }
@@ -336,7 +336,9 @@ function cwvpsb_on_specific_url(){
         }  
         
         $post = get_post($page_for_posts);
-        $url_id = $post->ID;
+        if($post && isset($post->ID)){
+            $url_id = $post->ID;
+        }
     }
     if ($url_id != $id ) {
         add_filter( 'cwvpsb_complete_html_after_dom_loaded', '__return_false' );
@@ -362,7 +364,7 @@ function cwvpsb_iframe_delay_enqueue(){
     if ( $iframe_check == 1 ) {
         wp_enqueue_script( 'cwvpsb_iframe', plugin_dir_url(__FILE__) . 'cwvpsb_iframe.js', array(), NULL);
         wp_enqueue_style( 'cwvpsb_iframe', plugin_dir_url(__FILE__) . 'cwvpsb_iframe.css', array(), NULL);
-        $cus_style= '<style>.cwvpsb_iframe {max-width:600px !important}</style>';
+        $cus_style= '.cwvpsb_iframe {max-width:600px !important}';
         wp_add_inline_style( 'cwvpsb_iframe', $cus_style );
         
     }

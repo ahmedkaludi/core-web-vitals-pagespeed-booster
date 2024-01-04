@@ -32,8 +32,8 @@ class CWVPB_newsletter {
                         return;      
                 }           
 	        $name    = isset($_POST['name'])?sanitize_text_field($_POST['name']):'';
-                $email   = isset($_POST['email'])?sanitize_text_field($_POST['email']):'';
-                $website = isset($_POST['website'])?sanitize_text_field($_POST['website']):'';
+                $email   = isset($_POST['email'])?sanitize_email($_POST['email']):'';
+                $website = isset($_POST['website'])?sanitize_url($_POST['website']):'';
                 
                 if($email){
                         
@@ -49,8 +49,7 @@ class CWVPB_newsletter {
 		    $response = wp_remote_post( $api_url, array( 'timeout' => 15, 'sslverify' => false, 'body' => $api_params ) );
                     if ( is_wp_error( $response ) ) {
                         $error_message = $response->get_error_message();
-                        echo "Something went wrong: $error_message";
-                        esc_html__('Email id required','cwvpsb');    
+                        echo "Something went wrong: $error_message";   
                         } else {
                                 $response = wp_remote_retrieve_body( $response );                    
 		                wp_send_json( $response );
@@ -87,7 +86,7 @@ class CWVPB_newsletter {
                         $object['current_user_email'] = $current_user->user_email;                
                         $object['current_user_name']  = $current_user->display_name;        
 			$object['displayID']          = '#menu-settings';                        
-                        $object['button1']            = 'No Thanks';
+                        $object['button1']            = esc_html__('No Thanks','cwvpsb');
                         $object['button2']            = false;
                         $object['function_name']      = '';   
                         $object['ajax_url']           = admin_url( 'admin-ajax.php' );                        
