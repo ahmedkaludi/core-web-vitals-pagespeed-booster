@@ -412,13 +412,6 @@ function cwvpsb_sanitize_js( $file ) {
 	return ( 'js' === $ext ) ? trim( $file ) : false;
 }
 
-add_action('wp_ajax_cwvpsb_delay_ajax_request','cwvpsb_delay_ajax_request');
-add_action('wp_ajax_nopriv_cwvpsb_delay_ajax_request','cwvpsb_delay_ajax_request');
-function cwvpsb_delay_ajax_request(){
-        echo 'success';
-        exit();
-	}
-
 function cwvpsb_delay_js_load() {
   	echo '<script type="text/javascript" id="cwvpsb-delayed-scripts" data-two-no-delay="true">
 	cwvpsbUserInteractions=["keydown","mousemove","wheel","touchmove","touchstart","touchend","touchcancel","touchforcechange"],cwvpsbDelayedScripts={normal:[],defer:[],async:[],jquery:[]},jQueriesArray=[];var cwvpsbDOMLoaded=!1;
