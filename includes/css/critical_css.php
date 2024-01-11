@@ -228,7 +228,7 @@ class cwvpbcriticalCss{
 		if(!$this->check_critical_css()){ return ; }
 		$settings = cwvpsb_defaults();
 		if( $settings['delay_js'] == 'php'){ return; }
-		echo '<script type="text/javascript" id="cwvpsb-delayed-styles">
+		echo '<script  id="cwvpsb-delayed-styles">
 			cwvpsbUserInteractions = ["keydown", "mousemove", "wheel", "touchmove", "touchstart", "touchend", "touchcancel", "touchforcechange"], cwvpsbDelayedScripts = {
 		    normal: [],
 		    defer: [],

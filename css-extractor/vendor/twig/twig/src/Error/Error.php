@@ -173,7 +173,7 @@ class Error extends \Exception
             if (\is_string($this->name) || (\is_object($this->name) && method_exists($this->name, '__toString'))) {
                 $name = sprintf('"%s"', $this->name);
             } else {
-                $name = json_encode($this->name);
+                $name = wp_json_encode($this->name);
             }
             $this->message .= sprintf(' in %s', $name);
         }

@@ -113,7 +113,7 @@ final class ExtensionSet
 
     public function getSignature(): string
     {
-        return json_encode(array_keys($this->extensions));
+        return wp_json_encode(array_keys($this->extensions));
     }
 
     public function isInitialized(): bool

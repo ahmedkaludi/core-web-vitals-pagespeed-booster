@@ -413,7 +413,7 @@ function cwvpsb_sanitize_js( $file ) {
 }
 
 function cwvpsb_delay_js_load() {
-  	echo '<script type="text/javascript" id="cwvpsb-delayed-scripts" data-two-no-delay="true">
+  	echo '<script  id="cwvpsb-delayed-scripts" data-two-no-delay="true">
 	cwvpsbUserInteractions=["keydown","mousemove","wheel","touchmove","touchstart","touchend","touchcancel","touchforcechange"],cwvpsbDelayedScripts={normal:[],defer:[],async:[],jquery:[]},jQueriesArray=[];var cwvpsbDOMLoaded=!1;
 	function cwvpsbTriggerDOMListener(){cwvpsbUserInteractions.forEach(function(e){window.removeEventListener(e,cwvpsbTriggerDOMListener,{passive:!0})}),"loading"===document.readyState?document.addEventListener("DOMContentLoaded",cwvpsbTriggerDelayedScripts):cwvpsbTriggerDelayedScripts()}
 
