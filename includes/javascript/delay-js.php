@@ -106,7 +106,10 @@ function cwvpsb_delay_js_html($html) {
 		}
 
 		$atts_array['type'] = 'cwvpsbdelayedscript';
-		$atts_array['defer'] = 'defer';
+		if(!empty($atts_array['src'])) {
+			$atts_array['defer'] = 'defer';
+		}
+		
 
 		$include = true;
 		if(isset($atts_array['src'])){

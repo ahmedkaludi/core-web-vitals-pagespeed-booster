@@ -160,7 +160,11 @@ class cwvpbcriticalCss{
 			}
 
 			$atts_array['rel'] = 'cwvpsbdelayedstyle';
-			$atts_array['defer'] = 'defer';
+
+			if(!empty($atts_array['href'])) {
+				$atts_array['defer'] = 'defer';
+			}
+			
 		
 			if($delay_flag) {
 				$delayed_atts_string = $this->cwvpsb_get_atts_string($atts_array);
