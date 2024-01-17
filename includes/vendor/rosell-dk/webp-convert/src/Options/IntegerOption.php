@@ -14,7 +14,8 @@ use WebPConvert\Options\Exceptions\InvalidOptionValueException;
  */
 class IntegerOption extends Option
 {
-
+    protected $typeId = 'int';
+    protected $schemaType = ['integer'];
     protected $minValue;
     protected $maxValue;
 
@@ -63,5 +64,13 @@ class IntegerOption extends Option
     {
         $this->checkType('integer');
         $this->checkMinMax();
+    }
+
+    public function getSchema()
+    {
+        $obj = parent::getSchema();
+        $obj['minimum'] = $this->minValue;
+        $obj['maximum'] = $this->maxValue;
+        return $obj;
     }
 }

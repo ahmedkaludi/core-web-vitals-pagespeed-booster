@@ -103,7 +103,9 @@ $(".cwvpsb-tabs a").click(function(e){
 	function startConversion(nonce){
 		var currentFile = need_convertFiles[current_conversion_number];
 		var data = {'action': 'webvital_webp_convert_file',
-			        'nonce_verify' : nonce
+			        'nonce_verify' : nonce,
+					'filename':currentFile,
+
 			    }
 		if (typeof currentFile == 'undefined'){
 			currentFile = 'All images are already WEBP';
@@ -111,13 +113,13 @@ $(".cwvpsb-tabs a").click(function(e){
 		$.ajax({url: ajaxurl, type:'post', dataType: 'json', data: data,
 			success: function(response){
 				if(response.status==200){
-					$('.log_convert_info').append("File: "+currentFile + " => Converted <br/>" );
+					$('.log_convert_info').html("Image '"+currentFile + "' converted ( "+(current_conversion_number+1)+" out of total "+need_convertFiles.length+" files) <br/>" );
 					current_conversion_number += 1;
 					if(current_conversion_number<need_convertFiles.length){
 						startConversion(nonce);
 					}else{
 						$('.log_convert_info').append("-------------------------------- <br/>" );
-						$('.log_convert_info').append("Conversion completed Total "+total+" files are converted <br/>" );
+						$('.log_convert_info').append("Conversion completed Total "+need_convertFiles.length+" files are converted <br/>" );
 					}
 					var element = document.getElementsByClassName("bulkconverUpload")[0].parentNode;
         			element.scrollTop = element.scrollHeight;

@@ -254,10 +254,10 @@ function cwvpsb_web_vitals_changes($html){
                 $srcupdate = $element->getAttribute("src");
                 if(strpos($srcupdate, $base_url)!==false){
                     //test page exists or not
-                    $srcupdatePath = str_replace($upload['baseurl'], $upload['basedir'].'/web-vital-webp', $srcupdate);
+                    $srcupdatePath = str_replace($upload['baseurl'], $upload['basedir'].'/cwv-webp-images', $srcupdate);
                     $srcupdatePath = "$srcupdatePath.webp";
                     if(file_exists($srcupdatePath)){
-                        $srcupdate = str_replace($upload['baseurl'], $upload['baseurl'].'/web-vital-webp', $srcupdate);
+                        $srcupdate = str_replace($upload['baseurl'], $upload['baseurl'].'/cwv-webp-images', $srcupdate);
                         $srcupdate = "$srcupdate.webp";
                         $element->setAttribute("src", $srcupdate);  
                     }
@@ -281,10 +281,10 @@ function cwvpsb_web_vitals_changes($html){
 
                         if(strpos($src, $base_url)!==false){
                             //test page exists or not
-                            $srcupdatePath = str_replace($upload['baseurl'], $upload['basedir'].'/web-vital-webp', $src);
+                            $srcupdatePath = str_replace($upload['baseurl'], $upload['basedir'].'/cwv-webp-images', $src);
                             $srcupdatePath = "$srcupdatePath.webp";
                             if(file_exists($srcupdatePath)){
-                                $webpUrl = str_replace($upload['baseurl'], $upload['baseurl'].'/web-vital-webp', $src);
+                                $webpUrl = str_replace($upload['baseurl'], $upload['baseurl'].'/cwv-webp-images', $src);
                                 $webpUrl .= '.webp';
                             }else{ $webpUrl = $src; }
                         }else{ $webpUrl = $src; }

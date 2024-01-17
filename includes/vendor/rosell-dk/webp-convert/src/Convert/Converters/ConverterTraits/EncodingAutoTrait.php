@@ -1,4 +1,6 @@
 <?php
+
+//namespace WebPConvert\Convert\Converters\BaseTraits;
 namespace WebPConvert\Convert\Converters\ConverterTraits;
 
 /**

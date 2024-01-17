@@ -30,6 +30,8 @@ class FileExists
     public static function warningHandler($errno, $errstr, $errfile, $errline)
     {
         self::$lastWarning = [$errstr, $errno];
+
+        // Suppress the warning by returning void
         return;
     }
 
@@ -41,18 +43,26 @@ class FileExists
      */
     public static function honestFileExists($path)
     {
+        // There is a challenges here:
+        // We want to suppress warnings, but at the same time we want to know that it happened.
+        // We achieve this by registering an error handler
         set_error_handler(
             array('WebPConvert\Helpers\FileExists', "warningHandler"),
             E_WARNING | E_USER_WARNING | E_NOTICE | E_USER_NOTICE
         );
         self::$lastWarning = null;
-        $found = file_exists($path);
+        $found = @file_exists($path);
+
+        // restore previous error handler immediately
         restore_error_handler();
 
+        // If file_exists returns true, we can rely on there being a file there
         if ($found) {
             return true;
         }
 
+        // file_exists returned false.
+        // this result is only trustworthy if no warning was emitted.
         if (is_null(self::$lastWarning)) {
             return false;
         }

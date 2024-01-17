@@ -1,6 +1,7 @@
 <?php
 namespace WebPConvert\Serve;
 
+//use WebPConvert\Serve\Report;
 use WebPConvert\Helpers\InputValidator;
 use WebPConvert\Options\ArrayOption;
 use WebPConvert\Options\BooleanOption;
@@ -38,6 +39,9 @@ class ServeFile
         }
         $options2->check();
         $options = $options2->getOptions();
+
+        // headers option
+        // --------------
 
         $headerOptions = new Options();
         $headerOptions->addOptions(
@@ -83,10 +87,16 @@ class ServeFile
             'image/gif'
         ]);
 
+        /*
+        if (!file_exists($filename)) {
+            Header::addHeader('X-WebP-Convert-Error: Could not read file');
+            throw new ServeFailedException('Could not read file');
+        }*/
+
         $options = self::processOptions($options);
 
         if ($options['headers']['last-modified']) {
-            Header::setHeader("Last-Modified: " . gmdate("D, d M Y H:i:s", filemtime($filename)) . " GMT");
+            Header::setHeader("Last-Modified: " . gmdate("D, d M Y H:i:s", @filemtime($filename)) . " GMT");
         }
 
         if ($options['headers']['content-type']) {
@@ -102,6 +112,8 @@ class ServeFile
                 Header::setHeader('Cache-Control: ' . $options['cache-control-header']);
             }
             if ($options['headers']['expires']) {
+                // Add exprires header too (#126)
+                // Check string for something like this: max-age:86400
                 if (preg_match('#max-age\\s*=\\s*(\\d*)#', $options['cache-control-header'], $matches)) {
                     $seconds = $matches[1];
                     Header::setHeader('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + intval($seconds)));
@@ -113,7 +125,7 @@ class ServeFile
             Header::setHeader('Content-Length: ' . filesize($filename));
         }
 
-        if (readfile($filename) === false) {
+        if (@readfile($filename) === false) {
             Header::addHeader('X-WebP-Convert-Error: Could not read file');
             throw new ServeFailedException('Could not read file');
         }

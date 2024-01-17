@@ -32,6 +32,18 @@ class Wpc extends AbstractConverter
         return [];
     }
 
+    public function getUniqueOptions($imageType)
+    {
+        return [
+            new SensitiveStringOption('api-key', ''),   /* for communicating with wpc api v.1+ */
+            new SensitiveStringOption('secret', ''),    /* for communicating with wpc api v.0 */
+            new SensitiveStringOption('api-url', ''),
+            new SensitiveStringOption('url', ''),       /* DO NOT USE. Only here to keep the protection */
+            new IntegerOption('api-version', 2, 0, 2),
+            new BooleanOption('crypt-api-key-in-transfer', false)  /* new in api v.1 */
+        ];
+    }
+
     public function supportsLossless()
     {
         return ($this->options['api-version'] >= 2);
@@ -39,21 +51,9 @@ class Wpc extends AbstractConverter
 
     public function passOnEncodingAuto()
     {
+        // We could make this configurable. But I guess passing it on is always to be preferred
+        // for api >= 2.
         return ($this->options['api-version'] >= 2);
-    }
-
-    protected function createOptions()
-    {
-        parent::createOptions();
-
-        $this->options2->addOptions(
-            new SensitiveStringOption('api-key', ''),   /* for communicating with wpc api v.1+ */
-            new SensitiveStringOption('secret', ''),    /* for communicating with wpc api v.0 */
-            new SensitiveStringOption('api-url', ''),
-            new SensitiveStringOption('url', ''),       /* DO NOT USE. Only here to keep the protection */
-            new IntegerOption('api-version', 2, 0, 2),
-            new BooleanOption('crypt-api-key-in-transfer', false)  /* new in api v.1 */
-        );
     }
 
     private static function createRandomSaltForBlowfish()
@@ -213,7 +213,12 @@ class Wpc extends AbstractConverter
 
         if ($apiVersion == 1) {
             // Lossless can be "auto" in api 2, but in api 1 "auto" is not supported
+            //unset($optionsToSend['lossless']);
         } elseif ($apiVersion == 2) {
+            //unset($optionsToSend['png']);
+            //unset($optionsToSend['jpeg']);
+
+            // The following are unset for security reasons.
             unset($optionsToSend['cwebp-command-line-options']);
             unset($optionsToSend['command-line-options']);
         }
@@ -227,7 +232,7 @@ class Wpc extends AbstractConverter
 
         $postData = [
             'file' => curl_file_create($this->source),
-            'options' => wp_json_encode($this->createOptionsToSend()),
+            'options' => json_encode($this->createOptionsToSend()),
             'servername' => (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '')
         ];
 
@@ -238,9 +243,13 @@ class Wpc extends AbstractConverter
         if ($apiVersion == 0) {
             $postData['hash'] = md5(md5_file($this->source) . $apiKey);
         } elseif ($apiVersion == 1) {
+            //$this->logLn('api key: ' . $apiKey);
+
             if ($options['crypt-api-key-in-transfer']) {
                 $salt = self::createRandomSaltForBlowfish();
                 $postData['salt'] = $salt;
+
+                // Strip off the first 28 characters (the first 6 are always "$2y$10$". The next 22 is the salt)
                 $postData['api-key-crypted'] = substr(crypt($apiKey, '$2y$10$' . $salt . '$'), 28);
             } else {
                 $postData['api-key'] = $apiKey;
@@ -252,6 +261,8 @@ class Wpc extends AbstractConverter
     protected function doActualConvert()
     {
         $ch = self::initCurl();
+
+        //$this->logLn('api url: ' . $this->getApiUrl());
 
         curl_setopt_array($ch, [
             CURLOPT_URL => $this->getApiUrl(),
@@ -315,6 +326,7 @@ class Wpc extends AbstractConverter
                 }
             }
 
+            // WPC 0.1 returns 'failed![error messag]' when conversion fails. Handle that.
             if (substr($response, 0, 7) == 'failed!') {
                 throw new ConversionFailedException(
                     'WPC failed converting image: "' . substr($response, 7) . '"'
@@ -328,6 +340,7 @@ class Wpc extends AbstractConverter
             );
 
             throw new ConversionFailedException('Unexpected result. We did not receive an image but something else.');
+            //throw new ConverterNotOperationalException($response);
         }
 
         $success = file_put_contents($this->destination, $response);

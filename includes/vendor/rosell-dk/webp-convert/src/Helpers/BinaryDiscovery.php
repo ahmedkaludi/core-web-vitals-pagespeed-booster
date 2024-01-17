@@ -19,7 +19,8 @@ class BinaryDiscovery
         '/usr/bin',
         '/usr/local/bin',
         '/usr/gnu/bin',
-        '/usr/syno/bin'
+        '/usr/syno/bin',
+        '/bin',
     ];
 
     /**
@@ -35,6 +36,8 @@ class BinaryDiscovery
     {
         $binaries = [];
         foreach (self::$commonSystemPaths as $dir) {
+            // PS: FileExists might throw if exec() is unavailable. We let it.
+            // - this class assumes exec is available
             if (FileExists::fileExistsTryHarder($dir . '/' . $binary)) {
                 $binaries[] = $dir . '/' . $binary;
             }
@@ -49,9 +52,11 @@ class BinaryDiscovery
      */
     private static function discoverBinariesUsingWhereIs($binary)
     {
+        // This method was added due to #226.
         exec('whereis -b ' . $binary . ' 2>&1', $output, $returnCode);
         if (($returnCode == 0) && (isset($output[0]))) {
             $result = $output[0];
+            // Ie: "cwebp: /usr/bin/cwebp /usr/local/bin/cwebp"
             if (preg_match('#^' . $binary . ':\s(.*)$#', $result, $matches)) {
                 return explode(' ', $matches[1]);
             }
@@ -68,6 +73,8 @@ class BinaryDiscovery
      */
     private static function discoverBinariesUsingWhich($binary)
     {
+        // As suggested by @cantoute here:
+        // https://wordpress.org/support/topic/sh-1-usr-local-bin-cwebp-not-found/
         exec('which -a ' . $binary . ' 2>&1', $output, $returnCode);
         if ($returnCode == 0) {
             return $output;

@@ -29,9 +29,14 @@ class JpegQualityDetector
         if (extension_loaded('imagick') && class_exists('\\Imagick')) {
             try {
                 $img = new \Imagick($filename);
+
+                // The required function is available as from PECL imagick v2.2.2
                 if (method_exists($img, 'getImageCompressionQuality')) {
                     $quality = $img->getImageCompressionQuality();
                     if ($quality === 0) {
+                        // We have experienced that this Imagick method returns 0 for some images,
+                        // (even though the imagemagick binary is able to detect the quality)
+                        // ie "/test/images/quality-undetectable-with-imagick.jpg". See #208
                         $quality = null;
                     }
                     return $quality;
@@ -64,7 +69,9 @@ class JpegQualityDetector
     private static function detectQualityOfJpgUsingImageMagick($filename)
     {
         if (function_exists('exec')) {
+            // Try Imagick using exec, and routing stderr to stdout (the "2>$1" magic)
             exec("identify -format '%Q' " . escapeshellarg($filename) . " 2>&1", $output, $returnCode);
+            //echo 'out:' . print_r($output, true);
             if ((intval($returnCode) == 0) && (is_array($output)) && (count($output) == 1)) {
                 return intval($output[0]);
             }
@@ -116,6 +123,8 @@ class JpegQualityDetector
      */
     public static function detectQualityOfJpg($filename)
     {
+
+        //trigger_error('warning test', E_USER_WARNING);
 
         // Test that file exists in order not to break things.
         if (!file_exists($filename)) {

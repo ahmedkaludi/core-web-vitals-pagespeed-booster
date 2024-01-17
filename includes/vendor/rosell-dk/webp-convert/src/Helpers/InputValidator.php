@@ -30,6 +30,7 @@ class InputValidator
         if (is_null($allowedMimeTypes)) {
             $allowedMimeTypes = self::$allowedMimeTypes;
         }
+        // the following also tests that file path is ok and file exists
         $fileMimeType = MimeType::getMimeTypeDetectionResult($filePath);
 
         if (is_null($fileMimeType)) {

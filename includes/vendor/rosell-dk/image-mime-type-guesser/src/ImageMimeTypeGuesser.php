@@ -83,8 +83,13 @@ class ImageMimeTypeGuesser
     {
         $detectResult = self::detect($filePath);
         if ($detectResult === false) {
+            // The server does not recognize this image type.
+            // - but perhaps it is because it does not know about this image type.
+            // - so we turn to mapping the file extension
             return GuessFromExtension::guess($filePath);
         } elseif (is_null($detectResult)) {
+            // the mime type could not be determined
+            // perhaps we also in this case want to turn to mapping the file extension
             return GuessFromExtension::guess($filePath);
         }
         return $detectResult;

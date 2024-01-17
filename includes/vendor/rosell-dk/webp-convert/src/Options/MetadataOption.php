@@ -15,6 +15,9 @@ use WebPConvert\Options\Exceptions\InvalidOptionValueException;
 class MetadataOption extends StringOption
 {
 
+    protected $typeId = 'metadata';
+    protected $schemaType = ['string'];
+
     public function __construct($id, $defaultValue)
     {
         parent::__construct($id, $defaultValue);
@@ -38,5 +41,7 @@ class MetadataOption extends StringOption
                 );
             }
         }
+
+        //$this->checkType('string');
     }
 }

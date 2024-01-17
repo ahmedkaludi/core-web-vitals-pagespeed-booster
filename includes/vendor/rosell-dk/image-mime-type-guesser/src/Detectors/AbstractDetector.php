@@ -47,7 +47,7 @@ abstract class AbstractDetector
      */
     public static function detect($filePath)
     {
-        if (!file_exists($filePath)) {
+        if (!@file_exists($filePath)) {
             return false;
         }
         return self::createInstance()->doDetect($filePath);

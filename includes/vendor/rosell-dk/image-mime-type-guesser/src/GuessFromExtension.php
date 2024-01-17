@@ -37,9 +37,20 @@ class GuessFromExtension
      */
     public static function guess($filePath)
     {
-        if (!file_exists($filePath)) {
+        if (!@file_exists($filePath)) {
             return false;
         }
+        /*
+        Not using pathinfo, as it is locale aware, and I'm not sure if that could lead to problems
+
+        if (!function_exists('pathinfo')) {
+            // This is really a just in case! - We do not expect this to happen.
+            // - in fact we have a test case asserting that this does not happen.
+            return null;
+            //
+            $fileExtension = pathinfo($filePath, PATHINFO_EXTENSION);
+            $fileExtension = strtolower($fileExtension);
+        }*/
 
         $result = preg_match('#\\.([^.]*)$#', $filePath, $matches);
         if ($result !== 1) {

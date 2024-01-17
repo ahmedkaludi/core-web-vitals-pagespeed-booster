@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "20a21c1bcfab600608fac53bc0024cf1",
+    "content-hash": "7e11fa7cc85a00739f499ee70265fd83",
     "packages": [
         {
             "name": "rosell-dk/image-mime-type-guesser",
@@ -63,25 +63,25 @@
         },
         {
             "name": "rosell-dk/webp-convert",
-            "version": "2.3.2",
+            "version": "2.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rosell-dk/webp-convert.git",
-                "reference": "5da7989e87cc0b6c61a5fd73262ed28999be27ab"
+                "reference": "9f1677e56352b7aa23f00680d4ed41d53f3c4d8a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rosell-dk/webp-convert/zipball/5da7989e87cc0b6c61a5fd73262ed28999be27ab",
-                "reference": "5da7989e87cc0b6c61a5fd73262ed28999be27ab",
+                "url": "https://api.github.com/repos/rosell-dk/webp-convert/zipball/9f1677e56352b7aa23f00680d4ed41d53f3c4d8a",
+                "reference": "9f1677e56352b7aa23f00680d4ed41d53f3c4d8a",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.6 | ^7.0",
+                "php": "^5.6 | ^7.0 | ^8.0",
                 "rosell-dk/image-mime-type-guesser": "^0.3"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^2.11",
-                "phpunit/phpunit": "5.7.27",
+                "phpunit/phpunit": "^9.3",
                 "squizlabs/php_codesniffer": "3.*"
             },
             "suggest": {
@@ -135,7 +135,21 @@
                 "png",
                 "png2webp"
             ],
-            "time": "2020-04-18T14:41:50+00:00"
+            "support": {
+                "issues": "https://github.com/rosell-dk/webp-convert/issues",
+                "source": "https://github.com/rosell-dk/webp-convert/tree/2.7.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/rosell-dk",
+                    "type": "github"
+                },
+                {
+                    "url": "https://ko-fi.com/rosell",
+                    "type": "ko_fi"
+                }
+            ],
+            "time": "2021-10-25T08:34:22+00:00"
         },
         {
             "name": "sabberworm/php-css-parser",
@@ -190,5 +204,6 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "2.3.0"
 }

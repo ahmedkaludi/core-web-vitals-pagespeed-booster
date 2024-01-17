@@ -1,5 +1,8 @@
 <?php
 
+// TODO:
+// Read this: https://sourcemaking.com/design_patterns/strategy
+
 namespace WebPConvert\Convert\Converters;
 
 use WebPConvert\Helpers\InputValidator;
@@ -103,8 +106,11 @@ abstract class AbstractConverter
      * @param   array   $options (optional)  options for conversion
      * @param   BaseLogger $logger (optional)
      */
-    final public function __construct($source, $destination, $options = [], $logger = null)
+    final public function __construct($source = '', $destination = '', $options = [], $logger = null)
     {
+        if ($source == '') {
+            return;
+        }
         InputValidator::checkSourceAndDestination($source, $destination);
 
         $this->source = $source;
@@ -114,7 +120,7 @@ abstract class AbstractConverter
         $this->setProvidedOptions($options);
 
         if (!isset($this->options['_skip_input_check'])) {
-            $this->log('WebP Convert 2.3.2', 'italic');
+            $this->log('WebP Convert 2.7.0', 'italic');
             $this->logLn(' ignited.');
             $this->logLn('- PHP version: ' . phpversion());
             if (isset($_SERVER['SERVER_SOFTWARE'])) {
@@ -246,9 +252,9 @@ abstract class AbstractConverter
         $source = $this->source;
         $destination = $this->destination;
 
-        if (!file_exists($destination)) {
+        if (!@file_exists($destination)) {
             throw new ConversionFailedException('Destination file is not there: ' . $destination);
-        } elseif (filesize($destination) === 0) {
+        } elseif (@filesize($destination) === 0) {
             unlink($destination);
             throw new ConversionFailedException('Destination file was completely empty');
         } else {
@@ -256,7 +262,7 @@ abstract class AbstractConverter
                 $this->ln();
                 $this->log('Converted image in ' . round((microtime(true) - $beginTime) * 1000) . ' ms');
 
-                $sourceSize = filesize($source);
+                $sourceSize = @filesize($source);
                 if ($sourceSize !== false) {
                     $this->log(', reducing file size with ');
                     $this->logReduction($source, $destination);
@@ -266,6 +272,8 @@ abstract class AbstractConverter
 
         $this->deactivateWarningLogger();
     }
+
+    //private function logEx
     /**
      * Start conversion.
      *
@@ -277,9 +285,17 @@ abstract class AbstractConverter
     public function doConvert()
     {
         try {
+            //trigger_error('hello', E_USER_ERROR);
             $this->doConvertImplementation();
         } catch (WebPConvertException $e) {
             $this->logLn('');
+            /*
+            if (isset($e->description) && ($e->description != '')) {
+                $this->log('Error: ' . $e->description . '. ', 'bold');
+            } else {
+                $this->log('Error: ', 'bold');
+            }
+            */
             $this->log('Error: ', 'bold');
             $this->logLn($e->getMessage(), 'bold');
             throw $e;
@@ -292,9 +308,11 @@ abstract class AbstractConverter
             $this->logLn('');
             $this->logLn($shortClassName . ' thrown in ' . $e->getFile() . ':' . $e->getLine(), 'bold');
             $this->logLn('Message: "' . $e->getMessage() . '"', 'bold');
+            //$this->logLn('Exception class: ' . $className);
 
             $this->logLn('Trace:');
             foreach ($e->getTrace() as $trace) {
+                //$this->logLn(print_r($trace, true));
                 if (isset($trace['file']) && isset($trace['line'])) {
                     $this->logLn(
                         $trace['file'] . ':' . $trace['line']
@@ -302,7 +320,9 @@ abstract class AbstractConverter
                 }
             }
             throw $e;
-        }
+        } /*catch (\Error $e) {
+            $this->logLn('ERROR');
+        }*/
     }
 
     /**
@@ -334,6 +354,7 @@ abstract class AbstractConverter
     {
         $c = self::createInstance($source, $destination, $options, $logger);
         $c->doConvert();
+        //echo $instance->id;
     }
 
     /**

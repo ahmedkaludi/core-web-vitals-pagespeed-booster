@@ -9,6 +9,8 @@ use WebPConvert\Convert\Converters\ConverterTraits\ExecTrait;
 use WebPConvert\Convert\Exceptions\ConversionFailed\ConverterNotOperational\SystemRequirementsNotMetException;
 use WebPConvert\Convert\Exceptions\ConversionFailedException;
 
+//use WebPConvert\Convert\Exceptions\ConversionFailed\InvalidInput\TargetNotFoundException;
+
 /**
  * Convert images to webp by calling gmagick binary (gm).
  *
@@ -24,9 +26,7 @@ class GraphicsMagick extends AbstractConverter
     protected function getUnsupportedDefaultOptions()
     {
         return [
-            'auto-filter',
             'near-lossless',
-            'preset',
             'size-in-percentage',
         ];
     }
@@ -93,31 +93,78 @@ class GraphicsMagick extends AbstractConverter
      */
     private function createCommandLineOptions()
     {
+        // For available webp options, check out:
+        // https://github.com/kstep/graphicsmagick/blob/master/coders/webp.c
+
         $commandArguments = [];
- 
+
+        /*
+        if ($this->isQualityDetectionRequiredButFailing()) {
+            // Unlike imagick binary, it seems gmagick binary uses a fixed
+            // quality (75) when quality is omitted
+            // So we cannot simply omit in order to get same quality as source.
+            // But perhaps there is another way?
+            // Check out #91 - it is perhaps as easy as this: "-define jpeg:preserve-settings"
+        }
+        */
         $commandArguments[] = '-quality ' . escapeshellarg($this->getCalculatedQuality());
 
+        $options = $this->options;
+
+        // preset
+        if (!is_null($options['preset'])) {
+            if ($options['preset'] != 'none') {
+                $imageHint = $options['preset'];
+                switch ($imageHint) {
+                    case 'drawing':
+                    case 'icon':
+                    case 'text':
+                        $imageHint = 'graph';
+                        $this->logLn(
+                            'Note: the preset was mapped to "graph" because graphicsmagick does not support ' .
+                            '"drawing", "icon" and "text", but grouped these into one option: "graph".'
+                        );
+                }
+                $commandArguments[] = '-define webp:image-hint=' . escapeshellarg($imageHint);
+            }
+        }
+
         // encoding
-        if ($this->options['encoding'] == 'lossless') {
-            
+        if ($options['encoding'] == 'lossless') {
+            // Btw:
+            // I am not sure if we should set "quality" for lossless.
+            // Quality should not apply to lossless, but my tests shows that it does in some way for gmagick
+            // setting it low, you get bad visual quality and small filesize. Setting it high, you get the opposite
+            // Some claim it is a bad idea to set quality, but I'm not so sure.
+            // https://stackoverflow.com/questions/4228027/
+            // First, I do not just get bigger images when setting quality, as toc777 does.
+            // Secondly, the answer is very old and that bad behaviour is probably fixed by now.
             $commandArguments[] = '-define webp:lossless=true';
         } else {
             $commandArguments[] = '-define webp:lossless=false';
         }
 
-        if ($this->options['alpha-quality'] !== 100) {
-            $commandArguments[] = '-define webp:alpha-quality=' . strval($this->options['alpha-quality']);
+        if ($options['auto-filter'] === true) {
+            $commandArguments[] = '-define webp:auto-filter=true';
         }
 
-        if ($this->options['low-memory']) {
+        if ($options['alpha-quality'] !== 100) {
+            $commandArguments[] = '-define webp:alpha-quality=' . strval($options['alpha-quality']);
+        }
+
+        if ($options['low-memory']) {
             $commandArguments[] = '-define webp:low-memory=true';
         }
 
-        if ($this->options['metadata'] == 'none') {
+        if ($options['sharp-yuv'] === true) {
+            $commandArguments[] = '-define webp:use-sharp-yuv=true';
+        }
+
+        if ($options['metadata'] == 'none') {
             $commandArguments[] = '-strip';
         }
 
-        $commandArguments[] = '-define webp:method=' . $this->options['method'];
+        $commandArguments[] = '-define webp:method=' . $options['method'];
 
         $commandArguments[] = escapeshellarg($this->source);
         $commandArguments[] = escapeshellarg('webp:' . $this->destination);
@@ -127,6 +174,7 @@ class GraphicsMagick extends AbstractConverter
 
     protected function doActualConvert()
     {
+        //$this->logLn('Using quality:' . $this->getCalculatedQuality());
 
         $this->logLn('Version: ' . $this->getVersion());
 

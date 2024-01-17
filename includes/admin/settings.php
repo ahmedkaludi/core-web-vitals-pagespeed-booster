@@ -315,7 +315,7 @@ public function image_optimization_callback(){
     <div class="label-align">
     <select class="webp_support" name="cwvpsb_get_settings[webp_support]" >
      <?php
-        $delay = array('auto' => 'Automatic (Recommended)','manual' => 'Manual Method');
+        $delay = array('auto' => esc_html__('Automatic (Recommended)', 'cwvpsb'),'manual' => esc_html__('Manual Method', 'cwvpsb'));
         foreach ($delay as $key => $value ) {
         ?>
             <option value="<?php echo $key;?>" <?php selected( $settings['webp_support'], $key);?>><?php echo $value;?></option>
@@ -587,7 +587,7 @@ public function delete_on_uninstall_callback(){
 
                         if (($filter['only-converted']) || ($filter['only-unconverted'])) {
 
-                            $destinationPath = $listOpt['root']."/web-vital-webp";
+                            $destinationPath = $listOpt['root']."/cwv-webp-images";
                             if(!is_dir($destinationPath)) { wp_mkdir_p($destinationPath); }
                             
                             $destination = str_replace($listOpt['root'], $destinationPath, $dir);
@@ -641,7 +641,7 @@ public function delete_on_uninstall_callback(){
         $filename = isset($_POST['filename'])?sanitize_text_field(stripslashes($_POST['filename'])):'';
 
         $upload = wp_upload_dir();
-        $destinationPath = $upload['basedir']."/web-vital-webp";
+        $destinationPath = $upload['basedir']."/cwv-webp-images";
         if(!is_dir($destinationPath)) { wp_mkdir_p($destinationPath); }
         $destination = $destinationPath.'/'. $filename.".webp";
 
@@ -657,7 +657,7 @@ public function delete_on_uninstall_callback(){
             $message = 'An exception was thrown!';
             if(function_exists('error_log')){ error_log($e->getMessage()); }
         }
-        wp_send_json(array('status'=>200 ,"msg"=>esc_html__('File converted successfully', 'cwvpsb') ));
+        wp_send_json(array('status'=>200 ,'filename'=> $filename,'source'=>$source,'destination'=>$destination,"msg"=>esc_html__('File converted successfully', 'cwvpsb') ));
     }
 
     public function cwvpsb_reWriteCacheHtaccess(){

@@ -36,10 +36,26 @@ class PathChecker
         if (empty($absFilePath)) {
             throw new InvalidInputException('Empty filepath for ' . $text);
         }
+
+        // Prevent non printable characters
+        /*
+        if (!ctype_print($absFilePath)) {
+            throw new InvalidInputException('Non-printable characters are not allowed in ' . $text);
+        }*/
+
+        // Prevent control characters (at least the first 32 (#0 - #1f)
         if (preg_match('#[\x{0}-\x{1f}]#', $absFilePath)) {
             throw new InvalidInputException('Non-printable characters are not allowed');
         }
 
+        // Prevent directory traversal
+        /* Disabled. We DO allow it again (#203)
+        if (preg_match('#\.\.\/#', $absFilePath)) {
+            throw new InvalidInputException('Directory traversal is not allowed in ' . $text . ' path');
+        }*/
+
+        // Prevent stream wrappers ("phar://", "php://" and the like)
+        // https://www.php.net/manual/en/wrappers.phar.php
         if (preg_match('#^\\w+://#', $absFilePath)) {
             throw new InvalidInputException('Stream wrappers are not allowed in ' . $text . ' path');
         }
@@ -51,10 +67,10 @@ class PathChecker
             throw new TargetNotFoundException($text . ' argument missing');
         }
         self::checkAbsolutePath($absFilePath, $text);
-        if (!file_exists($absFilePath)) {
+        if (@!file_exists($absFilePath)) {
             throw new TargetNotFoundException($text . ' file was not found');
         }
-        if (is_dir($absFilePath)) {
+        if (@is_dir($absFilePath)) {
             throw new InvalidInputException($text . ' is a directory');
         }
     }
@@ -77,7 +93,8 @@ class PathChecker
         self::checkAbsolutePath($destination, 'destination');
 
         if (!preg_match('#\.webp$#i', $destination)) {
-            
+            // Prevent overriding important files.
+            // Overriding an .htaccess file would lay down the website.
             throw new InvalidInputException(
                 'Destination file must end with ".webp". ' .
                 'If you deliberately want to store the webp files with another extension, you must rename ' .
@@ -85,7 +102,7 @@ class PathChecker
             );
         }
 
-        if (is_dir($destination)) {
+        if (@is_dir($destination)) {
             throw new InvalidInputException('Destination is a directory');
         }
     }

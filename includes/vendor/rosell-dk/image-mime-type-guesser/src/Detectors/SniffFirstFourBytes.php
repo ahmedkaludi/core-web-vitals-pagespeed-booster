@@ -4,9 +4,6 @@ namespace ImageMimeTypeGuesser\Detectors;
 
 use \ImageMimeTypeGuesser\Detectors\AbstractDetector;
 
-require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
-require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
-
 class SniffFirstFourBytes extends AbstractDetector
 {
 
@@ -27,9 +24,6 @@ class SniffFirstFourBytes extends AbstractDetector
      */
     protected function doDetect($filePath)
     {
-        if(!class_exists('ImageMimeTypeGuesser\Detectors\WP_Filesystem_Direct')){
-            return null;
-        }
         // PNG, GIF, JFIF JPEG, EXIF JPEF (respectively)
         $known = [
             '89504E47' => 'image/png',
@@ -37,11 +31,12 @@ class SniffFirstFourBytes extends AbstractDetector
             'FFD8FFE0' => 'image/jpeg',  //  JFIF JPEG
             'FFD8FFE1' => 'image/jpeg',  //  EXIF JPEG
         ];
-        $handle = \WP_Filesystem_Direct::put_contents($filePath);
+
+        $handle = @fopen($filePath, 'r');
         if ($handle === false) {
             return null;
         }
-        $firstFour = \WP_Filesystem_Direct::put_contents($handle, 4);
+        $firstFour = @fread($handle, 4);
         if ($firstFour === false) {
             return null;
         }

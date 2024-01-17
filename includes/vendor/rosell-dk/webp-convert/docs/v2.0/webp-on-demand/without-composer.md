@@ -20,6 +20,12 @@ Here is a minimal example to get started with:
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
+// Once you got it working, make sure that PHP warnings are not send to the output
+// - this will corrupt the image
+// For example, you can do it by commenting out the lines below:
+// error_reporting(0);
+// ini_set("display_errors", 0);
+
 use WebPConvert\WebPConvert;
 
 require 'webp-on-demand-1.inc';

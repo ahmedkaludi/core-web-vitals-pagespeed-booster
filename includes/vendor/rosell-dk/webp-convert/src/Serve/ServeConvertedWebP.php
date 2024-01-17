@@ -143,22 +143,29 @@ class ServeConvertedWebP
             );
         }
 
+
+        //$options = array_merge(self::$defaultOptions, $options);
+
+        // Step 1: Is there a file at the destination? If not, trigger conversion
+        // However 1: if "show-report" option is set, serve the report instead
+        // However 2: "reconvert" option should also trigger conversion
         if ($options['show-report']) {
             Header::addLogHeader('Showing report', $serveLogger);
             Report::convertAndReport($source, $destination, $options);
             return;
         }
 
-        if (!file_exists($destination)) {
+        if (!@file_exists($destination)) {
             Header::addLogHeader('Converting (there were no file at destination)', $serveLogger);
             WebPConvert::convert($source, $destination, $options['convert'], $convertLogger);
         } elseif ($options['reconvert']) {
             Header::addLogHeader('Converting (told to reconvert)', $serveLogger);
             WebPConvert::convert($source, $destination, $options['convert'], $convertLogger);
         } else {
-        
-            $timestampSource = filemtime($source);
-            $timestampDestination = filemtime($destination);
+            // Step 2: Is the destination older than the source?
+            //         If yes, trigger conversion (deleting destination is implicit)
+            $timestampSource = @filemtime($source);
+            $timestampDestination = @filemtime($destination);
             if (($timestampSource !== false) &&
                 ($timestampDestination !== false) &&
                 ($timestampSource > $timestampDestination)) {
@@ -167,6 +174,8 @@ class ServeConvertedWebP
             }
         }
 
+        // Step 3: Serve the smallest file (destination or source)
+        // However, first check if 'serve-original' is set
         if ($options['serve-original']) {
             Header::addLogHeader('Serving original (told to)', $serveLogger);
             self::serveOriginal($source, $options['serve-image']);
@@ -183,8 +192,8 @@ class ServeConvertedWebP
             return;
         }
 
-        $filesizeDestination = filesize($destination);
-        $filesizeSource = filesize($source);
+        $filesizeDestination = @filesize($destination);
+        $filesizeSource = @filesize($source);
         if (($filesizeSource !== false) &&
             ($filesizeDestination !== false) &&
             ($filesizeDestination > $filesizeSource)) {

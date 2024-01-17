@@ -74,7 +74,7 @@ class ServeConvertedWebPWithErrorHandling
         switch ($fail) {
             case 'original':
                 try {
-                   
+                    //ServeConvertedWebP::serveOriginal($source, $options);
                     call_user_func($serveClass . '::serveOriginal', $source, $options);
                 } catch (\Exception $e) {
                     self::performFailAction($failIfFailFails, '404', $source, $destination, $options, $e, $serveClass);
@@ -93,8 +93,10 @@ class ServeConvertedWebPWithErrorHandling
 
             case 'throw':
                 throw $e;
+                //break;  commented out as phpstan complains. But do something else complain now?
 
             case 'report-as-image':
+                // TODO: Implement or discard ?
                 break;
         }
     }

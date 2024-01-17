@@ -22,7 +22,7 @@ class FInfo extends AbstractDetector
     {
 
         if (class_exists('finfo')) {
-    
+            // phpcs:ignore PHPCompatibility.PHP.NewClasses.finfoFound
             $finfo = new \finfo(FILEINFO_MIME);
             $mime = explode('; ', $finfo->file($filePath));
             $result = $mime[0];
