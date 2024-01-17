@@ -151,49 +151,6 @@ function cwvpsb_delay_js_html($html) {
 	}*/
 	return $html;
 }
-
-// function cwvpsb_combine_js_files($combined_ex_js_arr, $html){
-// 	if(!count($combined_ex_js_arr)){ return ; }
-// 	include_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
-//      include_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
-//      if (!class_exists('WP_Filesystem_Direct')) {
-//          return false;
-//      }
-
-// 	$uniqueid = get_transient( CWVPSB_CACHE_NAME );
-//     global $wp;
-// 	$url = home_url( $wp->request );
-//     $filename = md5($url.$uniqueid);
-
-// 	 $user_dirname = CWVPSB_JS_EXCLUDE_CACHE_DIR;
-// 	 $user_urlname = CWVPSB_JS_EXCLUDE_CACHE_URL;
-// 	 $jsUrl = '';
-	 
-// 	 if(!file_exists($user_dirname.'/'.$filename.'.js')){
-	 	
-// 	     $jscontent = '';
-// 	     foreach($combined_ex_js_arr as $file_url){
-// 	     	$parse_url = parse_url($file_url);
-// 	     	$file_path = str_replace(array(get_site_url(),'?'.$parse_url['query']),array(ABSPATH,''),$file_url);
-// 		    $wp_filesystem = new WP_Filesystem_Direct(null);
-// 		    $js = $wp_filesystem->get_contents($file_path);
-// 		    unset($wp_filesystem);
-// 		    if (empty($js)) {
-// 		         $request = wp_remote_get($file_url);
-// 		         $js = wp_remote_retrieve_body($request);
-// 		    }
-// 		    $jscontent .= "\n/*File: $file_url*/\n".$js;
-// 		}
-// 		if($jscontent){
-// 			$fileSystem = new WP_Filesystem_Direct( new StdClass() );
-// 			if(!file_exists($user_dirname)) wp_mkdir_p($user_dirname);
-// 			$fileSystem->put_contents($user_dirname.'/'.$filename.'.js', $jscontent, 644 );
-// 			unset($fileSystem);
-// 		}
-// 	}
-// 	return $html;
-// }
-
 function cwvpsb_remove_js_query_param($html){
 
     

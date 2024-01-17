@@ -231,7 +231,7 @@ class cwvpbcriticalCss{
 	function cwvpsb_delay_js_load() {
 		if(!$this->check_critical_css()){ return ; }
 		$settings = cwvpsb_defaults();
-		if( $settings['delay_js'] == 'php'){ return; }
+		if((cwvpsb_is_mobile() && $settings['delay_js_mobile'] == 'php') || $settings['delay_js'] == 'php'){ return; }
 		echo '<script  id="cwvpsb-delayed-styles">
 			cwvpsbUserInteractions = ["keydown", "mousemove", "wheel", "touchmove", "touchstart", "touchend", "touchcancel", "touchforcechange"], cwvpsbDelayedScripts = {
 		    normal: [],
@@ -749,7 +749,7 @@ class cwvpbcriticalCss{
 				$this->insert_update_posts_url($post_id);
 			}
 		}				
-		update_option('save_posts_offset', 0);
+		update_option('save_posts_offset', 0);			
 	}
 
 
@@ -804,7 +804,7 @@ class cwvpbcriticalCss{
 			$d = new DOMDocument;
 			$mock = new DOMDocument;
 			libxml_use_internal_errors(true);
-			$d->loadHTML($content);
+			$d->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'));
 			$body = $d->getElementsByTagName('body')->item(0);
 			foreach ($body->childNodes as $child){
 				$mock->appendChild($mock->importNode($child, true));

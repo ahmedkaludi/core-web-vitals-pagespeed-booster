@@ -164,6 +164,7 @@ function cwvpsb_defaults(){
        'google_fonts_support'  => 1,
        'js_optimization' => 1,
        'delay_js' => 'php',
+       'delay_js_mobile' => 'php',
        'whitelist_css'=>array(),
        'critical_css_support'=>1,
        'cache_support_method'=>'Highly Optimized',
@@ -392,5 +393,35 @@ function cwvpsb_amp_support_enabled(){
        }
     }
     
+    return false;
+}
+
+function cwvpsb_is_mobile() {
+    $userAgent = $_SERVER['HTTP_USER_AGENT'];
+
+    // A list of common mobile device keywords
+    $mobileKeywords = ['Mobile', 'Android', 'iPhone', 'iPad', 'Windows Phone', 'BlackBerry'];
+
+    // Check if any of the mobile keywords exist in the user agent
+    foreach ($mobileKeywords as $keyword) {
+        if (stripos($userAgent, $keyword) !== false) {
+            return true;
+        }
+    }
+
+    // Check for some specific mobile strings
+    if (preg_match('/(up.browser|up.link|mmp|symbian|smartphone|midp|wap|phone)/i', $userAgent)) {
+        return true;
+    }
+
+    // Check for common desktop browsers to exclude false positives
+    $desktopBrowsers = ['Windows NT', 'Macintosh', 'Linux', 'X11'];
+    foreach ($desktopBrowsers as $browser) {
+        if (stripos($userAgent, $browser) !== false) {
+            return false;
+        }
+    }
+
+    // If no mobile keywords are found, assume it's a desktop device
     return false;
 }

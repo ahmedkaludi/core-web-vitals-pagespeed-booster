@@ -35,13 +35,23 @@ function load_settings() {
     if(isset($settings['critical_css_support']) && $settings['critical_css_support']==1){
        require_once CWVPSB_PLUGIN_DIR."includes/css/critical_css.php";
     }
-    if( $settings['delay_js'] == 'php'){
-       require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-js.php";
+    if(cwvpsb_is_mobile())
+    {
+        if($settings['delay_js_mobile'] == 'php'){
+            require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-js.php";
+         }
+         if( $settings['delay_js_mobile'] == 'js'){
+            require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-jswithjs.php";
+         }
+    }else{
+        if( $settings['delay_js'] == 'php'){
+            require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-js.php";
+         }
+         if( $settings['delay_js'] == 'js'){
+            require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-jswithjs.php";
+         }
     }
-
-    if( $settings['delay_js'] == 'js'){
-       require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-jswithjs.php";
-    }
+   
 }
 
 public function cwvpsb_add_menu_links() { 
@@ -411,7 +421,8 @@ public function critical_css_callback(){
 
     $settings = cwvpsb_defaults(); ?>  
     <div class="label-align delay_js">
-    <select name="cwvpsb_get_settings[delay_js]">
+    <table class="cwvpsb_inner_tb"><tr><th> <label for="cwvpsb_get_settings[delay_js]"><?php  echo esc_html__('Desktop Method', 'cwvpsb')?></label></th><td>
+   <select name="cwvpsb_get_settings[delay_js]">
         <option value=""><?php echo esc_html__('Select Method', 'cwvpsb');?></option>
      <?php
         $delay = array('php' => 'PHP Method (Recommended)','js' => 'JS Method',);
@@ -421,7 +432,19 @@ public function critical_css_callback(){
         <?php
         }
         ?>
-    </select>
+    </tr><tr>
+    </select></td><th> <label for="cwvpsb_get_settings[delay_js_mobile]"><?php  echo esc_html__('Mobile Method', 'cwvpsb')?></label></th><td>
+   <select name="cwvpsb_get_settings[delay_js_mobile]">
+        <option value=""><?php echo esc_html__('Select Method', 'cwvpsb');?></option>
+     <?php
+        $delay = array('php' => 'PHP Method (Recommended)','js' => 'JS Method',);
+        foreach ($delay as $key => $value ) {
+        ?>
+            <option value="<?php echo $key;?>" <?php selected( $settings['delay_js_mobile'], $key);?>><?php echo $value;?></option>
+        <?php
+        }
+        ?>
+    </select></td></tr></table>
     <br/>
     <br/>
     <b><?php echo esc_html__('Exclude JS from Delay method', 'cwvpsb');?></b>
