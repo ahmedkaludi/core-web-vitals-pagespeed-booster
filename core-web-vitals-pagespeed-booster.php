@@ -24,7 +24,7 @@ define('CWVPSB_BASE', plugin_basename(__FILE__));
 /**
  * Static cache path
  **/
-define('CWVPSB_CACHE_DIR', WP_CONTENT_DIR. '/cache/cwvpsb/static/');
+define('CWVPSB_CACHE_DIR', WP_CONTENT_DIR. '/cache/cwvpsb/');
 define('CWVPSB_CACHE_AGGRESIVE_DIR',  'wp-content/cache/cwvpsb/static/');
 /**
  * Core images 

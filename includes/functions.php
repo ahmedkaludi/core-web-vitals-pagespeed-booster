@@ -176,6 +176,9 @@ function cwvpsb_defaults(){
             'post' => 1
        ),
        'delete_on_uninstall' => 0,
+       'cache_flush_on'=>array(),
+       'cache_autoclear'=>'never',
+       'cache_last_autoclear'=> 0
     ); 
     if ( is_multisite() && is_plugin_active_for_network(CWVPSB_BASE) ) {
         $settings = get_site_option( 'cwvpsb_get_settings', $defaults );

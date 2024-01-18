@@ -266,7 +266,26 @@ public function cwvpsb_settings_init(){
         'cwvpsb_cache_section',
         'cwvpsb_cache_section',
         ["class"=>(isset($settings['cache_support']) && $settings['cache_support']==1 ? "": 'hidden')]
-    );     
+    ); 
+    
+    add_settings_field(
+        'cache_flush_on',
+        'Flush Cache On',
+         array($this, 'cache_flush_callback'),
+        'cwvpsb_cache_section',
+        'cwvpsb_cache_section',
+        ["class"=>(isset($settings['cache_support']) && $settings['cache_support']==1 ? "": 'hidden')]
+    );
+
+    add_settings_field(
+        'cache_autoclear',
+        'Auto Clear Cache',
+         array($this, 'cache_autoclear_callback'),
+        'cwvpsb_cache_section',
+        'cwvpsb_cache_section',
+        ["class"=>(isset($settings['cache_support']) && $settings['cache_support']==1 ? "": 'hidden')]
+    );
+     
 
     add_settings_section('cwvpsb_advance_section', '', '__return_false', 'cwvpsb_advance_section');                    
     add_settings_field(
@@ -440,7 +459,7 @@ public function critical_css_callback(){
         $delay = array('php' => 'PHP Method (Recommended)','js' => 'JS Method',);
         foreach ($delay as $key => $value ) {
         ?>
-            <option value="<?php echo $key;?>" <?php selected( $settings['delay_js_mobile'], $key);?>><?php echo $value;?></option>
+            <option value="<?php echo $key;?>" <?php isset($settings['delay_js_mobile'])?selected( $settings['delay_js_mobile'], $key):'';?>><?php echo $value;?></option>
         <?php
         }
         ?>
@@ -474,7 +493,7 @@ public function cache_callback(){
 public function cache_strategy_callback(){
     $settings = cwvpsb_defaults(); ?>
     <fieldset><?php
-        $options = array("Highly Optimized"=>"Highly Optimized (Recommended)", "Aggressively Optimized"=>"Aggressively Optimized");
+        $options = array("Highly Optimized"=>esc_html__("Highly Optimized (Recommended)", 'cwvpsb'), "Aggressively Optimized"=>esc_html__("Aggressively Optimized", 'cwvpsb'));
         ?><select name="cwvpsb_get_settings[cache_support_method]">
                 <?php foreach($options as $key=>$opt){
                     $sel = '';
@@ -484,6 +503,36 @@ public function cache_strategy_callback(){
                 <?php } ?>
             </select>
     <p class="description"><?php echo esc_html__("Highly Optimized will serve by PHP", 'cwvpsb')."<br/>".esc_html__(" Aggressively Optimized will serve cache via htaccess", 'cwvpsb');?></p>
+    </fieldset>
+    <?php }
+
+public function cache_flush_callback(){
+    $settings = cwvpsb_defaults(); ?>
+    <fieldset><?php
+        $options = array("_core_updated_successfully"=>esc_html__("Wordpress Core Update", 'cwvpsb'), "switch_theme"=>esc_html__("Switching Theme", 'cwvpsb'), "wp_trash_post"=>esc_html__("Post/Page Deletion", 'cwvpsb'));
+        ?>
+                <?php foreach($options as $key=>$opt){
+                    $sel = '';
+                    if(isset($settings['cache_flush_on']) && is_array($settings['cache_flush_on']) && in_array($key,$settings['cache_flush_on'])){ $sel = "checked"; }
+                 ?>
+                   <input type="checkbox" name="cwvpsb_get_settings[cache_flush_on][]" value="<?php echo esc_attr($key); ?>" <?php echo esc_attr($sel); ?>><?php echo esc_attr($opt); ?></option>
+                <?php } ?>
+    <p class="description"><?php echo esc_html__("Note: By default , on post deletion only homepage and category page will be cleared ", 'cwvpsb')?></p>
+    </fieldset>
+    <?php }
+    public function cache_autoclear_callback(){
+    $settings = cwvpsb_defaults(); ?>
+    <fieldset><?php
+    $autoclear_options = array("never"=>esc_html__("Never", 'cwvpsb'), "hourly"=>esc_html__("Hourly", 'cwvpsb'), "6hourly"=>esc_html__("Every 6 Hours", 'cwvpsb'), "12hourly"=>esc_html__("Every 12 Hours", 'cwvpsb'),"daily"=>esc_html__("Daily", 'cwvpsb'),"weekly"=>esc_html__("Weekly", 'cwvpsb'),"monthly"=>esc_html__("Monthly", 'cwvpsb'));
+        ?>
+               <select name="cwvpsb_get_settings[cache_autoclear]">
+                <?php foreach($autoclear_options as $key=>$opt){
+                    $sel = '';
+                    if(isset($settings['cache_autoclear']) && $settings['cache_autoclear']==$key){ $sel = "selected"; } 
+                    echo $sel?>
+                    <option value="<?php echo esc_attr($key); ?>" <?php echo esc_attr($sel); ?>><?php echo esc_attr($opt); ?></option>
+                <?php } ?>
+            </select>
     </fieldset>
     <?php }
 
@@ -542,7 +591,7 @@ public function advance_url_callback(){
     <?php }
 public function delete_on_uninstall_callback(){
     $settings = cwvpsb_defaults(); ?> 
-    <input class="" type="checkbox" name="cwvpsb_get_settings[delete_on_uninstall]" value="1" <?php echo (isset($settings["delete_on_uninstall"]) ? "checked": "");?> />
+    <input class="" type="checkbox" name="cwvpsb_get_settings[delete_on_uninstall]" value="1" <?php echo (isset($settings["delete_on_uninstall"]) && $settings["delete_on_uninstall"] == 1 ? "checked": "");?> />
     <?php echo esc_html__("This will delete all Core Web Vital generated files and settings when you uninstall the plugin", 'cwvpsb');?>
     <?php }        
     function get_list_convert_files(){
