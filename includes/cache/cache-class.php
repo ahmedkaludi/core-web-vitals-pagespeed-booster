@@ -564,23 +564,21 @@ final class CWVPSB_Cache {
 		return $data;
 	}
 
-	public static function clear_total_cache( $bypass = false ) {
+	public static function clear_total_cache( ) {
 		// clear disk cache
-		if(!$bypass){
+		
 			$current_filter = current_filter();
 			$filters_to_work = ['_core_updated_successfully','switch_theme','wp_trash_post'];
 			if($current_filter && in_array($current_filter,$filters_to_work)){
 				$settings = cwvpsb_defaults();
-				if(isset($settings['cache_flush_on']) && in_array($current_filter,$settings['cache_flush_on'])){
-					CWVPSB_Cache_Disk::clear_cache();
-				}
+					if(isset($settings['cache_flush_on']) && in_array($current_filter,$settings['cache_flush_on'])){
+						CWVPSB_Cache_Disk::clear_cache();
+					}
 			}else{
-					CWVPSB_Cache_Disk::clear_cache();
+
+				CWVPSB_Cache_Disk::clear_cache();
 			}
-		}else{
-			CWVPSB_Cache_Disk::clear_cache();
-		}
-		
+
 	}
 
 	public static function set_cache($data) {
