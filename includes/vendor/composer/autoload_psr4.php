@@ -7,5 +7,10 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'WebPConvert\\' => array($vendorDir . '/rosell-dk/webp-convert/src'),
+    'Sabberworm\\CSS\\' => array($vendorDir . '/sabberworm/php-css-parser/src'),
+    'LocateBinaries\\' => array($vendorDir . '/rosell-dk/locate-binaries/src'),
+    'ImageMimeTypeSniffer\\' => array($vendorDir . '/rosell-dk/image-mime-type-sniffer/src'),
     'ImageMimeTypeGuesser\\' => array($vendorDir . '/rosell-dk/image-mime-type-guesser/src'),
+    'FileUtil\\' => array($vendorDir . '/rosell-dk/file-util/src'),
+    'ExecWithFallback\\' => array($vendorDir . '/rosell-dk/exec-with-fallback/src'),
 );

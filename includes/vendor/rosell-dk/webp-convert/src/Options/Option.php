@@ -44,7 +44,7 @@ class Option
     /** @var array  UI Def */
     protected $ui;
 
-    /** @var array  Extra Schema Def (ie holding 'title', 'description' or other)*/
+    /** @var array|null  Extra Schema Def (ie holding 'title', 'description' or other)*/
     protected $extraSchemaDefs;
 
 
@@ -74,6 +74,16 @@ class Option
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Get Id.
+     *
+     * @param string $id  The id of the option
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
     }
 
     /**

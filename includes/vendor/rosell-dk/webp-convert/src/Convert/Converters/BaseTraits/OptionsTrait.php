@@ -77,7 +77,9 @@ trait OptionsTrait
             ]],
             ['quality', 'int', [
                 'title' => 'Quality (Lossy)',
-                'description' => 'Quality for lossy encoding. ',
+                'description' =>
+                    'Quality for lossy encoding. ' .
+                    'In case you enable "auto-limit", you can consider this property a maximum quality.',
                 'default' => ($isPng ? 85 : 75),
                 'default-png' => 85,
                 'default-jpeg' => 75,
@@ -89,14 +91,23 @@ trait OptionsTrait
                 ],
                 'ui' => [
                     'component' => 'slider',
-                    'display' => "option.encoding != 'lossless'"
+                    'display' => "option('encoding') != 'lossless'"
                 ]
             ]],
             ['auto-limit', 'boolean', [
                 'title' => 'Auto-limit',
                 'description' =>
                     'Enable this option to prevent an unnecessarily high quality setting for low ' .
-                    'quality jpegs. You really should enable this.',
+                    'quality jpegs. It works by adjusting quality setting down to the quality of the jpeg. ' .
+                    'Converting ie a jpeg with quality:50 to ie quality:80 does not get you better quality ' .
+                    'than converting it to quality:80, but it does get you a much bigger file - so you ' .
+                    'really should enable this option.' . "\n\n" .
+                    'The option is ignored for PNG and never adjusts quality up. ' . "\n\n" .
+                    'The feature requires Imagick, ImageMagick or Gmagick in order to detect the quality of ' .
+                    'the jpeg. ' . "\n\n" .
+                    'PS: The "auto-limit" option is relative new. However, before this option, you could achieve ' .
+                    'the same by setting quality to "auto" and specifying a "max-quality" and a "default-quality". ' .
+                    'These are deprecated now, but still works.',
                 'default' => true,
                 'ui' => [
                     'component' => 'checkbox',
@@ -107,7 +118,7 @@ trait OptionsTrait
                             $introMd . '#preventing-unnecessarily-high-quality-setting-for-low-quality-jpegs'
                         ]
                     ],
-                    'display' => "option.encoding != 'lossless'"
+                    'display' => "option('encoding') != 'lossless'"
                 ]
             ]],
             ['alpha-quality', 'int', [
@@ -123,7 +134,7 @@ trait OptionsTrait
                 'ui' => [
                     'component' => 'slider',
                     'links' => [['Guide', $introMd . '#alpha-quality']],
-                    'display' => "(option.encoding != 'lossless') && (imageType!='jpeg')"
+                    'display' => "(option('encoding') != 'lossless') && (imageType!='jpeg')"
                 ]
             ]],
             ['near-lossless', 'int', [
@@ -138,7 +149,7 @@ trait OptionsTrait
                 'ui' => [
                     'component' => 'slider',
                     'links' => [['Guide', $introMd . '#near-lossless']],
-                    'display' => "option.encoding != 'lossy'"
+                    'display' => "option('encoding') != 'lossy'"
                 ]
             ]],
             ['metadata', 'string', [
@@ -195,8 +206,8 @@ trait OptionsTrait
                     '2 seconds to convert, will takes about 15 seconds to convert with auto-filter. ',
                 'default' => false,
                 'ui' => [
-                  'component' => 'checkbox',
-                  'advanced' => true,
+                    'component' => 'checkbox',
+                    'advanced' => true,
                 ]
             ]],
             ['low-memory', 'boolean', [
@@ -209,7 +220,7 @@ trait OptionsTrait
                 'ui' => [
                     'component' => 'checkbox',
                     'advanced' => true,
-                    'display' => "(option.encoding != 'lossless') && (option.method>2)"
+                    'display' => "(option('encoding') != 'lossless') && (option('method')>2)"
                 ]
             ]],
             ['preset', 'string', [
@@ -219,17 +230,17 @@ trait OptionsTrait
                     'source material. It even overrides them. It does however not override the quality option. ' .
                     '"none" means that no preset will be set',
                 'default' => 'none',
-                'enum' => ['none', 'default', 'photo', 'picture', 'drawing', 'icon', 'text']],
+                'enum' => ['none', 'default', 'photo', 'picture', 'drawing', 'icon', 'text'],
                 'ui' => [
                     'component' => 'select',
                     'advanced' => true,
                 ]
-            ],
+            ]],
             ['size-in-percentage', 'int', ['default' => null, 'minimum' => 0, 'maximum' => 100, 'allow-null' => true]],
             ['skip', 'boolean', ['default' => false]],
             ['log-call-arguments', 'boolean', ['default' => false]],
             // TODO: use-nice should not be a "general" option
-            ['use-nice', 'boolean', ['default' => false]],
+            //['use-nice', 'boolean', ['default' => false]],
             ['jpeg', 'array', ['default' => []]],
             ['png', 'array', ['default' => []]],
 
@@ -242,43 +253,6 @@ trait OptionsTrait
             ],
             ['max-quality', 'int', ['default' => 85, 'minimum' => 0, 'maximum' => 100, 'deprecated' => true]],
         ]);
-    }
-
-    /**
-     *  Get ui definitions for the general options.
-     *
-     *  You can automatically build a gui with these (suggested) components
-     *
-     *  @param   string   $imageType   (png | jpeg)   The image type - determines the defaults
-     *
-     *  @return  array  Hash of ui definitions indexed by option id
-     */
-    public function getUIForGeneralOptions($imageType)
-    {
-        return [
-            /*
-            ['preset', 'string', [
-                'default' => 'none',
-                'enum' => ['none', 'default', 'photo', 'picture', 'drawing', 'icon', 'text']]
-            ],
-*/
-              /*            {
-              "id": "metadata",
-              "type": "string",
-              "default": 'exif',
-              "ui": {
-                "component": "multi-select",
-                "label": "Metadata",
-                "options": ['all', 'none', 'exif', 'icc', 'xmp'],
-                "optionLabels": {
-                  'all': 'All',
-                  'none': 'None',
-                  'exif': 'Exif',
-                  'icc': 'ICC',
-                  'xmp': 'XMP'
-                }
-              },*/
-        ];
     }
 
     /**
@@ -349,6 +323,7 @@ trait OptionsTrait
         foreach ($this->providedOptions as $optionKey => $optionValue) {
             if (substr($optionKey, 0, $strLen + 1) == ($converterId . '-')) {
                 $this->providedOptions[substr($optionKey, $strLen + 1)] = $optionValue;
+                unset($this->providedOptions[$optionKey]);
             }
         }
 
@@ -427,74 +402,73 @@ trait OptionsTrait
         $this->logLn('');
         $this->logLn('Options:');
         $this->logLn('------------');
-        $this->logLn(
-            'The following options have been set explicitly. ' .
-            'Note: it is the resulting options after merging down the "jpeg" and "png" options and any ' .
-            'converter-prefixed options.'
-        );
-        $this->logLn('- source: ' . $this->source);
-        $this->logLn('- destination: ' . $this->destination);
 
         $unsupported = $this->getUnsupportedDefaultOptions();
-        //$this->logLn('Unsupported:' . print_r($this->getUnsupportedDefaultOptions(), true));
-        $ignored = [];
-        $implicit = [];
+        $received = [];
+        $implicitlySet = [];
         foreach ($this->options2->getOptionsMap() as $id => $option) {
-            if (($id == 'png') || ($id == 'jpeg')) {
+            if (in_array($id, [
+                'png', 'jpeg', '_skip_input_check', '_suppress_success_message', 'skip', 'log_call_arguments'
+            ])) {
                 continue;
             }
             if ($option->isValueExplicitlySet()) {
-                if (($option instanceof GhostOption) || in_array($id, $unsupported)) {
-                    //$this->log(' (note: this option is ignored by this converter)');
-                    if (($id != '_skip_input_check') && ($id != '_suppress_success_message')) {
-                        $ignored[] = $option;
-                    }
-                } else {
-                    $this->log('- ' . $id . ': ');
-                    $this->log($option->getValueForPrint());
-                    $this->logLn('');
-                }
+                $received[] = $option;
             } else {
                 if (($option instanceof GhostOption) || in_array($id, $unsupported)) {
+                    //$received[] = $option;
                 } else {
-                    $implicit[] = $option;
+                    if (!$option->isDeprecated()) {
+                        $implicitlySet[] = $option;
+                    }
                 }
             }
         }
 
-        if (count($implicit) > 0) {
+        if (count($received) > 0) {
+            foreach ($received as $option) {
+                $this->log('- ' . $option->getId() . ': ');
+                if ($option instanceof GhostOption) {
+                    $this->log('  (unknown to ' . $this->getConverterId() . ')', 'bold');
+                    $this->logLn('');
+                    continue;
+                }
+                $this->log($option->getValueForPrint());
+                if ($option->isDeprecated()) {
+                    $this->log(' (deprecated)', 'bold');
+                }
+                if (in_array($option->getId(), $unsupported)) {
+                    if ($this instanceof Stack) {
+                        //$this->log('  *(passed on)*');
+                    } else {
+                        $this->log(' (unsupported by ' . $this->getConverterId() . ')', 'bold');
+                    }
+                }
+                $this->logLn('');
+            }
             $this->logLn('');
             $this->logLn(
-                'The following options have not been explicitly set, so using the following defaults:'
+                'Note that these are the resulting options after merging down the "jpeg" and "png" options and any ' .
+                'converter-prefixed options'
             );
-            foreach ($implicit as $option) {
+        }
+
+        if (count($implicitlySet) > 0) {
+            $this->logLn('');
+            $this->logLn('Defaults:');
+            $this->logLn('------------');
+            $this->logLn(
+                'The following options was not set, so using the following defaults:'
+            );
+            foreach ($implicitlySet as $option) {
                 $this->log('- ' . $option->getId() . ': ');
                 $this->log($option->getValueForPrint());
+                /*if ($option instanceof GhostOption) {
+                    $this->log('  **(ghost)**');
+                }*/
                 $this->logLn('');
             }
         }
-        if (count($ignored) > 0) {
-            $this->logLn('');
-            if ($this instanceof Stack) {
-                $this->logLn(
-                    'The following options were supplied and are passed on to the converters in the stack:'
-                );
-                foreach ($ignored as $option) {
-                    $this->log('- ' . $option->getId() . ': ');
-                    $this->log($option->getValueForPrint());
-                    $this->logLn('');
-                }
-            } else {
-                $this->logLn(
-                    'The following options were supplied but are ignored because they are not supported by this ' .
-                        'converter:'
-                );
-                foreach ($ignored as $option) {
-                    $this->logLn('- ' . $option->getId());
-                }
-            }
-        }
-        $this->logLn('------------');
     }
 
     // to be overridden by converters
@@ -509,40 +483,60 @@ trait OptionsTrait
     }
 
     /**
-        *  Get unique option definitions.
-        *
-        *  Gets definitions of the converters "unique" options (that is, those options that
-        *  are not general). It was added in order to give GUI's a way to automatically adjust
-        *  their setting screens.
-        *
-        *  @param   string   $imageType   (png | jpeg)   The image type - determines the defaults
-        *
-        *  @return  array  Array of options definitions - ready to be json encoded, or whatever
-        */
-    public function getUniqueOptionDefinitions($imageType = 'png')
+      * Get unique option definitions.
+      *
+      * Gets definitions of the converters "unique" options (that is, those options that
+      * are not general). It was added in order to give GUI's a way to automatically adjust
+      * their setting screens.
+      *
+      * @param  bool  $filterOutOptionsWithoutUI  If options without UI defined should be filtered out
+      * @param  string   $imageType   (png | jpeg)   The image type - determines the defaults
+      *
+      * @return array  Array of options definitions - ready to be json encoded, or whatever
+      */
+    public function getUniqueOptionDefinitions($filterOutOptionsWithoutUI = true, $imageType = 'jpeg')
     {
         $uniqueOptions = new Options();
-        $uniqueOptions->addOptions(... $this->getUniqueOptions($imageType));
-        //$uniqueOptions->setUI($this->getUniqueOptionsUI($imageType));
-        return $uniqueOptions->getDefinitions();
+        //$uniqueOptions->addOptions(... $this->getUniqueOptions($imageType));
+        foreach ($this->getUniqueOptions($imageType) as $uoption) {
+            $uoption->setId(self::getConverterId() . '-' . $uoption->getId());
+            $uniqueOptions->addOption($uoption);
+        }
+
+        $optionDefinitions = $uniqueOptions->getDefinitions();
+        if ($filterOutOptionsWithoutUI) {
+            $optionDefinitions = array_filter($optionDefinitions, function ($value) {
+                return !is_null($value['ui']);
+            });
+            $optionDefinitions = array_values($optionDefinitions); // re-index
+        }
+        return $optionDefinitions;
     }
 
     /**
-     *  Get general option definitions.
+     * Get general option definitions.
      *
-     *  Gets definitions of all general options (not just the ones supported by current converter)
-     *  For UI's, as a way to automatically adjust their setting screens.
+     * Gets definitions of all general options (not just the ones supported by current converter)
+     * For UI's, as a way to automatically adjust their setting screens.
      *
-     *  @param   string   $imageType   (png | jpeg)   The image type - determines the defaults
+     * @param  bool  $filterOutOptionsWithoutUI  If options without UI defined should be filtered out
+     * @param  string   $imageType   (png | jpeg)   The image type - determines the defaults
      *
-     *  @return  array  Array of options definitions - ready to be json encoded, or whatever
+     * @return  array  Array of options definitions - ready to be json encoded, or whatever
      */
-    public function getGeneralOptionDefinitions($imageType = 'png')
+    public function getGeneralOptionDefinitions($filterOutOptionsWithoutUI = true, $imageType = 'jpeg')
     {
         $generalOptions = new Options();
         $generalOptions->addOptions(... $this->getGeneralOptions($imageType));
         //$generalOptions->setUI($this->getUIForGeneralOptions($imageType));
-        return $generalOptions->getDefinitions();
+        $optionDefinitions = $generalOptions->getDefinitions();
+        if ($filterOutOptionsWithoutUI) {
+            $optionDefinitions = array_filter($optionDefinitions, function ($value) {
+                return !is_null($value['ui']);
+            });
+            $optionDefinitions = array_values($optionDefinitions); // re-index
+        }
+        return $optionDefinitions;
     }
 
     public function getSupportedGeneralOptions($imageType = 'png')
@@ -584,40 +578,4 @@ trait OptionsTrait
         }
         return $supportedGeneralIds;
     }
-
-       /**
-        *  Get option definitions.
-        *
-        *  Added in order to give GUI's a way to automatically adjust their setting screens.
-        *
-        *  @param   string   $imageType   (png | jpeg)   The image type - determines the defaults
-        *  @param   bool     $returnGeneral              Whether the general setting definitions should be returned
-        *  @param   bool     $returnGeneralSupport       Whether the ids of supported/unsupported general options
-        *                                                should be returned
-        *
-        *  @return  array  Array of options definitions - ready to be json encoded, or whatever
-        */
-    public function getOptionDefinitions($imageType = 'png', $returnGeneral = true, $returnGeneralSupport = true)
-    {
-        $result = [
-            'unique' => $this->getUniqueOptionDefinitions($imageType),
-        ];
-        if ($returnGeneral) {
-            $result['general'] = $this->getSupportedGeneralOptionDefinitions($imageType);
-        }
-        if ($returnGeneralSupport) {
-            $result['supported-general'] = $this->getSupportedGeneralOptionIds();
-            $result['unsupported-general'] = $this->getUnsupportedDefaultOptions();
-        }
-        return $result;
-    }
-/*
-    public static function getUniqueOptions($imageType = 'png')
-    {
-        $options = new Options();
-//        $options->addOptions(... self::getGeneralOptions($imageType));
-//        $options->addOptions(... self::getUniqueOptions($imageType));
-
-        return $options->getDefinitions();
-    }*/
 }

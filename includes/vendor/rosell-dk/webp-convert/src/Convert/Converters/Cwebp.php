@@ -2,6 +2,9 @@
 
 namespace WebPConvert\Convert\Converters;
 
+use ExecWithFallback\ExecWithFallback;
+use LocateBinaries\LocateBinaries;
+
 use WebPConvert\Convert\Converters\AbstractConverter;
 use WebPConvert\Convert\Converters\BaseTraits\WarningLoggerTrait;
 use WebPConvert\Convert\Converters\ConverterTraits\EncodingAutoTrait;
@@ -9,7 +12,6 @@ use WebPConvert\Convert\Converters\ConverterTraits\ExecTrait;
 use WebPConvert\Convert\Exceptions\ConversionFailed\ConverterNotOperational\SystemRequirementsNotMetException;
 use WebPConvert\Convert\Exceptions\ConversionFailedException;
 use WebPConvert\Convert\Exceptions\ConversionFailed\ConverterNotOperationalException;
-use WebPConvert\Helpers\BinaryDiscovery;
 use WebPConvert\Options\OptionFactory;
 
 /**
@@ -45,6 +47,7 @@ class Cwebp extends AbstractConverter
         }
 
         return OptionFactory::createOptions([
+            self::niceOption(),
             ['try-cwebp', 'boolean', [
                 'title' => 'Try plain cwebp command',
                 'description' =>
@@ -110,7 +113,7 @@ class Cwebp extends AbstractConverter
                       'component' => 'multi-select',
                       'advanced' => true,
                       'options' => $binariesForOS,
-                      'display' => "notEquals(state('option', 'try-supplied-binary-for-os'), false)"
+                      'display' => "option('cwebp-try-supplied-binary-for-os') == true"
                   ]
 
             ]],
@@ -122,7 +125,7 @@ class Cwebp extends AbstractConverter
                   'ui' => [
                       'component' => '',
                       'advanced' => true,
-                      'display' => "option['try-supplied-binary-for-os'] == true"
+                      'display' => "option('cwebp-try-supplied-binary-for-os') == true"
                   ],
                   'sensitive' => true
             ]],
@@ -247,7 +250,7 @@ class Cwebp extends AbstractConverter
         $startExecuteBinaryTime = self::startTimer();
         ;
         $this->logLn($command);
-        exec($command, $output, $returnCode);
+        ExecWithFallback::exec($command, $output, $returnCode);
         $this->logExecOutput($output);
         $this->logTimeSpent($startExecuteBinaryTime, 'Executing cwebp binary took: ');
         $this->logLn('');
@@ -554,7 +557,7 @@ class Cwebp extends AbstractConverter
 
     private function who()
     {
-        exec('whoami 2>&1', $whoOutput, $whoReturnCode);
+        ExecWithFallback::exec('whoami 2>&1', $whoOutput, $whoReturnCode);
         if (($whoReturnCode == 0) && (isset($whoOutput[0]))) {
             return 'user: "' . $whoOutput[0] . '"';
         } else {
@@ -573,7 +576,7 @@ class Cwebp extends AbstractConverter
     {
         $command = $binary . ' -version 2>&1';
         $this->log('- Executing: ' . $command);
-        exec($command, $output, $returnCode);
+        ExecWithFallback::exec($command, $output, $returnCode);
 
         if ($returnCode == 0) {
             if (isset($output[0])) {
@@ -711,13 +714,13 @@ class Cwebp extends AbstractConverter
 
         if (defined('WEBPCONVERT_CWEBP_PATH')) {
             $this->logLn('WEBPCONVERT_CWEBP_PATH was defined, so using that path and ignoring any other');
-            return [constant('WEBPCONVERT_CWEBP_PATH')];
+            return [[constant('WEBPCONVERT_CWEBP_PATH')],[[], []]];
         }
         if (!empty(getenv('WEBPCONVERT_CWEBP_PATH'))) {
             $this->logLn(
                 'WEBPCONVERT_CWEBP_PATH environment variable was set, so using that path and ignoring any other'
             );
-            return [getenv('WEBPCONVERT_CWEBP_PATH')];
+            return [[getenv('WEBPCONVERT_CWEBP_PATH')],[[], []]];
         }
 
         if ($this->options['try-cwebp']) {
@@ -744,7 +747,7 @@ class Cwebp extends AbstractConverter
         $startTime = self::startTimer();
         $this->logDiscoverAction('try-discovering-cwebp', 'using "which -a cwebp" command.');
         if ($this->options['try-discovering-cwebp']) {
-            $moreBinaries = BinaryDiscovery::discoverInstalledBinaries('cwebp');
+            $moreBinaries = LocateBinaries::locateInstalledBinaries('cwebp');
             $this->logBinariesFound($moreBinaries, $startTime);
             $binaries = array_merge($binaries, $moreBinaries);
         }
@@ -753,7 +756,7 @@ class Cwebp extends AbstractConverter
         $startTime = self::startTimer();
         $this->logDiscoverAction('try-common-system-paths', 'by peeking in common system paths');
         if ($this->options['try-common-system-paths']) {
-            $moreBinaries = BinaryDiscovery::discoverInCommonSystemPaths('cwebp');
+            $moreBinaries = LocateBinaries::locateInCommonSystemPaths('cwebp');
             $this->logBinariesFound($moreBinaries, $startTime);
             $binaries = array_merge($binaries, $moreBinaries);
         }
@@ -938,7 +941,8 @@ class Cwebp extends AbstractConverter
             'Starting conversion, using the first of these. If that should fail, ' .
             'the next will be tried and so on.'
         );
-        $useNice = (($this->options['use-nice']) && self::hasNiceSupport());
+        $useNice = ($this->options['use-nice'] && $this->checkNiceSupport());
+
         $success = false;
         foreach ($binaryVersions as $binary => $version) {
             if (isset($suppliedBinariesHash[$binary])) {

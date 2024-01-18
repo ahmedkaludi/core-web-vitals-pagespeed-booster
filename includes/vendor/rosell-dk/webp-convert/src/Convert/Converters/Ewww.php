@@ -25,7 +25,7 @@ class Ewww extends AbstractConverter
     use CloudConverterTrait;
     use CurlTrait;
 
-    /** @var array  Array of invalid or exceeded api keys discovered during conversions (during the request)  */
+    /** @var array|null  Array of invalid or exceeded api keys discovered during conversions (during the request)  */
     public static $nonFunctionalApiKeysDiscoveredDuringConversion;
 
     public function getUniqueOptions($imageType)
@@ -39,7 +39,7 @@ class Ewww extends AbstractConverter
                 'default' => '',
                 'sensitive' => true,
                 'ui' => [
-                    'component' => 'input',
+                    'component' => 'password',
                 ]
             ]],
             ['check-key-status-before-converting', 'boolean', [
@@ -70,7 +70,6 @@ class Ewww extends AbstractConverter
             'preset',
             'sharp-yuv',
             'size-in-percentage',
-            'use-nice'
         ];
     }
 
@@ -347,7 +346,11 @@ class Ewww extends AbstractConverter
             if ($responseObj->error == 'invalid') {
                 return 'invalid';
             } else {
-                throw new \Exception('Ewww returned unexpected error: ' . $response);
+                if ($responseObj->error == 'bye invalid') {
+                    return 'invalid';
+                } else {
+                    throw new \Exception('Ewww returned unexpected error: ' . $response);
+                }
             }
         }
         if (!isset($responseObj->status)) {

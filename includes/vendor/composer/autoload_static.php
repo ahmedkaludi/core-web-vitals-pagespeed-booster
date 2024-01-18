@@ -4,16 +4,33 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInita7e054cf16b6e0b04646a15cf900369a
+class ComposerStaticInit0cfd50934fab6db77cbca852b15e5153
 {
     public static $prefixLengthsPsr4 = array (
         'W' => 
         array (
             'WebPConvert\\' => 12,
         ),
+        'S' => 
+        array (
+            'Sabberworm\\CSS\\' => 15,
+        ),
+        'L' => 
+        array (
+            'LocateBinaries\\' => 15,
+        ),
         'I' => 
         array (
+            'ImageMimeTypeSniffer\\' => 21,
             'ImageMimeTypeGuesser\\' => 21,
+        ),
+        'F' => 
+        array (
+            'FileUtil\\' => 9,
+        ),
+        'E' => 
+        array (
+            'ExecWithFallback\\' => 17,
         ),
     );
 
@@ -22,19 +39,29 @@ class ComposerStaticInita7e054cf16b6e0b04646a15cf900369a
         array (
             0 => __DIR__ . '/..' . '/rosell-dk/webp-convert/src',
         ),
+        'Sabberworm\\CSS\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/sabberworm/php-css-parser/src',
+        ),
+        'LocateBinaries\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/rosell-dk/locate-binaries/src',
+        ),
+        'ImageMimeTypeSniffer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/rosell-dk/image-mime-type-sniffer/src',
+        ),
         'ImageMimeTypeGuesser\\' => 
         array (
             0 => __DIR__ . '/..' . '/rosell-dk/image-mime-type-guesser/src',
         ),
-    );
-
-    public static $prefixesPsr0 = array (
-        'S' => 
+        'FileUtil\\' => 
         array (
-            'Sabberworm\\CSS' => 
-            array (
-                0 => __DIR__ . '/..' . '/sabberworm/php-css-parser/lib',
-            ),
+            0 => __DIR__ . '/..' . '/rosell-dk/file-util/src',
+        ),
+        'ExecWithFallback\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/rosell-dk/exec-with-fallback/src',
         ),
     );
 
@@ -45,10 +72,9 @@ class ComposerStaticInita7e054cf16b6e0b04646a15cf900369a
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInita7e054cf16b6e0b04646a15cf900369a::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInita7e054cf16b6e0b04646a15cf900369a::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInita7e054cf16b6e0b04646a15cf900369a::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInita7e054cf16b6e0b04646a15cf900369a::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit0cfd50934fab6db77cbca852b15e5153::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit0cfd50934fab6db77cbca852b15e5153::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit0cfd50934fab6db77cbca852b15e5153::$classMap;
 
         }, null, ClassLoader::class);
     }

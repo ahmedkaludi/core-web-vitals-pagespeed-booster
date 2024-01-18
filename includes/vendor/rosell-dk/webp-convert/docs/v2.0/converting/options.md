@@ -30,6 +30,14 @@ Supported by: all
 ```
 Limits the quality to be no more than that of the jpeg. The option is only relevant when converting jpegs to lossy webp. To be functional, webp-convert needs to be able to detect the quality of the jpeg, which requires ImageMagick or GraphicsMagick. Read about the option in the [introduction](https://github.com/rosell-dk/webp-convert/blob/master/docs/v2.0/converting/introduction-for-converting.md#auto-quality). In 2.7.0, it will become possible to adjust the limit with a new option. I'm currently debating with myself how this should work. Your comments and opinions would be appreciated - [here](https://github.com/rosell-dk/webp-convert/issues/289)    
 
+### `converter` (new in 2.8.0)
+```
+Type:         string
+Default:      null
+Supported by: WebPConvert::convert method
+```
+Simplifies using a specific converter. Before this option, you would either need to call the converter class (ie `Ewww::convert`) (not very flexible), or set the stack to contain just one converter (unnecessary overhead). If you do not use this option, `WebPConvert::convert` works as normal (it calls `Stack::convert`), if you do use it, it hands over the converting to the converter specified (specified by id, ie. "cwebp").
+
 ### `default-quality` (DEPRECATED)
 ```
 Type:          integer (0-100)
@@ -375,6 +383,7 @@ Type:          integer (0 - 1 - 2)
 Default:       2
 Supported by:  wpc
 ```
+PS: In many releases, you had to set this to 1 even though you were running on 2. This will be fixed in 2.9.0
 <br>
 
 ### `wpc-crypt-api-key-in-transfer`

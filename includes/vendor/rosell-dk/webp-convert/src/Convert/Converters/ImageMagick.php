@@ -2,12 +2,14 @@
 
 namespace WebPConvert\Convert\Converters;
 
+use ExecWithFallback\ExecWithFallback;
+use LocateBinaries\LocateBinaries;
+
 use WebPConvert\Convert\Converters\AbstractConverter;
 use WebPConvert\Convert\Converters\ConverterTraits\ExecTrait;
 use WebPConvert\Convert\Converters\ConverterTraits\EncodingAutoTrait;
 use WebPConvert\Convert\Exceptions\ConversionFailed\ConverterNotOperational\SystemRequirementsNotMetException;
 use WebPConvert\Convert\Exceptions\ConversionFailedException;
-use WebPConvert\Helpers\BinaryDiscovery;
 use WebPConvert\Options\OptionFactory;
 
 //use WebPConvert\Convert\Exceptions\ConversionFailed\InvalidInput\TargetNotFoundException;
@@ -39,6 +41,7 @@ class ImageMagick extends AbstractConverter
     public function getUniqueOptions($imageType)
     {
         return OptionFactory::createOptions([
+            self::niceOption(),
             ['try-common-system-paths', 'boolean', [
                 'title' => 'Try locating ImageMagick in common system paths',
                 'description' =>
@@ -67,7 +70,7 @@ class ImageMagick extends AbstractConverter
         }
 
         if ($this->options['try-common-system-paths']) {
-            $binaries = BinaryDiscovery::discoverInCommonSystemPaths('convert');
+            $binaries = LocateBinaries::locateInCommonSystemPaths('convert');
             if (!empty($binaries)) {
                 return $binaries[0];
             }
@@ -78,7 +81,7 @@ class ImageMagick extends AbstractConverter
 
     private function getVersion()
     {
-        exec($this->getPath() . ' -version 2>&1', $output, $returnCode);
+        ExecWithFallback::exec($this->getPath() . ' -version 2>&1', $output, $returnCode);
         if (($returnCode == 0) && isset($output[0])) {
             return $output[0];
         } else {
@@ -88,14 +91,14 @@ class ImageMagick extends AbstractConverter
 
     public function isInstalled()
     {
-        exec($this->getPath() . ' -version 2>&1', $output, $returnCode);
+        ExecWithFallback::exec($this->getPath() . ' -version 2>&1', $output, $returnCode);
         return ($returnCode == 0);
     }
 
     // Check if webp delegate is installed
     public function isWebPDelegateInstalled()
     {
-        exec($this->getPath() . ' -list delegate 2>&1', $output, $returnCode);
+        ExecWithFallback::exec($this->getPath() . ' -list delegate 2>&1', $output, $returnCode);
         foreach ($output as $line) {
             if (preg_match('#webp\\s*=#i', $line)) {
                 return true;
@@ -103,7 +106,7 @@ class ImageMagick extends AbstractConverter
         }
 
         // try other command
-        exec($this->getPath() . ' -list configure 2>&1', $output, $returnCode);
+        ExecWithFallback::exec($this->getPath() . ' -list configure 2>&1', $output, $returnCode);
         foreach ($output as $line) {
             if (preg_match('#DELEGATE.*webp#i', $line)) {
                 return true;
@@ -248,13 +251,12 @@ class ImageMagick extends AbstractConverter
 
         $command = $this->getPath() . ' ' . $this->createCommandLineOptions($versionNumber) . ' 2>&1';
 
-        $useNice = (($this->options['use-nice']) && self::hasNiceSupport()) ? true : false;
+        $useNice = ($this->options['use-nice'] && $this->checkNiceSupport());
         if ($useNice) {
-            $this->logLn('using nice');
             $command = 'nice ' . $command;
         }
         $this->logLn('Executing command: ' . $command);
-        exec($command, $output, $returnCode);
+        ExecWithFallback::exec($command, $output, $returnCode);
 
         $this->logExecOutput($output);
         if ($returnCode == 0) {
