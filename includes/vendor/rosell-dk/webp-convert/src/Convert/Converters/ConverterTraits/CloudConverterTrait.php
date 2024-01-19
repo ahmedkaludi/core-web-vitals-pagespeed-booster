@@ -28,7 +28,7 @@ trait CloudConverterTrait
      */
     private function checkFileSizeVsIniSetting($iniSettingId)
     {
-        $fileSize = filesize($this->source);
+        $fileSize = @filesize($this->source);
         if ($fileSize === false) {
             return;
         }

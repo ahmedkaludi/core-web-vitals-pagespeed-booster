@@ -89,7 +89,11 @@ final class CWVPSB_Cache {
 				),
 				99
 			);
-		} 
+			add_action( 'init',array(__CLASS__,'cwvpsb_autoclear_scheduler_activation'));
+			add_action( 'cwvpsb_autoclear_cron', array(__CLASS__,'cwvpsb_autoclear_cron') );
+			
+
+		}
 
 	if ( isset( $_POST['submit'] ) || isset( $_POST['cache-btn'] ) ) {
             self::clear_total_cache(true);
@@ -97,6 +101,80 @@ final class CWVPSB_Cache {
 
 	}
 
+	public static function  cwvpsb_autoclear_scheduler_activation() {
+		$options =  cwvpsb_defaults();
+			if ( ( ! wp_next_scheduled( 'cwvpsb_autoclear_cron' ) ) ) {
+					if(isset($options['cache_autoclear']) && $options['cache_autoclear'] != 'never'){
+						wp_schedule_event( time(), 'hourly', 'cwvpsb_autoclear_cron' );
+					}  
+				}
+	}
+	public static function cwvpsb_autoclear_cron() {
+		$settings = cwvpsb_defaults();
+	
+		if (isset($settings['cache_autoclear']) && $settings['cache_autoclear'] != 'never') {
+			$last_autoclear_time = (isset($settings['cache_last_autoclear']) && $settings['cache_last_autoclear'] > 0) ? $settings['cache_last_autoclear'] : time();
+	
+			if ($last_autoclear_time < time()) {
+				$diff = self::cwvpsb_unixtimestamp_diff($last_autoclear_time, time(), 6, 'hour');
+	
+				if ($diff > 0) {
+					switch ($settings['cache_autoclear']) {
+						case 'hourly':
+							self::clear_total_cache(true);
+							$settings['cache_last_autoclear'] = time();
+							update_option('cwvpsb_get_settings', $settings, false);
+							break;
+	
+						case '6hourly':
+							if(($diff*6) > $last_autoclear_time){
+								self::clear_total_cache(true);
+								$settings['cache_last_autoclear'] = time();
+								update_option('cwvpsb_get_settings', $settings, false);
+							}
+							break;
+	
+						case '12hourly':
+							if(($diff*12) > $last_autoclear_time){
+								self::clear_total_cache(true);
+								$settings['cache_last_autoclear'] = time();
+								update_option('cwvpsb_get_settings', $settings, false);
+							}
+							break;
+	
+						case 'daily':
+							if(($diff*24) > $last_autoclear_time){
+								self::clear_total_cache(true);
+								$settings['cache_last_autoclear'] = time();
+								update_option('cwvpsb_get_settings', $settings, false);
+							}
+							break;
+	
+						case 'weekly':
+							if(($diff*24*7) > $last_autoclear_time){
+								self::clear_total_cache(true);
+								$settings['cache_last_autoclear'] = time();
+								update_option('cwvpsb_get_settings', $settings, false);
+							}
+							break;
+	
+						case 'monthly':
+							if(($diff*24*7*28) > $last_autoclear_time){
+								self::clear_total_cache(true);
+								$settings['cache_last_autoclear'] = time();
+								update_option('cwvpsb_get_settings', $settings, false);
+							}
+							break;
+	
+						default:
+							// Handle unknown autoclear option
+							break;
+					}
+				}
+			}
+		}
+	}
+	
 	public static function on_deactivation() {
 		self::clear_total_cache(true);
 	}
@@ -335,13 +413,6 @@ final class CWVPSB_Cache {
 				10,
 				2
 			);
-			add_action(
-				'publish_future_' .$post_type,
-				array(
-					__CLASS__,
-					'clear_total_cache'
-				)
-			);
 		}
 	}
 
@@ -403,7 +474,7 @@ final class CWVPSB_Cache {
 			$post_types = array('post');
 
 			if(!in_array(get_post_type($post), $post_types)){
-	        return;
+	        	return;
 			}
 			// On new publish only
 			if ( $new_status !== $old_status) {
@@ -414,11 +485,7 @@ final class CWVPSB_Cache {
 					self::clear_page_cache_by_url($cat_url);
 				   }
 			    }
-			    $home_url = user_trailingslashit(home_url());
-			    if(!empty($home_url)){
-					// clear cache by URL
-					self::clear_page_cache_by_url($home_url);
-			    }  
+				self::clear_home_page_cache();
 			}
 	    return;
 	}
@@ -497,9 +564,21 @@ final class CWVPSB_Cache {
 		return $data;
 	}
 
-	public static function clear_total_cache() {
+	public static function clear_total_cache( ) {
 		// clear disk cache
-		CWVPSB_Cache_Disk::clear_cache();
+		
+			$current_filter = current_filter();
+			$filters_to_work = ['_core_updated_successfully','switch_theme','wp_trash_post'];
+			if($current_filter && in_array($current_filter,$filters_to_work)){
+				$settings = cwvpsb_defaults();
+					if(isset($settings['cache_flush_on']) && in_array($current_filter,$settings['cache_flush_on'])){
+						CWVPSB_Cache_Disk::clear_cache();
+					}
+			}else{
+
+				CWVPSB_Cache_Disk::clear_cache();
+			}
+
 	}
 
 	public static function set_cache($data) {
@@ -530,12 +609,12 @@ final class CWVPSB_Cache {
 		if(isset($settings['critical_css_support']) && $settings['critical_css_support']==1){
            global $wp, $cwvpbCriticalCss;
            $url = home_url( $wp->request );
-    		$url = trailingslashit($url);	
+    	   $url = trailingslashit($url);	
     		if(!file_exists(CWVPSB_CRITICAL_CSS_CACHE_DIR.md5($url).'.css')){
     		    return $data;
     		}
         }
-
+		
 		// get asset cache status
 		$cached = call_user_func(
 			array(
@@ -543,22 +622,14 @@ final class CWVPSB_Cache {
 				'check_asset'
 			)
 		);
-
+		
 		// check if cache empty
 		if ( empty($cached) ) {
 			CWVPSB_Cache::set_cache($data);
-			//ob_start('CWVPSB_Cache::set_cache');
+			
 			return $data;
 		}
-        /*return "hello obstart ".self::$disk::get_asset($data);*/ //To track cache serve on obstart
         return self::$disk::get_asset($data);
-		// return cached asset
-		/* call_user_func(
-			array(
-				self::$disk,
-				'get_asset'
-			)
-		);*/
 	}
 	
 	public static function handle_serving_cache(){
@@ -582,5 +653,43 @@ final class CWVPSB_Cache {
 		    exit();
 		}
 		
+	}
+	public static function cwvpsb_unixtimestamp_diff($time1, $time2, $precision = 6, $format = 'hour') {
+		// If not numeric then convert texts to unix timestamps
+		if (!is_int($time1)) {
+			$time1 = strtotime($time1);
+		}
+		if (!is_int($time2)) {
+			$time2 = strtotime($time2);
+		}
+	
+		// If time1 is bigger than time2
+		// Then swap time1 and time2
+		if ($time1 > $time2) {
+			list($time1, $time2) = [$time2, $time1];
+		}
+	
+		// Set up intervals and diffs arrays
+		$intervals = array(
+			'second' => 1,
+			'minute' => 60,
+			'hour'   => 3600,
+			'day'    => 86400,
+			'week'   => 604800,
+			'month'  => 2592000,
+			'year'   => 31536000
+		);
+	
+		// Validate format parameter
+		if (!array_key_exists($format, $intervals)) {
+			return "Invalid format parameter.";
+		}
+	
+		$diffInSeconds = $time2 - $time1;
+	
+		// Calculate the difference in the specified format
+		$diff = floor($diffInSeconds / $intervals[$format]);
+	
+		return $diff;
 	}
 }

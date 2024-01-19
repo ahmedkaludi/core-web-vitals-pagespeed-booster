@@ -14,7 +14,7 @@ add_filter('plugin_action_links_' . CWVPSB_BASE, 'cwvpsb_add_settings_link');
 function cwvpsb_add_settings_link( $links ) {
     $links[] = '<a href="' .
         esc_url(admin_url( 'admin.php?page=cwvpsb' )) .
-        '">' . esc_attr( 'Settings' ). '</a>';
+        '">' . esc_html__( 'Settings','cwvpsb' ). '</a>';
     return $links;
 }
 
@@ -93,16 +93,16 @@ function cwvpsb_load_textdomain() {
 add_action('wp_ajax_cwvpsb_clear_cached_css', 'cwvpsb_clear_cached_css');
 function cwvpsb_clear_cached_css(){
         if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'cwv-security-nonce')){
-            echo json_encode(array("status"=> 400, "msg"=>esc_html__("Security verification failed, Refresh the page", 'cwvpsb') ));die;
+            wp_send_json(array("status"=> 400, "msg"=>esc_html__("Security verification failed, Refresh the page", 'cwvpsb') ));
         }
         if ( ! current_user_can( 'manage_options' ) ) {
-            echo json_encode(array("status"=> 400, "msg"=>esc_html__("Permission verification failed", 'cwvpsb') ));die;
+            wp_send_json(array("status"=> 400, "msg"=>esc_html__("Permission verification failed", 'cwvpsb') ));
         }
         $clean_types = array('css');
         if(!in_array($_POST['cleaning'], $clean_types)){
-            echo json_encode(array("status"=> 400, "msg"=>esc_html__("Cache type not found", 'cwvpsb') ));die;
+            wp_send_json(array("status"=> 400, "msg"=>esc_html__("Cache type not found", 'cwvpsb') ));
         }
-        $cleaning = $_POST['cleaning'];
+        $cleaning = isset($_POST['cleaning'])?sanitize_text_field($_POST['cleaning']):'';
 
         $upload_dir = wp_upload_dir(); 
         
@@ -111,7 +111,7 @@ function cwvpsb_clear_cached_css(){
             $user_dirname = $upload_dir['basedir'] . '/' . 'web_vital';
             $dir_handle = opendir($user_dirname);
             if (!$dir_handle){
-              echo json_encode(array("status"=> 400, "msg"=>esc_html__("cache not found", 'cwvpsb') ));die;
+                wp_send_json(array("status"=> 400, "msg"=>esc_html__("cache not found", 'cwvpsb') ));
             }
             while($file = readdir($dir_handle)) {
                 if (strpos($file, '.css') !== false){
@@ -120,7 +120,7 @@ function cwvpsb_clear_cached_css(){
             }
             closedir($dir_handle);
         }
-        echo json_encode(array("status"=> 200, "msg"=>esc_html__("CSS Cleared", 'cwvpsb') ));die;
+        wp_send_json(array("status"=> 200, "msg"=>esc_html__("CSS Cleared", 'cwvpsb') ));
     }
 
 function cwvpsb_admin_link($tab = '', $args = array()){   
@@ -164,6 +164,7 @@ function cwvpsb_defaults(){
        'google_fonts_support'  => 1,
        'js_optimization' => 1,
        'delay_js' => 'php',
+       'delay_js_mobile' => 'php',
        'whitelist_css'=>array(),
        'critical_css_support'=>1,
        'cache_support_method'=>'Highly Optimized',
@@ -175,6 +176,9 @@ function cwvpsb_defaults(){
             'post' => 1
        ),
        'delete_on_uninstall' => 0,
+       'cache_flush_on'=>array(),
+       'cache_autoclear'=>'never',
+       'cache_last_autoclear'=> 0
     ); 
     if ( is_multisite() && is_plugin_active_for_network(CWVPSB_BASE) ) {
         $settings = get_site_option( 'cwvpsb_get_settings', $defaults );
@@ -196,17 +200,17 @@ function cwvpsb_admin_enqueue($check) {
     if($check != 'toplevel_page_cwvpsb'){
         return; 
     }
+    $min = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';	
     wp_enqueue_script('cwvpsb-datatable-script', CWVPSB_PLUGIN_DIR_URI . '/includes/admin/js/jquery.dataTables.min.js', ['jquery']);
     wp_enqueue_style( 'cwvpsb-datatable-style', CWVPSB_PLUGIN_DIR_URI . '/includes/admin/js/jquery.dataTables.min.css' );
 
-    wp_register_style( 'cwvpsb-admin-css', CWVPSB_PLUGIN_DIR_URI . '/includes/admin/style.css', false, CWVPSB_VERSION );
+    wp_register_style( 'cwvpsb-admin-css', CWVPSB_PLUGIN_DIR_URI . "/includes/admin/style{$min}.css", false, CWVPSB_VERSION );
     wp_enqueue_style( 'cwvpsb-admin-css' );
 
     $data = array(
-        'cwvpsb_security_nonce'                     => wp_create_nonce('cwvpsb_ajax_check_nonce') ,
-        'cwvpsb_showdetails_data_nonce'             => wp_create_nonce('cwvpsb_showdetails_data_nonce') ,
+        'cwvpsb_security_nonce'=> wp_create_nonce('cwvpsb_security_nonce') 
     );
-    wp_register_script( 'cwvpsb-admin-js', CWVPSB_PLUGIN_DIR_URI . 'includes/admin/script.js', array('cwvpsb-datatable-script'), CWVPSB_VERSION , true );
+    wp_register_script( 'cwvpsb-admin-js', CWVPSB_PLUGIN_DIR_URI . "includes/admin/script{$min}.js", array('cwvpsb-datatable-script'), CWVPSB_VERSION , true );
     $data = apply_filters('cwvpsb_localize_filter',$data,'cwvpsb_localize_data');		
     wp_localize_script( 'cwvpsb-admin-js', 'cwvpsb_localize_data', $data );
     wp_enqueue_script( 'cwvpsb-admin-js' );
@@ -254,10 +258,10 @@ function cwvpsb_web_vitals_changes($html){
                 $srcupdate = $element->getAttribute("src");
                 if(strpos($srcupdate, $base_url)!==false){
                     //test page exists or not
-                    $srcupdatePath = str_replace($upload['baseurl'], $upload['basedir'].'/web-vital-webp', $srcupdate);
+                    $srcupdatePath = str_replace($upload['baseurl'], $upload['basedir'].'/cwv-webp-images', $srcupdate);
                     $srcupdatePath = "$srcupdatePath.webp";
                     if(file_exists($srcupdatePath)){
-                        $srcupdate = str_replace($upload['baseurl'], $upload['baseurl'].'/web-vital-webp', $srcupdate);
+                        $srcupdate = str_replace($upload['baseurl'], $upload['baseurl'].'/cwv-webp-images', $srcupdate);
                         $srcupdate = "$srcupdate.webp";
                         $element->setAttribute("src", $srcupdate);  
                     }
@@ -281,10 +285,10 @@ function cwvpsb_web_vitals_changes($html){
 
                         if(strpos($src, $base_url)!==false){
                             //test page exists or not
-                            $srcupdatePath = str_replace($upload['baseurl'], $upload['basedir'].'/web-vital-webp', $src);
+                            $srcupdatePath = str_replace($upload['baseurl'], $upload['basedir'].'/cwv-webp-images', $src);
                             $srcupdatePath = "$srcupdatePath.webp";
                             if(file_exists($srcupdatePath)){
-                                $webpUrl = str_replace($upload['baseurl'], $upload['baseurl'].'/web-vital-webp', $src);
+                                $webpUrl = str_replace($upload['baseurl'], $upload['baseurl'].'/cwv-webp-images', $src);
                                 $webpUrl .= '.webp';
                             }else{ $webpUrl = $src; }
                         }else{ $webpUrl = $src; }
@@ -320,7 +324,7 @@ function cwvpsb_amp_support(){
 add_action('wp' , 'cwvpsb_on_specific_url');
 function cwvpsb_on_specific_url(){
     $settings = cwvpsb_defaults(); 
-    $url = $settings['advance_support'];
+    $url = isset($settings['advance_support'])?$settings['advance_support']:'';
     if (empty($url)) {
         return;
     }
@@ -336,7 +340,9 @@ function cwvpsb_on_specific_url(){
         }  
         
         $post = get_post($page_for_posts);
-        $url_id = $post->ID;
+        if($post && isset($post->ID)){
+            $url_id = $post->ID;
+        }
     }
     if ($url_id != $id ) {
         add_filter( 'cwvpsb_complete_html_after_dom_loaded', '__return_false' );
@@ -362,7 +368,7 @@ function cwvpsb_iframe_delay_enqueue(){
     if ( $iframe_check == 1 ) {
         wp_enqueue_script( 'cwvpsb_iframe', plugin_dir_url(__FILE__) . 'cwvpsb_iframe.js', array(), NULL);
         wp_enqueue_style( 'cwvpsb_iframe', plugin_dir_url(__FILE__) . 'cwvpsb_iframe.css', array(), NULL);
-        $cus_style= '<style>.cwvpsb_iframe {max-width:600px !important}</style>';
+        $cus_style= '.cwvpsb_iframe {max-width:600px !important}';
         wp_add_inline_style( 'cwvpsb_iframe', $cus_style );
         
     }
@@ -390,5 +396,35 @@ function cwvpsb_amp_support_enabled(){
        }
     }
     
+    return false;
+}
+
+function cwvpsb_is_mobile() {
+    $userAgent = $_SERVER['HTTP_USER_AGENT'];
+
+    // A list of common mobile device keywords
+    $mobileKeywords = ['Mobile', 'Android', 'iPhone', 'iPad', 'Windows Phone', 'BlackBerry'];
+
+    // Check if any of the mobile keywords exist in the user agent
+    foreach ($mobileKeywords as $keyword) {
+        if (stripos($userAgent, $keyword) !== false) {
+            return true;
+        }
+    }
+
+    // Check for some specific mobile strings
+    if (preg_match('/(up.browser|up.link|mmp|symbian|smartphone|midp|wap|phone)/i', $userAgent)) {
+        return true;
+    }
+
+    // Check for common desktop browsers to exclude false positives
+    $desktopBrowsers = ['Windows NT', 'Macintosh', 'Linux', 'X11'];
+    foreach ($desktopBrowsers as $browser) {
+        if (stripos($userAgent, $browser) !== false) {
+            return false;
+        }
+    }
+
+    // If no mobile keywords are found, assume it's a desktop device
     return false;
 }

@@ -7,7 +7,7 @@ class Core_Web_Vital_Helper_Section{
 	static function convert_to_webp($filename){
 		$source = $filename;
 		$upload = wp_upload_dir();
-		$destinationPath = $upload['basedir']."/web-vital-webp";
+		$destinationPath = $upload['basedir']."/cwv-webp-images";
 		if(!is_dir($destinationPath)) { wp_mkdir_p($destinationPath); }
 		$destination = str_replace($upload['basedir'], $destinationPath, $filename).".webp";
 		try {

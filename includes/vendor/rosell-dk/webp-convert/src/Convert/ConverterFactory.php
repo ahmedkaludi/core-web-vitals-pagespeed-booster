@@ -25,6 +25,9 @@ class ConverterFactory
     public static function converterIdToClassname($converterId)
     {
         switch ($converterId) {
+            case 'ffmpeg':
+                $classNameShort = 'FFMpeg';
+                break;
             case 'imagickbinary':
                 $classNameShort = 'ImagickBinary';
                 break;
@@ -72,7 +75,8 @@ class ConverterFactory
                 'There is no converter with class name:' . $converterClassName . ' (or it is not a converter)'
             );
         }
-        
+        //$converter = new $converterClassName($source, $destination, $options, $logger);
+
         return call_user_func(
             [$converterClassName, 'createInstance'],
             $source,
@@ -96,6 +100,7 @@ class ConverterFactory
      */
     public static function makeConverter($converterIdOrClassName, $source, $destination, $options = [], $logger = null)
     {
+        // We take it that all lowercase means it is an id rather than a class name
         if (strtolower($converterIdOrClassName) == $converterIdOrClassName) {
             $converterClassName = self::converterIdToClassname($converterIdOrClassName);
         } else {

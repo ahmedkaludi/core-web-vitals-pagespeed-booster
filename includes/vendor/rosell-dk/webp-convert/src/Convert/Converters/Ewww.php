@@ -11,6 +11,7 @@ use WebPConvert\Convert\Exceptions\ConversionFailed\ConverterNotOperational\Inva
 use WebPConvert\Convert\Exceptions\ConversionFailed\ConverterNotOperational\SystemRequirementsNotMetException;
 use WebPConvert\Options\BooleanOption;
 use WebPConvert\Options\SensitiveStringOption;
+use WebPConvert\Options\OptionFactory;
 
 /**
  * Convert images to webp using ewww cloud service.
@@ -24,7 +25,38 @@ class Ewww extends AbstractConverter
     use CloudConverterTrait;
     use CurlTrait;
 
+    /** @var array|null  Array of invalid or exceeded api keys discovered during conversions (during the request)  */
     public static $nonFunctionalApiKeysDiscoveredDuringConversion;
+
+    public function getUniqueOptions($imageType)
+    {
+        return OptionFactory::createOptions([
+            ['api-key', 'string', [
+                'title' => 'Ewww API key',
+                'description' => 'ewww API key. ' .
+                    'If you choose "auto", webp-convert will ' .
+                    'convert to both lossy and lossless and pick the smallest result',
+                'default' => '',
+                'sensitive' => true,
+                'ui' => [
+                    'component' => 'password',
+                ]
+            ]],
+            ['check-key-status-before-converting', 'boolean', [
+                'title' => 'Check key status before converting',
+                'description' =>
+                    'If enabled, the api key will be validated (relative inexpensive) before trying ' .
+                    'to convert. For automatic conversions, you should enable it. Otherwise you run the ' .
+                    'risk that the same files will be uploaded to ewww cloud service over and over again, ' .
+                    'in case the key has expired. For manually triggered conversions, you can safely disable ' .
+                    'the option.',
+                'default' => true,
+                'ui' => [
+                    'component' => 'checkbox',
+                ]
+            ]],
+        ]);
+    }
 
     protected function getUnsupportedDefaultOptions()
     {
@@ -33,18 +65,12 @@ class Ewww extends AbstractConverter
             'auto-filter',
             'encoding',
             'low-memory',
-            'use-nice'
+            'method',
+            'near-lossless',
+            'preset',
+            'sharp-yuv',
+            'size-in-percentage',
         ];
-    }
-
-    protected function createOptions()
-    {
-        parent::createOptions();
-
-        $this->options2->addOptions(
-            new SensitiveStringOption('api-key', ''),
-            new BooleanOption('check-key-status-before-converting', true)
-        );
     }
 
     /**
@@ -106,18 +132,33 @@ class Ewww extends AbstractConverter
                     break;
                 case 'exceeded':
                     throw new ConverterNotOperationalException('Quota has exceeded');
+                    //break;
                 case 'invalid':
                     throw new InvalidApiKeyException('Api key is invalid');
+                    //break;
             }
         }
     }
 
+    /*
+    public function checkConvertability()
+    {
+        // check upload limits
+        $this->checkConvertabilityCloudConverterTrait();
+    }
+    */
+
+    // Although this method is public, do not call directly.
+    // You should rather call the static convert() function, defined in AbstractConverter, which
+    // takes care of preparing stuff before calling doConvert, and validating after.
     protected function doActualConvert()
     {
 
         $options = $this->options;
 
         $ch = self::initCurl();
+
+        //$this->logLn('api key:' . $this->getKey());
 
         $postData = [
             'api_key' => $this->getKey(),
@@ -149,14 +190,26 @@ class Ewww extends AbstractConverter
             throw new ConversionFailedException(curl_error($ch));
         }
 
+        // The API does not always return images.
+        // For example, it may return a message such as '{"error":"invalid","t":"exceeded"}
+        // Messages has a http content type of ie 'text/html; charset=UTF-8
+        // Images has application/octet-stream.
+        // So verify that we got an image back.
         if (curl_getinfo($ch, CURLINFO_CONTENT_TYPE) != 'application/octet-stream') {
+            //echo curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
             curl_close($ch);
 
+            /*
+            For bogus or expired key it returns:  {"error":"invalid","t":"exceeded"}
+            For exceeded key it returns:          {"error":"exceeded"}
+            */
             $responseObj = json_decode($response);
             if (isset($responseObj->error)) {
                 $this->logLn('We received the following error response: ' . $responseObj->error);
                 $this->logLn('Complete response: ' . json_encode($responseObj));
 
+                // Store the invalid key in array so it can be received once the Stack is completed
+                // (even when stack succeeds)
                 if (!isset(self::$nonFunctionalApiKeysDiscoveredDuringConversion)) {
                     self::$nonFunctionalApiKeysDiscoveredDuringConversion = [];
                 }
@@ -232,6 +285,7 @@ class Ewww extends AbstractConverter
         if (curl_getinfo($ch, CURLINFO_CONTENT_TYPE) != 'application/octet-stream') {
             curl_close($ch);
 
+            /* May return this: {"error":"invalid","t":"exceeded"} */
             $responseObj = json_decode($response);
             if (isset($responseObj->error)) {
                 return 'The key is invalid';
@@ -248,6 +302,18 @@ class Ewww extends AbstractConverter
         return true;
     }
 
+    /*
+        public static function blacklistKey($key)
+        {
+        }
+
+        public static function isKeyBlacklisted($key)
+        {
+        }*/
+
+    /**
+     *  Return "great", "exceeded" or "invalid"
+     */
     public static function getKeyStatus($key)
     {
         $ch = self::initCurl();
@@ -261,10 +327,16 @@ class Ewww extends AbstractConverter
         curl_setopt($ch, CURLOPT_USERAGENT, 'WebPConvert');
 
         $response = curl_exec($ch);
+        // echo $response;
         if (curl_errno($ch)) {
             throw new \Exception(curl_error($ch));
         }
         curl_close($ch);
+
+        // Possible responses:
+        // “great” = verification successful
+        // “exceeded” = indicates a valid key with no remaining image credits.
+        // an empty response indicates that the key is not valid
 
         if ($response == '') {
             return 'invalid';
@@ -274,7 +346,11 @@ class Ewww extends AbstractConverter
             if ($responseObj->error == 'invalid') {
                 return 'invalid';
             } else {
-                throw new \Exception('Ewww returned unexpected error: ' . $response);
+                if ($responseObj->error == 'bye invalid') {
+                    return 'invalid';
+                } else {
+                    throw new \Exception('Ewww returned unexpected error: ' . $response);
+                }
             }
         }
         if (!isset($responseObj->status)) {
@@ -310,6 +386,8 @@ class Ewww extends AbstractConverter
         curl_setopt($ch, CURLOPT_USERAGENT, 'WebPConvert');
 
         $response = curl_exec($ch);
-        return $response;
+        return $response; // ie -830 23. Seems to return empty for invalid keys
+        // or empty
+        //echo $response;
     }
 }

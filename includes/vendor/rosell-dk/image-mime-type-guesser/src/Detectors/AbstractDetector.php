@@ -24,7 +24,6 @@ abstract class AbstractDetector
     /**
      * Create an instance of this class
      *
-     * @param  string  $filePath  The path to the file
      * @return static
      */
     public static function createInstance()
@@ -47,7 +46,7 @@ abstract class AbstractDetector
      */
     public static function detect($filePath)
     {
-        if (!file_exists($filePath)) {
+        if (!@file_exists($filePath)) {
             return false;
         }
         return self::createInstance()->doDetect($filePath);

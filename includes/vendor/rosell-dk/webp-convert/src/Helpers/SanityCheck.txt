@@ -83,6 +83,8 @@ class SanityCheck
         self::mustBeString($input);
         self::noControlChars($input);
 
+        // Prevent stream wrappers ("phar://", "php://" and the like)
+        // https://www.php.net/manual/en/wrappers.phar.php
         if (preg_match('#^\\w+://#', Sanitize::removeNUL($input))) {
             throw new SanityException($errorMsg);
         }
@@ -106,6 +108,7 @@ class SanityCheck
 
     public static function absPathMicrosoftStyle($input, $errorMsg = 'Not an fully qualified Windows path')
     {
+        // On microsoft we allow [drive letter]:\
         if (!preg_match("#^[A-Z]:\\\\|/#", $input)) {
             throw new SanityException($errorMsg . ':' . $input);
         }
@@ -153,8 +156,10 @@ class SanityCheck
 
     public static function findClosestExistingFolderSymLinksExpanded($input) {
         $levelsUp = 1;
+        //echo 'input:' . $input;
         while (true) {
             $dir = dirname($input, $levelsUp);
+            //echo 'dir:' . $dir . '<br>';
             $realPathResult = realpath($dir);
             if ($realPathResult !== false) {
                 return $realPathResult;
@@ -169,6 +174,7 @@ class SanityCheck
 
     public static function pathBeginsWithSymLinksExpanded($input, $beginsWith, $errorMsg = 'Path is outside allowed path') {
         $closestExistingFolder = self::findClosestExistingFolderSymLinksExpanded($input);
+        //throw new SanityException('hm.' . $input . ' : <br>' . $closestExistingFolder);
         self::pathBeginsWith($closestExistingFolder, $beginsWith, $errorMsg);
     }
 
@@ -177,7 +183,7 @@ class SanityCheck
     public static function absPathExists($input, $errorMsg = 'Path does not exist')
     {
         self::absPath($input);
-        if (!file_exists($input)) {
+        if (@!file_exists($input)) {
             throw new SanityException($errorMsg);
         }
         return $input;
@@ -199,7 +205,7 @@ class SanityCheck
         $errorMsg = 'Path points to a directory (it should not do that)'
     ) {
         self::absPathExists($input, 'File does not exist');
-        if (is_dir($input)) {
+        if (@is_dir($input)) {
             throw new SanityException($errorMsg);
         }
         return $input;

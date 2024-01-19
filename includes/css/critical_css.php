@@ -29,7 +29,6 @@ class cwvpbcriticalCss{
 	    	return;
 		}
 		add_action('admin_notices', array($this,'cwvpsb_add_admin_notices'));
-		//add_action('wp_footer', array($this,'cwvpsb_delay_js_load'), PHP_INT_MAX);
 		if(function_exists('is_user_logged_in') && !is_user_logged_in()){
 		    add_action('wp', array($this, 'delay_css_loadings'), 999);
 	    }
@@ -147,7 +146,7 @@ class cwvpbcriticalCss{
 				'cwvpsb-delayed-styles',
 			);
 
-			if(!empty($excluded_scripts)) {
+			if(!empty($excluded_scripts) && is_array($excluded_scripts)) {
 				foreach($excluded_scripts as $excluded_script) {
 					if(strpos($tag, $excluded_script) !== false) {
 						continue 2;
@@ -161,7 +160,11 @@ class cwvpbcriticalCss{
 			}
 
 			$atts_array['rel'] = 'cwvpsbdelayedstyle';
-			$atts_array['defer'] = 'defer';
+
+			if(!empty($atts_array['href'])) {
+				$atts_array['defer'] = 'defer';
+			}
+			
 		
 			if($delay_flag) {
 				$delayed_atts_string = $this->cwvpsb_get_atts_string($atts_array);
@@ -172,14 +175,13 @@ class cwvpbcriticalCss{
 		}
 
 		preg_match_all('#(<style\s?([^>]+)?\/?>)(.*?)<\/style>#is', $html_no_comments, $matches1);
-		if(isset($matches1[0])){
+		if(isset($matches1[0]) && is_array($matches1[0])){
 			foreach($matches1[0] as $i => $tag) {
 				$atts_array = !empty($matches1[2][$i]) ? $this->cwvpsb_get_atts_array($matches1[2][$i]) : array();
 				if(isset($atts_array['id']) && $atts_array['id'] == 'cc-styles'){ continue; }
 				if(isset($atts_array['type'])){
 					$atts_array['data-cwvpsb-cc-type'] = $atts_array['type'];
 				}
-				//$atts_array['type'] = 'cwvpsbdelayedstyle';
 				$delayed_atts_string = $this->cwvpsb_get_atts_string($atts_array);
 		        $delayed_tag = sprintf('<style %1$s>', $delayed_atts_string) . (!empty($matches1[3][$i]) ? $matches1[3][$i] : '') .'</style>';
 				$html = str_replace($tag, $delayed_tag, $html);
@@ -229,8 +231,8 @@ class cwvpbcriticalCss{
 	function cwvpsb_delay_js_load() {
 		if(!$this->check_critical_css()){ return ; }
 		$settings = cwvpsb_defaults();
-		if( $settings['delay_js'] == 'php'){ return; }
-		echo '<script type="text/javascript" id="cwvpsb-delayed-styles">
+		if((cwvpsb_is_mobile() && $settings['delay_js_mobile'] == 'php') || $settings['delay_js'] == 'php'){ return; }
+		echo '<script  id="cwvpsb-delayed-styles">
 			cwvpsbUserInteractions = ["keydown", "mousemove", "wheel", "touchmove", "touchstart", "touchend", "touchcancel", "touchforcechange"], cwvpsbDelayedScripts = {
 		    normal: [],
 		    defer: [],
@@ -747,7 +749,7 @@ class cwvpbcriticalCss{
 				$this->insert_update_posts_url($post_id);
 			}
 		}				
-		update_option('save_posts_offset', 0);
+		update_option('save_posts_offset', 0);			
 	}
 
 
@@ -766,8 +768,7 @@ class cwvpbcriticalCss{
 		$rowcss = '';
 		$all_css = [];
 		
-		if($matches){        
-			
+		if(!empty($matches)){        
 			foreach($matches as $mat){						
 				if((strpos($mat[2], '.css') !== false) && (strpos($mat[1], 'preload') === false)) {
 					$all_css[] = $mat[2];
@@ -803,7 +804,8 @@ class cwvpbcriticalCss{
 			$d = new DOMDocument;
 			$mock = new DOMDocument;
 			libxml_use_internal_errors(true);
-			$d->loadHTML($content);
+			$decodedHtml = htmlspecialchars_decode(html_entity_decode($content, ENT_QUOTES, 'UTF-8'), ENT_QUOTES);
+			$d->loadHTML($decodedHtml);
 			$body = $d->getElementsByTagName('body')->item(0);
 			foreach ($body->childNodes as $child){
 				$mock->appendChild($mock->importNode($child, true));
@@ -863,18 +865,18 @@ class cwvpbcriticalCss{
 				$new_file = $user_dirname."/".md5($targetUrl).".css";
 				$ifp = @fopen( $new_file, 'w+' );
 				if ( ! $ifp ) {
-					return array('status' => false, 'message' => sprintf( __( 'Could not write file %s' ), $new_file ));					
+					return array('status' => false, 'message' => sprintf( esc_html__( 'Could not write file %s' ,'cwvpsb'), $new_file ));					
 				}
 				$result = @fwrite( $ifp, $critical_css );
 				fclose( $ifp );
 				if($result){
-					return array('status' => true, 'message' => 'Css creted sussfully');
+					return array('status' => true, 'message' => esc_html__('Critical CSS created successfully','cwvpsb'));
 				}else{
-					return array('status' => false, 'message' => 'Could not write into css file');
+					return array('status' => false, 'message' => esc_html__('Could not write into css file','cwvpsb'));
 				}
 
 		}else{
-			return array('status' => false , 'message' => 'critical css does not generated from server');	
+			return array('status' => false , 'message' => esc_html__('Critical css not generated from server','cwvpsb'));	
 		}
 	    	    
 
@@ -884,7 +886,7 @@ class cwvpbcriticalCss{
 		if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
 			return; 
 		}
-		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce' ) ){
 			return;  
 		}
 
@@ -909,23 +911,22 @@ class cwvpbcriticalCss{
 			));
 						
 			if($result){
-				echo json_encode(array('status' => true));
+				wp_send_json(array('status' => true));
 			}else{
-				echo json_encode(array('status' => false));
+				wp_send_json(array('status' => false));
 			}
 
 		}else{
-			echo json_encode(array('status' => false));	
+			wp_send_json(array('status' => false));	
 		}			    
-		
-		die;
+
 	}	
 	public function cwvpsb_resend_urls_for_cache(){
 
 		if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
 			return; 
 		}
-		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce' ) ){
 			return;  
 		}
 		if(!current_user_can( 'manage_options' ))
@@ -944,19 +945,18 @@ class cwvpbcriticalCss{
 			'failed'	
 		));
 	    if($result){
-			echo json_encode(array('status' => true));
+			wp_send_json(array('status' => true));
 		}else{
-			echo json_encode(array('status' => false));
+			wp_send_json(array('status' => false));
 		}
 		
-		die;
 	}
 	public function cwvpsb_recheck_urls_cache(){
 
 		if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
 			return; 
 		}
-		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce' ) ){
 			return;  
 		}
 		if(!current_user_can( 'manage_options' ))
@@ -990,9 +990,9 @@ class cwvpbcriticalCss{
 				}
 			}
 
-			echo json_encode(array('status' => true, 'count' => count($result)));die;
+			wp_send_json(array('status' => true, 'count' => count($result)));
 		}else{
-			echo json_encode(array('status' => true, 'count' => 0));die;
+			wp_send_json(array('status' => true, 'count' => 0));
 		}
 						
 	}	
@@ -1001,7 +1001,7 @@ class cwvpbcriticalCss{
 		if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
 			return; 
 		}
-		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_ajax_check_nonce' ) ){
+		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce' ) ){
 			return;  
 		}
 
@@ -1019,17 +1019,17 @@ class cwvpbcriticalCss{
 		global $wp_filesystem;
 		$wp_filesystem->rmdir($dir, true);
 
-		echo json_encode(array('status' => true));die;
+		wp_send_json(array('status' => true));
 		
 	}
 
 	public function cwvpsb_showdetails_data(){
 		
 
-		if ( ! isset( $_POST['cwvpsb_showdetails_data_nonce'] ) ){
+		if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
 			return; 
 		}
-		if ( !wp_verify_nonce( $_POST['cwvpsb_showdetails_data_nonce'], 'cwvpsb_showdetails_data_nonce' ) ){
+		if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce' ) ){
 			return;  
 		}
 
@@ -1046,7 +1046,7 @@ class cwvpbcriticalCss{
 			$search = sanitize_text_field($_POST['search']['value']);
 			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s ",
 			'%' . $wpdb->esc_like($search) . '%'
-			),			
+			)			
 			);
 			
 			$result = $wpdb->get_results(
@@ -1096,7 +1096,7 @@ class cwvpbcriticalCss{
 			"data"            => $formated_result
 		);
 
-		echo json_encode($retuernData);die;
+		wp_send_json($retuernData);
 
 	}	
 	public function cwvpsb_showdetails_data_completed(){
@@ -1121,7 +1121,7 @@ class cwvpbcriticalCss{
 			$search = sanitize_text_field($_POST['search']['value']);
 			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
 			'%' . $wpdb->esc_like($search) . '%','cached'
-			),			
+			)			
 			);
 			
 			$result = $wpdb->get_results(
@@ -1168,7 +1168,7 @@ class cwvpbcriticalCss{
 			"data"            => $formated_result
 		);
 
-		echo json_encode($retuernData);die;
+		wp_send_json($retuernData);
 
 	}		
 	public function cwvpsb_showdetails_data_failed(){
@@ -1193,7 +1193,7 @@ class cwvpbcriticalCss{
 			$search = sanitize_text_field($_POST['search']['value']);
 			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
 			'%' . $wpdb->esc_like($search) . '%','failed'
-			),			
+			)			
 			);
 			
 			$result = $wpdb->get_results(
@@ -1240,7 +1240,7 @@ class cwvpbcriticalCss{
 			"data"            => $formated_result
 		);
 
-		echo json_encode($retuernData);die;
+		wp_send_json($retuernData);
 
 	}
 	public function cwvpsb_showdetails_data_queue(){
@@ -1265,7 +1265,7 @@ class cwvpbcriticalCss{
 			$search = sanitize_text_field($_POST['search']['value']);
 			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
 			'%' . $wpdb->esc_like($search) . '%','queue'
-			),			
+			)		
 			);
 			
 			$result = $wpdb->get_results(
@@ -1313,7 +1313,7 @@ class cwvpbcriticalCss{
 			"data"            => $formated_result
 		);
 
-		echo json_encode($retuernData);die;
+		wp_send_json($retuernData);
 
 	}	
 

@@ -2,6 +2,8 @@
 
 namespace WebPConvert\Convert\Helpers;
 
+use ExecWithFallback\ExecWithFallback;
+
 /**
  * Try to detect quality of a jpeg image using various tools.
  *
@@ -29,9 +31,14 @@ class JpegQualityDetector
         if (extension_loaded('imagick') && class_exists('\\Imagick')) {
             try {
                 $img = new \Imagick($filename);
+
+                // The required function is available as from PECL imagick v2.2.2
                 if (method_exists($img, 'getImageCompressionQuality')) {
                     $quality = $img->getImageCompressionQuality();
                     if ($quality === 0) {
+                        // We have experienced that this Imagick method returns 0 for some images,
+                        // (even though the imagemagick binary is able to detect the quality)
+                        // ie "/test/images/quality-undetectable-with-imagick.jpg". See #208
                         $quality = null;
                     }
                     return $quality;
@@ -39,6 +46,7 @@ class JpegQualityDetector
             } catch (\Exception $e) {
                 // Well well, it just didn't work out.
                 // - But perhaps next method will work...
+            } catch (\Throwable $e) {
             }
         }
         return null;
@@ -63,10 +71,22 @@ class JpegQualityDetector
      */
     private static function detectQualityOfJpgUsingImageMagick($filename)
     {
-        if (function_exists('exec')) {
-            exec("identify -format '%Q' " . escapeshellarg($filename) . " 2>&1", $output, $returnCode);
-            if ((intval($returnCode) == 0) && (is_array($output)) && (count($output) == 1)) {
-                return intval($output[0]);
+        if (ExecWithFallback::anyAvailable()) {
+            // Try Imagick using exec, and routing stderr to stdout (the "2>$1" magic)
+
+            try {
+                ExecWithFallback::exec(
+                    "identify -format '%Q' " . escapeshellarg($filename) . " 2>&1",
+                    $output,
+                    $returnCode
+                );
+                //echo 'out:' . print_r($output, true);
+                if ((intval($returnCode) == 0) && (is_array($output)) && (count($output) == 1)) {
+                    return intval($output[0]);
+                }
+            } catch (\Exception $e) {
+                // its ok, there are other fish in the sea
+            } catch (\Throwable $e) {
             }
         }
         return null;
@@ -86,19 +106,27 @@ class JpegQualityDetector
      */
     private static function detectQualityOfJpgUsingGraphicsMagick($filename)
     {
-        if (function_exists('exec')) {
+        if (ExecWithFallback::anyAvailable()) {
             // Try GraphicsMagick
-            exec("gm identify -format '%Q' " . escapeshellarg($filename) . " 2>&1", $output, $returnCode);
-            if ((intval($returnCode) == 0) && (is_array($output)) && (count($output) == 1)) {
-                $quality = intval($output[0]);
+            try {
+                ExecWithFallback::exec(
+                    "gm identify -format '%Q' " . escapeshellarg($filename) . " 2>&1",
+                    $output,
+                    $returnCode
+                );
+                if ((intval($returnCode) == 0) && (is_array($output)) && (count($output) == 1)) {
+                    $quality = intval($output[0]);
 
-                // It seems that graphicsmagick is (currently) never able to detect the quality!
-                // - and always returns 75 as a fallback
-                // We shall therefore treat 75 as a failure to detect. (#209)
-                if ($quality == 75) {
-                    return null;
+                    // It seems that graphicsmagick is (currently) never able to detect the quality!
+                    // - and always returns 75 as a fallback
+                    // We shall therefore treat 75 as a failure to detect. (#209)
+                    if ($quality == 75) {
+                        return null;
+                    }
+                    return $quality;
                 }
-                return $quality;
+            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
             }
         }
         return null;
@@ -116,6 +144,8 @@ class JpegQualityDetector
      */
     public static function detectQualityOfJpg($filename)
     {
+
+        //trigger_error('warning test', E_USER_WARNING);
 
         // Test that file exists in order not to break things.
         if (!file_exists($filename)) {

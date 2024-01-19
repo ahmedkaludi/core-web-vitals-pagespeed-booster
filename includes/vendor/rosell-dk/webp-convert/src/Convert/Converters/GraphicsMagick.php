@@ -5,9 +5,12 @@ namespace WebPConvert\Convert\Converters;
 use WebPConvert\Convert\Converters\AbstractConverter;
 use WebPConvert\Convert\Converters\ConverterTraits\EncodingAutoTrait;
 use WebPConvert\Convert\Converters\ConverterTraits\ExecTrait;
-
 use WebPConvert\Convert\Exceptions\ConversionFailed\ConverterNotOperational\SystemRequirementsNotMetException;
 use WebPConvert\Convert\Exceptions\ConversionFailedException;
+use WebPConvert\Options\OptionFactory;
+use ExecWithFallback\ExecWithFallback;
+
+//use WebPConvert\Convert\Exceptions\ConversionFailed\InvalidInput\TargetNotFoundException;
 
 /**
  * Convert images to webp by calling gmagick binary (gm).
@@ -24,11 +27,21 @@ class GraphicsMagick extends AbstractConverter
     protected function getUnsupportedDefaultOptions()
     {
         return [
-            'auto-filter',
             'near-lossless',
-            'preset',
             'size-in-percentage',
         ];
+    }
+
+    /**
+     * Get the options unique for this converter
+     *
+     * @return  array  Array of options
+     */
+    public function getUniqueOptions($imageType)
+    {
+        return OptionFactory::createOptions([
+            self::niceOption()
+        ]);
     }
 
     private function getPath()
@@ -44,13 +57,13 @@ class GraphicsMagick extends AbstractConverter
 
     public function isInstalled()
     {
-        exec($this->getPath() . ' -version 2>&1', $output, $returnCode);
+        ExecWithFallback::exec($this->getPath() . ' -version 2>&1', $output, $returnCode);
         return ($returnCode == 0);
     }
 
     public function getVersion()
     {
-        exec($this->getPath() . ' -version 2>&1', $output, $returnCode);
+        ExecWithFallback::exec($this->getPath() . ' -version 2>&1', $output, $returnCode);
         if (($returnCode == 0) && isset($output[0])) {
             return preg_replace('#http.*#', '', $output[0]);
         }
@@ -60,7 +73,7 @@ class GraphicsMagick extends AbstractConverter
     // Check if webp delegate is installed
     public function isWebPDelegateInstalled()
     {
-        exec($this->getPath() . ' -version 2>&1', $output, $returnCode);
+        ExecWithFallback::exec($this->getPath() . ' -version 2>&1', $output, $returnCode);
         foreach ($output as $line) {
             if (preg_match('#WebP.*yes#i', $line)) {
                 return true;
@@ -93,31 +106,78 @@ class GraphicsMagick extends AbstractConverter
      */
     private function createCommandLineOptions()
     {
+        // For available webp options, check out:
+        // https://github.com/kstep/graphicsmagick/blob/master/coders/webp.c
+
         $commandArguments = [];
- 
+
+        /*
+        if ($this->isQualityDetectionRequiredButFailing()) {
+            // Unlike imagick binary, it seems gmagick binary uses a fixed
+            // quality (75) when quality is omitted
+            // So we cannot simply omit in order to get same quality as source.
+            // But perhaps there is another way?
+            // Check out #91 - it is perhaps as easy as this: "-define jpeg:preserve-settings"
+        }
+        */
         $commandArguments[] = '-quality ' . escapeshellarg($this->getCalculatedQuality());
 
+        $options = $this->options;
+
+        // preset
+        if (!is_null($options['preset'])) {
+            if ($options['preset'] != 'none') {
+                $imageHint = $options['preset'];
+                switch ($imageHint) {
+                    case 'drawing':
+                    case 'icon':
+                    case 'text':
+                        $imageHint = 'graph';
+                        $this->logLn(
+                            'Note: the preset was mapped to "graph" because graphicsmagick does not support ' .
+                            '"drawing", "icon" and "text", but grouped these into one option: "graph".'
+                        );
+                }
+                $commandArguments[] = '-define webp:image-hint=' . escapeshellarg($imageHint);
+            }
+        }
+
         // encoding
-        if ($this->options['encoding'] == 'lossless') {
-            
+        if ($options['encoding'] == 'lossless') {
+            // Btw:
+            // I am not sure if we should set "quality" for lossless.
+            // Quality should not apply to lossless, but my tests shows that it does in some way for gmagick
+            // setting it low, you get bad visual quality and small filesize. Setting it high, you get the opposite
+            // Some claim it is a bad idea to set quality, but I'm not so sure.
+            // https://stackoverflow.com/questions/4228027/
+            // First, I do not just get bigger images when setting quality, as toc777 does.
+            // Secondly, the answer is very old and that bad behaviour is probably fixed by now.
             $commandArguments[] = '-define webp:lossless=true';
         } else {
             $commandArguments[] = '-define webp:lossless=false';
         }
 
-        if ($this->options['alpha-quality'] !== 100) {
-            $commandArguments[] = '-define webp:alpha-quality=' . strval($this->options['alpha-quality']);
+        if ($options['auto-filter'] === true) {
+            $commandArguments[] = '-define webp:auto-filter=true';
         }
 
-        if ($this->options['low-memory']) {
+        if ($options['alpha-quality'] !== 100) {
+            $commandArguments[] = '-define webp:alpha-quality=' . strval($options['alpha-quality']);
+        }
+
+        if ($options['low-memory']) {
             $commandArguments[] = '-define webp:low-memory=true';
         }
 
-        if ($this->options['metadata'] == 'none') {
+        if ($options['sharp-yuv'] === true) {
+            $commandArguments[] = '-define webp:use-sharp-yuv=true';
+        }
+
+        if ($options['metadata'] == 'none') {
             $commandArguments[] = '-strip';
         }
 
-        $commandArguments[] = '-define webp:method=' . $this->options['method'];
+        $commandArguments[] = '-define webp:method=' . $options['method'];
 
         $commandArguments[] = escapeshellarg($this->source);
         $commandArguments[] = escapeshellarg('webp:' . $this->destination);
@@ -127,18 +187,18 @@ class GraphicsMagick extends AbstractConverter
 
     protected function doActualConvert()
     {
+        //$this->logLn('Using quality:' . $this->getCalculatedQuality());
 
         $this->logLn('Version: ' . $this->getVersion());
 
         $command = $this->getPath() . ' convert ' . $this->createCommandLineOptions() . ' 2>&1';
 
-        $useNice = (($this->options['use-nice']) && self::hasNiceSupport()) ? true : false;
+        $useNice = ($this->options['use-nice'] && $this->checkNiceSupport());
         if ($useNice) {
-            $this->logLn('using nice');
             $command = 'nice ' . $command;
         }
         $this->logLn('Executing command: ' . $command);
-        exec($command, $output, $returnCode);
+        ExecWithFallback::exec($command, $output, $returnCode);
 
         $this->logExecOutput($output);
         if ($returnCode == 0) {
@@ -154,7 +214,7 @@ class GraphicsMagick extends AbstractConverter
             $this->logLn('command:' . $command);
             $this->logLn('return code:' . $returnCode);
             $this->logLn('output:' . print_r(implode("\n", $output), true));
-            throw new SystemRequirementsNotMetException('The exec call failed');
+            throw new SystemRequirementsNotMetException('The exec() call failed');
         }
     }
 }

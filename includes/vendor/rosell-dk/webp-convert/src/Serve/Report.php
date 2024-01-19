@@ -42,6 +42,9 @@ class Report
         } catch (\Exception $e) {
             $msg = $e->getMessage();
             echo '<b>' . $msg . '</b>';
+
+            //echo '<p>Rethrowing exception for your convenience</p>';
+            //throw ($e);
         }
         ?>
     </body>

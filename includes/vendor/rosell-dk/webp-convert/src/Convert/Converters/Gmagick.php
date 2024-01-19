@@ -7,6 +7,8 @@ use WebPConvert\Convert\Exceptions\ConversionFailedException;
 use WebPConvert\Convert\Exceptions\ConversionFailed\ConverterNotOperational\SystemRequirementsNotMetException;
 use WebPConvert\Convert\Converters\ConverterTraits\EncodingAutoTrait;
 
+//use WebPConvert\Convert\Exceptions\ConversionFailed\InvalidInput\TargetNotFoundException;
+
 /**
  * Convert images to webp using Gmagick extension.
  *
@@ -22,9 +24,7 @@ class Gmagick extends AbstractConverter
     {
         return [
             'near-lossless',
-            'preset',
             'size-in-percentage',
-            'use-nice'
         ];
     }
 
@@ -83,8 +83,14 @@ class Gmagick extends AbstractConverter
         }
     }
 
+    // Although this method is public, do not call directly.
+    // You should rather call the static convert() function, defined in AbstractConverter, which
+    // takes care of preparing stuff before calling doConvert, and validating after.
     protected function doActualConvert()
     {
+
+        // PS: graphicsmagick options are documented here: (search for "webp:")
+        // http://www.graphicsmagick.org/GraphicsMagick.html
 
         $options = $this->options;
 
@@ -99,9 +105,29 @@ class Gmagick extends AbstractConverter
         }
 
         $im->setimageformat('WEBP');
- 
+
+        // setimageoption() has not always been there, so check first. #169
         if (method_exists($im, 'setimageoption')) {
-           
+            // Finally cracked setting webp options.
+            // See #167
+            // - and https://stackoverflow.com/questions/47294962/how-to-write-lossless-webp-files-with-perlmagick
+
+            if (!is_null($options['preset'])) {
+                if ($options['preset'] != 'none') {
+                    $imageHint = $options['preset'];
+                    switch ($imageHint) {
+                        case 'drawing':
+                        case 'icon':
+                        case 'text':
+                            $imageHint = 'graph';
+                            $this->logLn(
+                                'The "preset" value was mapped to "graph" because gmagick does not support "drawing",' .
+                                ' "icon" and "text", but grouped these into one option: "graph".'
+                            );
+                    }
+                    $im->setimageoption('webp', 'image-hint', $imageHint);
+                }
+            }
             $im->setimageoption('webp', 'method', $options['method']);
             $im->setimageoption('webp', 'lossless', $options['encoding'] == 'lossless' ? 'true' : 'false');
             $im->setimageoption('webp', 'alpha-quality', $options['alpha-quality']);
@@ -109,15 +135,36 @@ class Gmagick extends AbstractConverter
             if ($options['auto-filter'] === true) {
                 $im->setimageoption('webp', 'auto-filter', 'true');
             }
+
+            if ($options['sharp-yuv'] === true) {
+                $im->setimageoption('webp', 'use-sharp-yuv', 'true');
+            }
         }
+
+        /*
+        low-memory seems not to be supported:
+        $im->setimageoption('webp', 'low-memory', $options['low-memory'] ? true : false);
+        */
 
         if ($options['metadata'] == 'none') {
+            // Strip metadata and profiles
             $im->stripImage();
         }
+
+        // Ps: Imagick automatically uses same quality as source, when no quality is set
+        // This feature is however not present in Gmagick
+        // TODO: However, it might be possible after all - see #91
         $im->setcompressionquality($this->getCalculatedQuality());
+
+        // We call getImageBlob().
+        // That method is undocumented, but it is there!
+        // - just like it is in imagick, as pointed out here:
+        //   https://www.php.net/manual/ru/gmagick.readimageblob.php
+
+        /** @scrutinizer ignore-call */
         $imageBlob = $im->getImageBlob();
 
-        $success = file_put_contents($this->destination, $imageBlob);
+        $success = @file_put_contents($this->destination, $imageBlob);
 
         if (!$success) {
             throw new ConversionFailedException('Failed writing file');

@@ -39,6 +39,7 @@ function cwvpsb_convert_webp(){
         $logo = wp_get_attachment_url( get_theme_mod( 'custom_logo' ));
         array_push($img_src , $logo);
     }
+
     foreach ($img_src as $key => $img_dir) {
         $img_dir = explode('/wp-content', $img_dir);
         if(count($img_dir)==1)
@@ -75,31 +76,100 @@ function cwvpsb_convert_webp(){
     }
 }
 
-function cwvpsb_display_webp( $content ) {
+function cwvpsb_display_webp($content) {
     $comp_dom = new DOMDocument();
     libxml_use_internal_errors(true);
-    $comp_dom->loadHTML($content);
+    $decodedHtml = htmlspecialchars_decode(html_entity_decode($content, ENT_QUOTES, 'UTF-8'), ENT_QUOTES);
+    if(!$decodedHtml){
+        return $content;
+    }
+    $comp_dom->loadHTML( $decodedHtml );
     libxml_clear_errors();
-    $xpath = new DOMXPath( $comp_dom );
+
+    $xpath = new DOMXPath($comp_dom);
     $nodes = $xpath->query('//img[@src]');
+
     foreach ($nodes as $node) {
         $url = $node->getAttribute('src');
+        if(stripos($content, 'gravatars') !== false){
+            continue;
+        }
+        $mod_url = explode('uploads',$url);
+        $mod_url = count($mod_url)>1?$mod_url[1]:$mod_url[0];
         $wp_upload_dir = wp_upload_dir();
-        $upload_baseurl = $wp_upload_dir['baseurl'] . '/' . 'cwv-webp-images/';
-        $upload_basedir = $wp_upload_dir['basedir'] . '/' . 'cwv-webp-images/';
-        $img_name = explode('/', $url);
-        $img_name = end($img_name);
-        $upload_baseurl .= $img_name;
-        $img_webp = $upload_baseurl.".webp";
-        $img_webp_dir = $upload_basedir.$img_name.".webp";
+        $upload_baseurl = $wp_upload_dir['baseurl'] . '/' . 'cwv-webp-images';
+        $upload_basedir = $wp_upload_dir['basedir'] . '/' . 'cwv-webp-images';
+        if(!file_exists($upload_basedir)) wp_mkdir_p($upload_basedir);
+        $img_webp = $upload_baseurl . $mod_url . ".webp";
+        $img_webp_dir = $upload_basedir . $mod_url . ".webp";
         $img_src = str_replace($url, $img_webp, $url);
         $srcset = $node->getAttribute('srcset');
         $img_srcset = str_replace($srcset, $img_webp, $srcset);
-        if(file_exists($img_webp_dir)){
-            $node->setAttribute('src',$img_src);
-            $node->setAttribute('srcset',$img_srcset);
+        if (file_exists($img_webp_dir)) {
+            $node->setAttribute('src', $img_src);
+            $node->setAttribute('srcset', $img_srcset);
+        } else {
+            // Convert the image to WebP if it doesn't exist
+            $image_path = $wp_upload_dir['basedir'] . str_replace($wp_upload_dir['baseurl'], '', $url);
+            $img_webp_dir_ar =  explode('/',$img_webp_dir);
+            array_pop($img_webp_dir_ar);
+            $img_webp_dir_ar = implode('/',$img_webp_dir_ar);
+            if(!is_dir($img_webp_dir_ar)) wp_mkdir_p($img_webp_dir_ar);
+            if (cwvpsb_convert_to_webp($image_path, $img_webp_dir)) {
+                $node->setAttribute('src', $img_src);
+                $node->setAttribute('srcset', $img_srcset);
+            }
         }
     }
+
     $content = $comp_dom->saveHTML();
     return $content;
+}
+
+function cwvpsb_convert_to_webp($source_path, $destination_path) {
+    $source_info = getimagesize($source_path);
+
+    if (!$source_info) {
+        return false; // Unable to get image information
+    }
+
+    list($source_width, $source_height, $source_type) = $source_info;
+
+    if ($source_type !== IMAGETYPE_JPEG && $source_type !== IMAGETYPE_PNG) {
+        return false; // Unsupported image type
+    }
+
+
+    if ($source_type === IMAGETYPE_JPEG) {
+        $source_image = imagecreatefromjpeg($source_path);
+    } elseif ($source_type === IMAGETYPE_PNG) {
+        $source_image = imagecreatefrompng($source_path);
+    }
+
+    if (!$source_image) {
+        return false; // Unable to create image resource
+    }
+
+ 
+    $webp_image = imagecreatetruecolor($source_width, $source_height);
+
+    // Preserve transparency for PNG images
+    if ($source_type === IMAGETYPE_PNG) {
+        imagealphablending($webp_image, false);
+        imagesavealpha($webp_image, true);
+        $transparent = imagecolorallocatealpha($webp_image, 255, 255, 255, 127);
+        imagefilledrectangle($webp_image, 0, 0, $source_width, $source_height, $transparent);
+    }
+
+    imagecopy($webp_image, $source_image, 0, 0, 0, 0, $source_width, $source_height);
+
+    if (!imagewebp($webp_image, $destination_path, 80)) {
+        return false; // Unable to save WebP image
+    }
+
+    // Free up resources
+    imagedestroy($source_image);
+    imagedestroy($webp_image);
+
+    return true;
 }

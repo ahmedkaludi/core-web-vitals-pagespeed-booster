@@ -2164,7 +2164,7 @@ function cwvpsb_set_file_transient( $transient, $value, $expiration = 0 ) {
 			if ( ! $ifp ) {
 	          return ( array( 'error' => sprintf( esc_html__( 'Could not write file %s', 'cwvpsb' ), $new_file ) ));
 	        }
-	        $result = @fwrite( $ifp, json_encode($value) );
+	        $result = @fwrite( $ifp, wp_json_encode($value) );
 		    fclose( $ifp );
 		}
 

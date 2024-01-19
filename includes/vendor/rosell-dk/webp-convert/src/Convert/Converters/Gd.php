@@ -32,14 +32,19 @@ class Gd extends AbstractConverter
             'method',
             'near-lossless',
             'preset',
+            'sharp-yuv',
             'size-in-percentage',
-            'use-nice'
         ];
     }
 
     private $errorMessageWhileCreating = '';
     private $errorNumberWhileCreating;
 
+    /**
+     * Check (general) operationality of Gd converter.
+     *
+     * @throws SystemRequirementsNotMetException  if system requirements are not met
+     */
     public function checkOperationality()
     {
         if (!extension_loaded('gd')) {
@@ -50,6 +55,21 @@ class Gd extends AbstractConverter
             throw new SystemRequirementsNotMetException(
                 'Gd has been compiled without webp support.'
             );
+        }
+
+        if (!function_exists('imagepalettetotruecolor')) {
+            if (!self::functionsExist([
+                'imagecreatetruecolor', 'imagealphablending', 'imagecolorallocatealpha',
+                'imagefilledrectangle', 'imagecopy', 'imagedestroy', 'imagesx', 'imagesy'
+            ])) {
+                throw new SystemRequirementsNotMetException(
+                    'Gd cannot convert palette color images to RGB. ' .
+                    'Even though it would be possible to convert RGB images to webp with Gd, ' .
+                    'we refuse to do it. A partial working converter causes more trouble than ' .
+                    'a non-working. To make this converter work, you need the imagepalettetotruecolor() ' .
+                    'function to be enabled on your system.'
+                );
+            }
         }
     }
 
@@ -101,13 +121,17 @@ class Gd extends AbstractConverter
      * So, if the image is already rgb, nothing will be done, and true will be returned
      * PS: Got the workaround here: https://secure.php.net/manual/en/function.imagepalettetotruecolor.php
      *
-     * @param  resource  $image
+     * @param  resource|\GdImage  $image
      * @return boolean  TRUE if the convertion was complete, or if the source image already is a true color image,
      *          otherwise FALSE is returned.
      */
     private function makeTrueColorUsingWorkaround(&$image)
     {
-
+        //return $this->makeTrueColor($image);
+        /*
+        if (function_exists('imageistruecolor') && imageistruecolor($image)) {
+            return true;
+        }*/
         if (self::functionsExist(['imagecreatetruecolor', 'imagealphablending', 'imagecolorallocatealpha',
                 'imagefilledrectangle', 'imagecopy', 'imagedestroy', 'imagesx', 'imagesy'])) {
             $dst = imagecreatetruecolor(imagesx($image), imagesy($image));
@@ -116,35 +140,32 @@ class Gd extends AbstractConverter
                 return false;
             }
 
+            $success = false;
+
             //prevent blending with default black
-            if (imagealphablending($dst, false) === false) {
-                return false;
+            if (imagealphablending($dst, false) !== false) {
+                //change the RGB values if you need, but leave alpha at 127
+                $transparent = imagecolorallocatealpha($dst, 255, 255, 255, 127);
+
+                if ($transparent !== false) {
+                    //simpler than flood fill
+                    if (imagefilledrectangle($dst, 0, 0, imagesx($image), imagesy($image), $transparent) !== false) {
+                        //restore default blending
+                        if (imagealphablending($dst, true) !== false) {
+                            if (imagecopy($dst, $image, 0, 0, 0, 0, imagesx($image), imagesy($image)) !== false) {
+                                $success = true;
+                            }
+                        };
+                    }
+                }
             }
-
-            //change the RGB values if you need, but leave alpha at 127
-            $transparent = imagecolorallocatealpha($dst, 255, 255, 255, 127);
-
-            if ($transparent === false) {
-                return false;
+            if ($success) {
+                imagedestroy($image);
+                $image = $dst;
+            } else {
+                imagedestroy($dst);
             }
-
-            //simpler than flood fill
-            if (imagefilledrectangle($dst, 0, 0, imagesx($image), imagesy($image), $transparent) === false) {
-                return false;
-            }
-
-            //restore default blending
-            if (imagealphablending($dst, true) === false) {
-                return false;
-            };
-
-            if (imagecopy($dst, $image, 0, 0, 0, 0, imagesx($image), imagesy($image)) === false) {
-                return false;
-            }
-            imagedestroy($image);
-
-            $image = $dst;
-            return true;
+            return $success;
         } else {
             // The necessary methods for converting color palette are not avalaible
             return false;
@@ -157,7 +178,7 @@ class Gd extends AbstractConverter
      * Try to convert image pallette to true color. If imagepalettetotruecolor() exists, that is used (available from
      * PHP >= 5.5.0). Otherwise using workaround found on the net.
      *
-     * @param  resource  $image
+     * @param  resource|\GdImage  $image
      * @return boolean  TRUE if the convertion was complete, or if the source image already is a true color image,
      *          otherwise FALSE is returned.
      */
@@ -166,6 +187,9 @@ class Gd extends AbstractConverter
         if (function_exists('imagepalettetotruecolor')) {
             return imagepalettetotruecolor($image);
         } else {
+            $this->logLn(
+                'imagepalettetotruecolor() is not available on this system - using custom implementation instead'
+            );
             return $this->makeTrueColorUsingWorkaround($image);
         }
     }
@@ -175,7 +199,7 @@ class Gd extends AbstractConverter
      *
      * @throws  InvalidInputException  if mime type is unsupported or could not be detected
      * @throws  ConversionFailedException  if imagecreatefrompng or imagecreatefromjpeg fails
-     * @return  resource  $image  The created image
+     * @return  resource|\GdImage  $image  The created image
      */
     private function createImageResource()
     {
@@ -207,18 +231,21 @@ class Gd extends AbstractConverter
     /**
      * Try to make image resource true color if it is not already.
      *
-     * @param  resource  $image  The image to work on
-     * @return void
+     * @param  resource|\GdImage  $image  The image to work on
+     * @return boolean|null   True if it is now true color. False if it is NOT true color. null, if we cannot tell
      */
     protected function tryToMakeTrueColorIfNot(&$image)
     {
+        $whatIsItNow = null;
         $mustMakeTrueColor = false;
         if (function_exists('imageistruecolor')) {
             if (imageistruecolor($image)) {
                 $this->logLn('image is true color');
+                $whatIsItNow = true;
             } else {
                 $this->logLn('image is not true color');
                 $mustMakeTrueColor = true;
+                $whatIsItNow = false;
             }
         } else {
             $this->logLn('It can not be determined if image is true color');
@@ -228,24 +255,30 @@ class Gd extends AbstractConverter
         if ($mustMakeTrueColor) {
             $this->logLn('converting color palette to true color');
             $success = $this->makeTrueColor($image);
-            if (!$success) {
+            if ($success) {
+                return true;
+            } else {
                 $this->logLn(
-                    'Warning: FAILED converting color palette to true color. ' .
-                    'Continuing, but this does NOT look good.'
+                    'FAILED converting color palette to true color. '
                 );
             }
         }
+        return $whatIsItNow;
     }
 
     /**
      *
-     * @param  resource  $image
+     * @param  resource|\GdImage  $image
      * @return boolean  true if alpha blending was set successfully, false otherwise
      */
     protected function trySettingAlphaBlending($image)
     {
         if (function_exists('imagealphablending')) {
-
+            // TODO: Should we set second parameter to false instead?
+            // As here: https://www.texelate.co.uk/blog/retaining-png-transparency-with-php-gd
+            // (PS: I have backed up some local changes - to Gd.php, which includes changing that param
+            // to false. But I didn't finish up back then and now I forgot, so need to retest before
+            // changing anything...
             if (!imagealphablending($image, true)) {
                 $this->logLn('Warning: imagealphablending() failed');
                 return false;
@@ -278,11 +311,12 @@ class Gd extends AbstractConverter
         $this->errorNumberWhileCreating = $errno;
         $this->errorMessageWhileCreating = $errstr . ' in ' . $errfile . ', line ' . $errline .
             ', PHP ' . PHP_VERSION . ' (' . PHP_OS . ')';
+        //return false;
     }
 
     /**
      *
-     * @param  resource  $image
+     * @param  resource|\GdImage  $image
      * @return void
      */
     protected function destroyAndRemove($image)
@@ -295,20 +329,47 @@ class Gd extends AbstractConverter
 
     /**
      *
-     * @param  resource  $image
+     * @param  resource|\GdImage  $image
      * @return void
      */
     protected function tryConverting($image)
     {
 
+        // Danger zone!
+        //    Using output buffering to generate image.
+        //    In this zone, Do NOT do anything that might produce unwanted output
+        //    Do NOT call $this->logLn
+        // --------------------------------- (start of danger zone)
+
         $addedZeroPadding = false;
         set_error_handler(array($this, "errorHandlerWhileCreatingWebP"));
 
+        // This line may trigger log, so we need to do it BEFORE ob_start() !
         $q = $this->getCalculatedQuality();
 
         ob_start();
-        $success = imagewebp($image, null, $q);
 
+        // Adding this try/catch is perhaps not neccessary.
+        // I'm not certain that the error handler takes care of Throwable errors.
+        // and - sorry - was to lazy to find out right now. So for now: better safe than sorry. #320
+        $error = null;
+        $success = false;
+
+        try {
+            // Beware: This call can throw FATAL on windows (cannot be catched)
+            // This for example happens on palette images
+            $success = imagewebp($image, null, $q);
+        } catch (\Exception $e) {
+            $error = $e;
+        } catch (\Throwable $e) {
+            $error = $e;
+        }
+        if (!is_null($error)) {
+            restore_error_handler();
+            ob_end_clean();
+            $this->destroyAndRemove($image);
+            throw $error;
+        }
         if (!$success) {
             $this->destroyAndRemove($image);
             ob_end_clean();
@@ -319,6 +380,9 @@ class Gd extends AbstractConverter
             );
         }
 
+
+        // The following hack solves an `imagewebp` bug
+        // See https://stackoverflow.com/questions/30078090/imagewebp-php-creates-corrupted-webp-files
         if (ob_get_length() % 2 == 1) {
             echo "\0";
             $addedZeroPadding = true;
@@ -332,6 +396,9 @@ class Gd extends AbstractConverter
                 'Gd failed: imagewebp() returned empty string'
             );
         }
+
+        // --------------------------------- (end of danger zone).
+
 
         if ($this->errorMessageWhileCreating != '') {
             switch ($this->errorNumberWhileCreating) {
@@ -347,6 +414,7 @@ class Gd extends AbstractConverter
                         'An error was produced during conversion',
                         $this->errorMessageWhileCreating
                     );
+                    //break;
             }
         }
 
@@ -365,21 +433,96 @@ class Gd extends AbstractConverter
                 'Gd failed when trying to save the image. Check file permissions!'
             );
         }
+
+        /*
+        Previous code was much simpler, but on a system, the hack was not activated (a file with uneven number of bytes
+        was created). This is puzzeling. And the old code did not provide any insights.
+        Also, perhaps having two subsequent writes to the same file could perhaps cause a problem.
+        In the new code, there is only one write.
+        However, a bad thing about the new code is that the entire webp file is read into memory. This might cause
+        memory overflow with big files.
+        Perhaps we should check the filesize of the original and only use the new code when it is smaller than
+        memory limit set in PHP by a certain factor.
+        Or perhaps only use the new code on older versions of Gd
+        https://wordpress.org/support/topic/images-not-seen-on-chrome/#post-11390284
+
+        Here is the old code:
+
+        $success = imagewebp($image, $this->destination, $this->getCalculatedQuality());
+
+        if (!$success) {
+            throw new ConversionFailedException(
+                'Gd failed when trying to save the image as webp (call to imagewebp() failed). ' .
+                'It probably failed writing file. Check file permissions!'
+            );
+        }
+
+
+        // This hack solves an `imagewebp` bug
+        // See https://stackoverflow.com/questions/30078090/imagewebp-php-creates-corrupted-webp-files
+        if (filesize($this->destination) % 2 == 1) {
+            file_put_contents($this->destination, "\0", FILE_APPEND);
+        }
+        */
     }
-     
+
+    // Although this method is public, do not call directly.
+    // You should rather call the static convert() function, defined in AbstractConverter, which
+    // takes care of preparing stuff before calling doConvert, and validating after.
     protected function doActualConvert()
     {
+        $versionString = gd_info()["GD Version"];
+        $this->logLn('GD Version: ' . $versionString);
 
-        $this->logLn('GD Version: ' . gd_info()["GD Version"]);
+        // Btw: Check out processWebp here:
+        // https://github.com/Intervention/image/blob/master/src/Intervention/Image/Gd/Encoder.php
 
         // Create image resource
         $image = $this->createImageResource();
 
         // Try to convert color palette if it is not true color
-        $this->tryToMakeTrueColorIfNot($image);
-
+        $isItTrueColorNow = $this->tryToMakeTrueColorIfNot($image);
+        if ($isItTrueColorNow === false) {
+            // our tests shows that converting palette fails on all systems,
+            throw new ConversionFailedException(
+                'Cannot convert image because it is a palette image and the palette image cannot ' .
+                'be converted to RGB (which is required). To convert to RGB, we would need ' .
+                'imagepalettetotruecolor(), which is not available on your system. ' .
+                'Our workaround does not have the neccasary functions for converting to RGB either.'
+            );
+        }
+        if (is_null($isItTrueColorNow)) {
+            $isWindows = preg_match('/^win/i', PHP_OS);
+            $isMacDarwin = preg_match('/^darwin/i', PHP_OS); // actually no problem in PHP 7.4 and 8.0
+            if ($isWindows || $isMacDarwin) {
+                throw new ConversionFailedException(
+                    'Cannot convert image because it appears to be a palette image and the palette image ' .
+                    'cannot be converted to RGB, as you do not have imagepalettetotruecolor() enabled. ' .
+                    'Converting palette on ' .
+                    ($isWindows ? 'Windows causes FATAL error' : 'Mac causes halt') .
+                    'So we abort now'
+                );
+            }
+        }
 
         if ($this->getMimeTypeOfSource() == 'image/png') {
+            if (function_exists('version_compare')) {
+                if (version_compare($versionString, "2.1.1", "<=")) {
+                    $this->logLn(
+                        'BEWARE: Your version of Gd looses the alpha chanel when converting to webp.' .
+                        'You should upgrade Gd, use another converter or stop converting PNGs. ' .
+                        'See: https://github.com/rosell-dk/webp-convert/issues/238'
+                    );
+                } elseif (version_compare($versionString, "2.2.4", "<=")) {
+                    $this->logLn(
+                        'BEWARE: Older versions of Gd looses the alpha chanel when converting to webp.' .
+                        'We have not tested if transparency fails on your (rather old) version of Gd. ' .
+                        'Please let us know. ' .
+                        'See: https://github.com/rosell-dk/webp-convert/issues/238'
+                    );
+                }
+            }
+
             // Try to set alpha blending
             $this->trySettingAlphaBlending($image);
         }

@@ -27,5 +27,13 @@ class SensitiveArrayOption extends ArrayOption
         } else {
             return '(array of ' . count($this->getValue()) . ' items)';
         }
+        //return '*****';
+    }
+
+    public function getDefinition()
+    {
+        $obj = parent::getDefinition();
+        $obj['sensitive'] = true;
+        return $obj;
     }
 }

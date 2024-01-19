@@ -393,3 +393,16 @@ span.cwvpsb-hide
     left: 6%;
     top: 10%;
 }
+table.cwvpsb_inner_tb th, table.cwvpsb_inner_tb td {
+  padding: 0 !important;
+  vertical-align: middle !important;
+  text-align: center !important;
+}
+
+table.cwvpsb_inner_tb th {
+  text-align: left !important;
+}
+table.cwvpsb_inner_tb select {
+  margin-right: 3% !important;
+}
+

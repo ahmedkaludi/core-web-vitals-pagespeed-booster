@@ -181,7 +181,7 @@ class DOMDocumentWrapper {
 	}
 	public function load($markup, $contentType = null, $newDocumentID = null) {
 //		phpQuery::$documents[$id] = $this;
-		$this->contentType = strtolower($contentType);
+		$this->contentType = $contentType?strtolower($contentType):$contentType;
 		if ($markup instanceof DOMDOCUMENT) {
 			$this->document = $markup;
 			$this->root = $this->document;
@@ -284,8 +284,8 @@ class DOMDocumentWrapper {
 		}
 		// Should be careful here, still need 'magic encoding detection' since lots of pages have other 'default encoding'
 		// Worse, some pages can have mixed encodings... we'll try not to worry about that
-		$requestedCharset = strtoupper($requestedCharset);
-		$documentCharset = strtoupper($documentCharset);
+		$requestedCharset = $requestedCharset?strtoupper($requestedCharset):$requestedCharset;
+		$documentCharset = $documentCharset?strtoupper($documentCharset):$documentCharset;
 		phpQuery::debug("DOC: $documentCharset REQ: $requestedCharset");
 		if ($requestedCharset && $documentCharset && $requestedCharset !== $documentCharset) {
 			phpQuery::debug("CHARSET CONVERT");
@@ -475,7 +475,6 @@ class DOMDocumentWrapper {
 		return $contentType[1];
 	}
 	protected function charsetFromXML($markup) {
-		$matches;
 		// find declaration
 		preg_match('@<'.'?xml[^>]+encoding\\s*=\\s*(["|\'])(.*?)\\1@i',
 			$markup, $matches
@@ -559,30 +558,6 @@ class DOMDocumentWrapper {
 		$return = array();
 		if ($source instanceof DOMNODE && !($source instanceof DOMNODELIST))
 			$source = array($source);
-//		if (is_array($source)) {
-//			foreach($source as $node) {
-//				if (is_string($node)) {
-//					// string markup
-//					$fake = $this->documentFragmentCreate($node, $sourceCharset);
-//					if ($fake === false)
-//						throw new Exception("Error loading documentFragment markup");
-//					else
-//						$return = array_merge($return, 
-//							$this->import($fake->root->childNodes)
-//						);
-//				} else {
-//					$return[] = $this->document->importNode($node, true);
-//				}
-//			}
-//			return $return;
-//		} else {
-//			// string markup
-//			$fake = $this->documentFragmentCreate($source, $sourceCharset);
-//			if ($fake === false)
-//				throw new Exception("Error loading documentFragment markup");
-//			else
-//				return $this->import($fake->root->childNodes);
-//		}
 		if (is_array($source) || $source instanceof DOMNODELIST) {
 			// dom nodes
 			self::debug('Importing nodes to document');
@@ -1361,7 +1336,6 @@ class phpQueryObject
 			->andSelf()
 			->not('form');
 		$return = array();
-//		$source->dumpDie();
 		foreach($source as $input) {
 			$input = phpQuery::pq($input);
 			if ($input->is('[disabled]'))
@@ -2004,14 +1978,6 @@ class phpQueryObject
 				if ($this->elements)
 					$this->elements = array($this->elements[count($this->elements)-1]);
 				break;
-			/*case 'parent':
-				$stack = array();
-				foreach($this->elements as $node) {
-					if ( $node->childNodes->length )
-						$stack[] = $node;
-				}
-				$this->elements = $stack;
-				break;*/
 			case 'contains':
 				$text = trim($args, "\"'");
 				$stack = array();
@@ -2059,11 +2025,6 @@ class phpQueryObject
 					)
 				);
 			break;
-//				$stack = array();
-//				foreach($this->elements as $node)
-//					if ($node->is('input[type=submit]') || $node->is('button[type=submit]'))
-//						$stack[] = $el;
-//				$this->elements = $stack;
 			case 'input':
 				$this->elements = $this->map(
 					array($this, 'is'),
@@ -2119,18 +2080,6 @@ class phpQueryObject
 							? $node
 							: null;')
 				)->elements;
-//				$this->elements = $this->map(
-//					create_function('$node', '$node = pq($node);
-//						return $node->is("h1")
-//							|| $node->is("h2")
-//							|| $node->is("h3")
-//							|| $node->is("h4")
-//							|| $node->is("h5")
-//							|| $node->is("h6")
-//							|| $node->is("h7")
-//							? $node
-//							: null;')
-//				)->elements;
 			break;
 			case 'only-child':
 				$this->elements = $this->map(
@@ -2782,6 +2731,7 @@ class phpQueryObject
 	public function length() {
 		return $this->size();
 	}
+	#[\ReturnTypeWillChange] 
 	public function count() {
 		return $this->size();
 	}
@@ -2791,11 +2741,8 @@ class phpQueryObject
 	 * @return phpQueryObject|QueryTemplatesSource|QueryTemplatesParse|QueryTemplatesSourceQuery
 	 * @todo $level
 	 */
+	#[\ReturnTypeWillChange] 
 	public function end($level = 1) {
-//		$this->elements = array_pop( $this->history );
-//		return $this;
-//		$this->previous->DOM = $this->DOM;
-//		$this->previous->XPath = $this->XPath;
 		return $this->previous
 			? $this->previous
 			: $this;
@@ -3190,9 +3137,6 @@ class phpQueryObject
 						$insertTo = $target->elements;
 						if ($this->documentFragment && $this->stackIsRoot())
 							// get all body children
-//							$loop = $this->find('body > *')->elements;
-							// TODO test it, test it hard...
-//							$loop = $this->newInstance($this->root)->find('> *')->elements;
 							$loop = $this->root->childNodes;
 						else
 							$loop = $this->elements;
@@ -3204,7 +3148,6 @@ class phpQueryObject
 						$insertTo = $this->elements;
 						if ( $target->documentFragment && $target->stackIsRoot() )
 							// get all body children
-//							$loop = $target->find('body > *')->elements;
 							$loop = $target->root->childNodes;
 						else
 							$loop = $target->elements;
@@ -3216,14 +3159,11 @@ class phpQueryObject
 				// DOMNODE
 				} elseif ($target instanceof DOMNODE) {
 					// import node if needed
-//					if ( $target->ownerDocument != $this->DOM )
-//						$target = $this->DOM->importNode($target, true);
 					if ( $to) {
 						$insertTo = array($target);
 						if ($this->documentFragment && $this->stackIsRoot())
 							// get all body children
 							$loop = $this->root->childNodes;
-//							$loop = $this->find('body > *')->elements;
 						else
 							$loop = $this->elements;
 						foreach($loop as $fromNode)
@@ -3262,10 +3202,6 @@ class phpQueryObject
 				switch($type) {
 					case 'appendTo':
 					case 'append':
-//						$toNode->insertBefore(
-//							$fromNode,
-//							$toNode->lastChild->nextSibling
-//						);
 						$toNode->appendChild($insert);
 						$eventTarget = $insert;
 						break;
@@ -3335,14 +3271,6 @@ class phpQueryObject
 	 * @testme
 	 */
 	public function slice($start, $end = null) {
-//		$last = count($this->elements)-1;
-//		$end = $end
-//			? min($end, $last)
-//			: $last;
-//		if ($start < 0)
-//			$start = $last+$start;
-//		if ($start > $last)
-//			return array();
 		if ($end > 0)
 			$end = $end-$start;
 		return $this->newInstance(
@@ -3557,13 +3485,6 @@ class phpQueryObject
 		} else {
 			$orgStack = $this->stack();
 			$matched = $this->filter($selector, true)->stack();
-//			$matched = array();
-//			// simulate OR in filter() instead of AND 5y
-//			foreach($this->parseSelector($selector) as $s) {
-//				$matched = array_merge($matched,
-//					$this->filter(array($s))->stack()
-//				);
-//			}
 			foreach($orgStack as $node)
 				if (! $this->elementsContainsNode($node, $matched))
 					$stack[] = $node;
@@ -3764,17 +3685,10 @@ class phpQueryObject
 	public function attrPHP($attr, $code) {
 		if (! is_null($code)) {
 			$value = '<'.'?php '.$code.' ?'.'>';
-			// TODO tempolary solution
-			// http://code.google.com/p/phpquery/issues/detail?id=17
-//			if (function_exists('mb_detect_encoding') && mb_detect_encoding($value) == 'ASCII')
-//				$value	= mb_convert_encoding($value, 'UTF-8', 'HTML-ENTITIES');
 		}
 		foreach($this->stack(1) as $node) {
 			if (! is_null($code)) {
-//				$attrNode = $this->DOM->createAttribute($attr);
 				$node->setAttribute($attr, $value);
-//				$attrNode->value = $value;
-//				$node->appendChild($attrNode);
 			} else if ( $attr == '*') {
 				// jQuery diff
 				$return = array();
@@ -3849,14 +3763,6 @@ class phpQueryObject
 						$selected = is_null($option->attr('value'))
 							? in_array($option->markup(), $_val)
 							: in_array($option->attr('value'), $_val);
-//						$optionValue = $option->attr('value');
-//						$optionText = $option->text();
-//						$optionTextLenght = mb_strlen($optionText);
-//						foreach($_val as $v)
-//							if ($optionValue == $v)
-//								$selected = true;
-//							else if ($optionText == $v && $optionTextLenght == mb_strlen($v))
-//								$selected = true;
 						if ($selected)
 							$option->attr('selected', 'selected');
 						else
@@ -4018,18 +3924,10 @@ class phpQueryObject
 	 * @todo add $scope and $args as in each() ???
 	 */
 	public function map($callback, $param1 = null, $param2 = null, $param3 = null) {
-//		$stack = array();
-////		foreach($this->newInstance() as $node) {
-//		foreach($this->newInstance() as $node) {
-//			$result = call_user_func($callback, $node);
-//			if ($result)
-//				$stack[] = $result;
-//		}
 		$params = func_get_args();
 		array_unshift($params, $this->elements);
 		return $this->newInstance(
 			call_user_func_array(array('phpQuery', 'map'), $params)
-//			phpQuery::map($this->elements, $callback)
 		);
 	}
 	/**
@@ -4065,27 +3963,26 @@ class phpQueryObject
 	/**
    * @access private
 	 */
+	#[\ReturnTypeWillChange] 
 	public function rewind(){
 		$this->debug('iterating foreach');
-//		phpQuery::selectDocument($this->getDocumentID());
 		$this->elementsBackup = $this->elements;
 		$this->elementsInterator = $this->elements;
 		$this->valid = isset( $this->elements[0] )
 			? 1 : 0;
-// 		$this->elements = $this->valid
-// 			? array($this->elements[0])
-// 			: array();
 		$this->current = 0;
 	}
 	/**
    * @access private
 	 */
+	#[\ReturnTypeWillChange] 
 	public function current(){
 		return $this->elementsInterator[ $this->current ];
 	}
 	/**
    * @access private
 	 */
+	#[\ReturnTypeWillChange] 
 	public function key(){
 		return $this->current;
 	}
@@ -4100,9 +3997,8 @@ class phpQueryObject
 	 * @see phpQueryObject::_next()
 	 * @return phpQueryObject|QueryTemplatesSource|QueryTemplatesParse|QueryTemplatesSourceQuery
 	 */
+	#[\ReturnTypeWillChange]
 	public function next($cssSelector = null){
-//		if ($cssSelector || $this->valid)
-//			return $this->_next($cssSelector);
 		$this->valid = isset( $this->elementsInterator[ $this->current+1 ] )
 			? true
 			: false;
@@ -4117,6 +4013,7 @@ class phpQueryObject
 	/**
    * @access private
 	 */
+	#[\ReturnTypeWillChange] 
 	public function valid(){
 		return $this->valid;
 	}
@@ -4125,18 +4022,21 @@ class phpQueryObject
 	/**
    * @access private
 	 */
+	#[\ReturnTypeWillChange] 
 	public function offsetExists($offset) {
 		return $this->find($offset)->size() > 0;
 	}
 	/**
    * @access private
 	 */
+	#[\ReturnTypeWillChange] 
 	public function offsetGet($offset) {
 		return $this->find($offset);
 	}
 	/**
    * @access private
 	 */
+	#[\ReturnTypeWillChange] 
 	public function offsetSet($offset, $value) {
 //		$this->find($offset)->replaceWith($value);
 		$this->find($offset)->html($value);
@@ -4144,6 +4044,7 @@ class phpQueryObject
 	/**
    * @access private
 	 */
+	#[\ReturnTypeWillChange] 
 	public function offsetUnset($offset) {
 		// empty
 		throw new Exception("Can't do unset, use array interface only for calling queries and replacing HTML.");
@@ -4157,6 +4058,7 @@ class phpQueryObject
 	 * @TODO use native getNodePath is avaible
 	 * @access private
 	 */
+	#[\ReturnTypeWillChange] 
 	protected function getNodeXpath($oneNode = null, $namespace = null) {
 		$return = array();
 		$loop = $oneNode
@@ -4691,22 +4593,16 @@ abstract class phpQuery {
 			while (preg_match($regex, $php, $matches)) {
 				$php = preg_replace_callback(
 					$regex,
-//					create_function('$m, $charset = "'.$charset.'"',
-//						'return $m[1].$m[2]
-//							.htmlspecialchars("<"."?php".$m[4]."?".">", ENT_QUOTES|ENT_NOQUOTES, $charset)
-//							.$m[5].$m[2];'
-//					),
 					array('phpQuery', '_phpToMarkupCallback'),
 					$php
 				);
 			}
 		$regex = '@(^|>[^<]*)+?(<\?php(.*?)(\?>))@s';
-//preg_match_all($regex, $php, $matches);
-//var_dump($matches);
+
 		$php = preg_replace($regex, '\\1<php><!-- \\3 --></php>', $php);
 		return $php;
 	}
-	public static function _phpToMarkupCallback($php, $charset = 'utf-8') {
+	public static function _phpToMarkupCallback($m, $charset = 'utf-8') {
 		return $m[1].$m[2]
 			.htmlspecialchars("<"."?php".$m[4]."?".">", ENT_QUOTES|ENT_NOQUOTES, $charset)
 			.$m[5].$m[2];
@@ -5288,8 +5184,8 @@ abstract class phpQuery {
 	 * @return string
 	 */
 	public static function toJSON($data) {
-		if (function_exists('json_encode'))
-			return json_encode($data);
+		if (function_exists('wp_json_encode'))
+			return wp_json_encode($data);
 		require_once('Zend/Json/Encoder.php');
 		return Zend_Json_Encoder::encode($data);
 	}
