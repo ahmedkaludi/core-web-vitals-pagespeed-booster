@@ -80,6 +80,9 @@ function cwvpsb_display_webp($content) {
     $comp_dom = new DOMDocument();
     libxml_use_internal_errors(true);
     $decodedHtml = htmlspecialchars_decode(html_entity_decode($content, ENT_QUOTES, 'UTF-8'), ENT_QUOTES);
+    if(!$decodedHtml){
+        return $content;
+    }
     $comp_dom->loadHTML( $decodedHtml );
     libxml_clear_errors();
 
@@ -88,6 +91,9 @@ function cwvpsb_display_webp($content) {
 
     foreach ($nodes as $node) {
         $url = $node->getAttribute('src');
+        if(stripos($content, 'gravatars') !== false){
+            continue;
+        }
         $mod_url = explode('uploads',$url);
         $mod_url = count($mod_url)>1?$mod_url[1]:$mod_url[0];
         $wp_upload_dir = wp_upload_dir();
