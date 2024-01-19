@@ -275,20 +275,19 @@ $(".cwvpbs-resend-urls").on("click", function(e){
 	);
 
 	function cwvpb_recheck_urls(current, page){
-		var new_page = page;
 		current.addClass('updating-message');		
 		$.ajax({
 			url: ajaxurl,
 			type:'post',
 			dataType: 'json',
 			data: {'cwvpsb_security_nonce': cwvpsb_localize_data.cwvpsb_security_nonce, 
-					action: 'cwvpsb_recheck_urls_cache', page:new_page},
+					action: 'cwvpsb_recheck_urls_cache', page:page},
 			success: function(response){
 				current.removeClass('updating-message');	
 				if(response.status){
 					if(response.count > 0){
-						new_page++;
-						cwvpb_recheck_urls(current,new_page);
+						page=page+1;
+						cwvpb_recheck_urls(current,page);
 					}else{
 						alert('Recheck is done');	
 						location.reload(true);
