@@ -344,7 +344,7 @@ public function image_optimization_callback(){
     <div class="label-align">
     <select class="webp_support" name="cwvpsb_get_settings[webp_support]" >
      <?php
-        $delay = array('auto' => esc_html__('Automatic (Recommended)', 'cwvpsb'),'manual' => esc_html__('Manual Method', 'cwvpsb'));
+        $delay = array('auto' => esc_html__('Automatic (Recommended)', 'cwvpsb'),'manual' => esc_html__('Manual', 'cwvpsb'));
         foreach ($delay as $key => $value ) {
         ?>
             <option value="<?php echo $key;?>" <?php selected( $settings['webp_support'], $key);?>><?php echo $value;?></option>
@@ -440,11 +440,11 @@ public function critical_css_callback(){
 
     $settings = cwvpsb_defaults(); ?>  
     <div class="label-align delay_js">
-    <table class="cwvpsb_inner_tb"><tr><th> <label for="cwvpsb_get_settings[delay_js]"><?php  echo esc_html__('Desktop Method', 'cwvpsb')?></label></th><td>
+    <table class="cwvpsb_inner_tb"><tr><th> <label for="cwvpsb_get_settings[delay_js]"><?php  echo esc_html__('Desktop', 'cwvpsb')?></label></th><td>
    <select name="cwvpsb_get_settings[delay_js]">
         <option value=""><?php echo esc_html__('Select Method', 'cwvpsb');?></option>
      <?php
-        $delay = array('php' => 'PHP Method (Recommended)','js' => 'JS Method',);
+        $delay = array('php' => 'PHP (Recommended)','js' => 'JS');
         foreach ($delay as $key => $value ) {
         ?>
             <option value="<?php echo $key;?>" <?php selected( $settings['delay_js'], $key);?>><?php echo $value;?></option>
@@ -452,11 +452,11 @@ public function critical_css_callback(){
         }
         ?>
     </tr><tr>
-    </select></td><th> <label for="cwvpsb_get_settings[delay_js_mobile]"><?php  echo esc_html__('Mobile Method', 'cwvpsb')?></label></th><td>
+    </select></td><th> <label for="cwvpsb_get_settings[delay_js_mobile]"><?php  echo esc_html__('Mobile', 'cwvpsb')?></label></th><td>
    <select name="cwvpsb_get_settings[delay_js_mobile]">
         <option value=""><?php echo esc_html__('Select Method', 'cwvpsb');?></option>
      <?php
-        $delay = array('php' => 'PHP Method (Recommended)','js' => 'JS Method',);
+        $delay = array('php' => 'PHP (Recommended)','js' => 'JS');
         foreach ($delay as $key => $value ) {
         ?>
             <option value="<?php echo $key;?>" <?php isset($settings['delay_js_mobile'])?selected( $settings['delay_js_mobile'], $key):'';?>><?php echo $value;?></option>
@@ -1021,17 +1021,10 @@ if (class_exists('cwvpsb_admin_settings')) {
     new cwvpsb_admin_settings;
 };
 
-
-
 if(is_admin()){
     add_action('wp_ajax_cwvpsb_purge_cache', 'cwvpsb_purge_cache', 0 );
     add_action('wp_ajax_cwvpsb_update_critical_css_stat', 'cwvpsb_update_critical_css_stat');
     add_action("wp_ajax_cwvpsb_showdetails_data",'cwvpsb_showdetails_data',10);
-    add_action("wp_ajax_cwvpsb_resend_urls_for_cache",  'cwvpsb_resend_urls_for_cache');
-    add_action("wp_ajax_cwvpsb_resend_single_url_for_cache",  'cwvpsb_resend_single_url_for_cache');
-    add_action("wp_ajax_cwvpsb_reset_urls_cache",'cwvpsb_reset_urls_cache');
-    add_action("wp_ajax_cwvpsb_recheck_urls_cache", 'cwvpsb_recheck_urls_cache');
-    
 }
 
 function cwvpsb_update_critical_css_stat()
@@ -1230,8 +1223,9 @@ function cwvpsb_showdetails_data(){
             $size="NA";
             if($value['status'] == 'cached'){
                 $user_dirname = cwvpsb_cachepath();
-                $size = round(filesize($user_dirname.'/'.md5($value['url']).'.css')/1024,2).esc_html__('KB','cwvpsb');					
-                if(!$size){
+                if (file_exists($user_dirname.md5($value['url']).'.css')) {
+                    $size = round(filesize($user_dirname.md5($value['url']).'.css')/1024,2).esc_html__('KB','cwvpsb');
+                }else{
                     $size = '<abbr title="'.esc_attr__('File is not in cached directory. Please recheck in advance option','cwvpsb').'">'.esc_html__('Deleted','cwvpsb').'</abbr>';
                 }
             }
@@ -1255,148 +1249,4 @@ function cwvpsb_showdetails_data(){
 
     wp_send_json($retuernData);
 
-}	
-
-function cwvpsb_resend_single_url_for_cache(){
-
-    if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
-        return; 
-    }
-    if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce' ) ){
-        return;  
-    }
-
-    if(!current_user_can( 'manage_options' ))
-    {
-      return;  
-    }
-    global $wpdb, $table_prefix;
-    $table_name = $table_prefix . 'cwvpb_critical_urls';
-
-    $url_id = $_POST['url_id'] ? intval($_POST['url_id']) : null;
-    
-    if($url_id){
-        
-        $result = $wpdb->query($wpdb->prepare(
-            "UPDATE $table_name SET `status` = %s, `cached_name` = %s, `failed_error` = %s WHERE `id` = %d",
-            'queue',
-            '',
-            '',			
-            $url_id
-        ));
-                    
-        if($result){
-            wp_send_json(array('status' => true));
-        }else{
-            wp_send_json(array('status' => false));
-        }
-
-    }else{
-        wp_send_json(array('status' => false));	
-    }			    
-    
-    wp_die();
-}	
-function cwvpsb_resend_urls_for_cache(){
-
-    if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
-        return; 
-    }
-    if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce' ) ){
-        return;  
-    }
-    if(!current_user_can( 'manage_options' ))
-    {
-      return;  
-    }
-
-    global $wpdb, $table_prefix;
-    $table_name = $table_prefix . 'cwvpb_critical_urls';
-
-    $result = $wpdb->query($wpdb->prepare(
-        "UPDATE $table_name SET `status` = %s, `cached_name` = %s, `failed_error` = %s WHERE `status` = %s",
-        'queue',
-        '',
-        '',			
-        'failed'	
-    ));
-    if($result){
-        wp_send_json(array('status' => true));
-    }else{
-        wp_send_json(array('status' => false));
-    }
-    
-}
-function cwvpsb_recheck_urls_cache(){
-
-    if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
-        return; 
-    }
-    if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce' ) ){
-        return;  
-    }
-
-    if(!current_user_can( 'manage_options' ))
-    {
-      return;  
-    }
-    
-    $limit = 100;
-    $page  = $_POST['page'] ? intval($_POST['page']) : 0;
-    $offset = $page * $limit;
-    global $wpdb, $table_prefix;
-    $table_name = $table_prefix . 'cwvpb_critical_urls';
-
-    $result = $wpdb->get_results(
-        stripslashes($wpdb->prepare(
-            "SELECT * FROM $table_name WHERE `status` = %s LIMIT %d, %d",
-            'cached', $offset, $limit
-        ))
-    , ARRAY_A);
-    
-    if($result && count($result) > 0){
-        $user_dirname = cwvpsb_cachepath();		
-        foreach($result as $value){
-                
-            if(!file_exists($user_dirname.$value['cached_name'].'.css') ){
-            $updated = $wpdb->query($wpdb->prepare(
-                    "UPDATE $table_name SET `status` = %s,  `cached_name` = %s WHERE `url` = %s",
-                    'queue',
-                    '',
-                    $value['url']							
-                ));						
-            }
-        }
-
-        wp_send_json(array('status' => true, 'count' => count($result)));
-    }else{
-        wp_send_json(array('status' => true, 'count' => 0));
-    }
-                    
-}	
-function cwvpsb_reset_urls_cache(){
-
-    if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
-        return; 
-    }
-    if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce' ) ){
-        return;  
-    }
-
-    if(!current_user_can( 'manage_options' ))
-    {
-      return;  
-    }
-
-    global $wpdb;	
-    $table = $wpdb->prefix.'cwvpb_critical_urls';
-    $result = $wpdb->query( "TRUNCATE TABLE {$table}" );
-
-    $dir = cwvpsb_cachepath();				
-    WP_Filesystem();
-    global $wp_filesystem;
-    $wp_filesystem->rmdir($dir, true);
-
-    wp_send_json(array('status' => true));
-    
 }

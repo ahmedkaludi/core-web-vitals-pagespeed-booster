@@ -804,7 +804,8 @@ class cwvpbcriticalCss{
 			$d = new DOMDocument;
 			$mock = new DOMDocument;
 			libxml_use_internal_errors(true);
-			$d->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'));
+			$decodedHtml = htmlspecialchars_decode(html_entity_decode($content, ENT_QUOTES, 'UTF-8'), ENT_QUOTES);
+			$d->loadHTML($decodedHtml);
 			$body = $d->getElementsByTagName('body')->item(0);
 			foreach ($body->childNodes as $child){
 				$mock->appendChild($mock->importNode($child, true));
@@ -1045,7 +1046,7 @@ class cwvpbcriticalCss{
 			$search = sanitize_text_field($_POST['search']['value']);
 			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s ",
 			'%' . $wpdb->esc_like($search) . '%'
-			),			
+			)			
 			);
 			
 			$result = $wpdb->get_results(
@@ -1120,7 +1121,7 @@ class cwvpbcriticalCss{
 			$search = sanitize_text_field($_POST['search']['value']);
 			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
 			'%' . $wpdb->esc_like($search) . '%','cached'
-			),			
+			)			
 			);
 			
 			$result = $wpdb->get_results(
@@ -1192,7 +1193,7 @@ class cwvpbcriticalCss{
 			$search = sanitize_text_field($_POST['search']['value']);
 			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
 			'%' . $wpdb->esc_like($search) . '%','failed'
-			),			
+			)			
 			);
 			
 			$result = $wpdb->get_results(
@@ -1264,7 +1265,7 @@ class cwvpbcriticalCss{
 			$search = sanitize_text_field($_POST['search']['value']);
 			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
 			'%' . $wpdb->esc_like($search) . '%','queue'
-			),			
+			)		
 			);
 			
 			$result = $wpdb->get_results(

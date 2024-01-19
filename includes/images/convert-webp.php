@@ -79,7 +79,8 @@ function cwvpsb_convert_webp(){
 function cwvpsb_display_webp($content) {
     $comp_dom = new DOMDocument();
     libxml_use_internal_errors(true);
-    $comp_dom->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'));
+    $decodedHtml = htmlspecialchars_decode(html_entity_decode($content, ENT_QUOTES, 'UTF-8'), ENT_QUOTES);
+    $comp_dom->loadHTML( $decodedHtml );
     libxml_clear_errors();
 
     $xpath = new DOMXPath($comp_dom);

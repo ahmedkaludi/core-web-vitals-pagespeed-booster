@@ -2,7 +2,7 @@
 Contributors: magazine3
 Requires at least: 3.0
 Tested up to: 6.4
-Stable tag: 1.0.16
+Stable tag: 1.0.17
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: core web vitals, optimization, pagespeed, performance, cache , cwv
@@ -14,6 +14,8 @@ Google announced that "Core Web Vitals" are going to be a significant ranking si
 
 ### Features
 
+* <strong>Flush Cache</strong>: Using this option you can choose on which events ( Wordpress Update,Switching Theme,Post/Page Deletion )  you want to clear website cache. 
+* <strong>Auto Clear Cache</strong>: Clear you website on regular intervals , this helps you to keep your website cache updated. 
 * <strong>Webp images</strong>: If images are slowing down your website, then converting them to WebP format can improve your page load speed test scores. 
 * <strong>Lazy Load</strong>: Lazy loading allows your website to only load images when a user scrolls down to a specific image, which reduces website load time and improves website performance.
 * <strong>Minification</strong>: If you are trying to achieve 100/100 score on Google Pagespeed or GTMetrix tool, then minifying CSS and JavaScript will significantly improve your score.
@@ -32,9 +34,22 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 
 ### Credits
 
-* PHP CSS Parser library used https://github.com/sabberworm/PHP-CSS-Parser - License URI: https://github.com/sabberworm/PHP-CSS-Parser#license (PHP-CSS-Parser is freely distributable under the terms of an MIT-style license.)
+* PHP CSS Parser library used https://github.com/sabberworm/PHP-CSS-Parser - License URI: https://github.com/sabberworm/PHP-CSS-Parser?tab=MIT-1-ov-file (PHP-CSS-Parser is freely distributable under the terms of an MIT-style license.)
+* CSS from HTML extractor library used https://github.com/JanDC/css-from-html-extractor - License URI: https://github.com/JanDC/css-from-html-extractor?tab=License-1-ov-file (CSS from HTML extractor is freely distributable under the terms of an MIT-style license.)
+* WebP Convert library used https://github.com/rosell-dk/webp-convert - License URI: https://github.com/rosell-dk/webp-convert?tab=MIT-1-ov-file (WebP Convert is freely distributable under the terms of an MIT-style license.)
 
 == Changelog ==
+
+= 1.0.17 (19 January 2024) =
+* Fixed:  The type attribute is unnecessary for JavaScript resources. #123
+* Fixed: Element script must not have attribute defer unless attribute src is also specified. #122
+* Added: Option where we can set different delay JS methods on mobile and desktop. #119
+* Added: Option for flush cache on a predefined schedule. #120
+* Added: Option to keep  cache for a long period of time. #121
+* Improvement: Automatic Resizing to fix Properly Size Image issue. #118
+* Fixed: Network deactivate is not working #126
+* Improvement: Code Improvement #125
+* Improvement: Bulk convert to webP #127
 
 = 1.0.16 (15 November 2023) =
 * Fixed: Robots.txt error appears when you we enable our CWV plugin. #114
