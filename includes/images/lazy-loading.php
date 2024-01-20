@@ -168,7 +168,12 @@ class CWV_Lazy_Load_Public {
         {
         
          if ($stuff->tagName == 'img'){
-           pq($stuff)->attr('data-src',pq($stuff)->attr('src'));
+          // Fix for woocommerce zoom image to work properly
+          if(!empty(pq('.woocommerce')) && !empty(pq('.single-product')) &&  pq($stuff)->attr('data-large_image')){
+            pq($stuff)->attr('data-src',pq($stuff)->attr('data-large_image')); 
+          }else{
+             pq($stuff)->attr('data-src',pq($stuff)->attr('src'));
+          }
            pq($stuff)->removeAttr('src');
            pq($stuff)->attr('src','data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw==');
            pq($stuff)->attr('data-srcset',pq($stuff)->attr('srcset'));

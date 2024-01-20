@@ -96,6 +96,7 @@ function cwvpsb_display_webp($content) {
         }
         $mod_url = explode('uploads',$url);
         $mod_url = count($mod_url)>1?$mod_url[1]:$mod_url[0];
+        
         $wp_upload_dir = wp_upload_dir();
         $upload_baseurl = $wp_upload_dir['baseurl'] . '/' . 'cwv-webp-images';
         $upload_basedir = $wp_upload_dir['basedir'] . '/' . 'cwv-webp-images';
@@ -108,6 +109,17 @@ function cwvpsb_display_webp($content) {
         if (file_exists($img_webp_dir)) {
             $node->setAttribute('src', $img_src);
             $node->setAttribute('srcset', $img_srcset);
+            // Fix for woocommerce zoom image to work properly
+            $large_image = $node->getAttribute('data-large_image');
+             if($large_image){
+                    $mod_url_large = explode('uploads',$large_image);
+                    $mod_url_large = count($mod_url_large)>1?$mod_url_large[1]:$mod_url_large[0];
+                    $img_webp_large = $upload_baseurl . $mod_url_large . ".webp";
+                    $img_src_large = str_replace($large_image, $img_webp_large, $large_image);
+                    $node->setAttribute('data-large_image', $img_src_large);
+                    $node->setAttribute('data-src', $img_src_large);
+                }
+            
         } else {
             // Convert the image to WebP if it doesn't exist
             $image_path = $wp_upload_dir['basedir'] . str_replace($wp_upload_dir['baseurl'], '', $url);
