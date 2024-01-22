@@ -804,7 +804,7 @@ class cwvpbcriticalCss{
 			$d = new DOMDocument;
 			$mock = new DOMDocument;
 			libxml_use_internal_errors(true);
-			$decodedHtml = htmlspecialchars_decode(html_entity_decode($content, ENT_QUOTES, 'UTF-8'), ENT_QUOTES);
+			$decodedHtml = html_entity_decode(htmlentities($content, ENT_QUOTES, 'UTF-8', false));
 			$d->loadHTML($decodedHtml);
 			$body = $d->getElementsByTagName('body')->item(0);
 			foreach ($body->childNodes as $child){
