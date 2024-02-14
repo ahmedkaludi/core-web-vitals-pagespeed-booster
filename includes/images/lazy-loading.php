@@ -48,8 +48,13 @@ class CWV_Lazy_Load {
 
         $plugin_public = new CWV_Lazy_Load_Public( $this->get_plugin_name(), $this->get_version() );
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-        add_filter( 'cwvpsb_complete_html_after_dom_loaded', array($plugin_public, 'buffer_start_cwv'), 45 );
-      
+        $settings = cwvpsb_defaults();
+        if(isset($settings['image_optimization_alt']) && $settings['image_optimization_alt'] == 1 ){
+          var_dump('buffer_start_cwv_regex');
+          add_filter( 'cwvpsb_complete_html_after_dom_loaded', array($plugin_public, 'buffer_start_cwv_regex'), 45 );
+        }else{
+          add_filter( 'cwvpsb_complete_html_after_dom_loaded', array($plugin_public, 'buffer_start_cwv'), 45 );
+        }
     }
   }
 
@@ -199,6 +204,56 @@ class CWV_Lazy_Load_Public {
         }
       }
         return $pq->html();
+  }
+
+  public function buffer_start_cwv_regex($wphtml) { 
+    if ( function_exists( 'ampforwp_is_amp_endpoint' ) && ampforwp_is_amp_endpoint() ) {
+      return $wphtml;
+    }
+    if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+      return $wphtml;
+    }
+   $lazy_jq_selector = 'img';
+
+// Convert data-src attributes
+$wphtml = preg_replace_callback(
+    '/<img\s.*?src=[\'"](.*?)[\'"].*?>/i',
+    function ($matches) {
+        $src = $matches[1];
+        return preg_replace(
+            '/src=[\'"](.*?)[\'"]/i',
+            'data-src="' . $src . '" src="data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw==" data-srcset="$1" srcset="" data-sizes="$2" sizes="" class="cwvlazyload"',
+            $matches[0]
+        );
+    },
+    $wphtml
+);
+
+// Fix for WooCommerce zoom image
+if (!empty(preg_match('/<div.*?class=[\'"].*woocommerce.*[\'"].*?>/i', $wphtml)) && !empty(preg_match('/<div.*?class=[\'"].*single-product.*[\'"].*?>/i', $wphtml))) {
+    $wphtml = preg_replace('/data-large_image=[\'"](.*?)[\'"]/i', 'data-src="$1"', $wphtml);
+}
+
+// Convert URLs in style attributes
+$wphtml = preg_replace_callback(
+    '/style=[\'"](.*?)[\'"]/i',
+    function ($matches) {
+        $style = $matches[1];
+        return preg_replace_callback(
+            '/url\((.*?)\)/i',
+            function ($urlMatches) {
+                return 'url(\'data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw==\')';
+            },
+            $style
+        );
+    },
+    $wphtml
+);
+
+return $wphtml;
+
+      
+
   }
 
   public function buffer_end_cwv() { ob_end_flush(); }
