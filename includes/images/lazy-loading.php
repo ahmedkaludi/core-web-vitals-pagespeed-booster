@@ -50,7 +50,6 @@ class CWV_Lazy_Load {
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
         $settings = cwvpsb_defaults();
         if(isset($settings['image_optimization_alt']) && $settings['image_optimization_alt'] == 1 ){
-          var_dump('buffer_start_cwv_regex');
           add_filter( 'cwvpsb_complete_html_after_dom_loaded', array($plugin_public, 'buffer_start_cwv_regex'), 45 );
         }else{
           add_filter( 'cwvpsb_complete_html_after_dom_loaded', array($plugin_public, 'buffer_start_cwv'), 45 );

@@ -7,7 +7,6 @@ if (function_exists('imagewebp')) {
     add_action('wp','cwvpsb_convert_webp');
     $settings = cwvpsb_defaults();
     if(isset($settings['image_optimization_alt']) && $settings['image_optimization_alt'] == 1 ){
-        var_dump('cwvpsb_display_webp_regex');
         add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_display_webp_regex');
       }else{
         add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_display_webp');
@@ -86,7 +85,7 @@ function cwvpsb_convert_webp(){
 function cwvpsb_display_webp($content) {
     $comp_dom = new DOMDocument();
     libxml_use_internal_errors(true);
-    $decodedHtml = html_entity_decode(htmlentities($content, ENT_QUOTES, 'UTF-8', false));
+    $decodedHtml = mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8');
     if(!$decodedHtml){
         return $content;
     }
@@ -123,8 +122,11 @@ function cwvpsb_display_webp($content) {
                     $mod_url_large = count($mod_url_large)>1?$mod_url_large[1]:$mod_url_large[0];
                     $img_webp_large = $upload_baseurl . $mod_url_large . ".webp";
                     $img_src_large = str_replace($large_image, $img_webp_large, $large_image);
-                    $node->setAttribute('data-large_image', $img_src_large);
-                    $node->setAttribute('data-src', $img_src_large);
+                    if (file_exists($img_src_large)) {
+                        $node->setAttribute('data-large_image', $img_src_large);
+                        $node->setAttribute('data-src', $img_src_large);
+                    }
+                   
                 }
             
         } else {
@@ -145,7 +147,7 @@ function cwvpsb_display_webp($content) {
     return $content;
 }
 
-// todo :   function tk display webp images where 
+// todo :   function to display webp images where 
 // DOMDocument is unable to parse html properly resulting in breaking of html
 // mostly in case of HTML5
 function cwvpsb_display_webp_regex($content) {
@@ -193,8 +195,10 @@ function cwvpsb_display_webp_regex($content) {
                 $mod_url_large = count($mod_url_large) > 1 ? $mod_url_large[1] : $mod_url_large[0];
                 $img_webp_large = $upload_baseurl . $mod_url_large . ".webp";
                 $img_src_large = str_replace($large_image, $img_webp_large, $large_image);
-                $matches[0] = preg_replace('/data-large_image=["\'](.*?)["\']/i', 'data-large_image="' . $img_src_large . '"', $matches[0]);
-                $matches[0] = preg_replace('/data-src=["\'](.*?)["\']/i', 'data-src="' . $img_src_large . '"', $matches[0]);
+                if(file_exists($img_src_large)){
+                    $matches[0] = preg_replace('/data-large_image=["\'](.*?)["\']/i', 'data-large_image="' . $img_src_large . '"', $matches[0]);
+                    $matches[0] = preg_replace('/data-src=["\'](.*?)["\']/i', 'data-src="' . $img_src_large . '"', $matches[0]);
+                }
             }
 
         } else {
