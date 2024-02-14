@@ -247,9 +247,9 @@ function cwvpsb_web_vitals_changes($html){
         $upload     = wp_upload_dir();
 
         $tmpDoc     = new DOMDocument();
-        libxml_use_internal_errors(true);
-        $tmpDoc->loadHTML($html);
-
+		libxml_use_internal_errors(true);
+		$tmpDoc->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+		libxml_use_internal_errors(false);
         $xpath      = new DOMXPath( $tmpDoc );
         $domImg     = $xpath->query( "//img[@src]");
             
