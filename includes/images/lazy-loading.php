@@ -170,13 +170,13 @@ class CWV_Lazy_Load_Public {
       if(!empty(pq($lazy_jq_selector))){
         foreach(pq($lazy_jq_selector) as $stuff)
         {
-        
          if ($stuff->tagName == 'img'){
+          $sized_src = pq($stuff)->attr('src');
           // Fix for woocommerce zoom image to work properly
           if(!empty(pq('.woocommerce')) && !empty(pq('.single-product')) &&  pq($stuff)->attr('data-large_image')){
             pq($stuff)->attr('data-src',pq($stuff)->attr('data-large_image')); 
           }else{
-             pq($stuff)->attr('data-src',pq($stuff)->attr('src'));
+             pq($stuff)->attr('data-src',$sized_src);
           }
            pq($stuff)->removeAttr('src');
            pq($stuff)->attr('src','data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw==');
@@ -212,48 +212,66 @@ class CWV_Lazy_Load_Public {
     if ( function_exists( 'is_checkout' ) && is_checkout() ) {
       return $wphtml;
     }
-   $lazy_jq_selector = 'img';
 
 // Convert data-src attributes
 $wphtml = preg_replace_callback(
-    '/<img\s.*?src=[\'"](.*?)[\'"].*?>/i',
-    function ($matches) {
-        $src = $matches[1];
-        return preg_replace(
-            '/src=[\'"](.*?)[\'"]/i',
-            'data-src="' . $src . '" src="data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw==" data-srcset="$1" srcset="" data-sizes="$2" sizes="" class="cwvlazyload"',
-            $matches[0]
-        );
-    },
-    $wphtml
-);
+  '/<img\s(.*?)>/i',
+  function ($matches) {
+      $attributes = [];
+      $optimum_src="";
+      if (isset($matches[1])) {
+        $attributesString = $matches[1];
 
-// Fix for WooCommerce zoom image
-if (!empty(preg_match('/<div.*?class=[\'"].*woocommerce.*[\'"].*?>/i', $wphtml)) && !empty(preg_match('/<div.*?class=[\'"].*single-product.*[\'"].*?>/i', $wphtml))) {
-    $wphtml = preg_replace('/data-large_image=[\'"](.*?)[\'"]/i', 'data-src="$1"', $wphtml);
-}
+        // Regular expression to extract attributes and their values
+        preg_match_all('/(\w+)\s*=\s*([\'"])(.*?)\2/', $attributesString, $attributeMatches, PREG_SET_ORDER);
+        $src_default='';
+        foreach ($attributeMatches as $match) {
+         if($match[1] == 'src'){
+            $attributes['src'] = "data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw==";
+            $attributes['data-src'] = esc_url($match[3]);
+          }elseif($match[1] == 'srcset'){
+            $attributes['data-srcset']= esc_attr($match[3]);
+          }elseif($match[1] == 'sizes'){
+            $attributes['data-sizes']= esc_attr($match[3]);
+          }else{
+            $attributes[$match[1]]= esc_attr($match[3]);
+          }
+        }
 
-// Convert URLs in style attributes
-$wphtml = preg_replace_callback(
-    '/style=[\'"](.*?)[\'"]/i',
-    function ($matches) {
-        $style = $matches[1];
-        return preg_replace_callback(
-            '/url\((.*?)\)/i',
-            function ($urlMatches) {
-                return 'url(\'data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw==\')';
-            },
-            $style
-        );
-    },
-    $wphtml
+        if(empty($attributes['class'])){
+          $attributes['class'] = "cwvlazyload";
+        }else{
+          $attributes['class'] .= " cwvlazyload";
+        }
+        if(isset($attributes['srcset'])){
+          unset($attributes['srcset']);
+        }
+        if(isset($attributes['sizes'])){
+          unset($attributes['sizes']);
+        }
+      
+        if(isset($attributes['large_image'])){
+          $attributes['data-src'] = $attributes['large_image'];
+        }
+    
+    }
+      // Construct the updated img tag with lazy-loading attributes
+      $lazyImgTag = '<img '.$this->attributes_to_string($attributes).'>'; // no need to escape attribtes are  already escaped
+      return $lazyImgTag;
+  },
+  $wphtml
 );
 
 return $wphtml;
+}
 
-      
-
+public function attributes_to_string($attributes) {
+  $result = '';
+  foreach ($attributes as $key => $value) {
+      $result .= $key . '="' . htmlspecialchars($value) . '" ';
   }
+  return trim($result);
+}
 
   public function buffer_end_cwv() { ob_end_flush(); }
 }

@@ -362,7 +362,7 @@ public function image_optimization_callback(){
         } ?>
        
         <span class="slider round"></span></label>
-        <?php echo '<b>'.esc_html__('Alternate Method','cwvpsb').'</b>'.esc_html__(" (Enable this option only if images are breaking)", 'cwvpsb');?>
+        <?php echo '<b>'.esc_html__('Alternate Method','cwvpsb').'</b>'.esc_html__(" (Enable this option only if html/css/images are breaking)", 'cwvpsb');?>
     </fieldset>
          
     <?php }
