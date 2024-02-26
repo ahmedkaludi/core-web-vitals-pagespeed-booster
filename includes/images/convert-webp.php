@@ -147,9 +147,9 @@ function cwvpsb_display_webp($content) {
     return $content;
 }
 
-// todo :   function to display webp images where 
+// function to display webp images where 
 // DOMDocument is unable to parse html properly resulting in breaking of html
-// mostly in case of HTML5
+// mostly in case of HTML5 tags and invalid html due to builders
 function cwvpsb_display_webp_regex($content) {
     // Match all <img> tags with a 'src' attribute
     $pattern = '/<img\s+.*?src=["\'](.*?)["\'].*?>/i';
@@ -196,8 +196,8 @@ function cwvpsb_display_webp_regex($content) {
             $img_webp = $upload_baseurl . $mod_url_srcset . ".webp";
             $img_webp_dir = $upload_basedir . $mod_url_srcset . ".webp";
             $img_src = str_replace($img_srcset_src, $img_webp, $img_srcset_src);
+            $matches[0] = str_replace($img_srcset_src, $img_src, $matches[0]);
         }
-
         $img_srcset = str_replace($patternSrcset, 'srcset="' . $img_webp . '"', $matches[0]);
         
         if (file_exists($img_webp_dir)) {

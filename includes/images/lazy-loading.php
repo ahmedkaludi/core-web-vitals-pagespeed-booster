@@ -212,19 +212,15 @@ class CWV_Lazy_Load_Public {
     if ( function_exists( 'is_checkout' ) && is_checkout() ) {
       return $wphtml;
     }
-
 // Convert data-src attributes
 $wphtml = preg_replace_callback(
   '/<img\s(.*?)>/i',
   function ($matches) {
       $attributes = [];
-      $optimum_src="";
       if (isset($matches[1])) {
         $attributesString = $matches[1];
-
         // Regular expression to extract attributes and their values
-        preg_match_all('/(\w+)\s*=\s*([\'"])(.*?)\2/', $attributesString, $attributeMatches, PREG_SET_ORDER);
-        $src_default='';
+        preg_match_all('/(\w+(?:-\w+)?)(?:\s*=\s*([\'"])(.*?)\2)?/', $attributesString, $attributeMatches, PREG_SET_ORDER);
         foreach ($attributeMatches as $match) {
          if($match[1] == 'src'){
             $attributes['src'] = "data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw==";
@@ -250,8 +246,8 @@ $wphtml = preg_replace_callback(
           unset($attributes['sizes']);
         }
       
-        if(isset($attributes['large_image'])){
-          $attributes['data-src'] = $attributes['large_image'];
+        if(isset($attributes['data-large_image'])){
+          $attributes['data-src'] = $attributes['data-large_image'];
         }
     
     }
