@@ -246,9 +246,9 @@ $wphtml = preg_replace_callback(
           unset($attributes['sizes']);
         }
       
-        if(isset($attributes['data-large_image'])){
-          $attributes['data-src'] = $attributes['data-large_image'];
-        }
+        // if(isset($attributes['data-large_image'])){
+        //   $attributes['data-src'] = $attributes['data-large_image'];
+        // }
     
     }
       // Construct the updated img tag with lazy-loading attributes

@@ -189,14 +189,32 @@ function cwvpsb_display_webp_regex($content) {
         }
         
         if(isset($srcset_matches[1]) && $srcset_width){
-            $img_srcset_src = cwvpsb_get_src_from_srcset($srcset_matches[1],$srcset_width,$img_src);
-            $mod_url_srcset = explode('uploads', $img_srcset_src);
-            $mod_url_srcset = count($mod_url_srcset) > 1 ? $mod_url_srcset[1] : $mod_url_srcset[0];
 
-            $img_webp = $upload_baseurl . $mod_url_srcset . ".webp";
-            $img_webp_dir = $upload_basedir . $mod_url_srcset . ".webp";
-            $img_src = str_replace($img_srcset_src, $img_webp, $img_srcset_src);
-            $matches[0] = str_replace($img_srcset_src, $img_src, $matches[0]);
+            $sources = explode(',', $srcset_matches[1]);
+            $srcset_arr = [];
+            foreach ($sources as $source) {
+                $parts = explode(' ', trim($source));
+                $url = $parts[0];
+                $widthDescriptor = $parts[1];
+                // Extract the width value from the descriptor
+                $width = intval(preg_replace('/\D/', '', $widthDescriptor));
+                $srcset_arr[$width] = $url;
+                $curr_image_path = explode('uploads', $url);
+                $curr_image_path = count($curr_image_path) > 1 ? $curr_image_path[1] : $curr_image_path[0];
+                $source_path = $wp_upload_dir['baseurl'].$curr_image_path;
+                $destination_path = $upload_basedir . $curr_image_path . ".webp";
+                $destination_url = $upload_baseurl . $curr_image_path . ".webp";
+                if(!file_exists($destination_path)){
+                    cwvpsb_convert_to_webp($source_path, $destination_path);
+                }
+                $matches[0] = str_replace($url, $destination_url, $matches[0]);
+
+            }
+            $key = cwvpsb_find_best_match($srcset_width,array_keys($srcset_arr));
+            if(isset($key) && isset($srcset_arr[$key])){
+                $img_webp = $destination_url;
+            }
+           
         }
         $img_srcset = str_replace($patternSrcset, 'srcset="' . $img_webp . '"', $matches[0]);
         
@@ -287,33 +305,6 @@ function cwvpsb_convert_to_webp($source_path, $destination_path) {
     imagedestroy($webp_image);
 
     return true;
-}
-
-  /*
-    Function will get the properly sized image fron srcset so image size is reduced while lazyloading
-  */
- function cwvpsb_get_src_from_srcset($srcset, $targetWidth, $default) {
-    if(!$srcset){
-      return $default;
-    }
-    $bestMatch  = [];
-    $sources = explode(',', $srcset);
-    foreach ($sources as $source) {
-        $parts = explode(' ', trim($source));
-        $url = $parts[0];
-        $widthDescriptor = $parts[1];
-        // Extract the width value from the descriptor
-        $width = intval(preg_replace('/\D/', '', $widthDescriptor));
-        $bestMatch[$width] = $url;
-    }
-    if ($bestMatch === null) {
-      return $default;
-    }
-    $key = cwvpsb_find_best_match($targetWidth,array_keys($bestMatch));
-    if($key && isset($bestMatch[$key])){
-      return $bestMatch[$key];
-    }
-    return $default;
 }
 
 function cwvpsb_find_best_match($inputValue, $numbers) {
