@@ -2,7 +2,7 @@
 Contributors: magazine3
 Requires at least: 3.0
 Tested up to: 6.4
-Stable tag: 1.0.17
+Stable tag: 1.0.18
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: core web vitals, optimization, pagespeed, performance, cache , cwv
@@ -39,6 +39,12 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 * WebP Convert library used https://github.com/rosell-dk/webp-convert - License URI: https://github.com/rosell-dk/webp-convert?tab=MIT-1-ov-file (WebP Convert is freely distributable under the terms of an MIT-style license.)
 
 == Changelog ==
+
+= 1.0.18 (27 February 2024) =
+* Fixed: CSS break after latest update (1.0.17) #130
+* Fixed: Displaying unknown characters #133
+* Improvement: Improvement in Image lazy load #131
+* Improvement: Image optimization not working if html contain invalid DOM #134
 
 = 1.0.17 (19 January 2024) =
 * Fixed:  The type attribute is unnecessary for JavaScript resources. #123

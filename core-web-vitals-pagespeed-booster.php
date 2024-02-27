@@ -2,7 +2,7 @@
 /*
 Plugin Name: Core Web Vitals & PageSpeed Booster
 Description: Do you want to speed up your WordPress site? Fast loading pages improve user experience, increase your pageviews, and help with your WordPress SEO.
-Version: 1.0.17
+Version: 1.0.18
 Author: Magazine3
 Author URI: https://magazine3.company/
 Donate link: https://www.paypal.me/Kaludi/25
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 define('CWVPSB_PLUGIN_DIR', plugin_dir_path( __FILE__ ));
 define('CWVPSB_PLUGIN_DIR_URI', plugin_dir_url(__FILE__));
-define('CWVPSB_VERSION','1.0.17');
+define('CWVPSB_VERSION','1.0.18');
 define('CWVPSB_DIR', dirname(__FILE__));
 define('CWVPSB_BASE', plugin_basename(__FILE__));
 
@@ -81,7 +81,7 @@ function cwvpsb_on_activate( $network_wide ) {
         $blog_ids = $wpdb->get_col( "SELECT blog_id FROM $wpdb->blogs" );
         foreach ( $blog_ids as $blog_id ) {
             switch_to_blog( $blog_id );
-            cwvpb_on_install();
+            cwvpsb_on_install();
             restore_current_blog();
         }
     } else {
@@ -116,16 +116,16 @@ function cwvpsb_on_install(){
             
 		dbDelta("CREATE TABLE `{$wpdb->prefix}cwvpb_critical_urls` (
 			`id` bigint( 20 ) unsigned NOT NULL AUTO_INCREMENT,
-			`url_id` bigint( 20 ) unsigned NOT NULL,			
+			`url_id` bigint( 20 ) unsigned NOT NULL,
 			`type` varchar(20),
 			`type_name` varchar(50),
-			`url` varchar(300) NOT NULL,			
-			`status` varchar(20) NOT NULL DEFAULT 'queue',											
+			`url` varchar(250) NOT NULL,
+			`status` varchar(20) NOT NULL DEFAULT 'queue',					
 			`cached_name` varchar(100),
 			`created_at` datetime NOT NULL,
 			`updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
 			`failed_error` text  NOT NULL,
-			 KEY `url` ( `url` ),				
+			 KEY `url` ( `url` ),
 			 PRIMARY KEY (`id`),
 			 CONSTRAINT cwvpb_unique UNIQUE (`url`)
 		) ".$charset_collate.$engine.";");                
