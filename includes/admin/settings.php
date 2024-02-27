@@ -355,7 +355,7 @@ public function image_optimization_callback(){
     </div>
     <fieldset><label class="switch"> 
         <?php
-        if(isset($settings['image_optimization_alt'])){
+        if(isset($settings['image_optimization_alt']) && $settings['image_optimization_alt'] ==1){
             echo '<input type="checkbox" name="cwvpsb_get_settings[image_optimization_alt]" class="regular-text" value="1" checked> ';
         }else{
             echo '<input type="checkbox" name="cwvpsb_get_settings[image_optimization_alt]" class="regular-text" value="1" >';
