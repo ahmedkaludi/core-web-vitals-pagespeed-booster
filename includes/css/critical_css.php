@@ -489,7 +489,7 @@ class cwvpbcriticalCss{
 
 			$settings = cwvpsb_defaults();
 
-			$post_types = array('post');
+			$post_types = array();
 			
 			if(!empty($settings['critical_css_on_cp_type'])){
 				foreach ($settings['critical_css_on_cp_type'] as $key => $value) {
@@ -587,7 +587,7 @@ class cwvpbcriticalCss{
 
 		$settings = cwvpsb_defaults();
 
-		$taxonomy_types = array('category');
+		$taxonomy_types = array();
 		
 		if(!empty($settings['critical_css_on_tax_type'])){
 			foreach ($settings['critical_css_on_tax_type'] as $key => $value) {
@@ -733,7 +733,7 @@ class cwvpbcriticalCss{
 	public function on_post_change($post_id, $post){
 
 		$settings = cwvpsb_defaults();
-		$post_types = array('post');
+		$post_types = array();
 		if(!empty($settings['critical_css_on_cp_type'])){
 			foreach ($settings['critical_css_on_cp_type'] as $key => $value) {
 				if($value){
@@ -804,7 +804,7 @@ class cwvpbcriticalCss{
 			$d = new DOMDocument;
 			$mock = new DOMDocument;
 			libxml_use_internal_errors(true);
-			$decodedHtml = htmlspecialchars_decode(html_entity_decode($content, ENT_QUOTES, 'UTF-8'), ENT_QUOTES);
+			$decodedHtml = mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8');
 			$d->loadHTML($decodedHtml);
 			$body = $d->getElementsByTagName('body')->item(0);
 			foreach ($body->childNodes as $child){

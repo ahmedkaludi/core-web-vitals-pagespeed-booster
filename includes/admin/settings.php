@@ -192,7 +192,7 @@ public function cwvpsb_settings_init(){
             'cwvpsb_images_section',
             array('class' => 'child-opt-bulk2')                       
         );
-    }
+    }  
     add_settings_field(
         'lazyload_support',
         'Lazy Load',
@@ -353,6 +353,17 @@ public function image_optimization_callback(){
         ?>
     </select>
     </div>
+    <fieldset><label class="switch"> 
+        <?php
+        if(isset($settings['image_optimization_alt']) && $settings['image_optimization_alt'] ==1){
+            echo '<input type="checkbox" name="cwvpsb_get_settings[image_optimization_alt]" class="regular-text" value="1" checked> ';
+        }else{
+            echo '<input type="checkbox" name="cwvpsb_get_settings[image_optimization_alt]" class="regular-text" value="1" >';
+        } ?>
+       
+        <span class="slider round"></span></label>
+        <?php echo '<b>'.esc_html__('Alternate Method','cwvpsb').'</b>'.esc_html__(" (Enable this option only if html/css/images are breaking)", 'cwvpsb');?>
+    </fieldset>
          
     <?php }
 

@@ -178,7 +178,8 @@ function cwvpsb_defaults(){
        'delete_on_uninstall' => 0,
        'cache_flush_on'=>array(),
        'cache_autoclear'=>'never',
-       'cache_last_autoclear'=> 0
+       'cache_last_autoclear'=> 0,
+       'image_optimization_alt'=>0
     ); 
     if ( is_multisite() && is_plugin_active_for_network(CWVPSB_BASE) ) {
         $settings = get_site_option( 'cwvpsb_get_settings', $defaults );
@@ -247,9 +248,9 @@ function cwvpsb_web_vitals_changes($html){
         $upload     = wp_upload_dir();
 
         $tmpDoc     = new DOMDocument();
-        libxml_use_internal_errors(true);
-        $tmpDoc->loadHTML($html);
-
+		libxml_use_internal_errors(true);
+		$tmpDoc->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+		libxml_use_internal_errors(false);
         $xpath      = new DOMXPath( $tmpDoc );
         $domImg     = $xpath->query( "//img[@src]");
             
@@ -366,8 +367,8 @@ function cwvpsb_iframe_delay_enqueue(){
     
     global $iframe_check;
     if ( $iframe_check == 1 ) {
-        wp_enqueue_script( 'cwvpsb_iframe', plugin_dir_url(__FILE__) . 'cwvpsb_iframe.js', array(), NULL);
-        wp_enqueue_style( 'cwvpsb_iframe', plugin_dir_url(__FILE__) . 'cwvpsb_iframe.css', array(), NULL);
+        wp_enqueue_script( 'cwvpsb_iframe', plugin_dir_url(__FILE__) . 'cwvpsb_iframe.js', array(), CWVPSB_VERSION);
+        wp_enqueue_style( 'cwvpsb_iframe', plugin_dir_url(__FILE__) . 'cwvpsb_iframe.css', array(), CWVPSB_VERSION);
         $cus_style= '.cwvpsb_iframe {max-width:600px !important}';
         wp_add_inline_style( 'cwvpsb_iframe', $cus_style );
         
