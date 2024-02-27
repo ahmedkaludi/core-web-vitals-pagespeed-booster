@@ -5,7 +5,7 @@ Tested up to: 6.4
 Stable tag: 1.0.18
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Tags: core web vitals, optimization, pagespeed, performance, cache , cwv
+Tags: core web vitals, optimization, pagespeed, performance, cache
 
 == Description ==
 <h4>Core Web Vitals (CWV) is the new ranking factor</h4>
