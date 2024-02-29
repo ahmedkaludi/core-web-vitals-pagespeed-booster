@@ -167,6 +167,10 @@ function cwvpsb_display_webp_regex($content) {
             return $matches[0]; // Return the original tag unchanged
         }
 
+        if (strpos($url, '.webp') === false) {
+            return $matches[0]; // Return the original tag unchanged
+        }
+
         $mod_url = explode('uploads', $url);
         $mod_url = count($mod_url) > 1 ? $mod_url[1] : $mod_url[0];
 
@@ -201,14 +205,18 @@ function cwvpsb_display_webp_regex($content) {
                 $srcset_arr[$width] = $url;
                 $curr_image_path = explode('uploads', $url);
                 $curr_image_path = count($curr_image_path) > 1 ? $curr_image_path[1] : $curr_image_path[0];
-                $source_path = $wp_upload_dir['baseurl'].$curr_image_path;
+                $source_path = $wp_upload_dir['basedir'].'/'.$curr_image_path;
                 $destination_path = $upload_basedir . $curr_image_path . ".webp";
                 $destination_url = $upload_baseurl . $curr_image_path . ".webp";
-                if(!file_exists($destination_path)){
-                    cwvpsb_convert_to_webp($source_path, $destination_path);
+                $source_file_exists = file_exits($source_path);
+                $dest_file_exists = file_exits($destination_path);
+                if($source_file_exists && !$dest_file_exists){
+                    if(cwvpsb_convert_to_webp($source_path, $destination_path)){
+                        $matches[0] = str_replace($url, $destination_url, $matches[0]);
+                    }
+                }else if($dest_file_exists){
+                    $matches[0] = str_replace($url, $destination_url, $matches[0]);
                 }
-                $matches[0] = str_replace($url, $destination_url, $matches[0]);
-
             }
             $key = cwvpsb_find_best_match($srcset_width,array_keys($srcset_arr));
             if(isset($key) && isset($srcset_arr[$key])){

@@ -224,13 +224,13 @@ $wphtml = preg_replace_callback(
         foreach ($attributeMatches as $match) {
          if($match[1] == 'src'){
             $attributes['src'] = "data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw==";
-            $attributes['data-src'] = esc_url($match[3]);
+            if(isset($match[3])){ $attributes['data-src'] = esc_url($match[3]);}
           }elseif($match[1] == 'srcset'){
-            $attributes['data-srcset']= esc_attr($match[3]);
+            if(isset($match[3])){ $attributes['data-srcset'] = esc_attr($match[3]);}
           }elseif($match[1] == 'sizes'){
-            $attributes['data-sizes']= esc_attr($match[3]);
+            if(isset($match[3])){ $attributes['data-sizes'] = esc_attr($match[3]);}
           }else{
-            $attributes[$match[1]]= esc_attr($match[3]);
+            if(isset($match[3])){ $attributes[$match[1]] = esc_attr($match[3]);}
           }
         }
 
