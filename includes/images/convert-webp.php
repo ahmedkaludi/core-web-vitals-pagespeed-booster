@@ -165,19 +165,11 @@ function cwvpsb_display_webp_regex($content) {
 
         if (stripos($url, $site_url) === false) {
             return $matches[0]; // Return the original tag if image is not hosted on the site
-        }
-        if(isset($_GET['cwvpsb_debug']) && $_GET['cwvpsb_debug'] == 'true'){
-            
-             if (stripos($url, '.webp') !== false) {
+        } 
+        if (stripos($url, '.webp') !== false) {
             return $matches[0]; // Return the original tag unchanged
         }
-            
-        }else{
-            
-             if (stripos($url, '.webp') === false) {
-            return $matches[0]; // Return the original tag unchanged
-        }
-        }
+
        
         $url = preg_replace('~^(?:f|ht)tps?://~i', '/', $url);
         $mod_url = explode('uploads', $url);
