@@ -152,8 +152,8 @@ function cwvpsb_display_webp($content) {
 // mostly in case of HTML5 tags and invalid html due to builders
 function cwvpsb_display_webp_regex($content) {
     // Match all <img> tags with a 'src' attribute
-    $pattern = '/<img\s+.*?src=["\'](.*?)["\'].*?>/i';
-
+    $pattern = '/<img(?:\s+[^>]*?\s*src\s*=\s*["\']([^"\']*)["\'])?(?:\s+[^>]*?)*?>/i';
+   
     // Perform the replacement using a callback function
     $content = preg_replace_callback($pattern, function ($matches) {
         $url = $matches[1];
@@ -163,17 +163,25 @@ function cwvpsb_display_webp_regex($content) {
             return $matches[0]; // Return the original tag unchanged
         }
 
-        if (strpos($url, $site_url) === false) {
+        if (stripos($url, $site_url) === false) {
+            return $matches[0]; // Return the original tag if image is not hosted on the site
+        }
+        if(isset($_GET['cwvpsb_debug']) && $_GET['cwvpsb_debug'] == 'true'){
+            
+             if (stripos($url, '.webp') !== false) {
             return $matches[0]; // Return the original tag unchanged
         }
-
-        if (strpos($url, '.webp') === false) {
+            
+        }else{
+            
+             if (stripos($url, '.webp') === false) {
             return $matches[0]; // Return the original tag unchanged
         }
-
+        }
+       
+        $url = preg_replace('~^(?:f|ht)tps?://~i', '/', $url);
         $mod_url = explode('uploads', $url);
         $mod_url = count($mod_url) > 1 ? $mod_url[1] : $mod_url[0];
-
         $wp_upload_dir = wp_upload_dir();
         $upload_baseurl = $wp_upload_dir['baseurl'] . '/' . 'cwv-webp-images';
         $upload_basedir = $wp_upload_dir['basedir'] . '/' . 'cwv-webp-images';
@@ -183,7 +191,6 @@ function cwvpsb_display_webp_regex($content) {
         $img_webp_dir = $upload_basedir . $mod_url . ".webp";
 
         $img_src = str_replace($url, $img_webp, $url);
-
         // Assuming 'srcset' attribute is present in the <img> tag
         $patternSrcset = '/srcset=["\'](.*?)["\']/i';
         preg_match($patternSrcset,$matches[0],$srcset_matches);
@@ -191,9 +198,7 @@ function cwvpsb_display_webp_regex($content) {
         if (preg_match('/width=\"(\d+)\"/', $matches[0], $width_matche)) {
             $srcset_width = $width_matche[1];
         }
-        
-        if(isset($srcset_matches[1]) && $srcset_width){
-
+        if(isset($srcset_matches[1])){
             $sources = explode(',', $srcset_matches[1]);
             $srcset_arr = [];
             foreach ($sources as $source) {
@@ -208,8 +213,8 @@ function cwvpsb_display_webp_regex($content) {
                 $source_path = $wp_upload_dir['basedir'].'/'.$curr_image_path;
                 $destination_path = $upload_basedir . $curr_image_path . ".webp";
                 $destination_url = $upload_baseurl . $curr_image_path . ".webp";
-                $source_file_exists = file_exits($source_path);
-                $dest_file_exists = file_exits($destination_path);
+                $source_file_exists = file_exists($source_path);
+                $dest_file_exists = file_exists($destination_path);
                 if($source_file_exists && !$dest_file_exists){
                     if(cwvpsb_convert_to_webp($source_path, $destination_path)){
                         $matches[0] = str_replace($url, $destination_url, $matches[0]);
@@ -218,12 +223,14 @@ function cwvpsb_display_webp_regex($content) {
                     $matches[0] = str_replace($url, $destination_url, $matches[0]);
                 }
             }
-            $key = cwvpsb_find_best_match($srcset_width,array_keys($srcset_arr));
-            if(isset($key) && isset($srcset_arr[$key])){
-                $img_webp = $destination_url;
+            if($srcset_width){
+                $key = cwvpsb_find_best_match($srcset_width,array_keys($srcset_arr));
+                if(isset($key) && isset($srcset_arr[$key])){
+                    $img_webp = $destination_url;
+                }
             }
-           
         }
+
         $img_srcset = str_replace($patternSrcset, 'srcset="' . $img_webp . '"', $matches[0]);
         
         if (file_exists($img_webp_dir)) {
@@ -329,3 +336,17 @@ function cwvpsb_find_best_match($inputValue, $numbers) {
   
     return $nearest;
   }
+
+  function cwvpsb_wordpress_root_path() {
+    // Check if ABSPATH constant is defined
+    if (defined('ABSPATH')) {
+        return ABSPATH;
+    } else {
+        // ABSPATH constant is not defined, try to calculate it
+        $root_path = dirname(__FILE__); // Get the directory of the current file
+        $root_path = str_replace('\\', '/', $root_path); // Convert backslashes to forward slashes
+        $root_path = rtrim($root_path, '/'); // Remove trailing slash if exists
+        $root_path = preg_replace('/\/wp-content.*$/', '', $root_path); // Remove everything after wp-content
+        return $root_path;
+    }
+}
