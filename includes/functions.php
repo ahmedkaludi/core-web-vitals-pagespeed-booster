@@ -401,7 +401,10 @@ function cwvpsb_amp_support_enabled(){
 }
 
 function cwvpsb_is_mobile() {
-    $userAgent = $_SERVER['HTTP_USER_AGENT'];
+    $userAgent = '';
+    if(isset($_SERVER['HTTP_USER_AGENT'])){
+        $userAgent = $_SERVER['HTTP_USER_AGENT'];
+    }
 
     // A list of common mobile device keywords
     $mobileKeywords = ['Mobile', 'Android', 'iPhone', 'iPad', 'Windows Phone', 'BlackBerry'];
