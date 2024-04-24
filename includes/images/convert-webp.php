@@ -199,7 +199,7 @@ function cwvpsb_display_webp_regex($content) {
             foreach ($sources as $source) {
                 $parts = explode(' ', trim($source));
                 $url = $parts[0];
-                $widthDescriptor = $parts[1];
+                $widthDescriptor = isset($parts[1])?$parts[1]:'';;
                 // Extract the width value from the descriptor
                 $width = intval(preg_replace('/\D/', '', $widthDescriptor));
                 $srcset_arr[$width] = $url;
@@ -270,7 +270,10 @@ function cwvpsb_display_webp_regex($content) {
     return $content;
 }
 function cwvpsb_convert_to_webp($source_path, $destination_path) {
-    $source_info = getimagesize($source_path);
+    $source_info = array();
+    if(file_exists($source_path)){
+        $source_info = @getimagesize($source_path);
+    }
 
     if (!$source_info) {
         return false; // Unable to get image information
