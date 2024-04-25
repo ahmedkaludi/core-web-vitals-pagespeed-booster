@@ -229,6 +229,7 @@ function cwvpsb_display_webp_regex($content) {
         $img_srcset = str_replace($patternSrcset, 'srcset="' . $img_webp . '"', $matches[0]);
         
         if (file_exists($img_webp_dir)) {
+            $img_srcset ='';
             // WebP file exists, update attributes
             $matches[0] = str_replace($url, $img_src, $matches[0]);
             $matches[0] = str_replace($patternSrcset, 'srcset="' . $img_srcset . '"', $matches[0]);
@@ -250,6 +251,7 @@ function cwvpsb_display_webp_regex($content) {
             }
 
         } else {
+             $img_srcset ='';
             // WebP file doesn't exist, convert the image and update attributes
             
             $image_path = $wp_upload_dir['basedir'] . str_replace($wp_upload_dir['baseurl'], '', $url);
