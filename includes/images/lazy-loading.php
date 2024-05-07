@@ -159,52 +159,58 @@ class CWV_Lazy_Load_Public {
   }
   public function buffer_start_cwv($wphtml) { 
     if ( function_exists( 'ampforwp_is_amp_endpoint' ) && ampforwp_is_amp_endpoint() ) {
-      return $wphtml;
+        return $wphtml;
     }
     if ( function_exists( 'is_checkout' ) && is_checkout() ) {
-      return $wphtml;
+        return $wphtml;
     }
-      $lazy_jq_selector = 'img';   
-      
-      $pq = phpQuery::newDocument($wphtml); 
-      if(!empty(pq($lazy_jq_selector))){
-        foreach(pq($lazy_jq_selector) as $stuff)
-        {
-         if ($stuff->tagName == 'img'){
-          $sized_src = pq($stuff)->attr('src');
-          // Fix for woocommerce zoom image to work properly
-          if(!empty(pq('.woocommerce')) && !empty(pq('.single-product')) &&  pq($stuff)->attr('data-large_image')){
-            pq($stuff)->attr('data-src',pq($stuff)->attr('data-large_image')); 
-          }else{
-             pq($stuff)->attr('data-src',$sized_src);
-          }
-           pq($stuff)->removeAttr('src');
-           pq($stuff)->attr('src','data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw==');
-           pq($stuff)->attr('data-srcset',pq($stuff)->attr('srcset'));
-           pq($stuff)->removeAttr('srcset');
-           pq($stuff)->attr('data-sizes',pq($stuff)->attr('sizes'));
-           pq($stuff)->removeAttr('sizes');
-           pq($stuff)->addClass('cwvlazyload');
-         }
-      }       
-      }
-      foreach($pq->xpath->query('//*[@style]') as $node)
-      {
-        $style =  $node->getAttribute('style');
-        $gotmatches = preg_match_all("/url\(.*?(gif|png|jpg|jpeg)\'\)/", $style, $matches);
-        if($gotmatches){
-          foreach ($matches[0] as $key => $value) {
-            $newstyle = str_replace($value, "url('data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw==')", $style); 
-            pq($node)->attr("data-style", $style);
-            pq($node)->attr("style", $newstyle);
-            pq($node)->addClass('cwvlazyload');
-          }
-          
-        }
-      }
-        return $pq->html();
-  }
 
+    $lazy_jq_selector = 'img';   
+      
+    $pq = phpQuery::newDocument($wphtml); 
+    if (!empty(pq($lazy_jq_selector))) {
+        foreach(pq($lazy_jq_selector) as $stuff) {
+            if ($stuff->tagName == 'img') {
+                $classAttr = pq($stuff)->attr('class');
+                if (strpos($classAttr, 'cwvlazyload_exclude') !== false) {
+                    continue; // Skip processing this img tag
+                }
+
+                $sized_src = pq($stuff)->attr('src');
+                
+                // Fix for woocommerce zoom image to work properly
+                if (!empty(pq('.woocommerce')) && !empty(pq('.single-product')) && pq($stuff)->attr('data-large_image')) {
+                    pq($stuff)->attr('data-src', pq($stuff)->attr('data-large_image')); 
+                } else {
+                    pq($stuff)->attr('data-src', $sized_src);
+                }
+
+                pq($stuff)->removeAttr('src');
+                pq($stuff)->attr('src', 'data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw==');
+                pq($stuff)->attr('data-srcset', pq($stuff)->attr('srcset'));
+                pq($stuff)->removeAttr('srcset');
+                pq($stuff)->attr('data-sizes', pq($stuff)->attr('sizes'));
+                pq($stuff)->removeAttr('sizes');
+                pq($stuff)->addClass('cwvlazyload');
+            }
+        }       
+    }
+
+    foreach($pq->xpath->query('//*[@style]') as $node) {
+        $style = $node->getAttribute('style');
+        $gotmatches = preg_match_all("/url\(.*?(gif|png|jpg|jpeg)\'\)/", $style, $matches);
+        if ($gotmatches) {
+            foreach ($matches[0] as $key => $value) {
+                $newstyle = str_replace($value, "url('data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw==')", $style); 
+                pq($node)->attr("data-style", $style);
+                pq($node)->attr("style", $newstyle);
+                pq($node)->addClass('cwvlazyload');
+            }
+        }
+    }
+
+    return $pq->html();
+}
   public function buffer_start_cwv_regex($wphtml) { 
     if ( function_exists( 'ampforwp_is_amp_endpoint' ) && ampforwp_is_amp_endpoint() ) {
       return $wphtml;
@@ -224,15 +230,20 @@ $wphtml = preg_replace_callback(
         foreach ($attributeMatches as $match) {
          if($match[1] == 'src'){
             $attributes['src'] = "data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw==";
-            $attributes['data-src'] = esc_url($match[3]);
+            if(isset($match[3])){ $attributes['data-src'] = esc_url($match[3]);}
           }elseif($match[1] == 'srcset'){
-            $attributes['data-srcset']= esc_attr($match[3]);
+            if(isset($match[3])){ $attributes['data-srcset'] = esc_attr($match[3]);}
           }elseif($match[1] == 'sizes'){
-            $attributes['data-sizes']= esc_attr($match[3]);
+            if(isset($match[3])){ $attributes['data-sizes'] = esc_attr($match[3]);}
           }else{
-            $attributes[$match[1]]= esc_attr($match[3]);
+            if(isset($match[3])){ $attributes[$match[1]] = esc_attr($match[3]);}
           }
         }
+
+        // Skip lazy loading for images with class cwvlazyload_exclude
+        if (!empty($attributes['class']) && strpos($attributes['class'], 'cwvlazyload_exclude') !== false) {
+          return $matches[0]; // Return original img tag without modification
+       }
 
         if(empty($attributes['class'])){
           $attributes['class'] = "cwvlazyload";

@@ -1,8 +1,8 @@
 === Core Web Vitals & PageSpeed Booster ===
 Contributors: magazine3
 Requires at least: 3.0
-Tested up to: 6.4
-Stable tag: 1.0.18
+Tested up to: 6.5
+Stable tag: 1.0.19
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: core web vitals, optimization, pagespeed, performance, cache
@@ -39,6 +39,13 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 * WebP Convert library used https://github.com/rosell-dk/webp-convert - License URI: https://github.com/rosell-dk/webp-convert?tab=MIT-1-ov-file (WebP Convert is freely distributable under the terms of an MIT-style license.)
 
 == Changelog ==
+
+= 1.0.19 (07 May 2024) =
+* Fixed: Cant over ride the width of .cwvpsb_iframe due to the important property used #132
+* Fixed: Compatibility with PHP 8.3 version #140
+* Test: Test with new version of wordpress i.e. 6.5v #139
+* Fixed:  PHP Warning: Undefined variable $img_srcset #141
+* Improvement : Option to exclude lazyloading #91
 
 = 1.0.18 (27 February 2024) =
 * Fixed: CSS break after latest update (1.0.17) #130
@@ -97,61 +104,4 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 = 1.0.10 (02 February 2023) =
 * Improvement: Optimized code and fixed frontend js issue 
 
-= 1.0.9 (17 January 2023) =
-* Fixed: DataTables warning: table id=table_page_cc_style_completed – Ajax error. #73
-* Fixed: In multisite setup it shows "Sorry, you are not allowed to access this page." #74
-
-= 1.0.8 (10 January 2023) =
-* Improvement: Improved Critical CSS generation.
-
-= 1.0.7.2 (23rd December 2022) =
-* Improvement: CSS optimization
-
-= 1.0.7.1 (14th December 2022) =
-* Fixed: Critical CSS not generating
-
-= 1.0.7 (25th November 2022) =
-* Improvement: Updated Critical CSS Optimisation
-* Improvement: Code improvements and fixes
-* Added: Support Tab
-
-= 1.0.6 (21st April 2022) =
-* Improvement: Centralize all cache in single cache folder
-* Fixed: Improve exclude JS and combine 
-* Added: Created option to clear all cache on one click
-* Added: Added lazy load on inline style background images also
-* Fixed: Improvement for AMP, AMP for WP, AMP Stories and AMPforWP Stories not apply optimization
-
-= 1.0.5 (12th April 2022) =
-* Fixed: Removed minify AMP #49
-* Fixed: Removed version from exclude js for gzip
-* Fixed: Critical css build by normal javascript
-* Fixed: Critical css file not create if content is blank
-* Added: Created Static cache method for caching strategy
-* Fixed: Proper fix for image lazy load
-* Fixed: Exclude merged javascript from js delay
-* Fixed: create disk cache and serve disk cache on php cache
-* Fixed: Minify html by replace new line
-* Added: Added exclude js from delay for ads load or any thing else 
-
-= 1.0.4 (31th March 2022) =
-* Fixed: Feed url not shows properly #42
-* Fixed: Minification should not apply on feed #42
-* Resolved: Critical error with PHP Version 8.0 #38
-* Improvement: Added Module for Critical CSS
-
-= 1.0.3 (16th February 2022) =
-* Fixed: Icons not loading issue fixed #16
-
-= 1.0.2 (21th January 2022) =
-* Improvements: Added module where we can test all optimization on a particular URL #17
-* Improvements: UI Improvements #13
-* Fixed: Bugs with the latest user case #16
-
-= 1.0.1 (20th December 2021) =
-* Improvements: Added Gravatar Caching #11
-* Improvements: Option Panel Improved #2 #5 #6 #8
-* Fixed: Debug error #7 #10
-
-= 1.0 (24th September 2021) =
-* Version 1.0 Released
+Full changelog available at [changelog.txt](https://plugins.svn.wordpress.org/core-web-vitals-pagespeed-booster/trunk/changelog.txt)

@@ -369,9 +369,6 @@ function cwvpsb_iframe_delay_enqueue(){
     if ( $iframe_check == 1 ) {
         wp_enqueue_script( 'cwvpsb_iframe', plugin_dir_url(__FILE__) . 'cwvpsb_iframe.js', array(), CWVPSB_VERSION);
         wp_enqueue_style( 'cwvpsb_iframe', plugin_dir_url(__FILE__) . 'cwvpsb_iframe.css', array(), CWVPSB_VERSION);
-        $cus_style= '.cwvpsb_iframe {max-width:600px !important}';
-        wp_add_inline_style( 'cwvpsb_iframe', $cus_style );
-        
     }
 }
 
@@ -401,7 +398,10 @@ function cwvpsb_amp_support_enabled(){
 }
 
 function cwvpsb_is_mobile() {
-    $userAgent = $_SERVER['HTTP_USER_AGENT'];
+    $userAgent = '';
+    if(isset($_SERVER['HTTP_USER_AGENT'])){
+        $userAgent = $_SERVER['HTTP_USER_AGENT'];
+    }
 
     // A list of common mobile device keywords
     $mobileKeywords = ['Mobile', 'Android', 'iPhone', 'iPad', 'Windows Phone', 'BlackBerry'];

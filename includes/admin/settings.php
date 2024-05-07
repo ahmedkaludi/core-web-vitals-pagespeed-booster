@@ -37,17 +37,17 @@ function load_settings() {
     }
     if(cwvpsb_is_mobile())
     {
-        if($settings['delay_js_mobile'] == 'php'){
+        if(isset($settings['delay_js_mobile']) && $settings['delay_js_mobile'] == 'php'){
             require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-js.php";
          }
-         if( $settings['delay_js_mobile'] == 'js'){
+         if(isset($settings['delay_js_mobile']) && $settings['delay_js_mobile'] == 'js'){
             require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-jswithjs.php";
          }
     }else{
-        if( $settings['delay_js'] == 'php'){
+        if(isset( $settings['delay_js']) && $settings['delay_js'] == 'php'){
             require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-js.php";
          }
-         if( $settings['delay_js'] == 'js'){
+         if(isset($settings['delay_js']) && $settings['delay_js'] == 'js'){
             require_once CWVPSB_PLUGIN_DIR."includes/javascript/delay-jswithjs.php";
          }
     }
