@@ -354,7 +354,7 @@ add_filter('the_content', 'cwvpsb_iframe_delay');
        
 function cwvpsb_iframe_delay($content) {
     if((function_exists('is_feed')&& is_feed()) || (function_exists('ampforwp_is_amp_endpoint') && ampforwp_is_amp_endpoint()) || (function_exists( 'is_amp_endpoint' ) && is_amp_endpoint())){return $content;}
-    $content = preg_replace('/<iframe(?!iframe)(.+)youtube\.com\/embed\/(?!iframe)(?!videoseries)(.+?)\?(.+)<\/iframe>/', '<div class="cwvpsb_iframe"><div class="iframe_wrap"><div class="iframe_player" data-embed="${2}" id="player_${2}"><div class="play-button"></div></div></div></div>', $content); 
+    $content = preg_replace('/<iframe[^>]*src="(?:https?:)?\/\/(?:www\.)?youtube\.com\/embed\/([^"?]+)"/', '<div class="cwvpsb_iframe"><div class="iframe_wrap"><div class="iframe_player" data-embed="${1}" id="player_${1}"><div class="play-button"></div></div></div></div>', $content); 
     
             global $iframe_check;
             $iframe_check = preg_match( '/iframe_player/i', $content, $result );
