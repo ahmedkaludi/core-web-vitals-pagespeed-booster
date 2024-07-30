@@ -40,6 +40,11 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 
 == Changelog ==
 
+= 1.0.20 (30 July 2024) =
+* Fixed: Some warnings and notices on front end #145
+* Fixed: Embedded video is not visible on front end #144
+* Test: Test with WordPress version 6.6 #147
+
 = 1.0.19 (07 May 2024) =
 * Fixed: Cant over ride the width of .cwvpsb_iframe due to the important property used #132
 * Fixed: Compatibility with PHP 8.3 version #140
