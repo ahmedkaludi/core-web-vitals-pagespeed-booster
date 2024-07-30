@@ -158,7 +158,9 @@ function cwvpsb_display_webp_regex($content) {
     $content = preg_replace_callback($pattern, function ($matches) {
 
         $img_srcset = '';
-
+        if(empty($matches[1])){
+            return $matches[0];
+        }
         $url = $matches[1];
         $site_url = site_url();
         // Check if the 'src' attribute contains 'gravatars'
