@@ -303,6 +303,7 @@ function cwvpsb_web_vitals_changes($html){
             }
         }
         $html = $tmpDoc->saveHTML();
+        $html = html_entity_decode( $html, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
         return $html;
 }
 
