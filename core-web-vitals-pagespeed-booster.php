@@ -104,7 +104,7 @@ function cwvpsb_on_install(){
 		$charset_collate .= " COLLATE {$wpdb->collate}";
 	}
 
-	$found_engine = $wpdb->get_var("SELECT ENGINE FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = '".DB_NAME."' AND `TABLE_NAME` = '{$wpdb->prefix}posts';");
+	$found_engine = $wpdb->get_var("SELECT ENGINE FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = '".esc_attr(DB_NAME)."' AND `TABLE_NAME` = '{$wpdb->prefix}posts';");
         
 	if(strtolower($found_engine) == 'innodb') {
 		$engine = ' ENGINE=InnoDB';

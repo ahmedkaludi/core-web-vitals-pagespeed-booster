@@ -430,3 +430,127 @@ function cwvpsb_is_mobile() {
     // If no mobile keywords are found, assume it's a desktop device
     return false;
 }
+
+/*
+ * Read the contents of a file using the WordPress filesystem API.
+ *
+ * @param string $file_path The path to the file.
+ * @return string|false The file contents or false on failure.
+ */
+function cwvpsb_read_file_contents($file_path)
+{
+    global $wp_filesystem;
+
+    if (empty($wp_filesystem)) {
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+        WP_Filesystem();
+    }
+
+    // Check if the file exists and is readable
+    if ($wp_filesystem->exists($file_path) && $wp_filesystem->is_readable($file_path)) {
+        return $wp_filesystem->get_contents($file_path);
+    }
+
+    return false;
+}
+
+/**
+ * Write data to a file using the WordPress File System API for smaller files and PHP native functions for large files.
+ *
+ * @param string $filename The path to the file to write data to.
+ * @param string $data The data to write.
+ * @param bool $append Whether to append the data to the file (default: false).
+ */
+function cwvpsb_write_file_contents($filename, $data, $append = false)
+{
+    global $wp_filesystem;
+
+    if (!function_exists('WP_Filesystem')) {
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+    }
+
+    if (!WP_Filesystem()) {
+        return;
+    }
+
+    // Ensure the directory is writable.
+    $dir = dirname($filename);
+    if (!$wp_filesystem->exists($dir)) {
+        $wp_filesystem->mkdir($dir);
+    }
+
+
+    $file_size = $wp_filesystem->size($filename);
+
+    // Use the WordPress File System API for small files.
+    if ($file_size < 104857600) { // 100 MB as threshold for large files.
+        // Check if the file exists; create it if it does not.
+        if (!$wp_filesystem->exists($filename)) {
+            $wp_filesystem->put_contents($filename, '', FS_CHMOD_FILE);
+        }
+
+        // Read current contents if appending.
+        $current_content = $append ? $wp_filesystem->get_contents($filename) : '';
+
+        // Write the new data.
+        $wp_filesystem->put_contents($filename, $current_content . $data, FS_CHMOD_FILE);
+    } else {
+        // Use native PHP functions for very large files.
+        $mode = $append ? 'a' : 'w';
+        //phpcs:ignore -- using native PHP functions for large files.
+        $file = fopen($filename, $mode);
+
+        if ($file) {
+            //phpcs:ignore -- using native PHP functions for large files.
+            fwrite($file, $data);
+            //phpcs:ignore -- using native PHP functions for large files.
+            fclose($file);
+        } else {
+            error_log("Failed to open file for writing: $filename");
+        }
+    }
+}
+
+/**
+ * Check if a directory is writable using the WordPress File System API.
+ *
+ * @param string $dir The path to the directory.
+ * @return bool True if the directory is writable, false otherwise.
+ */
+function cwvpsb_is_writable($dir)
+{
+    global $wp_filesystem;
+
+    if (!function_exists('WP_Filesystem')) {
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+    }
+
+    if (!WP_Filesystem()) {
+        return false;
+    }
+
+
+    return $wp_filesystem->is_writable($dir);
+}
+
+
+/**
+ * Check if a file exists using the WordPress File System API.
+ *
+ * @param string $file The path to the file.
+ * @return bool True if the file exists, false otherwise.
+ */
+function cwvpsb_file_exists($file)
+{
+    global $wp_filesystem;
+
+    if (!function_exists('WP_Filesystem')) {
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+    }
+
+    if (!WP_Filesystem()) {
+        return false;
+    }
+
+    return $wp_filesystem->exists($file);
+}

@@ -132,25 +132,25 @@ public function cwvpsb_admin_interface_render(){
     </div>
     <div id="right-sidebar">
      <div class="boxsidebar boxsidebar-1">
-         <h2 class="vision">Vision & Mission</h2>
-         <p>We breath and live CWV technology and no body can beat us in this game.</p>
+         <h2 class="vision"><?php esc_html__('Vision & Mission', 'cwvpsb');?> </h2>
+         <p><?php esc_html__('We breath and live CWV technology and no body can beat us in this game.', 'cwvpsb');?></p>
          <section class="bio">
           <div class="bio-wrap">
-            <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/ahmed-kaludi.jpg' ?>" alt="Ahmed Kaludi">
+            <img width="50" height="50" src="<?php echo esc_url(CWVPSB_IMAGE_DIR . '/ahmed-kaludi.jpg'); ?>" alt="Ahmed Kaludi">
             <p>Ahmed Kaludi <br><b>Lead Developer</b></p>
           </div>
           <div class="bio-wrap">
-             <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/Mohammed-kaludi.jpeg' ?>" alt="Mohammed Kaludi">
+             <img width="50" height="50" src="<?php echo esc_url(CWVPSB_IMAGE_DIR . '/Mohammed-kaludi.jpeg'); ?>" alt="Mohammed Kaludi">
                 <p>Mohammed Kaludi <br><b>Developer</b></p>
           </div>
         </section>
         <section class="bio">
           <div class="bio-wrap">
-             <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/sanjeev-kumar.jpg' ?>" alt="Sanjeev Kumar">
+             <img width="50" height="50" src="<?php echo esc_url(CWVPSB_IMAGE_DIR . '/sanjeev-kumar.jpg'); ?>" alt="Sanjeev Kumar">
               <p>Sanjeev Kumar<br><b>Developer</b></p>
           </div>
           <div class="bio-wrap">
-             <img width="50" height="50" src="<?php echo CWVPSB_IMAGE_DIR . '/akshay-wali.jpg' ?>" alt="Akshay Wali">
+             <img width="50" height="50" src="<?php echo esc_url(CWVPSB_IMAGE_DIR . '/akshay-wali.jpg'); ?>" alt="Akshay Wali">
              <p>Akshay Wali <br><b>Developer</b></p>
           </div>
         </section>
@@ -347,7 +347,7 @@ public function image_optimization_callback(){
         $delay = array('auto' => esc_html__('Automatic (Recommended)', 'cwvpsb'),'manual' => esc_html__('Manual', 'cwvpsb'));
         foreach ($delay as $key => $value ) {
         ?>
-            <option value="<?php echo $key;?>" <?php selected( $settings['webp_support'], $key);?>><?php echo $value;?></option>
+            <option value="<?php echo esc_attr($key);?>" <?php selected( $settings['webp_support'], $key);?>><?php echo esc_html($value);?></option>
         <?php
         }
         ?>
@@ -416,7 +416,7 @@ public function unused_css_callback(){
         <?php if(isset($settings['unused_css_support']) && $settings['unused_css_support']==1){?>
         <br/><textarea rows='5' cols='70' name="cwvpsb_get_settings[whitelist_css]" id='cwvpsb_add_whitelist_css'><?php if(isset($settings['whitelist_css'])){ echo esc_html($settings['whitelist_css']); }  ?></textarea>
             <p class="description"><?php echo esc_html__("Add the CSS selectors line by line which you don't want to remove", 'cwvpsb');?></p><br/>
-            <div style='display:inline-block;'><span class='button button-secondry' id='clear-css-cache' data-cleaningtype='css' data-nonce='<?php echo $webp_nonce;?>' >Clear Cached CSS</span><span class='clear-cache-msg'></span></div>
+            <div style='display:inline-block;'><span class='button button-secondry' id='clear-css-cache' data-cleaningtype='css' data-nonce='<?php echo esc_attr($webp_nonce);?>' ><?php echo esc_html__("Clear Cached CSS", 'cwvpsb');?></span><span class='clear-cache-msg'></span></div>
         <?php } ?>
     </fieldset>
     <?php } 
@@ -458,7 +458,7 @@ public function critical_css_callback(){
         $delay = array('php' => 'PHP (Recommended)','js' => 'JS');
         foreach ($delay as $key => $value ) {
         ?>
-            <option value="<?php echo $key;?>" <?php selected( $settings['delay_js'], $key);?>><?php echo $value;?></option>
+            <option value="<?php echo esc_attr($key);?>" <?php selected( $settings['delay_js'], $key);?>><?php echo esc_html($value);?></option>
         <?php
         }
         ?>
@@ -470,7 +470,7 @@ public function critical_css_callback(){
         $delay = array('php' => 'PHP (Recommended)','js' => 'JS');
         foreach ($delay as $key => $value ) {
         ?>
-            <option value="<?php echo $key;?>" <?php isset($settings['delay_js_mobile'])?selected( $settings['delay_js_mobile'], $key):'';?>><?php echo $value;?></option>
+            <option value="<?php echo esc_attr($key);?>" <?php isset($settings['delay_js_mobile'])?selected( $settings['delay_js_mobile'], $key):'';?>><?php echo esc_html($value);?></option>
         <?php
         }
         ?>
@@ -479,7 +479,7 @@ public function critical_css_callback(){
     <br/>
     <b><?php echo esc_html__('Exclude JS from Delay method', 'cwvpsb');?></b>
     <br/>
-    <textarea cols="70" rows="5" class="" placeholder="Enter JS URL One per line (Ex: popup.js)" name="cwvpsb_get_settings[exclude_delay_js]"><?php echo isset($settings['exclude_delay_js'])? $settings['exclude_delay_js']:''; ?></textarea>
+    <textarea cols="70" rows="5" class="" placeholder="Enter JS URL One per line (Ex: popup.js)" name="cwvpsb_get_settings[exclude_delay_js]"><?php echo isset($settings['exclude_delay_js'])? esc_html($settings['exclude_delay_js']):''; ?></textarea>
     </div>  
              
     <?php 
@@ -510,7 +510,7 @@ public function cache_strategy_callback(){
                     $sel = '';
                     if($settings['cache_support_method']==$key){ $sel = "selected"; }
                  ?>
-                    <option value="<?php echo $key; ?>" <?php echo $sel; ?>><?php echo $opt; ?></option>
+                    <option value="<?php echo esc_attr($key); ?>" <?php echo esc_attr($sel); ?>><?php echo esc_html($opt); ?></option>
                 <?php } ?>
             </select>
     <p class="description"><?php echo esc_html__("Highly Optimized will serve by PHP", 'cwvpsb')."<br/>".esc_html__(" Aggressively Optimized will serve cache via htaccess", 'cwvpsb');?></p>
@@ -540,7 +540,7 @@ public function cache_flush_callback(){
                 <?php foreach($autoclear_options as $key=>$opt){
                     $sel = '';
                     if(isset($settings['cache_autoclear']) && $settings['cache_autoclear']==$key){ $sel = "selected"; } 
-                    echo $sel?>
+                    echo esc_html($sel);?>
                     <option value="<?php echo esc_attr($key); ?>" <?php echo esc_attr($sel); ?>><?php echo esc_attr($opt); ?></option>
                 <?php } ?>
             </select>
@@ -574,14 +574,14 @@ public function generate_critical_css_callback(){
 
             foreach ($post_types as $key => $value) {
                 echo '<li>';
-                echo '<input class="" type="checkbox" name="cwvpsb_get_settings[critical_css_on_cp_type]['.esc_attr($key).']" value="1" '.(isset($settings["critical_css_on_cp_type"][$key]) ? "checked": "").' /> ' . ucwords(esc_html($value));
+                echo '<input class="" type="checkbox" name="cwvpsb_get_settings[critical_css_on_cp_type]['.esc_attr($key).']" value="1" '.(isset($settings["critical_css_on_cp_type"][$key]) ? "checked": "").' /> ' . esc_html(ucwords($value));
                 echo '</li>';
             }            
 
             if($taxonomies){
                 foreach ($taxonomies as $key => $value) {
                     echo '<li>';
-                    echo '<input class="" type="checkbox" name="cwvpsb_get_settings[critical_css_on_tax_type]['.esc_attr($key).']" value="1" '.(isset($settings["critical_css_on_tax_type"][$key]) ? "checked": "").' /> ' . ucwords(esc_html($value));
+                    echo '<input class="" type="checkbox" name="cwvpsb_get_settings[critical_css_on_tax_type]['.esc_attr($key).']" value="1" '.(isset($settings["critical_css_on_tax_type"][$key]) ? "checked": "").' /> ' . esc_html(ucwords($value));
                     echo '</li>';
                 }
             }
@@ -1060,14 +1060,13 @@ function cwvpsb_update_critical_css_stat()
         $response['status'] = 'success' ;
         
         if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-            $response = wp_json_encode($response);
-            echo $response;
+            wp_send_json( $response );
          }
          else {
             header("Location: ".$_SERVER["HTTP_REFERER"]);
          }
       
-         die();
+         wp_die();
         
     }
     else{

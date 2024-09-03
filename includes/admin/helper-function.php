@@ -106,7 +106,7 @@ function cwv_send_feedback() {
 
     $success = wp_mail( 'makebetter@magazine3.in', $subject, $text, $headers );
 
-    die();
+    wp_die();
 }
 add_action( 'wp_ajax_cwv_send_feedback', 'cwv_send_feedback' );
 

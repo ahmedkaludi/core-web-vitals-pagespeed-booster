@@ -751,13 +751,14 @@ class cwvpsb_treeshaking {
 		} catch ( Exception $exception ) {
 			if ( $exception instanceof FailedToGetFromRemoteUrl && $exception->hasStatusCode() ) {
 				return new WP_Error( "http_{$exception->getStatusCode()}", $exception->getMessage() );
-			}
+			} 
+			// translators: %s: URL
 			return new WP_Error( 'http_error', sprintf( esc_html__( 'Failed to fetch: %1$s (%2$s)', 'cwvpsb' ), $url, $exception->getMessage() ) );
 		}
 
 		$status  = wp_remote_retrieve_response_code( $response );
 
-		if ( $status < 200 || $status >= 300 ) {
+		if ( $status < 200 || $status >= 300 ) { // translators: %s: URL
 			return new WP_Error( "http_{$status}", sprintf( esc_html__( 'Failed to fetch: %s', 'cwvpsb' ), $url ) );
 		}
 
@@ -843,7 +844,7 @@ class cwvpsb_treeshaking {
 			_doing_it_wrong(
 				'wp_enqueue_style',
 				esc_html(
-					sprintf(
+					sprintf( // Translators: 1: @import, 2: wp_enqueue_style(), 3: $import_stylesheet_url
 						esc_html__( 'It is not a best practice to use %1$s to load font CDN stylesheets. Please use %2$s to enqueue %3$s as its own separate script.', 'cwvpsb' ),
 						'@import',
 						'wp_enqueue_style()',
@@ -1697,7 +1698,7 @@ class cwvpsb_treeshaking {
 					preg_replace( '/(^|\s)admin-bar(\s|$)/', ' ', $this->dom->body->getAttribute( 'class' ) )
 				);
 			}
-			$comment_text = sprintf(
+			$comment_text = sprintf( // Translators: %s is the Admin bar ID.
 				esc_html__( 'Admin bar (%s) was removed to preserve validity due to excessive CSS.', 'cwvpsb' ),
 				'#' . $admin_bar_id
 			);
@@ -2161,7 +2162,7 @@ function cwvpsb_set_file_transient( $transient, $value, $expiration = 0 ) {
 			$content = $value;
 			$new_file = $user_dirname."/".$transient_option.".css";
 			$ifp = @fopen( $new_file, 'w+' );
-			if ( ! $ifp ) {
+			if ( ! $ifp ) { // Translators: %s is the file name
 	          return ( array( 'error' => sprintf( esc_html__( 'Could not write file %s', 'cwvpsb' ), $new_file ) ));
 	        }
 	        $result = @fwrite( $ifp, wp_json_encode($value) );
