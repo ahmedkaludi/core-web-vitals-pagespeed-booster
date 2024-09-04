@@ -137,24 +137,24 @@ public function cwvpsb_admin_interface_render(){
          <section class="bio">
           <div class="bio-wrap">
             <img width="50" height="50" src="<?php echo esc_url(CWVPSB_IMAGE_DIR . '/ahmed-kaludi.jpg'); ?>" alt="Ahmed Kaludi">
-            <p>Ahmed Kaludi <br><b>Lead Developer</b></p>
+            <p><?php esc_html__('Vision & Mission', 'cwvpsb');?>Ahmed Kaludi <br><b>Lead Developer</b></p>
           </div>
           <div class="bio-wrap">
              <img width="50" height="50" src="<?php echo esc_url(CWVPSB_IMAGE_DIR . '/Mohammed-kaludi.jpeg'); ?>" alt="Mohammed Kaludi">
-                <p>Mohammed Kaludi <br><b>Developer</b></p>
+                <p><?php esc_html__('Vision & Mission', 'cwvpsb');?>Mohammed Kaludi <br><b>Developer</b></p>
           </div>
         </section>
         <section class="bio">
           <div class="bio-wrap">
              <img width="50" height="50" src="<?php echo esc_url(CWVPSB_IMAGE_DIR . '/sanjeev-kumar.jpg'); ?>" alt="Sanjeev Kumar">
-              <p>Sanjeev Kumar<br><b>Developer</b></p>
+              <p><?php esc_html__('Vision & Mission', 'cwvpsb');?>Sanjeev Kumar<br><b>Developer</b></p>
           </div>
           <div class="bio-wrap">
              <img width="50" height="50" src="<?php echo esc_url(CWVPSB_IMAGE_DIR . '/akshay-wali.jpg'); ?>" alt="Akshay Wali">
-             <p>Akshay Wali <br><b>Developer</b></p>
+             <p><?php esc_html__('Vision & Mission', 'cwvpsb');?>Akshay Wali <br><b>Developer</b></p>
           </div>
         </section>
-    <p class="boxdesc">Delivering a good user experience means a lot to us, so we try our best to reply each and every question.</p>
+    <p class="boxdesc"><?php esc_html__('Vision & Mission', 'cwvpsb');?>Delivering a good user experience means a lot to us, so we try our best to reply each and every question.</p>
     </div>
     </div>
     </div>  

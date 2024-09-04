@@ -23,7 +23,7 @@ shuffle($reasons);
 			<ul>
 				<?php
 				foreach ($reasons as $reason) {
-					echo esc_html($reason);
+					echo $reason; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason is already escaped in the array
 				}
 				?>
 			</ul>

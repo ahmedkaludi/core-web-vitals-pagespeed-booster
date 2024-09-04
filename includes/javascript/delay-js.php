@@ -65,6 +65,18 @@ add_action('wp', 'cwvpsb_delay_js_main');
 
 function cwvpsb_delay_js_html($html) {
 
+	if (function_exists('is_amp_endpoint') && is_amp_endpoint()) {
+		return $html;
+	}
+
+	if (function_exists('is_feed') && is_feed()) {
+		return $html;
+	}
+
+	if (function_exists('is_checkout') && is_checkout()) {
+		return $html;
+	}
+
 	$html_no_comments = $html;//preg_replace('/<!--(.*)-->/Uis', '', $html);
 	preg_match_all('#(<script\s?([^>]+)?\/?>)(.*?)<\/script>#is', $html_no_comments, $matches);
 	if(!isset($matches[0])) {
