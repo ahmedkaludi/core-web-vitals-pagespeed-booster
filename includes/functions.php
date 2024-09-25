@@ -21,7 +21,8 @@ function cwvpsb_add_settings_link( $links ) {
 function cwvpsb_complete_html_after_dom_loaded( $content ) {
 	global $wp;
 	if ( ( isset( $wp->request ) && strpos( $wp->request, 'robots.txt' ) === false ) && ( ! function_exists( 'is_feed' ) && ( function_exists( 'is_feed' ) && ! is_feed() ) ) && ( ! function_exists( 'is_checkout' ) && ( function_exists( 'is_checkout' ) && ! is_checkout() ) ) && ! wp_doing_ajax() ) {
-		$content = apply_filters( 'cwvpsb_complete_html_after_dom_loaded', $content ) . '22222';
+		$content = apply_filters( 'cwvpsb_complete_html_after_dom_loaded', $content );
+		
 	}
 
 	return $content;
