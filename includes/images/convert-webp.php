@@ -176,7 +176,7 @@ function cwvpsb_display_webp_regex($content) {
             return $matches[0]; // Return the original tag unchanged
         }
 
-       
+        $original_url = $url;
         $url = preg_replace('~^(?:f|ht)tps?://~i', '/', $url);
         $mod_url = explode('uploads', $url);
         $mod_url = count($mod_url) > 1 ? $mod_url[1] : $mod_url[0];
@@ -188,7 +188,7 @@ function cwvpsb_display_webp_regex($content) {
         $img_webp = $upload_baseurl . $mod_url . ".webp";
         $img_webp_dir = $upload_basedir . $mod_url . ".webp";
 
-        $img_src = str_replace($url, $img_webp, $url);
+        $img_src = str_replace($original_url, $img_webp, $original_url);
         // Assuming 'srcset' attribute is present in the <img> tag
         $patternSrcset = '/srcset=["\'](.*?)["\']/i';
         preg_match($patternSrcset,$matches[0],$srcset_matches);
@@ -215,10 +215,10 @@ function cwvpsb_display_webp_regex($content) {
                 $dest_file_exists = file_exists($destination_path);
                 if($source_file_exists && !$dest_file_exists){
                     if(cwvpsb_convert_to_webp($source_path, $destination_path)){
-                        $matches[0] = str_replace($url, $destination_url, $matches[0]);
+                        $matches[0] = str_replace($original_url, $destination_url, $matches[0]);
                     }
                 }else if($dest_file_exists){
-                    $matches[0] = str_replace($url, $destination_url, $matches[0]);
+                    $matches[0] = str_replace($original_url, $destination_url, $matches[0]);
                 }
             }
             if($srcset_width){
@@ -234,7 +234,7 @@ function cwvpsb_display_webp_regex($content) {
         if (file_exists($img_webp_dir)) {
             $img_srcset ='';
             // WebP file exists, update attributes
-            $matches[0] = str_replace($url, $img_src, $matches[0]);
+            $matches[0] = str_replace($original_url, $img_src, $matches[0]);
             $matches[0] = str_replace($patternSrcset, 'srcset="' . $img_srcset . '"', $matches[0]);
 
             $large_image = '';
@@ -264,7 +264,7 @@ function cwvpsb_display_webp_regex($content) {
             if (!is_dir($img_webp_dir_ar)) wp_mkdir_p($img_webp_dir_ar);
 
             if (cwvpsb_convert_to_webp($image_path, $img_webp_dir)) {
-                $matches[0] = str_replace($url, $img_src, $matches[0]);
+                $matches[0] = str_replace($original_url, $img_src, $matches[0]);
                 $matches[0] = str_replace($patternSrcset, 'srcset="' . $img_srcset . '"', $matches[0]);
             }
         }
