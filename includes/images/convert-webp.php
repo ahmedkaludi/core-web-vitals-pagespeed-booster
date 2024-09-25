@@ -18,7 +18,8 @@ function cwvpsb_convert_webp(){
     $post = get_post( get_the_ID() );
     if(!$post){return;}
     $content = $post->post_content;
-    if ( is_dynamic_sidebar() ) {
+    $product_archive_page_id = function_exists('get_product_listing_id') ? get_product_listing_id() : false ;
+    if ( is_dynamic_sidebar() && ( ! $product_archive_page_id || ( $product_archive_page_id && ! is_page( ! $product_archive_page_id ) ) ) ) {
         ob_start();
         dynamic_sidebar();
         $sidebar_html = ob_get_contents();
