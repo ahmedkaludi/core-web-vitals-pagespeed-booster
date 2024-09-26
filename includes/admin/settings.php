@@ -193,10 +193,27 @@ public function cwvpsb_settings_init(){
             array('class' => 'child-opt-bulk2')                       
         );
     }  
+
+    add_settings_field(
+        'images_add_alttags',
+        'Add Missing Alt Tags',
+         array($this, 'images_add_alttags_callback'),
+        'cwvpsb_images_section',
+        'cwvpsb_images_section'
+    );
+
     add_settings_field(
         'lazyload_support',
         'Lazy Load',
          array($this, 'lazyload_callback'),
+        'cwvpsb_images_section',
+        'cwvpsb_images_section'
+    );
+
+    add_settings_field(
+        'lazyload_exclude',
+        'Lazy Load Exclude Urls',
+         array($this, 'lazyload_exclude_callback'),
         'cwvpsb_images_section',
         'cwvpsb_images_section'
     );
@@ -384,6 +401,26 @@ public function lazyload_callback(){
         <span class="slider round"></span></label>
         <p class="description"><?php echo esc_html__("Lazy Load delays loading of images and iframes in long web pages. which are outside of viewport and will not be loaded before user scrolls to them", 'cwvpsb');?></p>
     </fieldset>
+    <?php }
+
+public function images_add_alttags_callback(){
+    $settings = cwvpsb_defaults(); ?>
+    <fieldset><label class="switch">
+        <?php
+        if(empty($settings['images_add_alttags']) || $settings['images_add_alttags'] == 1){
+            echo '<input type="checkbox" name="cwvpsb_get_settings[images_add_alttags]" class="regular-text" value="1" checked> ';
+        }else{
+            echo '<input type="checkbox" name="cwvpsb_get_settings[images_add_alttags]" class="regular-text" value="1" >';
+        } ?>
+        <span class="slider round"></span></label>
+        <p class="description"><?php echo esc_html__("This will add missing alt tags in images ", 'cwvpsb');?></p>
+    </fieldset>
+    <?php }
+
+public function lazyload_exclude_callback(){
+    $settings = cwvpsb_defaults(); ?> 
+    <textarea rows='5' cols='70' name="cwvpsb_get_settings[lazyload_exclude]" id='cwvpsb_lazyload_exclude'><?php echo isset($settings['lazyload_exclude'])? esc_html($settings['lazyload_exclude']) : ''; ?></textarea>
+    <p class="description"><?php echo esc_html__("Enter (,)comma separated urls of images that you  want to exclude from lazyload", 'cwvpsb');?></p>
     <?php }
 
 public function minification_callback(){

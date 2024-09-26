@@ -95,7 +95,8 @@ function cwvpsb_display_webp($content) {
 
     $xpath = new DOMXPath($comp_dom);
     $nodes = $xpath->query('//img[@src]');
-
+    $settings = cwvpsb_defaults();
+    $force_alt_tags = isset($settings['images_add_alttags']) ? $settings['images_add_alttags'] : 1 ;
     foreach ($nodes as $node) {
         $url = $node->getAttribute('src');
         if(stripos($content, 'gravatars') !== false){
@@ -142,6 +143,17 @@ function cwvpsb_display_webp($content) {
                 $node->setAttribute('srcset', $img_srcset);
             }
         }
+        if ($force_alt_tags) {
+            //check if alt attribute empty , if empty set alt attribute with image name
+            if (!$node->getAttribute('alt') || empty($node->getAttribute('alt'))) {
+                $alt = pathinfo($url, PATHINFO_FILENAME);
+                $alt = preg_replace('/[-_]\d+x\d+$/', '', $alt);
+                $alt = str_replace(['_', '-'], ' ', $alt);
+                $alt = ucwords($alt);
+                $node->setAttribute('alt', $alt);
+
+            }
+        }
     }
 
     $content = $comp_dom->saveHTML();
@@ -154,9 +166,10 @@ function cwvpsb_display_webp($content) {
 function cwvpsb_display_webp_regex($content) {
     // Match all <img> tags with a 'src' attribute
     $pattern = '/<img(?:\s+[^>]*?\s*src\s*=\s*["\']([^"\']*)["\'])?(?:\s+[^>]*?)*?>/i';
-   
+    $settings = cwvpsb_defaults();
+    $force_alt_tags = isset($settings['images_add_alttags']) ? $settings['images_add_alttags'] : 1 ;
     // Perform the replacement using a callback function
-    $content = preg_replace_callback($pattern, function ($matches) {
+    $content = preg_replace_callback($pattern, function ($matches) use ($force_alt_tags) {
 
         $img_srcset = '';
         if(empty($matches[1])){
@@ -175,7 +188,7 @@ function cwvpsb_display_webp_regex($content) {
         if (stripos($url, '.webp') !== false) {
             return $matches[0]; // Return the original tag unchanged
         }
-
+  
         $original_url = $url;
         $url = preg_replace('~^(?:f|ht)tps?://~i', '/', $url);
         $mod_url = explode('uploads', $url);
@@ -268,6 +281,23 @@ function cwvpsb_display_webp_regex($content) {
                 $matches[0] = str_replace($patternSrcset, 'srcset="' . $img_srcset . '"', $matches[0]);
             }
         }
+        if ($force_alt_tags) {
+            //check if alt attribute empty , if empty set alt attribute with image name
+            if (!preg_match('/alt=["\'].*?["\']/i', $matches[0]) || preg_match('/alt=["\']\s*["\']/i', $matches[0])) {
+                $alt = pathinfo($original_url, PATHINFO_FILENAME);
+                $alt = preg_replace('/[-_]\d+x\d+$/', '', $alt);
+                $alt = str_replace(['_', '-'], ' ', $alt);
+                $alt = ucwords($alt);
+                // If `alt` attribute exists but is empty, replace the empty `alt`
+                if (preg_match('/alt=["\']\s*["\']/i', $matches[0])) {
+                    $matches[0] = preg_replace('/alt=["\']\s*["\']/i', 'alt="' . esc_attr($alt) . '"', $matches[0]);
+                } else {
+                    // If `alt` attribute is missing, add it
+                    $matches[0] = str_replace('<img', '<img alt="' . esc_attr($alt) . '"', $matches[0]);
+                }
+            }
+        }
+
 
         return $matches[0];
     }, $content);

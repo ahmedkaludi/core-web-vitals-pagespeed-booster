@@ -20,7 +20,7 @@ function cwvpsb_add_settings_link( $links ) {
 
 function cwvpsb_complete_html_after_dom_loaded( $content ) {
 	global $wp;
-	if ( ( isset( $wp->request ) && strpos( $wp->request, 'robots.txt' ) === false ) && ( ! function_exists( 'is_feed' ) && ( function_exists( 'is_feed' ) && ! is_feed() ) ) && ( ! function_exists( 'is_checkout' ) && ( function_exists( 'is_checkout' ) && ! is_checkout() ) ) && ! wp_doing_ajax() ) {
+	if ( isset( $wp->request ) && strpos( $wp->request, 'robots.txt' ) === false && ( ! function_exists( 'is_feed' ) || ( is_feed() === false ) ) && ( ! function_exists( 'is_checkout' ) || ( is_checkout() === false ) ) && ! wp_doing_ajax() ) {
 		$content = apply_filters( 'cwvpsb_complete_html_after_dom_loaded', $content );
 		
 	}
@@ -209,6 +209,8 @@ function cwvpsb_defaults() {
 		'cache_autoclear'         => 'never',
 		'cache_last_autoclear'    => 0,
 		'image_optimization_alt'  => 0,
+		'lazyload_exclude'        => '',
+		'images_add_alttag'      => 1
 	);
 	if ( is_multisite() && is_plugin_active_for_network( CWVPSB_BASE ) ) {
 		$settings = get_site_option( 'cwvpsb_get_settings', $defaults );

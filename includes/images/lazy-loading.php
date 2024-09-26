@@ -166,6 +166,8 @@ class CWV_Lazy_Load_Public {
     }
 
     $lazy_jq_selector = 'img';   
+
+    $settings = cwvpsb_defaults();
       
     $pq = phpQuery::newDocument($wphtml); 
     if (!empty(pq($lazy_jq_selector))) {
@@ -175,8 +177,13 @@ class CWV_Lazy_Load_Public {
                 if (strpos($classAttr, 'cwvlazyload_exclude') !== false) {
                     continue; // Skip processing this img tag
                 }
-
+                
                 $sized_src = pq($stuff)->attr('src');
+                $exclude_imgs = isset( $settings['lazyload_exclude'] ) ? explode(',', $settings['lazyload_exclude'] ) : [];
+                if(in_array($sized_src, $exclude_imgs ) ){
+                  error_log('Excluding image: ' . $sized_src);
+                    continue;
+                }
                 
                 // Fix for woocommerce zoom image to work properly
                 if (!empty(pq('.woocommerce')) && !empty(pq('.single-product')) && pq($stuff)->attr('data-large_image')) {
@@ -192,6 +199,15 @@ class CWV_Lazy_Load_Public {
                 pq($stuff)->attr('data-sizes', pq($stuff)->attr('sizes'));
                 pq($stuff)->removeAttr('sizes');
                 pq($stuff)->addClass('cwvlazyload');
+                if( !isset( $settings['images_add_alttags'] ) ||  $settings['images_add_alttags'] == 1 ){
+                  if(!pq($stuff)->attr('alt')){
+                    $alt = pathinfo( $sized_src, PATHINFO_FILENAME);
+                    $alt = str_replace(['_', '-'], ' ', $alt);
+                    $alt = preg_replace('/[-_]\d+x\d+$/', '', $alt);
+                    $alt = ucwords($alt);
+                    pq($stuff)->attr('alt', $alt);
+                  }
+                }
             }
         }       
     }
@@ -212,38 +228,60 @@ class CWV_Lazy_Load_Public {
     return $pq->html();
 }
   public function buffer_start_cwv_regex($wphtml) { 
+
+
     if ( function_exists( 'ampforwp_is_amp_endpoint' ) && ampforwp_is_amp_endpoint() ) {
       return $wphtml;
     }
     if ( function_exists( 'is_checkout' ) && is_checkout() ) {
       return $wphtml;
     }
+  
+  $settings = cwvpsb_defaults();
+  $exclude_imgs = isset($settings['lazyload_exclude']) ? explode(',', $settings['lazyload_exclude']) : [];
 // Convert data-src attributes
 $wphtml = preg_replace_callback(
   '/<img\s(.*?)>/i',
-  function ($matches) {
+  function ($matches ) use ($exclude_imgs) {
       $attributes = [];
       if (isset($matches[1])) {
         $attributesString = $matches[1];
         // Regular expression to extract attributes and their values
         preg_match_all('/(\w+(?:-\w+)?)(?:\s*=\s*([\'"])(.*?)\2)?/', $attributesString, $attributeMatches, PREG_SET_ORDER);
-        foreach ($attributeMatches as $match) {
-         if($match[1] == 'src'){
-            $attributes['src'] = "data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw==";
-            if(isset($match[3])){ $attributes['data-src'] = esc_url($match[3]);}
-          }elseif($match[1] == 'srcset'){
-            if(isset($match[3])){ $attributes['data-srcset'] = esc_attr($match[3]);}
-          }elseif($match[1] == 'sizes'){
-            if(isset($match[3])){ $attributes['data-sizes'] = esc_attr($match[3]);}
-          }else{
-            if(isset($match[3])){ $attributes[$match[1]] = esc_attr($match[3]);}
-          }
-        }
+          foreach ($attributeMatches as $match) {
+            error_log('Match: ' . print_r($match, true));
+            if ($match[1] == 'src') {
+              $attributes['src'] = "data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw==";
+              if (isset($match[3])) {
+                $attributes['data-src'] = esc_url($match[3]);
+              }
 
+            } elseif ($match[1] == 'srcset') {
+              if (isset($match[3])) {
+                $attributes['data-srcset'] = esc_attr($match[3]);
+              }
+            } elseif ($match[1] == 'sizes') {
+              if (isset($match[3])) {
+                $attributes['data-sizes'] = esc_attr($match[3]);
+              }
+            } else {
+              if (isset($match[3])) {
+                $attributes[$match[1]] = esc_attr($match[3]);
+              }
+            }
+          }
+          error_log('Attributes: ' . print_r($attributes, true)); 
         // Skip lazy loading for images with class cwvlazyload_exclude
         if (!empty($attributes['class']) && strpos($attributes['class'], 'cwvlazyload_exclude') !== false) {
           return $matches[0]; // Return original img tag without modification
        }
+       if (!empty($attributes['data-src']) && strpos($attributes['data-src'], 'data:image') !== false) {
+        return $matches[0]; 
+      }
+     
+        if (in_array($attributes['data-src'], $exclude_imgs)) {
+          return $matches[0];
+        }
 
         if(empty($attributes['class'])){
           $attributes['class'] = "cwvlazyload";
@@ -256,11 +294,6 @@ $wphtml = preg_replace_callback(
         if(isset($attributes['sizes'])){
           unset($attributes['sizes']);
         }
-      
-        // if(isset($attributes['data-large_image'])){
-        //   $attributes['data-src'] = $attributes['data-large_image'];
-        // }
-    
     }
       // Construct the updated img tag with lazy-loading attributes
       $lazyImgTag = '<img '.$this->attributes_to_string($attributes).'>'; // no need to escape attribtes are  already escaped
@@ -275,10 +308,19 @@ return $wphtml;
 public function attributes_to_string($attributes) {
   $result = '';
   foreach ($attributes as $key => $value) {
-      $result .= $key . '="' . htmlspecialchars($value) . '" ';
+      $result .= $key . '="' . esc_attr($value) . '" ';
   }
   return trim($result);
 }
 
   public function buffer_end_cwv() { ob_end_flush(); }
+
+  private function lazyload_img_exclusion($img_src) {
+    $settings = cwvpsb_defaults();
+    $exclude_imgs = isset($settings['lazyload_exclude']) ? explode(',', $settings['lazyload_exclude']) : [];
+    if (in_array($img_src, $exclude_imgs)) {
+      return true;
+    }
+    return false;
+  }
 }
