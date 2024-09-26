@@ -181,7 +181,6 @@ class CWV_Lazy_Load_Public {
                 $sized_src = pq($stuff)->attr('src');
                 $exclude_imgs = isset( $settings['lazyload_exclude'] ) ? explode(',', $settings['lazyload_exclude'] ) : [];
                 if(in_array($sized_src, $exclude_imgs ) ){
-                  error_log('Excluding image: ' . $sized_src);
                     continue;
                 }
                 
@@ -249,7 +248,6 @@ $wphtml = preg_replace_callback(
         // Regular expression to extract attributes and their values
         preg_match_all('/(\w+(?:-\w+)?)(?:\s*=\s*([\'"])(.*?)\2)?/', $attributesString, $attributeMatches, PREG_SET_ORDER);
           foreach ($attributeMatches as $match) {
-            error_log('Match: ' . print_r($match, true));
             if ($match[1] == 'src') {
               $attributes['src'] = "data:image/gif;base64,R0lGODlhAQABAIAAAP//////zCH5BAEHAAAALAAAAAABAAEAAAICRAEAOw==";
               if (isset($match[3])) {
@@ -270,7 +268,6 @@ $wphtml = preg_replace_callback(
               }
             }
           }
-          error_log('Attributes: ' . print_r($attributes, true)); 
         // Skip lazy loading for images with class cwvlazyload_exclude
         if (!empty($attributes['class']) && strpos($attributes['class'], 'cwvlazyload_exclude') !== false) {
           return $matches[0]; // Return original img tag without modification
