@@ -86,7 +86,7 @@ function cwvpsb_convert_webp(){
 function cwvpsb_display_webp($content) {
     $comp_dom = new DOMDocument();
     libxml_use_internal_errors(true);
-    $decodedHtml = mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8');
+    $decodedHtml = html_entity_decode($content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
     if(!$decodedHtml){
         return $content;
     }
