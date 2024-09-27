@@ -97,7 +97,7 @@ function cwvpsb_load_textdomain() {
 
 add_action( 'wp_ajax_cwvpsb_clear_cached_css', 'cwvpsb_clear_cached_css' );
 function cwvpsb_clear_cached_css() {
-	if ( isset( $_POST['nonce_verify'] ) && ! wp_verify_nonce( $_POST['nonce_verify'], 'cwv-security-nonce' ) ) {
+	if ( isset( $_POST['nonce_verify'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce_verify'] ) ), 'cwv-security-nonce' ) ) {
 		wp_send_json(
 			array(
 				'status' => 400,
@@ -114,7 +114,8 @@ function cwvpsb_clear_cached_css() {
 		);
 	}
 	$clean_types = array( 'css' );
-	if ( ! in_array( $_POST['cleaning'], $clean_types ) ) {
+	$cleaning   = isset( $_POST['cleaning'] ) ? sanitize_text_field( wp_unslash( $_POST['cleaning'] ) ) : [];
+	if ( ! in_array( $cleaning , $clean_types ) ) {
 		wp_send_json(
 			array(
 				'status' => 400,
@@ -122,7 +123,7 @@ function cwvpsb_clear_cached_css() {
 			)
 		);
 	}
-	$cleaning = isset( $_POST['cleaning'] ) ? sanitize_text_field( $_POST['cleaning'] ) : '';
+	$cleaning = isset( $_POST['cleaning'] ) ? sanitize_text_field( wp_unslash( $_POST['cleaning'] ) ) : '';
 
 	$upload_dir = wp_upload_dir();
 
@@ -176,7 +177,7 @@ function cwvpsb_admin_link( $tab = '', $args = array() ) {
 
 function cwvpsb_get_tab( $default = '', $available = array() ) {
 
-	$tab = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : $default;
+	$tab = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( $_GET['tab'] ) )  : $default; //phpcs:ignore --Request no nonce verification required
 	if ( ! in_array( $tab, $available ) ) {
 		$tab = $default;
 	}
@@ -231,8 +232,8 @@ function cwvpsb_admin_enqueue( $check ) {
 		return;
 	}
 	$min = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
-	wp_enqueue_script( 'cwvpsb-datatable-script', CWVPSB_PLUGIN_DIR_URI . '/includes/admin/js/jquery.dataTables.min.js', array( 'jquery' ) );
-	wp_enqueue_style( 'cwvpsb-datatable-style', CWVPSB_PLUGIN_DIR_URI . '/includes/admin/js/jquery.dataTables.min.css' );
+	wp_enqueue_script( 'cwvpsb-datatable-script', CWVPSB_PLUGIN_DIR_URI . '/includes/admin/js/jquery.dataTables.min.js', array( 'jquery' ), CWVPSB_VERSION, true );
+	wp_enqueue_style( 'cwvpsb-datatable-style', CWVPSB_PLUGIN_DIR_URI . '/includes/admin/js/jquery.dataTables.min.css' , false, CWVPSB_VERSION );
 
 	wp_register_style( 'cwvpsb-admin-css', CWVPSB_PLUGIN_DIR_URI . "/includes/admin/style{$min}.css", false, CWVPSB_VERSION );
 	wp_enqueue_style( 'cwvpsb-admin-css' );
@@ -404,7 +405,7 @@ function cwvpsb_iframe_delay_enqueue() {
 
 	global $iframe_check;
 	if ( $iframe_check == 1 ) {
-		wp_enqueue_script( 'cwvpsb_iframe', plugin_dir_url( __FILE__ ) . 'cwvpsb_iframe.js', array(), CWVPSB_VERSION );
+		wp_enqueue_script( 'cwvpsb_iframe', plugin_dir_url( __FILE__ ) . 'cwvpsb_iframe.js', array(), CWVPSB_VERSION, true );
 		wp_enqueue_style( 'cwvpsb_iframe', plugin_dir_url( __FILE__ ) . 'cwvpsb_iframe.css', array(), CWVPSB_VERSION );
 	}
 }
@@ -433,7 +434,8 @@ function cwvpsb_amp_support_enabled() {
 		if ( $amp_story_primary == 1 && $amp_story_activated == 1 && ! is_admin() && ( is_single() || is_page() ) ) {
 			return true;
 		}
-		if ( sanitize_text_field( $_GET['amp'] == 1 ) && $amp_story_activated == 1 ) {
+		$is_amp = isset($_GET['amp']) ? sanitize_text_field( wp_unslash( $_GET['amp'] ) ) : ''; //phpcs:ignore --Request no nonce verification required
+		if ( $is_amp   == 1  && $amp_story_activated == 1 ) {
 			return true;
 		}
 	}
@@ -444,7 +446,7 @@ function cwvpsb_amp_support_enabled() {
 function cwvpsb_is_mobile() {
 	$userAgent = '';
 	if ( isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
-		$userAgent = $_SERVER['HTTP_USER_AGENT'];
+		$userAgent = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
 	}
 
 	// A list of common mobile device keywords
@@ -493,7 +495,7 @@ function cwvpsb_read_file_contents( $file_path ) {
 		return $wp_filesystem->get_contents( $file_path );
 	}
 
-	return false;
+	return '';
 }
 
 /**
@@ -533,7 +535,7 @@ function cwvpsb_write_file_contents( $filename, $data, $append = false ) {
 		$current_content = $append ? $wp_filesystem->get_contents( $filename ) : '';
 
 		// Write the new data.
-		$wp_filesystem->put_contents( $filename, $current_content . $data, FS_CHMOD_FILE );
+		return $wp_filesystem->put_contents( $filename, $current_content . $data, FS_CHMOD_FILE );
 	} else {
 		// Use native PHP functions for very large files.
 		$mode = $append ? 'a' : 'w';
@@ -542,11 +544,12 @@ function cwvpsb_write_file_contents( $filename, $data, $append = false ) {
 
 		if ( $file ) {
             //phpcs:ignore -- using native PHP functions for large files.
-            fwrite($file, $data);
+            $bytes_written = fwrite($file, $data);
             //phpcs:ignore -- using native PHP functions for large files.
             fclose($file);
+			return $bytes_written;
 		} else {
-			error_log( "Failed to open file for writing: $filename" );
+			return false;
 		}
 	}
 }
@@ -590,4 +593,31 @@ function cwvpsb_file_exists( $file ) {
 	}
 
 	return $wp_filesystem->exists( $file );
+}
+/**
+ * Remove a directory using the WordPress File System API.
+ *
+ * @param string $dir The path to the directory.
+ * @return bool|WP_Error True on success, WP_Error object on failure.
+ */
+function cwvpsb_remove_directory($dir) {
+    global $wp_filesystem;
+
+    // Initialize the WP Filesystem API
+    if (empty($wp_filesystem)) {
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+        WP_Filesystem();
+    }
+
+    // Check if the directory exists
+    if ($wp_filesystem->is_dir($dir)) {
+        // Remove the directory using the WP Filesystem API
+        if (!$wp_filesystem->rmdir($dir, true)) { // true for recursive removal
+            return new WP_Error('rmdir_failed', esc_html__('Failed to remove directory.', 'cwvpsb'));
+        }
+    } else {
+        return new WP_Error('invalid_directory', esc_html__('Directory does not exist.', 'cwvpsb'));
+    }
+
+    return true;
 }

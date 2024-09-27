@@ -95,7 +95,7 @@ final class CWVPSB_Cache {
 
 		}
 
-	if ( isset( $_POST['submit'] ) || isset( $_POST['cache-btn'] ) ) {
+	if ( isset( $_POST['submit'] ) || isset( $_POST['cache-btn'] ) ) {  //phpcs:ignore -- Reason: Check for submit button
             self::clear_total_cache(true);
         }	
 
@@ -180,7 +180,7 @@ final class CWVPSB_Cache {
 	}
 
 	public static function on_activation() {
-		$networkwide = isset($_GET['networkwide'])?sanitize_text_field($_GET['networkwide']):'';
+		$networkwide = isset($_GET['networkwide'])?sanitize_text_field(wp_unslash( $_GET['networkwide'] ) ):''; //phpcs:ignore
 		// multisite and network
 		if ( is_multisite() && ! empty($networkwide) ) {
 			// blog ids
@@ -212,7 +212,7 @@ final class CWVPSB_Cache {
 
 	public static function on_uninstall() {
 		global $wpdb;
-		$networkwide = sanitize_text_field($_GET['networkwide']);
+		$networkwide = sanitize_text_field( wp_unslash( $_GET['networkwide'] ) ); //phpcs:ignore 
 		// multisite and network
 		if ( is_multisite() && ! empty($networkwide) ) {
 			// legacy blog
@@ -245,7 +245,7 @@ final class CWVPSB_Cache {
 	private static function _get_blog_ids() {
 		global $wpdb;
 
-		return $wpdb->get_col("SELECT blog_id FROM `$wpdb->blogs`");
+		return $wpdb->get_col("SELECT blog_id FROM `$wpdb->blogs`"); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 	}
 
 	private static function _set_default_vars() {
@@ -269,7 +269,7 @@ final class CWVPSB_Cache {
 	public static function process_clear_request($data) {
 		$cache = "";
 		if (isset($_GET['_cache'])){
-			$cache = sanitize_text_field($_GET['_cache']);
+			$cache = sanitize_text_field( wp_unslash( $_GET['_cache'] ) );  //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		}
 		// check if clear request
 		if ( empty($cache) OR ( $cache !== 'clear' && $cache !== 'clearurl' ) ) {
@@ -277,7 +277,7 @@ final class CWVPSB_Cache {
 		}
 
         // validate nonce
-        if ( empty($_GET['_wpnonce']) OR ! wp_verify_nonce($_GET['_wpnonce'], '_cache__clear_nonce') ) {
+        if ( empty( $_GET['_wpnonce'] ) OR ! wp_verify_nonce( wp_unslash( $_GET['_wpnonce'] ), '_cache__clear_nonce') ) {  //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
             return;
         }
 
@@ -502,7 +502,7 @@ final class CWVPSB_Cache {
 	}
 
 	private static function _is_index() {
-		return basename($_SERVER['SCRIPT_NAME']) != 'index.php';
+		return basename($_SERVER['SCRIPT_NAME']) != 'index.php'; //phpcs:ignore -- Reason: Check for just filename
 	}
 
 	private static function _is_logged_in() {
@@ -553,7 +553,7 @@ final class CWVPSB_Cache {
 		}
 
 		// Request with query strings
-		if ( ! empty($_GET) && ! isset( $_GET['utm_source'], $_GET['utm_medium'], $_GET['utm_campaign'] ) && get_option('permalink_structure') ) {
+		if ( ! empty($_GET) && ! isset( $_GET['utm_source'], $_GET['utm_medium'], $_GET['utm_campaign'] ) && get_option('permalink_structure') ) {  //phpcs:ignore 	WordPress.Security.NonceVerification.Recommended -- Reason: Only check for query strings
 			return true;
 		}
 

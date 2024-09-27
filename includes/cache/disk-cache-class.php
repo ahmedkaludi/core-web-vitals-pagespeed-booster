@@ -94,31 +94,29 @@ final class CWVPSB_Cache_Disk {
 		// get if-modified request headers
 		if ( function_exists( 'apache_request_headers' ) ) {
 			$headers = apache_request_headers();
-			$http_if_modified_since = ( isset( $headers[ 'If-Modified-Since' ] ) ) ? $headers[ 'If-Modified-Since' ] : '';
-			$http_accept = ( isset( $headers[ 'Accept' ] ) ) ? $headers[ 'Accept' ] : '';
-			$http_accept_encoding = ( isset( $headers[ 'Accept-Encoding' ] ) ) ? $headers[ 'Accept-Encoding' ] : '';
+			$http_if_modified_since = ( isset( $headers[ 'If-Modified-Since' ] ) ) ? sanitize_text_field( wp_unslash( $headers[ 'If-Modified-Since' ] ) ) : '';
+			$http_accept = ( isset( $headers[ 'Accept' ] ) ) ? sanitize_text_field( wp_unslash( $headers[ 'Accept' ] ) ) : '';
+			$http_accept_encoding = ( isset( $headers[ 'Accept-Encoding' ] ) ) ? sanitize_text_field( wp_unslash( $headers[ 'Accept-Encoding' ] ) )  : '';
 		} else {
-			$http_if_modified_since = ( isset( $_SERVER[ 'HTTP_IF_MODIFIED_SINCE' ] ) ) ? $_SERVER[ 'HTTP_IF_MODIFIED_SINCE' ] : '';
-			$http_accept = ( isset( $_SERVER[ 'HTTP_ACCEPT' ] ) ) ? $_SERVER[ 'HTTP_ACCEPT' ] : '';
-			$http_accept_encoding = ( isset( $_SERVER[ 'HTTP_ACCEPT_ENCODING' ] ) ) ? $_SERVER[ 'HTTP_ACCEPT_ENCODING' ] : '';
+			$http_if_modified_since = ( isset( $_SERVER[ 'HTTP_IF_MODIFIED_SINCE' ] ) ) ? sanitize_text_field( wp_unslash( $_SERVER[ 'HTTP_IF_MODIFIED_SINCE' ] ) )  : '';
+			$http_accept = ( isset( $_SERVER[ 'HTTP_ACCEPT' ] ) ) ? sanitize_text_field( wp_unslash( $_SERVER[ 'HTTP_ACCEPT' ] ) )  : '';
+			$http_accept_encoding = ( isset( $_SERVER[ 'HTTP_ACCEPT_ENCODING' ] ) ) ? sanitize_text_field( wp_unslash( $_SERVER[ 'HTTP_ACCEPT_ENCODING' ] ) )  : '';
 		}
-
+		$server_protocol = isset( $_SERVER['SERVER_PROTOCOL']  ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_PROTOCOL'] ) ) : 'http/1.1';
 		// check modified since with cached file and return 304 if no difference
 		if ( $http_if_modified_since && ( strtotime( $http_if_modified_since ) == filemtime( self::_file_html() ) ) ) {
-			header( $_SERVER['SERVER_PROTOCOL'] . ' 304 Not Modified', true, 304 );
+			header( $server_protocol  . ' 304 Not Modified', true, 304 );
 			return $data;
-			exit;
 		}
 		// check encoding and deliver gzip file if support
 		if ( $http_accept_encoding && ( strpos($http_accept_encoding, 'gzip') !== false ) && is_readable( self::_file_gzip() )  ) {
 			header('Content-Encoding: gzip');
-			return file_get_contents( self::_file_gzip() );
-			exit;
+			return cwvpsb_read_file_contents( self::_file_gzip() );
 		}
 
 		// deliver cached file (default)
-		return file_get_contents( self::_file_html() );
-		exit;
+		return cwvpsb_read_file_contents( self::_file_html() );
+	
 	}
 	
 	public static function get_asset_readfile() {
@@ -128,29 +126,32 @@ final class CWVPSB_Cache_Disk {
 		// get if-modified request headers
 		if ( function_exists( 'apache_request_headers' ) ) {
 			$headers = apache_request_headers();
-			$http_if_modified_since = ( isset( $headers[ 'If-Modified-Since' ] ) ) ? $headers[ 'If-Modified-Since' ] : '';
-			$http_accept = ( isset( $headers[ 'Accept' ] ) ) ? $headers[ 'Accept' ] : '';
-			$http_accept_encoding = ( isset( $headers[ 'Accept-Encoding' ] ) ) ? $headers[ 'Accept-Encoding' ] : '';
+			$http_if_modified_since =  isset( $headers[ 'If-Modified-Since' ] ) ? sanitize_textarea_field( wp_unslash( $headers[ 'If-Modified-Since' ] ) ) : '';
+			$http_accept =  isset( $headers[ 'Accept' ] )  ? sanitize_textarea_field( wp_unslash( $headers[ 'Accept' ] ) ) : '';
+			$http_accept_encoding =  isset( $headers[ 'Accept-Encoding' ] )  ? sanitize_textarea_field( wp_unslash( $headers[ 'Accept-Encoding' ] ) )  : '';
 		} else {
-			$http_if_modified_since = ( isset( $_SERVER[ 'HTTP_IF_MODIFIED_SINCE' ] ) ) ? $_SERVER[ 'HTTP_IF_MODIFIED_SINCE' ] : '';
-			$http_accept = ( isset( $_SERVER[ 'HTTP_ACCEPT' ] ) ) ? $_SERVER[ 'HTTP_ACCEPT' ] : '';
-			$http_accept_encoding = ( isset( $_SERVER[ 'HTTP_ACCEPT_ENCODING' ] ) ) ? $_SERVER[ 'HTTP_ACCEPT_ENCODING' ] : '';
+			$http_if_modified_since =  isset( $_SERVER[ 'HTTP_IF_MODIFIED_SINCE' ] )  ? sanitize_textarea_field( wp_unslash( $_SERVER[ 'HTTP_IF_MODIFIED_SINCE' ]) ) : '';
+			$http_accept = isset( $_SERVER[ 'HTTP_ACCEPT' ] )  ? sanitize_textarea_field( wp_unslash( $_SERVER[ 'HTTP_ACCEPT' ] ) ) : '';
+			$http_accept_encoding =  isset( $_SERVER[ 'HTTP_ACCEPT_ENCODING' ] )  ? sanitize_textarea_field( wp_unslash( $_SERVER[ 'HTTP_ACCEPT_ENCODING' ] ) ) : '';
 		}
 
 		// check modified since with cached file and return 304 if no difference
+		$server_protocol = isset( $_SERVER['SERVER_PROTOCOL']  ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_PROTOCOL'] ) ) : 'http/1.1'; 
 		if ( $http_if_modified_since && ( strtotime( $http_if_modified_since ) == filemtime( self::_file_html() ) ) ) {
-			header( $_SERVER['SERVER_PROTOCOL'] . ' 304 Not Modified', true, 304 );
+			header( $server_protocol . ' 304 Not Modified', true, 304 );
 			exit;
 		}
 		// check encoding and deliver gzip file if support
 		if ( $http_accept_encoding && ( strpos($http_accept_encoding, 'gzip') !== false ) && is_readable( self::_file_gzip() )  ) {
 			header('Content-Encoding: gzip');
-			readfile( self::_file_gzip() );
+			$op_content = cwvpsb_read_file_contents( self::_file_gzip() );
+			echo $op_content; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped --  Reason: Output is already escaped
 			exit;
 		}
 
 		// deliver cached file (default)
-		readfile( self::_file_html() );
+		$op_content = cwvpsb_read_file_contents( self::_file_html() );
+		echo $op_content; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped --  Reason: Output is already escaped
 		exit;
 	}
 
@@ -179,26 +180,24 @@ final class CWVPSB_Cache_Disk {
 		self::_create_file( self::_file_html(), $data.$cache_signature." -->" ); 
 	}
 
-	private static function _create_file($file, $data) {
-
-		// open file handler
-		if ( ! $handle = @fopen($file, 'wb') ) {
+	private static function _create_file($file, $data)
+	{
+		if (!$handle = @fopen($file, 'wb')) {
 			wp_die('Can not write to file.');
+
+			@fwrite($handle, $data); //phpcs:ignore
+			fclose($handle); //phpcs:ignore
+			clearstatcache();
+
+			// set permissions
+			$stat = @stat(dirname($file)); //phpcs:ignore
+			$perms = $stat['mode'] & 0007777;
+			$perms = $perms & 0000666;
+			@chmod($file, $perms); //phpcs:ignore
+
+			clearstatcache();
 		}
-
-		// write
-		@fwrite($handle, $data);
-		fclose($handle);
-		clearstatcache();
-
-		// set permissions
-		$stat = @stat( dirname($file) );
-		$perms = $stat['mode'] & 0007777;
-		$perms = $perms & 0000666;
-		@chmod($file, $perms);
-		clearstatcache();
-	}
-
+}
 	private static function _clear_dir($dir) {
 
 		// remove slashes
@@ -232,7 +231,7 @@ final class CWVPSB_Cache_Disk {
 		}
 
 		// delete
-		@rmdir($dir);
+		cwvpsb_remove_directory($dir);
 
 		// clears file status cache
 		clearstatcache();
@@ -245,11 +244,11 @@ final class CWVPSB_Cache_Disk {
 			CWVPSB_CACHE_DIR,
 			DIRECTORY_SEPARATOR,
 			parse_url(
-				'http://' .strtolower($_SERVER['HTTP_HOST']),
+				'http://' .strtolower(sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST']) ) ), //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 				PHP_URL_HOST
 			),
 			parse_url(
-				( $path ? $path : $_SERVER['REQUEST_URI'] ),
+				( $path ? $path : sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ), //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 				PHP_URL_PATH
 			)
 		);

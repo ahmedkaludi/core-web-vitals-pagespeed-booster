@@ -29,6 +29,7 @@ shuffle($reasons);
 			</ul>
 			<?php if ($email): ?>
 				<input type="hidden" name="cwv_disable_from" value="<?php echo esc_attr($email); ?>" />
+				<input type="hidden" name="deactivate_nonce" value="<?php echo esc_attr($email); ?>" />
 			<?php endif; ?>
 			<input id="cwv-reloaded-feedback-submit" class="button button-primary" type="submit"
 				name="cwv_disable_submit" value="<?php esc_html_e('Submit & Deactivate', 'cwvpsb'); ?>" />

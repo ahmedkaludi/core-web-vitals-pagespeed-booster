@@ -65,10 +65,10 @@ function cwvpsb_convert_webp(){
         $upload_dir_base .= '/'.$img_dir;
         $check_dir = $upload_dir_base . '.webp';
         if(!file_exists($check_dir) && file_exists($new_dir)){
-            $check_svg = strpos(file_get_contents($new_dir),'</svg>');
+            $check_svg = strpos(cwvpsb_read_file_contents($new_dir),'</svg>');
             if(!$check_svg && $check_svg!=0)
             {
-                $image = imagecreatefromstring(file_get_contents($new_dir));
+                $image = imagecreatefromstring(cwvpsb_read_file_contents($new_dir));
                 ob_start();
                 imagejpeg($image,NULL,100);
                 $get_contents = ob_get_contents();

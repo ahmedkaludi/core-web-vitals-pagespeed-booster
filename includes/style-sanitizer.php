@@ -2161,12 +2161,12 @@ function cwvpsb_set_file_transient( $transient, $value, $expiration = 0 ) {
 			if(!file_exists($user_dirname)) wp_mkdir_p($user_dirname);
 			$content = $value;
 			$new_file = $user_dirname."/".$transient_option.".css";
-			$ifp = @fopen( $new_file, 'w+' );
-			if ( ! $ifp ) { // Translators: %s is the file name
+			
+			$response = cwvpsb_write_file_contents(	$new_file, $content , true);
+			if ( ! $response ) { // Translators: %s is the file name
 	          return ( array( 'error' => sprintf( esc_html__( 'Could not write file %s', 'cwvpsb' ), $new_file ) ));
 	        }
-	        $result = @fwrite( $ifp, wp_json_encode($value) );
-		    fclose( $ifp );
+	        $result = $response;
 		}
 
 	}
@@ -2193,11 +2193,7 @@ function cwvpsb_style_get_file_transient( $transient ) {
 			
 			$new_file = $user_dirname."/".$transient_option.".css";
 
-			if(file_exists($new_file) && filesize($new_file)>0){
-				$ifp = @fopen( $new_file, 'r' );
-				$value = fread($ifp, filesize($new_file)); 
-				fclose($ifp);
-			}
+			$value = cwvpsb_read_file_contents($new_file);
 		}
 	}
 

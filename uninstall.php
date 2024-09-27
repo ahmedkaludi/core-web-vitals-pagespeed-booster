@@ -15,19 +15,17 @@ if($cwvpb_settings && isset($cwvpb_settings['delete_on_uninstall']) && $cwvpb_se
 	global $wpdb, $table_prefix;
 	if (function_exists('is_multisite') && is_multisite()) {	
 		$original_blog_id = get_current_blog_id();
-		$blog_ids = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs}");
+		$blog_ids = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs}"); //phpcs:ignore 
 	
 		foreach ($blog_ids as $blog_id) {
 			switch_to_blog($blog_id);
-			$cached_table = $table_prefix . 'cwvpb_critical_urls';
-			$wpdb->query("DROP TABLE IF EXISTS `$cached_table`");
+			$wpdb->query("DROP TABLE IF EXISTS `{$wpdb->prefix}cwvpb_critical_urls`"); //phpcs:ignore --Reason: Direct DB call to delete table
 			delete_option('cwvpsb_get_settings');
 		}
 	
 		switch_to_blog($original_blog_id);
 	} else {
-		$cached_table = $table_prefix . 'cwvpb_critical_urls';
-		$wpdb->query("DROP TABLE IF EXISTS $cached_table");
+		$wpdb->query("DROP TABLE IF EXISTS `{$wpdb->prefix}cwvpb_critical_urls`"); //phpcs:ignore  --Reason: Direct DB call to delete table
 	}
 	require_once ( ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php' );
 	require_once ( ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php' );

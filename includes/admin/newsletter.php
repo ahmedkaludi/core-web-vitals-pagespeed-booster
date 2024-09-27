@@ -29,15 +29,15 @@ class CWVPB_newsletter
                 if (!isset($_POST['cwvpb_security_nonce'])) {
                         return;
                 }
-                if (!wp_verify_nonce($_POST['cwvpb_security_nonce'], 'cwvpb_ajax_check_nonce')) {
+                if (!wp_verify_nonce( sanitize_text_field( wp_unslash($_POST['cwvpb_security_nonce'] ) ), 'cwvpb_ajax_check_nonce')) {  //phpcs:ignore WordPress.Security.NonceVerification.Recommended
                         return;
                 }
                 if (!(current_user_can('manage_options'))) {
                         return;
                 }
-                $name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
-                $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
-                $website = isset($_POST['website']) ? sanitize_url($_POST['website']) : '';
+                $name = isset($_POST['name']) ? sanitize_text_field(wp_unslash($_POST['name'])) : '';
+                $email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';
+                $website = isset($_POST['website']) ? sanitize_url(wp_unslash($_POST['website'])) : '';
 
                 if ($email) {
 
@@ -82,8 +82,7 @@ class CWVPB_newsletter
 
                         global $current_user;
                         $tour = array();
-                        $tab = isset($_GET['tab']) ? esc_attr($_GET['tab']) : '';
-
+                        $tab = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( $_GET['tab'] ) ) : '';  //phpcs:ignore WordPress.Security.NonceVerification.Recommended
                         if (!array_key_exists($tab, $tour)) {
 
                                 $object['do_tour'] = $do_tour;

@@ -87,11 +87,11 @@ class cwvpbcriticalCss
 		$url = home_url($wp->request);
 		$url = trailingslashit($url);
 		if (file_exists($user_dirname . md5($url) . '.css')) {
-			$css = file_get_contents($user_dirname . '/' . md5($url) . '.css');
-			echo "<style type='text/css' id='cc-styles'>{$css}</style>";
+			$css_safe = cwvpsb_read_file_contents($user_dirname . '/' . md5($url) . '.css');
+			echo "<style type='text/css' id='cc-styles'>{$css_safe}</style>"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		} else {
-			$wpdb->query($wpdb->prepare(
-				"UPDATE $table_name SET `status` = %s,  `cached_name` = %s WHERE `url` = %s",
+			$wpdb->query($wpdb->prepare( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching  --Reason: Direct DB call to update table
+				"UPDATE $table_name SET `status` = %s,  `cached_name` = %s WHERE `url` = %s", //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared	
 				'queue',
 				'',
 				$url
@@ -435,16 +435,16 @@ class cwvpbcriticalCss
 
 			$permalink = $this->append_slash_permalink($permalink);
 
-			$pid = $wpdb->get_var(
+			$pid = $wpdb->get_var( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 				$wpdb->prepare(
-					"SELECT `url` FROM $table_name WHERE `url`=%s limit %d",
+					"SELECT `url` FROM $table_name WHERE `url`=%s limit %d", //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 					$permalink,
 					1
 				)
 			);
 
 			if (is_null($pid)) {
-				$wpdb->insert(
+				$wpdb->insert( //phpcs:ignore WordPress.DB.DirectDatabaseQuery
 					$table_name,
 					array(
 						'url_id' => $post_id,
@@ -452,7 +452,7 @@ class cwvpbcriticalCss
 						'type_name' => get_post_type($post_id),
 						'url' => $permalink,
 						'status' => 'queue',
-						'created_at' => date('Y-m-d h:i:sa'),
+						'created_at' => gmdate('Y-m-d h:i:sa'),
 					),
 					array('%d', '%s', '%s', '%s', '%s', '%s')
 				);
@@ -468,30 +468,30 @@ class cwvpbcriticalCss
 			return;
 		}
 		global $wpdb, $table_prefix;
-		$table_name = $table_prefix . 'cwvpb_critical_urls';
+		$table_name_escaped = esc_sql( $table_prefix . 'cwvpb_critical_urls');
 		$permalink = get_term_link($term);
 
 		if (!empty($permalink)) {
 
 			$permalink = $this->append_slash_permalink($permalink);
 
-			$pid = $wpdb->get_var(
+			$pid = $wpdb->get_var( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 				$wpdb->prepare(
-					"SELECT `url` FROM $table_name WHERE `url`=%s limit 1",
+					"SELECT `url` FROM {$table_name_escaped} WHERE `url`=%s limit 1", //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 					$permalink
 				)
 			);
 
 			if (is_null($pid)) {
-				$wpdb->insert(
-					$table_name,
+				$wpdb->insert(  //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+					$table_name_escaped,
 					array(
 						'url_id' => $term->term_id,
 						'type' => $term->taxonomy,
 						'type_name' => $term->taxonomy,
 						'url' => $permalink,
 						'status' => 'queue',
-						'created_at' => date('Y-m-d h:i:sa')
+						'created_at' => gmdate('Y-m-d h:i:sa')
 					),
 					array('%d', '%s', '%s', '%s', '%s', '%s')
 				);
@@ -523,15 +523,15 @@ class cwvpbcriticalCss
 		$start = get_option('save_posts_offset') ? get_option('save_posts_offset') : 0;
 		$batch = 30;
 		$offset = $start * $batch;
-		$posts = $wpdb->get_results(
-			stripslashes($wpdb->prepare(
-				"SELECT `ID` FROM $wpdb->posts WHERE post_status=%s 
+		$posts = $wpdb->get_results( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching  --Reason: Direct DB call to get posts
+			$wpdb->prepare( 
+				"SELECT `ID` FROM {$wpdb->posts} WHERE post_status=%s 
 					AND post_type IN(%s) LIMIT %d, %d",
 				'publish',
 				implode("', '", $post_types),
 				$offset,
 				$batch
-			))
+			)
 			,
 			ARRAY_A
 		);
@@ -567,9 +567,9 @@ class cwvpbcriticalCss
 
 			foreach ($urls_to as $key => $value) {
 
-				$pid = $wpdb->get_var(
+				$pid = $wpdb->get_var( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 					$wpdb->prepare(
-						"SELECT `url` FROM $table_name WHERE `url`=%s limit %d",
+						"SELECT `url` FROM $table_name WHERE `url`=%s limit %d", //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared  --Reason: Direct DB call to get posts
 						$value,
 						1
 					)
@@ -577,7 +577,7 @@ class cwvpbcriticalCss
 				$id = ($key++) + 999999999;
 				if (is_null($pid)) {
 
-					$wpdb->insert(
+					$wpdb->insert( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 						$table_name,
 						array(
 							'url_id' => $id,
@@ -585,14 +585,14 @@ class cwvpbcriticalCss
 							'type_name' => 'others',
 							'url' => $value,
 							'status' => 'queue',
-							'created_at' => date('Y-m-d'),
+							'created_at' => gmdate('Y-m-d'),
 						),
 						array('%d', '%s', '%s', '%s', '%s', '%s')
 					);
 
 				} else {
-					$wpdb->query($wpdb->prepare(
-						"UPDATE $table_name SET `url` = %s WHERE `url_id` = %d",
+					$wpdb->query($wpdb->prepare( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+						"UPDATE $table_name SET `url` = %s WHERE `url_id` = %d", //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared  --Reason: Direct DB call to update table
 						$value,
 						$id
 					));
@@ -627,14 +627,14 @@ class cwvpbcriticalCss
 		$start = get_option('save_terms_offset') ? get_option('save_terms_offset') : 0;
 		$batch = 30;
 		$offset = $start * $batch;
-		$terms = $wpdb->get_results(
-			stripslashes($wpdb->prepare(
-				"SELECT `term_id`, `taxonomy` FROM $wpdb->term_taxonomy 
+		$terms = $wpdb->get_results( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare(
+				"SELECT `term_id`, `taxonomy` FROM {$wpdb->term_taxonomy}
 					WHERE taxonomy IN(%s) LIMIT %d, %d",
 				implode("', '", $taxonomy_types),
 				$offset,
 				$batch
-			))
+			)
 			,
 			ARRAY_A
 		);
@@ -658,23 +658,33 @@ class cwvpbcriticalCss
 	{
 
 		global $wpdb;
-		$table_name = $wpdb->prefix . 'cwvpb_critical_urls';
+		$table_name_escaped = esc_sql($wpdb->prefix . 'cwvpb_critical_urls');
 
-		$result = $wpdb->get_results(
-			stripslashes($wpdb->prepare(
-				"SELECT * FROM $table_name WHERE `status` IN  (%s) LIMIT %d",
+		$result = $wpdb->get_results( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare(
+				"SELECT * FROM {$table_name_escaped} WHERE `status` IN  (%s) LIMIT %d", //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared	 --Reason: Direct DB call to get posts
 				'queue',
 				4
-			))
+			)
 			,
 			ARRAY_A
 		);
 
 		if (!empty($result)) {
 
+			global $wp_filesystem;
+
+			if ( ! function_exists( 'WP_Filesystem' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/file.php';
+			}
+			WP_Filesystem();
+
+			
+
 			$user_dirname = $this->cachepath();
-			if (!is_dir($user_dirname)) {
-				wp_mkdir_p($user_dirname);
+			if (  ! $wp_filesystem->is_dir( $user_dirname ) ) {
+				$wp_filesystem->mkdir( $user_dirname );
+				$wp_filesystem->chmod( $user_dirname, 755 );
 			}
 
 			if (is_dir($user_dirname)) {
@@ -712,11 +722,11 @@ class cwvpbcriticalCss
 		global $wpdb, $table_prefix;
 		$table_name = $table_prefix . 'cwvpb_critical_urls';
 
-		$result = $wpdb->query($wpdb->prepare(
-			"UPDATE $table_name SET `status` = %s,  `cached_name` = %s,  `updated_at` = %s,  `failed_error` = %s WHERE `url` = %s",
+		$result = $wpdb->query($wpdb->prepare( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			"UPDATE {$table_name} SET `status` = %s,  `cached_name` = %s,  `updated_at` = %s,  `failed_error` = %s WHERE `url` = %s", //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared  --Reason: Direct DB call to update table
 			$status,
 			$cached_name,
-			date('Y-m-d h:i:sa'),
+			gmdate('Y-m-d h:i:sa'),
 			$failed_error,
 			$url
 		));
@@ -905,14 +915,10 @@ class cwvpbcriticalCss
 			$critical_css = str_replace('url("wp-content/', 'url("' . get_site_url() . '/wp-content/', $critical_css);
 
 			$new_file = $user_dirname . "/" . md5($targetUrl) . ".css";
-			$ifp = @fopen($new_file, 'w+');
-			if (!$ifp) {
-				// Translators: %s is the file name
-				return array('status' => false, 'message' => sprintf(esc_html__('Could not write file %s', 'cwvpsb'), esc_html($new_file)));
-			}
-			$result = @fwrite($ifp, $critical_css);
-			fclose($ifp);
-			if ($result) {
+
+			$response = cwvpsb_write_file_contents($new_file, $critical_css);
+
+			if ( $response ) {
 				return array('status' => true, 'message' => esc_html__('Critical CSS created successfully', 'cwvpsb'));
 			} else {
 				return array('status' => false, 'message' => esc_html__('Could not write into css file', 'cwvpsb'));
@@ -930,7 +936,7 @@ class cwvpbcriticalCss
 		if (!isset($_POST['cwvpsb_security_nonce'])) {
 			return;
 		}
-		if (!wp_verify_nonce($_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce')) {
+		if (!wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['cwvpsb_security_nonce'] ) ) , 'cwvpsb_security_nonce')) {
 			return;
 		}
 
@@ -939,14 +945,14 @@ class cwvpbcriticalCss
 		}
 
 		global $wpdb, $table_prefix;
-		$table_name = $table_prefix . 'cwvpb_critical_urls';
+		$table_name_escaped = esc_sql( $table_prefix . 'cwvpb_critical_urls');
 
-		$url_id = $_POST['url_id'] ? intval($_POST['url_id']) : null;
+		$url_id = isset( $_POST['url_id'] ) ? intval( sanitize_text_field( wp_unslash( $_POST['url_id'] ) ) ) : null;
 
 		if ($url_id) {
 
-			$result = $wpdb->query($wpdb->prepare(
-				"UPDATE $table_name SET `status` = %s, `cached_name` = %s, `failed_error` = %s WHERE `id` = %d",
+			$result = $wpdb->query($wpdb->prepare( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				"UPDATE {$table_name_escaped} SET `status` = %s, `cached_name` = %s, `failed_error` = %s WHERE `id` = %d", //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared	
 				'queue',
 				'',
 				'',
@@ -970,7 +976,7 @@ class cwvpbcriticalCss
 		if (!isset($_POST['cwvpsb_security_nonce'])) {
 			return;
 		}
-		if (!wp_verify_nonce($_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce')) {
+		if (!wp_verify_nonce(sanitize_text_field( wp_unslash( $_POST['cwvpsb_security_nonce'] ) ), 'cwvpsb_security_nonce')) {
 			return;
 		}
 		if (!current_user_can('manage_options')) {
@@ -978,10 +984,10 @@ class cwvpbcriticalCss
 		}
 
 		global $wpdb, $table_prefix;
-		$table_name = $table_prefix . 'cwvpb_critical_urls';
+		$table_name_escaped = esc_sql( $table_prefix . 'cwvpb_critical_urls' );
 
-		$result = $wpdb->query($wpdb->prepare(
-			"UPDATE $table_name SET `status` = %s, `cached_name` = %s, `failed_error` = %s WHERE `status` = %s",
+		$result = $wpdb->query($wpdb->prepare( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			"UPDATE {$table_name_escaped} SET `status` = %s, `cached_name` = %s, `failed_error` = %s WHERE `status` = %s", //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared	
 			'queue',
 			'',
 			'',
@@ -1000,25 +1006,25 @@ class cwvpbcriticalCss
 		if (!isset($_POST['cwvpsb_security_nonce'])) {
 			return;
 		}
-		if (!wp_verify_nonce($_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce')) {
+		if (!wp_verify_nonce(sanitize_text_field( wp_unslash( $_POST['cwvpsb_security_nonce'] ) ), 'cwvpsb_security_nonce')) {
 			return;
 		}
 		if (!current_user_can('manage_options')) {
 			return;
 		}
 		$limit = 100;
-		$page = $_POST['page'] ? intval($_POST['page']) : 0;
+		$page = isset( $_POST['page'] ) ? intval(sanitize_text_field( wp_unslash( $_POST['page'] ) ) ) : 0;
 		$offset = $page * $limit;
 		global $wpdb, $table_prefix;
-		$table_name = $table_prefix . 'cwvpb_critical_urls';
+		$table_name_escaped = esc_sql( $table_prefix . 'cwvpb_critical_urls' );
 
-		$result = $wpdb->get_results(
-			stripslashes($wpdb->prepare(
-				"SELECT * FROM $table_name WHERE `status` = %s LIMIT %d, %d",
+		$result = $wpdb->get_results( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare(
+				"SELECT * FROM {$table_name_escaped} WHERE `status` = %s LIMIT %d, %d", //phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				'cached',
 				$offset,
 				$limit
-			))
+			)
 			,
 			ARRAY_A
 		);
@@ -1028,8 +1034,8 @@ class cwvpbcriticalCss
 			foreach ($result as $value) {
 
 				if (!file_exists($user_dirname . $value['cached_name'] . '.css')) {
-					$updated = $wpdb->query($wpdb->prepare(
-						"UPDATE $table_name SET `status` = %s,  `cached_name` = %s WHERE `url` = %s",
+					$updated = $wpdb->query($wpdb->prepare( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+						"UPDATE {$table_name_escaped} SET `status` = %s,  `cached_name` = %s WHERE `url` = %s", //phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared	
 						'queue',
 						'',
 						$value['url']
@@ -1049,7 +1055,7 @@ class cwvpbcriticalCss
 		if (!isset($_POST['cwvpsb_security_nonce'])) {
 			return;
 		}
-		if (!wp_verify_nonce($_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce')) {
+		if (!wp_verify_nonce(sanitize_text_field( wp_unslash( $_POST['cwvpsb_security_nonce'] ) ), 'cwvpsb_security_nonce')) {
 			return;
 		}
 
@@ -1058,15 +1064,13 @@ class cwvpbcriticalCss
 		}
 
 		global $wpdb;
-		$table = $wpdb->prefix . 'cwvpb_critical_urls';
-		$result = $wpdb->query("TRUNCATE TABLE {$table}");
+		$table_escaped = esc_sql( $wpdb->prefix . 'cwvpb_critical_urls' );
+		$result = $wpdb->query("TRUNCATE TABLE {$table_escaped}"); //phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		$dir = $this->cachepath();
-		WP_Filesystem();
-		global $wp_filesystem;
-		$wp_filesystem->rmdir($dir, true);
+		cwvpsb_remove_directory($dir);
 
-		wp_send_json(array('status' => true));
+		wp_send_json(array('status' => $result));
 
 	}
 
@@ -1077,46 +1081,48 @@ class cwvpbcriticalCss
 		if (!isset($_POST['cwvpsb_security_nonce'])) {
 			return;
 		}
-		if (!wp_verify_nonce($_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce')) {
+		if ( ! wp_verify_nonce(sanitize_text_field( wp_unslash( $_POST['cwvpsb_security_nonce'] ) ), 'cwvpsb_security_nonce')) {
 			return;
 		}
+		$start = isset($_POST['start']) ? intval(sanitize_text_field( wp_unslash( $_POST['start']) ) ) : 1;
+		$length = isset($_POST['length']) ? intval(sanitize_text_field( wp_unslash( $_POST['length']) ) ) : 10;
+		$page =   $start > 0 ? $start / $length : 1;
+		$page = $page + 1;
+		$offset = isset($_POST['start']) ? intval(sanitize_text_field( wp_unslash( $_POST['start']) ) ) : 0;
+		$draw = isset( $_POST['draw'] )  ? intval(sanitize_text_field( wp_unslash( $_POST['draw']) ) ) : 1;
+		
 
-		$page = isset($_POST['start']) && $_POST['start'] > 0 ? $_POST['start'] / $_POST['length'] : 1;
-		$length = isset($_POST['length']) ? intval($_POST['length']) : 10;
-		$page = ($page + 1);
-		$offset = isset($_POST['start']) ? intval($_POST['start']) : 0;
-		$draw = intval($_POST['draw']);
+
 
 		global $wpdb, $table_prefix;
-		$table_name = $table_prefix . 'cwvpb_critical_urls';
-
-		if ($_POST['search']['value']) {
-			$search = sanitize_text_field($_POST['search']['value']);
-			$total_count = $wpdb->get_var(
+		$table_name_escaped = esc_sql( $table_prefix . 'cwvpb_critical_urls' );
+		$search = isset( $_POST['search']['value'] ) ?  sanitize_text_field( wp_unslash( $_POST['search']['value'] ) ): ''; 
+		if ($search) {
+			$total_count = $wpdb->get_var( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s ",
+					"SELECT COUNT(*) FROM {$table_name_escaped} WHERE `url` LIKE %s ", //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Already escaped.
 					'%' . $wpdb->esc_like($search) . '%'
 				)
 			);
 
-			$result = $wpdb->get_results(
-				stripslashes($wpdb->prepare(
-					"SELECT * FROM $table_name WHERE `url` LIKE %s LIMIT %d, %d",
+			$result = $wpdb->get_results( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare(
+					"SELECT * FROM {$table_name_escaped} WHERE `url` LIKE %s LIMIT %d, %d", //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Already escaped.
 					'%' . $wpdb->esc_like($search) . '%',
 					$offset,
 					$length
-				))
+				)
 				,
 				ARRAY_A
 			);
 		} else {
-			$total_count = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
-			$result = $wpdb->get_results(
-				stripslashes($wpdb->prepare(
-					"SELECT * FROM $table_name LIMIT %d, %d",
+			$total_count = $wpdb->get_var("SELECT COUNT(*) FROM {$table_name_escaped}"); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Already escaped.
+			$result = $wpdb->get_results( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare(
+					"SELECT * FROM {$table_name_escaped} LIMIT %d, %d", //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Already escaped.
 					$offset,
 					$length
-				))
+				)
 				,
 				ARRAY_A
 			);
@@ -1162,49 +1168,49 @@ class cwvpbcriticalCss
 		if (!isset($_POST['cwvpsb_showdetails_data_completed_nonce'])) {
 			return;
 		}
-		if (!wp_verify_nonce($_POST['cwvpsb_showdetails_data_completed_nonce'], 'cwvpsb_showdetails_data_completed_nonce')) {
+		if (!wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['cwvpsb_showdetails_data_completed_nonce'] ) ), 'cwvpsb_showdetails_data_completed_nonce')) {
 			return;
 		}
 
-		$page = isset($_POST['start']) && $_POST['start'] > 0 ? $_POST['start'] / $_POST['length'] : 1;
-		$length = isset($_POST['length']) ? intval($_POST['length']) : 10;
-		$page = ($page + 1);
-		$offset = isset($_POST['start']) ? intval($_POST['start']) : 0;
-		$draw = intval($_POST['draw']);
+		$start = isset($_POST['start']) ? intval(sanitize_text_field( wp_unslash( $_POST['start']) ) ) : 1;
+		$length = isset($_POST['length']) ? intval(sanitize_text_field( wp_unslash( $_POST['length']) ) ) : 10;
+		$page =   $start > 0 ? $start / $length : 1;
+		$page = $page + 1;
+		$offset = isset($_POST['start']) ? intval(sanitize_text_field( wp_unslash( $_POST['start']) ) ) : 0;
+		$draw = isset( $_POST['draw'] )  ? intval(sanitize_text_field( wp_unslash( $_POST['draw']) ) ) : 1;
 
 		global $wpdb, $table_prefix;
-		$table_name = $table_prefix . 'cwvpb_critical_urls';
-
-		if (isset($_POST['search']['value']) && $_POST['search']['value']) {
-			$search = sanitize_text_field($_POST['search']['value']);
-			$total_count = $wpdb->get_var(
+		$table_name_escaped = esc_sql( $table_prefix . 'cwvpb_critical_urls');
+		$search = isset( $_POST['search']['value'] ) ?  sanitize_text_field( wp_unslash( $_POST['search']['value'] ) ): ''; 
+		if ($search) {
+			$total_count = $wpdb->get_var( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
+					"SELECT COUNT(*) FROM {$table_name_escaped} WHERE `url` LIKE %s AND `status`=%s", //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Already escaped.
 					'%' . $wpdb->esc_like($search) . '%',
 					'cached'
 				)
 			);
 
-			$result = $wpdb->get_results(
-				stripslashes($wpdb->prepare(
-					"SELECT * FROM $table_name WHERE `url` LIKE %s AND `status`=%s LIMIT %d, %d",
+			$result = $wpdb->get_results( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare(
+					"SELECT * FROM {$table_name_escaped} WHERE `url` LIKE %s AND `status`=%s LIMIT %d, %d", //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Already escaped.
 					'%' . $wpdb->esc_like($search) . '%',
 					'cached',
 					$offset,
 					$length
-				))
+				)
 				,
 				ARRAY_A
 			);
 		} else {
-			$total_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'cached'));
-			$result = $wpdb->get_results(
-				stripslashes($wpdb->prepare(
-					"SELECT * FROM $table_name Where `status`=%s LIMIT %d, %d",
+			$total_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table_name_escaped} Where `status`=%s", 'cached')); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Already escaped.
+			$result = $wpdb->get_results( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare(
+					"SELECT * FROM {$table_name_escaped} Where `status`=%s LIMIT %d, %d", //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Already escaped.
 					'cached',
 					$offset,
 					$length
-				))
+				)
 				,
 				ARRAY_A
 			);
@@ -1247,49 +1253,49 @@ class cwvpbcriticalCss
 		if (!isset($_POST['cwvpsb_showdetails_data_failed_nonce'])) {
 			return;
 		}
-		if (!wp_verify_nonce($_POST['cwvpsb_showdetails_data_failed_nonce'], 'cwvpsb_showdetails_data_failed_nonce')) {
+		if (!wp_verify_nonce(sanitize_text_field( wp_unslash($_POST['cwvpsb_showdetails_data_failed_nonce'])), 'cwvpsb_showdetails_data_failed_nonce')) {
 			return;
 		}
 
-		$page = isset($_POST['start']) && $_POST['start'] > 0 ? $_POST['start'] / $_POST['length'] : 1;
-		$length = isset($_POST['length']) ? intval($_POST['length']) : 10;
-		$page = ($page + 1);
-		$offset = isset($_POST['start']) ? intval($_POST['start']) : 0;
-		$draw = intval($_POST['draw']);
+		$start = isset($_POST['start']) ? intval(sanitize_text_field( wp_unslash( $_POST['start']) ) ) : 1;
+		$length = isset($_POST['length']) ? intval(sanitize_text_field( wp_unslash( $_POST['length']) ) ) : 10;
+		$page =   $start > 0 ? $start / $length : 1;
+		$page = $page + 1;
+		$offset = isset($_POST['start']) ? intval(sanitize_text_field( wp_unslash( $_POST['start']) ) ) : 0;
+		$draw = isset( $_POST['draw'] )  ? intval(sanitize_text_field( wp_unslash( $_POST['draw']) ) ) : 1;
 
 		global $wpdb, $table_prefix;
-		$table_name = $table_prefix . 'cwvpb_critical_urls';
-
-		if (isset($_POST['search']['value']) && $_POST['search']['value']) {
-			$search = sanitize_text_field($_POST['search']['value']);
-			$total_count = $wpdb->get_var(
-				$wpdb->prepare(
-					"SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
+		$table_name_escaped = esc_sql($table_prefix . 'cwvpb_critical_urls');
+		$search = isset( $_POST['search']['value'] ) ?  sanitize_text_field( wp_unslash( $_POST['search']['value'] ) ): ''; 
+		if ( $search ) {
+			$total_count = $wpdb->get_var( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare( 
+					"SELECT COUNT(*) FROM {$table_name_escaped} WHERE `url` LIKE %s AND `status`=%s", //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Already escaped.
 					'%' . $wpdb->esc_like($search) . '%',
 					'failed'
 				)
 			);
 
-			$result = $wpdb->get_results(
-				stripslashes($wpdb->prepare(
-					"SELECT * FROM $table_name WHERE `url` LIKE %s AND `status`=%s LIMIT %d, %d",
+			$result = $wpdb->get_results(  //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare( 
+					"SELECT * FROM {$table_name_escaped} WHERE `url` LIKE %s AND `status`=%s LIMIT %d, %d", //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Already escaped.
 					'%' . $wpdb->esc_like($search) . '%',
 					'failed',
 					$offset,
 					$length
-				))
+				)
 				,
 				ARRAY_A
 			);
 		} else {
-			$total_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'failed'));
-			$result = $wpdb->get_results(
-				stripslashes($wpdb->prepare(
-					"SELECT * FROM $table_name Where `status`=%s LIMIT %d, %d",
+			$total_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table_name_escaped} Where `status`=%s", 'failed')); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$result = $wpdb->get_results( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare( 
+					"SELECT * FROM {$table_name_escaped} Where `status`=%s LIMIT %d, %d", ////phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Already escaped.
 					'failed',
 					$offset,
 					$length
-				))
+				)
 				,
 				ARRAY_A
 			);
@@ -1332,49 +1338,49 @@ class cwvpbcriticalCss
 		if (!isset($_POST['cwvpsb_showdetails_data_queue_nonce'])) {
 			return;
 		}
-		if (!wp_verify_nonce($_POST['cwvpsb_showdetails_data_queue_nonce'], 'cwvpsb_showdetails_data_queue_nonce')) {
+		if (!wp_verify_nonce(sanitize_text_field( wp_unslash($_POST['cwvpsb_showdetails_data_queue_nonce'])), 'cwvpsb_showdetails_data_queue_nonce')) {
 			return;
 		}
 
-		$page = isset($_POST['start']) && $_POST['start'] > 0 ? $_POST['start'] / $_POST['length'] : 1;
-		$length = isset($_POST['length']) ? intval($_POST['length']) : 10;
-		$page = ($page + 1);
-		$offset = isset($_POST['start']) ? intval($_POST['start']) : 0;
-		$draw = intval($_POST['draw']);
+		$start = isset($_POST['start']) ? intval(sanitize_text_field( wp_unslash( $_POST['start']) ) ) : 1;
+		$length = isset($_POST['length']) ? intval(sanitize_text_field( wp_unslash( $_POST['length']) ) ) : 10;
+		$page =   $start > 0 ? $start / $length : 1;
+		$page = $page + 1;
+		$offset = isset($_POST['start']) ? intval(sanitize_text_field( wp_unslash( $_POST['start']) ) ) : 0;
+		$draw = isset( $_POST['draw'] )  ? intval(sanitize_text_field( wp_unslash( $_POST['draw']) ) ) : 1;
 
 		global $wpdb, $table_prefix;
-		$table_name = $table_prefix . 'cwvpb_critical_urls';
-
-		if (isset($_POST['search']['value']) && $_POST['search']['value']) {
-			$search = sanitize_text_field($_POST['search']['value']);
-			$total_count = $wpdb->get_var(
-				$wpdb->prepare(
-					"SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
+		$table_name_escaped = esc_sql($table_prefix . 'cwvpb_critical_urls');
+		$search = isset( $_POST['search']['value'] ) ?  sanitize_text_field( wp_unslash( $_POST['search']['value'] ) ): '';
+		if ( $search ) {
+			$total_count = $wpdb->get_var( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+					"SELECT COUNT(*) FROM {$table_name_escaped} WHERE `url` LIKE %s AND `status`=%s", //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: Already escaped.
 					'%' . $wpdb->esc_like($search) . '%',
 					'queue'
 				)
 			);
 
-			$result = $wpdb->get_results(
-				stripslashes($wpdb->prepare(
-					"SELECT * FROM $table_name WHERE `url` LIKE %s AND `status`=%s LIMIT %d, %d",
+			$result = $wpdb->get_results( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+					"SELECT * FROM {$table_name_escaped} WHERE `url` LIKE %s AND `status`=%s LIMIT %d, %d", //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 					'%' . $wpdb->esc_like($search) . '%',
 					'queue',
 					$offset,
 					$length
-				))
+				)
 				,
 				ARRAY_A
 			);
 		} else {
-			$total_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'queue'));
-			$result = $wpdb->get_results(
-				stripslashes($wpdb->prepare(
-					"SELECT * FROM $table_name Where `status`=%s LIMIT %d, %d",
+			$total_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table_name_escaped} Where `status`=%s", 'queue')); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$result = $wpdb->get_results( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare( 
+					"SELECT * FROM {$table_name_escaped} Where `status`=%s LIMIT %d, %d", //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 					'queue',
 					$offset,
 					$length
-				))
+				)
 				,
 				ARRAY_A
 			);

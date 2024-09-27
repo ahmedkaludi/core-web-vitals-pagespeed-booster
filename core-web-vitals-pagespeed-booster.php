@@ -78,7 +78,7 @@ function cwvpsb_on_activate( $network_wide ) {
     global $wpdb;
 
     if ( is_multisite() && $network_wide ) {
-        $blog_ids = $wpdb->get_col( "SELECT blog_id FROM $wpdb->blogs" );
+        $blog_ids = $wpdb->get_col( "SELECT blog_id FROM $wpdb->blogs" ); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
         foreach ( $blog_ids as $blog_id ) {
             switch_to_blog( $blog_id );
             cwvpsb_on_install();
@@ -104,13 +104,14 @@ function cwvpsb_on_install(){
 		$charset_collate .= " COLLATE {$wpdb->collate}";
 	}
 
-	$found_engine = $wpdb->get_var("SELECT ENGINE FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = '".esc_attr(DB_NAME)."' AND `TABLE_NAME` = '{$wpdb->prefix}posts';");
+
+	$found_engine = $wpdb->get_var("SELECT ENGINE FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = '{$wpdb->dbname}' AND `TABLE_NAME` = '{$wpdb->prefix}posts';"); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
         
 	if(strtolower($found_engine) == 'innodb') {
 		$engine = ' ENGINE=InnoDB';
 	}
 
-	$found_tables = $wpdb->get_col("SHOW TABLES LIKE '{$wpdb->prefix}cwvpb%';");	
+	$found_tables = $wpdb->get_col("SHOW TABLES LIKE '{$wpdb->prefix}cwvpb%';"); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
     
     if(!in_array("{$wpdb->prefix}cwvpb_critical_urls", $found_tables)) {
             

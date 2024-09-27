@@ -65,7 +65,7 @@ public function cwvpsb_admin_interface_render(){
         return;
     }              
     // Handing save settings
-    if ( isset( $_GET['settings-updated'] ) ) { 
+    if ( isset( $_GET['settings-updated'] ) ) {  //phpcs:ignore WordPress.Security.NonceVerification -- Nonce verification is not required here.
         $this->cwvpsb_reWriteCacheHtaccess();
         $settings = cwvpsb_defaults();  
         settings_errors();
@@ -643,7 +643,7 @@ public function delete_on_uninstall_callback(){
     <?php echo esc_html__("This will delete all Core Web Vital generated files and settings when you uninstall the plugin", 'cwvpsb');?>
     <?php }        
     function get_list_convert_files(){
-        if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vitals-security-nonce')){
+        if(isset($_POST['nonce_verify']) && !wp_verify_nonce(wp_unslash($_POST['nonce_verify']),'web-vitals-security-nonce')){ //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using input as nonce
             wp_send_json(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified', 'cwvpsb' ) ) );
         }
         $listOpt = array();
@@ -655,7 +655,7 @@ public function delete_on_uninstall_callback(){
                 'image' => 3,
                 '_regexPattern'=> '#\.(jpe?g|png)$#'
             ];
-        $years = array(date("Y"),date("Y",strtotime("-1 year")),date("Y",strtotime("-2 year")),date("Y",strtotime("-3 year")),date("Y",strtotime("-4 year")), date("Y",strtotime("-5 year")),date("Y",strtotime("-6 year")) );
+        $years = array(gmdate("Y"),gmdate("Y",strtotime("-1 year")),gmdate("Y",strtotime("-2 year")),gmdate("Y",strtotime("-3 year")),gmdate("Y",strtotime("-4 year")), gmdate("Y",strtotime("-5 year")),gmdate("Y",strtotime("-6 year")) );
 
         $fileArray = array();
         foreach ($years as $key => $year) {
@@ -755,10 +755,10 @@ public function delete_on_uninstall_callback(){
     }
 
     function webp_convert_file(){
-        if(isset($_POST['nonce_verify']) && !wp_verify_nonce($_POST['nonce_verify'],'web-vitals-security-nonce')){
+        if(isset($_POST['nonce_verify']) && !wp_verify_nonce( wp_unslash( $_POST['nonce_verify'],'web-vitals-security-nonce' ) ) ){  //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using input as nonce
             wp_send_json(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified' , 'cwvpsb') ) );
         }
-        $filename = isset($_POST['filename'])?sanitize_text_field(stripslashes($_POST['filename'])):'';
+        $filename = isset($_POST['filename'])?sanitize_text_field(wp_unslash($_POST['filename'])):'';
 
         $upload = wp_upload_dir();
         $destinationPath = $upload['basedir']."/cwv-webp-images";
@@ -897,13 +897,12 @@ public function delete_on_uninstall_callback(){
     public function urlslist_callback(){
 
         global $wpdb;
-		$table_name = $wpdb->prefix . 'cwvpb_critical_urls';
-        //$total_count        = cwvpbs_get_total_urls();
-        $total_count        = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
-        $cached_count       = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'cached'));                
-        $inprogress         = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'inprocess'));                
-        $failed_count       = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'failed'));                        
-        $queue_count        = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'queue'));                
+        $table_name_escaped = esc_sql( $wpdb->prefix . 'cwvpb_critical_urls' );  
+        $total_count       = $wpdb->get_var("SELECT COUNT(*) FROM {$table_name_escaped}"); //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: $table_name_escaped is already escaped 
+        $cached_count      = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table_name_escaped} Where `status`=%s", 'cached')); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $table_name_escaped is already escaped 
+        $inprogress        = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table_name_escaped} Where `status`=%s", 'inprocess')); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $table_name_escaped is already escaped      
+        $failed_count       = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table_name_escaped} Where `status`=%s", 'failed')); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $table_name_escaped is already escaped        
+        $queue_count     = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table_name_escaped} Where `status`=%s", 'queue')); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $table_name_escaped is already escaped     
         $inprogress         = 0;
         $percentage         = 0;
                 
@@ -1078,15 +1077,15 @@ if(is_admin()){
 function cwvpsb_update_critical_css_stat()
 {
     $response=array('status'=>'fail');
-    if( wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce') && current_user_can( 'manage_options' )){ 
+    $cwvpsb_security_nonce = isset($_POST['cwvpsb_security_nonce']) ?sanitize_text_field( wp_unslash( $_POST['cwvpsb_security_nonce'])):'';
+    if( wp_verify_nonce( $cwvpsb_security_nonce, 'cwvpsb_security_nonce') && current_user_can( 'manage_options' )){
         global $wpdb;
-		$table_name = $wpdb->prefix . 'cwvpb_critical_urls';  
-        //$total_count        = cwvpbs_get_total_urls();
-        $response['total_count']        = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
-        $response['cached_count']       = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'cached'));                
-        $response['inprogress']        = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'inprocess'));                
-        $response['failed_count']       = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'failed'));                        
-        $response['queue_count']      = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s", 'queue'));                
+		$table_name_escaped = esc_sql( $wpdb->prefix . 'cwvpb_critical_urls' );  
+        $response['total_count']        = $wpdb->get_var("SELECT COUNT(*) FROM {$table_name_escaped}"); //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: $table_name_escaped is already escaped
+        $response['cached_count']       = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table_name_escaped} Where `status`=%s", 'cached')); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $table_name_escaped is already escaped 
+        $response['inprogress']        = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table_name_escaped} Where `status`=%s", 'inprocess')); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $table_name_escaped is already escaped   
+        $response['failed_count']       = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table_name_escaped} Where `status`=%s", 'failed')); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $table_name_escaped is already escaped       
+        $response['queue_count']      = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table_name_escaped} Where `status`=%s", 'queue')); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $table_name_escaped is already escaped 
         $percentage         = 0;
                 
         if($response['cached_count'] > 0 && $response['total_count'] ){            
@@ -1095,12 +1094,13 @@ function cwvpsb_update_critical_css_stat()
         }  
         $response['percentage'] = $percentage ;
         $response['status'] = 'success' ;
-        
-        if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        $server_x_requested = isset($_SERVER['HTTP_X_REQUESTED_WITH']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_REQUESTED_WITH'] ) ):'';
+        if(!empty($server_x_requested) && strtolower($server_x_requested) == 'xmlhttprequest') {
             wp_send_json( $response );
          }
          else {
-            header("Location: ".$_SERVER["HTTP_REFERER"]);
+            $http_reffer = isset($_SERVER["HTTP_REFERER"]) ? sanitize_text_field( wp_unslash( $_SERVER["HTTP_REFERER"] ) ):'';
+            header("Location: ".$http_reffer);
          }
       
          wp_die();
@@ -1113,7 +1113,8 @@ function cwvpsb_update_critical_css_stat()
 }
 
 function cwvpsb_purge_cache(){
-    if( isset($_GET['_wpnonce']) && wp_verify_nonce( $_GET['_wpnonce'], 'cwvpsb_purge_cache_all' ) && current_user_can( 'manage_options' ) ){ 
+    $nonce = isset($_POST['nonce']) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+    if( isset($nonce) && wp_verify_nonce($nonce, 'cwvpsb_purge_cache_all' ) && current_user_can( 'manage_options' ) ){ 
         CWVPSB_Cache::clear_total_cache(true);
         cwvpsb_delete_folder(
                 CWVPSB_CACHE_DIR
@@ -1129,7 +1130,8 @@ function cwvpsb_purge_cache(){
             );
         delete_transient( CWVPSB_CACHE_NAME );
         set_transient( CWVPSB_CACHE_NAME, time() );
-        wp_safe_redirect( stripslashes( $_GET['_wp_http_referer']  ));
+        $wp_http_referer = isset($_POST['_wp_http_referer']) ? sanitize_text_field( wp_unslash( $_POST['_wp_http_referer'] ) ) : esc_url( admin_url( 'admin.php?page=cwvpsb' ) );
+        wp_safe_redirect(  $wp_http_referer );
         exit;
     }
    
@@ -1168,7 +1170,7 @@ function cwvpsb_delete_folder($dir){
         }
 
         // delete
-        @rmdir($dir);
+        cwvpsb_remove_directory($dir);
 }
 
 function cwvpsb_cachepath(){
@@ -1184,7 +1186,7 @@ function cwvpsb_showdetails_data(){
     if ( ! isset( $_POST['cwvpsb_security_nonce'] ) ){
         return; 
     }
-    if ( !wp_verify_nonce( $_POST['cwvpsb_security_nonce'], 'cwvpsb_security_nonce' ) ){
+    if ( !wp_verify_nonce( wp_unslash( $_POST['cwvpsb_security_nonce'] ) , 'cwvpsb_security_nonce' ) ){ //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using input as nonce
         return;  
     }
     if(! isset( $_POST['cwvpsb_type']) || empty($_POST['cwvpsb_type']))
@@ -1196,68 +1198,68 @@ function cwvpsb_showdetails_data(){
     {
       return;  
     }
-    $type   = isset($_POST['cwvpsb_type'])?sanitize_text_field($_POST['cwvpsb_type']):'';
-    $page   = isset($_POST['start']) && $_POST['start']> 0 ? $_POST['start']/$_POST['length'] : 1;
+    $type   = isset($_POST['cwvpsb_type'])?sanitize_text_field( wp_unslash( $_POST['cwvpsb_type'] ) ):'';
+    $start  = isset($_POST['start']) ? intval( $_POST['start'] ) : 0; 
     $length = isset($_POST['length']) ? intval($_POST['length']) : 10;
-    $page   = ($page + 1);
+    $page   = $start > 0 ? $start / $length : 1;
+    $page   = $page + 1;
     $offset = isset($_POST['start']) ? intval($_POST['start']) : 0;
     $draw = isset($_POST['draw'])?intval($_POST['draw']):0;						
     
     global $wpdb, $table_prefix;
-    $table_name = $table_prefix . 'cwvpb_critical_urls';
-                                                            
-    if(isset($_POST['search']['value']) && $_POST['search']['value']){
-        $search = sanitize_text_field($_POST['search']['value']);
+    $table_name_escaped = esc_html($table_prefix . 'cwvpb_critical_urls');
+    $search = isset( $_POST['search']['value'] ) ?  sanitize_text_field( wp_unslash( $_POST['search']['value'] ) ): '';                                                        
+    if($search){
         if($type=="all")
         {
-            $total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s ",
+            $total_count  = $wpdb->get_var($wpdb->prepare(  //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+                "SELECT COUNT(*) FROM {$table_name_escaped} WHERE `url` LIKE %s ", //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $table_name_escaped is already escaped
             '%' . $wpdb->esc_like($search) . '%'));
         }
         else{
-			$total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE `url` LIKE %s AND `status`=%s",
+			$total_count  = $wpdb->get_var($wpdb->prepare(  //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+                "SELECT COUNT(*) FROM {$table_name_escaped} WHERE `url` LIKE %s AND `status`=%s", //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $table_name_escaped is already escaped
 			'%' . $wpdb->esc_like($search) . '%',$type)); 
         }
         if($type=="all")
         {
         
-        $result = $wpdb->get_results(
-            stripslashes($wpdb->prepare(
-                "SELECT * FROM $table_name WHERE `url` LIKE %s LIMIT %d, %d",
+        $result = $wpdb->get_results(  //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare( 
+                "SELECT * FROM {$table_name_escaped} WHERE `url` LIKE %s LIMIT %d, %d", //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $table_name_escaped is already escaped
                 '%' . $wpdb->esc_like($search) . '%', $offset, $length
-            ))
+            )
         , ARRAY_A);
 
         }
         else{
-            $result = $wpdb->get_results(
-                stripslashes($wpdb->prepare(
-                    "SELECT * FROM $table_name WHERE `url` LIKE %s AND `status`=%s LIMIT %d, %d",
+            $result = $wpdb->get_results( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare( 
+                    "SELECT * FROM {$table_name_escaped} WHERE `url` LIKE %s AND `status`=%s LIMIT %d, %d", //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $table_name_escaped is already escaped
                     '%' . $wpdb->esc_like($search) . '%', $type,$offset, $length
-                ))
+                )
             , ARRAY_A);
         }
-
-
 
     }else
     {
         if($type=="all")
         {
         
-            $total_count  = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
-            $result = $wpdb->get_results(
-                stripslashes($wpdb->prepare(
-                    "SELECT * FROM $table_name LIMIT %d, %d", $offset, $length
-                ))
+            $total_count  = $wpdb->get_var("SELECT COUNT(*) FROM {$table_name_escaped}"); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $table_name_escaped is already escaped
+            $result = $wpdb->get_results( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prepare( 
+                    "SELECT * FROM {$table_name_escaped} LIMIT %d, %d", $offset, $length //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $table_name_escaped is already escaped
+                )
             , ARRAY_A);
         }
         else
         {
-            $total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name Where `status`=%s",$type));
-			$result = $wpdb->get_results(
-				stripslashes($wpdb->prepare(
-					"SELECT * FROM $table_name Where `status`=%s LIMIT %d, %d", $type,$offset, $length
-				))
+            $total_count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table_name_escaped} Where `status`=%s",$type)); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $table_name_escaped is already escaped
+			$result = $wpdb->get_results( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare( 
+					"SELECT * FROM {$table_name_escaped} Where `status`=%s LIMIT %d, %d", $type,$offset, $length //phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Reason: $table_name_escaped is already escaped
+				)
 			, ARRAY_A);
         }
     }
