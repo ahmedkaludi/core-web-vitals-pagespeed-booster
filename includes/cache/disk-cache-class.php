@@ -182,7 +182,7 @@ final class CWVPSB_Cache_Disk {
 
 	private static function _create_file($file, $data)
 	{
-		if (!$handle = @fopen($file, 'wb')) {
+		if (!$handle = @fopen($file, 'wb')) { //phpcs:ignore
 			wp_die('Can not write to file.');
 
 			@fwrite($handle, $data); //phpcs:ignore
