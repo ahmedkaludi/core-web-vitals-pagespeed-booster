@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_unused_css');
 function cwvpsb_unused_css($html){
 	$settings = cwvpsb_defaults();
-	require_once CWVPSB_PLUGIN_DIR."/includes/style-sanitizer.php";
+	require_once CWVPSB_PLUGIN_DIR."/includes/class-cwvpsb-treeshaking.php";
 	$tmpDoc = new DOMDocument();
 	libxml_use_internal_errors(true);
 	$tmpDoc->loadHTML($html);
@@ -18,7 +18,7 @@ function cwvpsb_unused_css($html){
 		'use_document_element'=>true,
 		'include_manifest_comment'=>false,
 	];
-	$parser = new cwvpsb_treeshaking($tmpDoc,$args);
+	$parser = new CWVPSB_Treeshaking($tmpDoc,$args);
 	$sanitize = $parser->sanitize();
 	$custom_style_element = $tmpDoc->createElement( 'style' );
 	$tmpDoc->head->appendChild( $custom_style_element );

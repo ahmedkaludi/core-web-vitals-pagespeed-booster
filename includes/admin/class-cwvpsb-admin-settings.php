@@ -2,7 +2,7 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly.
 }
-class cwvpsb_admin_settings{
+class CWVPSB_Admin_Settings{
 
 public function __construct() {
     add_action( 'admin_menu', array($this, 'cwvpsb_add_menu_links'));
@@ -20,7 +20,7 @@ function load_settings() {
        require_once CWVPSB_PLUGIN_DIR."includes/images/convert-webp.php";
     }
     if(isset($settings['lazyload_support']) && $settings['lazyload_support']==1 && !is_user_logged_in() ){
-       require_once CWVPSB_PLUGIN_DIR."includes/images/lazy-loading.php";
+       require_once CWVPSB_PLUGIN_DIR."includes/images/class-cwv-lazy-loading.php";
     }
     if(isset($settings['minification_support']) && $settings['minification_support']==1){
 
@@ -33,7 +33,7 @@ function load_settings() {
        require_once CWVPSB_PLUGIN_DIR."includes/css/google-fonts.php";
     }
     if(isset($settings['critical_css_support']) && $settings['critical_css_support']==1){
-       require_once CWVPSB_PLUGIN_DIR."includes/css/critical_css.php";
+       require_once CWVPSB_PLUGIN_DIR."includes/css/class-cwvpsb-critical-css.php";
     }
     if(cwvpsb_is_mobile())
     {
@@ -1064,8 +1064,8 @@ public function delete_on_uninstall_callback(){
     }
 }//Class closed
 
-if (class_exists('cwvpsb_admin_settings')) {
-    new cwvpsb_admin_settings;
+if (class_exists('CWVPSB_Admin_Settings')) {
+    new CWVPSB_Admin_Settings;
 };
 
 if(is_admin()){

@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Add Settings Page
-require_once CWVPSB_PLUGIN_DIR . 'includes/admin/settings.php';
+require_once CWVPSB_PLUGIN_DIR . 'includes/admin/class-cwvpsb-admin-settings.php';
 require_once CWVPSB_PLUGIN_DIR . 'includes/gravatar.php';
 // load if network
 if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
@@ -78,12 +78,12 @@ spl_autoload_register( 'cwvpsb_cache_autoload' );
 // autoload function
 function cwvpsb_cache_autoload( $class ) {
 	require_once sprintf(
-		'%s/includes/cache/cache-class.php',
+		'%s/includes/cache/class-cwvpsb-cache.php',
 		CWVPSB_DIR,
 		strtolower( $class )
 	);
 	require_once sprintf(
-		'%s/includes/cache/disk-cache-class.php',
+		'%s/includes/cache/class-cwvpsb-cache-disk.php',
 		CWVPSB_DIR,
 		strtolower( $class )
 	);

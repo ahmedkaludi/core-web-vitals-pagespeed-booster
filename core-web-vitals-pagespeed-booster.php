@@ -64,7 +64,7 @@ define('CWVPSB_CACHE_NAME', 'cwvpsb_cleared_timestamp');
 
 require_once CWVPSB_PLUGIN_DIR."includes/functions.php";
 require_once CWVPSB_PLUGIN_DIR."includes/admin/helper-function.php";
-require_once CWVPSB_PLUGIN_DIR."includes/admin/newsletter.php";
+require_once CWVPSB_PLUGIN_DIR."includes/admin/class-cwvpb-newsletter.php";
 
 add_action('plugins_loaded', 'cwv_pse_initiate');
 function cwv_pse_initiate(){

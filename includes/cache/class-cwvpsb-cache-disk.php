@@ -180,24 +180,36 @@ final class CWVPSB_Cache_Disk {
 		self::_create_file( self::_file_html(), $data.$cache_signature." -->" ); 
 	}
 
-	private static function _create_file($file, $data)
-	{
-		if (!$handle = @fopen($file, 'wb')) { //phpcs:ignore
-			wp_die('Can not write to file.');
-
-			@fwrite($handle, $data); //phpcs:ignore
-			fclose($handle); //phpcs:ignore
-			clearstatcache();
-
-			// set permissions
-			$stat = @stat(dirname($file)); //phpcs:ignore
-			$perms = $stat['mode'] & 0007777;
-			$perms = $perms & 0000666;
-			@chmod($file, $perms); //phpcs:ignore
-
-			clearstatcache();
+	private static function _create_file( $file, $data ) {
+		global $wp_filesystem;
+	
+		// Initialize WP Filesystem
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
-}
+	
+		// Attempt to initialize the WP Filesystem
+		if ( ! WP_Filesystem() ) {
+			wp_die( esc_html__( 'Could not initialize WP Filesystem.', 'cwvpsb' ) );
+		}
+	
+		// Ensure the parent directory is writable
+		$dir = dirname( $file );
+		if ( ! $wp_filesystem->is_writable( $dir ) ) {
+			
+			wp_die( esc_html__( 'Cannot write to directory.', 'cwvpsb' ) );
+		}
+	
+		// Write the file
+		if ( ! $wp_filesystem->put_contents( $file, $data, FS_CHMOD_FILE ) ) {
+			error_log( 'Could not write to file: ' . $file );
+			wp_die( esc_html__( 'Cannot write to file.', 'cwvpsb' ) );
+		}
+	
+		// Clear the file cache
+		clearstatcache();
+	}
+	
 	private static function _clear_dir($dir) {
 
 		// remove slashes

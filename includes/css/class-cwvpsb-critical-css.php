@@ -5,7 +5,7 @@
  * 
  **/
 
-class cwvpbcriticalCss
+class CWVPSB_Critical_Css
 {
 
 
@@ -697,6 +697,7 @@ class cwvpbcriticalCss
 						$failed_error = '';
 						$this->change_caching_status($value['url'], $status);
 						$result = $this->cwvpsb_save_critical_css_in_dir_php($value['url']);
+						error_log(print_r($result, true));
 
 						if ($result['status']) {
 							$status = 'cached';
@@ -807,7 +808,7 @@ class cwvpbcriticalCss
 	public function cwvpsb_save_critical_css_in_dir_php($current_url)
 	{
 
-		$targetUrl = $current_url;
+		$targetUrl = add_query_arg( 't', time(), $current_url ); // Add timestamp to avoid cache
 		$user_dirname = $this->cachepath();
 		$response = wp_remote_get($targetUrl);
 		$content = wp_remote_retrieve_body($response);
@@ -914,7 +915,7 @@ class cwvpbcriticalCss
 			$critical_css = str_replace("url('wp-content/", "url('" . get_site_url() . "/wp-content/", $critical_css);
 			$critical_css = str_replace('url("wp-content/', 'url("' . get_site_url() . '/wp-content/', $critical_css);
 
-			$new_file = $user_dirname . "/" . md5($targetUrl) . ".css";
+			$new_file = $user_dirname . "/" . md5($current_url) . ".css";
 
 			$response = cwvpsb_write_file_contents($new_file, $critical_css);
 
@@ -948,6 +949,7 @@ class cwvpbcriticalCss
 		$table_name_escaped = esc_sql( $table_prefix . 'cwvpb_critical_urls');
 
 		$url_id = isset( $_POST['url_id'] ) ? intval( sanitize_text_field( wp_unslash( $_POST['url_id'] ) ) ) : null;
+		error_log($url_id);
 
 		if ($url_id) {
 
@@ -958,6 +960,8 @@ class cwvpbcriticalCss
 				'',
 				$url_id
 			));
+
+			error_log($result);
 
 			if ($result) {
 				wp_send_json(array('status' => true));
@@ -1432,4 +1436,4 @@ class cwvpbcriticalCss
 	}
 
 }
-$cwvpbCriticalCss = new cwvpbcriticalCss();
+$cwvpbCriticalCss = new CWVPSB_Critical_Css();

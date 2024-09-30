@@ -13,7 +13,7 @@ use Sabberworm\CSS\CSSList\AtRuleBlockList;
 use Sabberworm\CSS\Value\RuleValueList;
 use Sabberworm\CSS\Value\URL;
 use Sabberworm\CSS\Value\Value;
-class cwvpsb_treeshaking {
+class Cwvpsb_Treeshaking {
 
 	const STYLE_AMP_CUSTOM_SPEC_NAME    = 'style';
 	const STYLE_AMP_KEYFRAMES_SPEC_NAME = 'style[keyframes]';
