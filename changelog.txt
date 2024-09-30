@@ -1,3 +1,14 @@
+= 1.0.21 (30 September 2024) =
+* New: Option to exclude the images from lazyloading #155
+* New: add missing alt tag in images. #156
+* Improvement: Image lazy load improvement #157
+* Fixed: Some images are breaking #159
+* Fixed: Easy TOC table is breaking on product category pages when plugin is activated #158
+* Fixed: Warnings: PHP Deprecated: mb_convert_encoding() #153
+* Fixed: Conflict with WooCommerce PayPal Payments on checkout #154
+* Fixed: Some icons are breaking on activation of plugin #150
+* Fixed: Few improvements required #151
+
 = 1.0.20 (30 July 2024) =
 * Fixed: Some warnings and notices on front end #145
 * Fixed: Embedded video is not visible on front end #144
