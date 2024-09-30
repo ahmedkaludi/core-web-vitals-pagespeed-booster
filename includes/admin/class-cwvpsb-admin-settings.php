@@ -1113,7 +1113,7 @@ function cwvpsb_update_critical_css_stat()
 }
 
 function cwvpsb_purge_cache(){
-    $nonce = isset($_POST['nonce']) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+    $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
     if( isset($nonce) && wp_verify_nonce($nonce, 'cwvpsb_purge_cache_all' ) && current_user_can( 'manage_options' ) ){ 
         CWVPSB_Cache::clear_total_cache(true);
         cwvpsb_delete_folder(
@@ -1130,7 +1130,7 @@ function cwvpsb_purge_cache(){
             );
         delete_transient( CWVPSB_CACHE_NAME );
         set_transient( CWVPSB_CACHE_NAME, time() );
-        $wp_http_referer = isset($_POST['_wp_http_referer']) ? sanitize_text_field( wp_unslash( $_POST['_wp_http_referer'] ) ) : esc_url( admin_url( 'admin.php?page=cwvpsb' ) );
+        $wp_http_referer = isset($_GET['_wp_http_referer']) ? sanitize_text_field( wp_unslash( $_GET['_wp_http_referer'] ) ) : esc_url( admin_url( 'admin.php?page=cwvpsb' ) );
         wp_safe_redirect(  $wp_http_referer );
         exit;
     }
