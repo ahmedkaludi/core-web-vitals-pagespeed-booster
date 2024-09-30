@@ -2,7 +2,7 @@
 /*
 Plugin Name: Core Web Vitals & PageSpeed Booster
 Description: Do you want to speed up your WordPress site? Fast loading pages improve user experience, increase your pageviews, and help with your WordPress SEO.
-Version: 1.0.20
+Version: 1.0.21
 Author: Magazine3
 Author URI: https://magazine3.company/
 Donate link: https://www.paypal.me/Kaludi/25
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 define('CWVPSB_PLUGIN_DIR', plugin_dir_path( __FILE__ ));
 define('CWVPSB_PLUGIN_DIR_URI', plugin_dir_url(__FILE__));
-define('CWVPSB_VERSION','1.0.20');
+define('CWVPSB_VERSION','1.0.21');
 define('CWVPSB_DIR', dirname(__FILE__));
 define('CWVPSB_BASE', plugin_basename(__FILE__));
 
@@ -64,7 +64,7 @@ define('CWVPSB_CACHE_NAME', 'cwvpsb_cleared_timestamp');
 
 require_once CWVPSB_PLUGIN_DIR."includes/functions.php";
 require_once CWVPSB_PLUGIN_DIR."includes/admin/helper-function.php";
-require_once CWVPSB_PLUGIN_DIR."includes/admin/newsletter.php";
+require_once CWVPSB_PLUGIN_DIR."includes/admin/class-cwvpb-newsletter.php";
 
 add_action('plugins_loaded', 'cwv_pse_initiate');
 function cwv_pse_initiate(){
@@ -78,7 +78,7 @@ function cwvpsb_on_activate( $network_wide ) {
     global $wpdb;
 
     if ( is_multisite() && $network_wide ) {
-        $blog_ids = $wpdb->get_col( "SELECT blog_id FROM $wpdb->blogs" );
+        $blog_ids = $wpdb->get_col( "SELECT blog_id FROM $wpdb->blogs" ); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
         foreach ( $blog_ids as $blog_id ) {
             switch_to_blog( $blog_id );
             cwvpsb_on_install();
@@ -104,13 +104,14 @@ function cwvpsb_on_install(){
 		$charset_collate .= " COLLATE {$wpdb->collate}";
 	}
 
-	$found_engine = $wpdb->get_var("SELECT ENGINE FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = '".DB_NAME."' AND `TABLE_NAME` = '{$wpdb->prefix}posts';");
+
+	$found_engine = $wpdb->get_var("SELECT ENGINE FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = '{$wpdb->dbname}' AND `TABLE_NAME` = '{$wpdb->prefix}posts';"); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
         
 	if(strtolower($found_engine) == 'innodb') {
 		$engine = ' ENGINE=InnoDB';
 	}
 
-	$found_tables = $wpdb->get_col("SHOW TABLES LIKE '{$wpdb->prefix}cwvpb%';");	
+	$found_tables = $wpdb->get_col("SHOW TABLES LIKE '{$wpdb->prefix}cwvpb%';"); //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
     
     if(!in_array("{$wpdb->prefix}cwvpb_critical_urls", $found_tables)) {
             

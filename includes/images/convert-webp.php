@@ -18,7 +18,8 @@ function cwvpsb_convert_webp(){
     $post = get_post( get_the_ID() );
     if(!$post){return;}
     $content = $post->post_content;
-    if ( is_dynamic_sidebar() ) {
+    $product_archive_page_id = function_exists('get_product_listing_id') ? get_product_listing_id() : false ;
+    if ( is_dynamic_sidebar() && ( ! $product_archive_page_id || ( $product_archive_page_id && ! is_page( ! $product_archive_page_id ) ) ) ) {
         ob_start();
         dynamic_sidebar();
         $sidebar_html = ob_get_contents();
@@ -64,10 +65,10 @@ function cwvpsb_convert_webp(){
         $upload_dir_base .= '/'.$img_dir;
         $check_dir = $upload_dir_base . '.webp';
         if(!file_exists($check_dir) && file_exists($new_dir)){
-            $check_svg = strpos(file_get_contents($new_dir),'</svg>');
+            $check_svg = strpos(cwvpsb_read_file_contents($new_dir),'</svg>');
             if(!$check_svg && $check_svg!=0)
             {
-                $image = imagecreatefromstring(file_get_contents($new_dir));
+                $image = imagecreatefromstring(cwvpsb_read_file_contents($new_dir));
                 ob_start();
                 imagejpeg($image,NULL,100);
                 $get_contents = ob_get_contents();
@@ -85,7 +86,7 @@ function cwvpsb_convert_webp(){
 function cwvpsb_display_webp($content) {
     $comp_dom = new DOMDocument();
     libxml_use_internal_errors(true);
-    $decodedHtml = mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8');
+    $decodedHtml = html_entity_decode($content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
     if(!$decodedHtml){
         return $content;
     }
@@ -94,7 +95,8 @@ function cwvpsb_display_webp($content) {
 
     $xpath = new DOMXPath($comp_dom);
     $nodes = $xpath->query('//img[@src]');
-
+    $settings = cwvpsb_defaults();
+    $force_alt_tags = isset($settings['images_add_alttags']) ? $settings['images_add_alttags'] : 1 ;
     foreach ($nodes as $node) {
         $url = $node->getAttribute('src');
         if(stripos($content, 'gravatars') !== false){
@@ -141,6 +143,17 @@ function cwvpsb_display_webp($content) {
                 $node->setAttribute('srcset', $img_srcset);
             }
         }
+        if ($force_alt_tags) {
+            //check if alt attribute empty , if empty set alt attribute with image name
+            if (!$node->getAttribute('alt') || empty($node->getAttribute('alt'))) {
+                $alt = pathinfo($url, PATHINFO_FILENAME);
+                $alt = preg_replace('/[-_]\d+x\d+$/', '', $alt);
+                $alt = str_replace(['_', '-'], ' ', $alt);
+                $alt = ucwords($alt);
+                $node->setAttribute('alt', $alt);
+
+            }
+        }
     }
 
     $content = $comp_dom->saveHTML();
@@ -153,9 +166,10 @@ function cwvpsb_display_webp($content) {
 function cwvpsb_display_webp_regex($content) {
     // Match all <img> tags with a 'src' attribute
     $pattern = '/<img(?:\s+[^>]*?\s*src\s*=\s*["\']([^"\']*)["\'])?(?:\s+[^>]*?)*?>/i';
-   
+    $settings = cwvpsb_defaults();
+    $force_alt_tags = isset($settings['images_add_alttags']) ? $settings['images_add_alttags'] : 1 ;
     // Perform the replacement using a callback function
-    $content = preg_replace_callback($pattern, function ($matches) {
+    $content = preg_replace_callback($pattern, function ($matches) use ($force_alt_tags) {
 
         $img_srcset = '';
         if(empty($matches[1])){
@@ -174,8 +188,8 @@ function cwvpsb_display_webp_regex($content) {
         if (stripos($url, '.webp') !== false) {
             return $matches[0]; // Return the original tag unchanged
         }
-
-       
+  
+        $original_url = $url;
         $url = preg_replace('~^(?:f|ht)tps?://~i', '/', $url);
         $mod_url = explode('uploads', $url);
         $mod_url = count($mod_url) > 1 ? $mod_url[1] : $mod_url[0];
@@ -187,7 +201,7 @@ function cwvpsb_display_webp_regex($content) {
         $img_webp = $upload_baseurl . $mod_url . ".webp";
         $img_webp_dir = $upload_basedir . $mod_url . ".webp";
 
-        $img_src = str_replace($url, $img_webp, $url);
+        $img_src = str_replace($original_url, $img_webp, $original_url);
         // Assuming 'srcset' attribute is present in the <img> tag
         $patternSrcset = '/srcset=["\'](.*?)["\']/i';
         preg_match($patternSrcset,$matches[0],$srcset_matches);
@@ -214,10 +228,10 @@ function cwvpsb_display_webp_regex($content) {
                 $dest_file_exists = file_exists($destination_path);
                 if($source_file_exists && !$dest_file_exists){
                     if(cwvpsb_convert_to_webp($source_path, $destination_path)){
-                        $matches[0] = str_replace($url, $destination_url, $matches[0]);
+                        $matches[0] = str_replace($original_url, $destination_url, $matches[0]);
                     }
                 }else if($dest_file_exists){
-                    $matches[0] = str_replace($url, $destination_url, $matches[0]);
+                    $matches[0] = str_replace($original_url, $destination_url, $matches[0]);
                 }
             }
             if($srcset_width){
@@ -233,7 +247,7 @@ function cwvpsb_display_webp_regex($content) {
         if (file_exists($img_webp_dir)) {
             $img_srcset ='';
             // WebP file exists, update attributes
-            $matches[0] = str_replace($url, $img_src, $matches[0]);
+            $matches[0] = str_replace($original_url, $img_src, $matches[0]);
             $matches[0] = str_replace($patternSrcset, 'srcset="' . $img_srcset . '"', $matches[0]);
 
             $large_image = '';
@@ -263,10 +277,27 @@ function cwvpsb_display_webp_regex($content) {
             if (!is_dir($img_webp_dir_ar)) wp_mkdir_p($img_webp_dir_ar);
 
             if (cwvpsb_convert_to_webp($image_path, $img_webp_dir)) {
-                $matches[0] = str_replace($url, $img_src, $matches[0]);
+                $matches[0] = str_replace($original_url, $img_src, $matches[0]);
                 $matches[0] = str_replace($patternSrcset, 'srcset="' . $img_srcset . '"', $matches[0]);
             }
         }
+        if ($force_alt_tags) {
+            //check if alt attribute empty , if empty set alt attribute with image name
+            if (!preg_match('/alt=["\'].*?["\']/i', $matches[0]) || preg_match('/alt=["\']\s*["\']/i', $matches[0])) {
+                $alt = pathinfo($original_url, PATHINFO_FILENAME);
+                $alt = preg_replace('/[-_]\d+x\d+$/', '', $alt);
+                $alt = str_replace(['_', '-'], ' ', $alt);
+                $alt = ucwords($alt);
+                // If `alt` attribute exists but is empty, replace the empty `alt`
+                if (preg_match('/alt=["\']\s*["\']/i', $matches[0])) {
+                    $matches[0] = preg_replace('/alt=["\']\s*["\']/i', 'alt="' . esc_attr($alt) . '"', $matches[0]);
+                } else {
+                    // If `alt` attribute is missing, add it
+                    $matches[0] = str_replace('<img', '<img alt="' . esc_attr($alt) . '"', $matches[0]);
+                }
+            }
+        }
+
 
         return $matches[0];
     }, $content);

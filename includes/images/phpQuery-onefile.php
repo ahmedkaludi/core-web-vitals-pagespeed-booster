@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile -- Reason : Third party library
 /**
  * phpQuery is a server-side, chainable, CSS3 selector driven
  * Document Object Model (DOM) API based on jQuery JavaScript Library.
@@ -4193,7 +4194,7 @@ class phpQueryObject
 	public function dumpDie() {
 		print __FILE__.':'.__LINE__;
 		var_dump($this->htmlOuter());
-		die();
+		wp_die();
 	}
 }
 
@@ -4723,7 +4724,7 @@ abstract class phpQuery {
 	 */
 	public static function loadDocument($document) {
 		// TODO
-		die('TODO loadDocument');
+		wp_die('TODO loadDocument');
 	}
 	/**
 	 * Enter description here...

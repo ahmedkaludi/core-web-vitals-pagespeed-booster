@@ -6,24 +6,29 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (entry.isIntersecting) {
                     const lazyImage = entry.target;
 
-                    // Set src, srcset, and sizes from data attributes
-                    if (lazyImage.dataset.src) {
-                        lazyImage.src = lazyImage.dataset.src;
-                    }
-                    if (lazyImage.dataset.srcset) {
-                        lazyImage.srcset = lazyImage.dataset.srcset;
-                    }
-                    if (lazyImage.dataset.sizes) {
-                        lazyImage.sizes = lazyImage.dataset.sizes;
-                    }
+                    // Set src, srcset, and sizes from data attributes if not already loaded
+                    if (!lazyImage.dataset.loaded) {
+                        if (lazyImage.dataset.src) {
+                            lazyImage.src = lazyImage.dataset.src;
+                        }
+                        if (lazyImage.dataset.srcset) {
+                            lazyImage.srcset = lazyImage.dataset.srcset;
+                        }
+                        if (lazyImage.dataset.sizes) {
+                            lazyImage.sizes = lazyImage.dataset.sizes;
+                        }
 
-                    // Remove the dataset attributes to prevent re-loading on subsequent intersections
-                    delete lazyImage.dataset.src;
-                    delete lazyImage.dataset.srcset;
-                    delete lazyImage.dataset.sizes;
+                        // Mark as loaded
+                        lazyImage.dataset.loaded = true;
 
-                    // Stop observing this image once it's loaded
-                    observer.unobserve(lazyImage);
+                        // Remove the dataset attributes to prevent re-loading on subsequent intersections
+                        delete lazyImage.dataset.src;
+                        delete lazyImage.dataset.srcset;
+                        delete lazyImage.dataset.sizes;
+
+                        // Stop observing this image once it's loaded
+                        observer.unobserve(lazyImage);
+                    }
                 }
             });
         });
@@ -35,7 +40,8 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     // Initial lazy loading for images on page load
-    lazyLoadImages(document.querySelectorAll('.cwvlazyload'));
+    const lazyImages = document.querySelectorAll('.cwvlazyload');
+    lazyLoadImages(lazyImages);
 
     // MutationObserver to handle dynamically loaded content
     const observer = new MutationObserver(mutations => {
@@ -56,4 +62,28 @@ document.addEventListener("DOMContentLoaded", function() {
         childList: true,
         subtree: true
     });
+
+    // Automatically load images after 3 seconds even without scrolling
+    setTimeout(() => {
+        lazyImages.forEach(image => {
+            // Check if the image has already been loaded
+            if (!image.dataset.loaded) {
+                if (image.dataset.src) {
+                    image.src = image.dataset.src;
+                    delete image.dataset.src;
+                }
+                if (image.dataset.srcset) {
+                    image.srcset = image.dataset.srcset;
+                    delete image.dataset.srcset;
+                }
+                if (image.dataset.sizes) {
+                    image.sizes = image.dataset.sizes;
+                    delete image.dataset.sizes;
+                }
+
+                // Mark as loaded
+                image.dataset.loaded = true;
+            }
+        });
+    }, 3000); // 3 seconds
 });

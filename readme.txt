@@ -2,11 +2,11 @@
 Contributors: magazine3
 Requires at least: 3.0
 Tested up to: 6.6
-Stable tag: 1.0.20
+Stable tag: 1.0.21
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: core web vitals, optimization, pagespeed, performance, cache
-
+Core Web Vitals (CWV) is the new ranking factor
 == Description ==
 <h4>Core Web Vitals (CWV) is the new ranking factor</h4>
 
@@ -39,6 +39,22 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 * WebP Convert library used https://github.com/rosell-dk/webp-convert - License URI: https://github.com/rosell-dk/webp-convert?tab=MIT-1-ov-file (WebP Convert is freely distributable under the terms of an MIT-style license.)
 
 == Changelog ==
+
+= 1.0.21 (30 September 2024) =
+* New: Option to exclude the images from lazyloading #155
+* New: add missing alt tag in images. #156
+* Improvement: Image lazy load improvement #157
+* Fixed: Some images are breaking #159
+* Fixed: Easy TOC table is breaking on product category pages when plugin is activated #158
+* Fixed: Warnings: PHP Deprecated: mb_convert_encoding() #153
+* Fixed: Conflict with WooCommerce PayPal Payments on checkout #154
+* Fixed: Some icons are breaking on activation of plugin #150
+* Fixed: Few improvements required #151
+
+= 1.0.20 (30 July 2024) =
+* Fixed: Some warnings and notices on front end #145
+* Fixed: Embedded video is not visible on front end #144
+* Test: Test with WordPress version 6.6 #147
 
 = 1.0.19 (07 May 2024) =
 * Fixed: Cant over ride the width of .cwvpsb_iframe due to the important property used #132

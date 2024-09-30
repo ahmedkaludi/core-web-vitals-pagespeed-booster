@@ -7,7 +7,7 @@ add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_google_fonts');
 function cwvpsb_google_fonts( $html ) { 
 		//create our fonts cache directory
         if(!is_dir(CWVPSB_CACHE_FONTS_DIR . 'fonts/')) {
-            @mkdir(CWVPSB_CACHE_FONTS_DIR . 'fonts/', 0755, true);
+            wp_mkdir_p(CWVPSB_CACHE_FONTS_DIR . 'fonts/');
         }
 	preg_match_all('#<link[^>]+?href=(["\'])([^>]*?fonts\.googleapis\.com\/css.*?)\1.*?>#i', $html, $google_fonts, PREG_SET_ORDER);
 	if(!empty($google_fonts)) {
@@ -80,14 +80,14 @@ function cwvpsb_download_google_font($url, $file_path)
                         $font_path = CWVPSB_CACHE_FONTS_DIR . 'fonts/' . basename($font_response->url);
                         
                         //save font file
-                        file_put_contents($font_path, $font_response->body);
+                        cwvpsb_write_file_contents($font_path, $font_response->body);
                     }
                 }
             }
         }
 
         //save final css file
-        file_put_contents($file_path, $css);
+        cwvpsb_write_file_contents($file_path, $css);
 
         return true;
     }

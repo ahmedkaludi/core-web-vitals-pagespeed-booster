@@ -15,85 +15,85 @@ msgstr ""
 "X-Poedit-KeywordsList: esc_html__;esc_attr__;__;__e\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: includes/admin/settings.php:80
+#: includes/admin/class-cwvpsb-admin-settings.php:80
 msgid "Webp images"
 msgstr ""
 
-#: includes/admin/settings.php:81
+#: includes/admin/class-cwvpsb-admin-settings.php:81
 msgid "Lazy Load"
 msgstr ""
 
-#: includes/admin/settings.php:88
+#: includes/admin/class-cwvpsb-admin-settings.php:88
 msgid "Minification"
 msgstr ""
 
-#: includes/admin/settings.php:89
+#: includes/admin/class-cwvpsb-admin-settings.php:89
 msgid "Remove Unused CSS"
 msgstr ""
 
-#: includes/admin/settings.php:90
+#: includes/admin/class-cwvpsb-admin-settings.php:90
 msgid "Google Fonts Optimizations"
 msgstr ""
 
-#: includes/admin/settings.php:97
+#: includes/admin/class-cwvpsb-admin-settings.php:97
 msgid "Delay JavaScript Execution"
 msgstr ""
 
-#: includes/admin/settings.php:104
+#: includes/admin/class-cwvpsb-admin-settings.php:104
 msgid "Cache"
 msgstr ""
 
-#: includes/admin/settings.php:111
+#: includes/admin/class-cwvpsb-admin-settings.php:111
 msgid ""
 "Images are converted to WebP on the fly if the browser supports it. You "
 "don't have to do anything"
 msgstr ""
 
-#: includes/admin/settings.php:119
+#: includes/admin/class-cwvpsb-admin-settings.php:119
 msgid ""
 "Lazy Load delays loading of images and iframes in long web pages. which are "
 "outside of viewport and will not be loaded before user scrolls to them"
 msgstr ""
 
-#: includes/admin/settings.php:127
+#: includes/admin/class-cwvpsb-admin-settings.php:127
 msgid ""
 "You will see the source of your HTML, CSS and JavaScript are now compressed "
 "and the size will be smaller which will be helpful to improve your page load "
 "speed"
 msgstr ""
 
-#: includes/admin/settings.php:135
+#: includes/admin/class-cwvpsb-admin-settings.php:135
 msgid ""
 "Makes your site even faster and lighter by automatically removing unused CSS "
 "from your website"
 msgstr ""
 
-#: includes/admin/settings.php:143
+#: includes/admin/class-cwvpsb-admin-settings.php:143
 msgid ""
 "Locally hosting Google fonts for Pagespeed Insights or GT Metrix improvements"
 msgstr ""
 
-#: includes/admin/settings.php:151
+#: includes/admin/class-cwvpsb-admin-settings.php:151
 msgid ""
 "Delays the loading of JavaScript files until the user interacts like scroll, "
 "click etc, which improves performance"
 msgstr ""
 
-#: includes/admin/settings.php:159
+#: includes/admin/class-cwvpsb-admin-settings.php:159
 msgid "Clear Site Cache"
 msgstr ""
 
-#: includes/admin/settings.php:160
+#: includes/admin/class-cwvpsb-admin-settings.php:160
 msgid ""
 "Caching pages will reduce the response time of your site and your web pages "
 "load much faster, directly from cache"
 msgstr ""
 
-#: includes/admin/settings.php:165
+#: includes/admin/class-cwvpsb-admin-settings.php:165
 msgid "Speed Booster"
 msgstr ""
 
-#: includes/cache/cache-class.php:287
+#: includes/cache/class-cwvpsb-cache.php:287
 msgid "The cache has been cleared."
 msgstr ""
 
@@ -104,37 +104,37 @@ msgid ""
 "API returned the following error: %s"
 msgstr ""
 
-#: includes/style-sanitizer.php:752
+#: includes/class-cwvpsb-treeshaking.php:752
 #, php-format
 msgid "Failed to fetch: %1$s (%2$s)"
 msgstr ""
 
-#: includes/style-sanitizer.php:758
+#: includes/class-cwvpsb-treeshaking.php:758
 #, php-format
 msgid "Failed to fetch: %s"
 msgstr ""
 
-#: includes/style-sanitizer.php:766
+#: includes/class-cwvpsb-treeshaking.php:766
 msgid "Response did not contain the expected text/css content type."
 msgstr ""
 
-#: includes/style-sanitizer.php:855
+#: includes/class-cwvpsb-treeshaking.php:855
 #, php-format
 msgid ""
 "It is not a best practice to use %1$s to load font CDN stylesheets. Please "
 "use %2$s to enqueue %3$s as its own separate script."
 msgstr ""
 
-#: includes/style-sanitizer.php:1717
+#: includes/class-cwvpsb-treeshaking.php:1717
 #, php-format
 msgid "Admin bar (%s) was removed to preserve validity due to excessive CSS."
 msgstr ""
 
-#: includes/style-sanitizer.php:1785
+#: includes/class-cwvpsb-treeshaking.php:1785
 msgid "CSS Usage"
 msgstr ""
 
-#: includes/style-sanitizer.php:2181
+#: includes/class-cwvpsb-treeshaking.php:2181
 #, php-format
 msgid "Could not write file %s"
 msgstr ""
