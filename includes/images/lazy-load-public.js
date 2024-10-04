@@ -63,27 +63,29 @@ document.addEventListener("DOMContentLoaded", function() {
         subtree: true
     });
 
+    if(cwvpsb_lazyload && cwvpsb_lazyload.type == 'delay') {
     // Automatically load images after 3 seconds even without scrolling
     setTimeout(() => {
         lazyImages.forEach(image => {
-            // Check if the image has already been loaded
-            if (!image.dataset.loaded) {
-                if (image.dataset.src) {
-                    image.src = image.dataset.src;
-                    delete image.dataset.src;
-                }
-                if (image.dataset.srcset) {
-                    image.srcset = image.dataset.srcset;
-                    delete image.dataset.srcset;
-                }
-                if (image.dataset.sizes) {
-                    image.sizes = image.dataset.sizes;
-                    delete image.dataset.sizes;
-                }
-
-                // Mark as loaded
-                image.dataset.loaded = true;
+            if (image.dataset.src) {
+                image.src = image.dataset.src;
+                delete image.dataset.src;
             }
+            
+            if (image.dataset.srcset) {
+                image.srcset = image.dataset.srcset;
+                delete image.dataset.srcset;
+            }
+
+            if (image.dataset.sizes) {
+                image.sizes = image.dataset.sizes;
+                delete image.dataset.sizes;
+            }
+
+            image.dataset.loaded = true;
+
         });
+
     }, 3000); // 3 seconds
+}
 });

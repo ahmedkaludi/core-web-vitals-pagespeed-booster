@@ -23,7 +23,7 @@ class CWV_Lazy_Load {
      
     $this->version = CWVPSB_VERSION;
      
-    $this->plugin_name = 'Core Web Vitals & PageSpeed Booster';
+    $this->plugin_name = 'cwvpsb_lazyload';
     
     $this->load_dependencies();
     
@@ -54,6 +54,12 @@ class CWV_Lazy_Load {
         }else{
           add_filter( 'cwvpsb_complete_html_after_dom_loaded', array($plugin_public, 'buffer_start_cwv'), 45 );
         }
+      
+        //exclude from delay js in wp rocket
+          add_filter('rocket_delay_js_exclusions', function($exclusions) {
+              $exclusions[] = 'lazy-load-public';
+              return $exclusions;
+          });
     }
   }
 
@@ -154,7 +160,10 @@ class CWV_Lazy_Load_Public {
       return ;
     }
     $min = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';	
+    $settings = cwvpsb_defaults();
+    $lazy_type = isset( $settings['lazyload_type'] ) ? $settings['lazyload_type'] : 'lazy';
     wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . "lazy-load-public{$min}.js", array( 'jquery' ), $this->version, false );
+    wp_localize_script( $this->plugin_name, 'cwvpsb_lazyload', array( 'type' => $lazy_type ) );
 
   }
   public function buffer_start_cwv($wphtml) { 

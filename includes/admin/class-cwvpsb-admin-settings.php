@@ -211,6 +211,14 @@ public function cwvpsb_settings_init(){
     );
 
     add_settings_field(
+        'lazyload_support_type',
+        'Lazyload Method',
+         array($this, 'lazyload_type_callback'),
+        'cwvpsb_images_section',
+        'cwvpsb_images_section'
+    );
+
+    add_settings_field(
         'lazyload_exclude',
         'Lazy Load Exclude Urls',
          array($this, 'lazyload_exclude_callback'),
@@ -403,6 +411,26 @@ public function lazyload_callback(){
     </fieldset>
     <?php }
 
+public function lazyload_type_callback(){
+    $settings = cwvpsb_defaults(); 
+    $lazy_type = isset($settings['lazyload_type']) ? $settings['lazyload_type'] : 'lazy';
+    ?>
+    <fieldset> <select class="webp_support" name="cwvpsb_get_settings[lazyload_type]" >
+     <?php
+        $delay = array('lazy' => esc_html__('Load in viewport (Recommended)', 'cwvpsb'),'delay' => esc_html__('Load after delay', 'cwvpsb'));
+        foreach ($delay as $key => $value ) {
+        ?>
+            <option value="<?php echo esc_attr($key);?>" <?php selected( $lazy_type, $key);?>><?php echo esc_html($value);?></option>
+        <?php
+        }
+        ?>
+    </select>
+        <p class="description">
+            <?php echo '<b>'.esc_html__('Load in viewport').':</b>'.esc_html__(" Images which are outside of viewport and will not be loaded before user scrolls to them", 'cwvpsb');?><br>
+            <?php echo '<b>'.esc_html__('Load after delay').':</b>'.esc_html__(" All Images will be loaded after pages has been loaded with a delay.", 'cwvpsb');?>
+        </p>
+    </fieldset>
+    <?php }
 public function images_add_alttags_callback(){
     $settings = cwvpsb_defaults(); ?>
     <fieldset><label class="switch">
