@@ -42,6 +42,7 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 
 = 1.0.22 (05 November 2024) =
 * Improvement: Fix Properly Size Image issue. #118
+* Improvement: Image lazy load improvement #157
 * Test: Test with WP 6.7 #161
 
 = 1.0.21 (30 September 2024) =
