@@ -1,3 +1,7 @@
+= 1.0.22 (05 November 2024) =
+* Improvement: Fix Properly Size Image issue. #118
+* Test: Test with WP 6.7 #161
+
 = 1.0.21 (30 September 2024) =
 * New: Option to exclude the images from lazyloading #155
 * New: add missing alt tag in images. #156
