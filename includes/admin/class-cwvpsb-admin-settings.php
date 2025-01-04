@@ -10,6 +10,7 @@ public function __construct() {
     add_action( 'init', array( $this, 'load_settings' ) );
     add_action('wp_ajax_list_files_to_convert', array($this, 'get_list_convert_files'));
     add_action('wp_ajax_webvital_webp_convert_file', array($this, 'webp_convert_file'));
+    add_action('wp_ajax_get_images_count', array($this, 'get_images_count'));
     add_action( 'admin_bar_menu',  array($this, 'all_admin_bar_settings'), PHP_INT_MAX - 10 );
 
 }
@@ -364,8 +365,10 @@ public function support_section_callback(){
     <span class="cwvpsb-query-success cwvpsb-result cwvpsb-hide">'.esc_html__('Message sent successfully, Please wait we will get back to you shortly', 'cwvpsb').'</span>
     <span class="cwvpsb-query-error cwvpsb-result cwvpsb-hide">'.esc_html__('Message not sent. please check your network connection', 'cwvpsb').'</span></th></tr>';
 }
+
 public function image_optimization_callback(){
-   $settings = cwvpsb_defaults(); ?>  
+   $settings = cwvpsb_defaults(); 
+   ?>  
     <div class="label-align">
     <select class="webp_support" name="cwvpsb_get_settings[webp_support]" >
      <?php
@@ -373,10 +376,13 @@ public function image_optimization_callback(){
         foreach ($delay as $key => $value ) {
         ?>
             <option value="<?php echo esc_attr($key);?>" <?php selected( $settings['webp_support'], $key);?>><?php echo esc_html($value);?></option>
-        <?php
-        }
-        ?>
+        <?php } ?>
     </select>
+    <?php
+        if($settings['webp_support'] == 'manual'){
+            echo "<div class='cwvpsb-converted-count'><b>".esc_html__('Total Images: ', 'cwvpsb')."</b><span id='cwvpsb_images_unconverted'>Calculating...</span> &nbsp; &nbsp;<b>".esc_html__('Converted Images: ', 'cwvpsb')."</b> <span id='cwvpsb_images_converted'>Calculating...</span> </div>";  
+        }
+    ?>
     </div>
     <fieldset><label class="switch"> 
         <?php
@@ -426,8 +432,8 @@ public function lazyload_type_callback(){
         ?>
     </select>
         <p class="description">
-            <?php echo '<b>'.esc_html__('Load in viewport').':</b>'.esc_html__(" Images which are outside of viewport and will not be loaded before user scrolls to them", 'cwvpsb');?><br>
-            <?php echo '<b>'.esc_html__('Load after delay').':</b>'.esc_html__(" All Images will be loaded after pages has been loaded with a delay.", 'cwvpsb');?>
+            <?php echo '<b>'.esc_html__('Load in viewport', 'cwvpsb').':</b>'.esc_html__(" Images which are outside of viewport and will not be loaded before user scrolls to them", 'cwvpsb');?><br>
+            <?php echo '<b>'.esc_html__('Load after delay', 'cwvpsb').':</b>'.esc_html__(" All Images will be loaded after pages has been loaded with a delay.", 'cwvpsb');?>
         </p>
     </fieldset>
     <?php }
@@ -713,6 +719,54 @@ public function delete_on_uninstall_callback(){
         wp_send_json($response);
     }
 
+    function get_list_convert_files_status( $type = 'unconverted' ){ 
+        
+        $listOpt = array();
+        $upload = wp_upload_dir();
+        $listOpt['root'] = $upload['basedir'];
+        $listOpt['filter'] = array(
+            'only-converted'    => ($type == 'converted')? true : false,
+            'only-unconverted'  => ($type == 'unconverted')? true : false,
+            'image'             => 3,
+            '_regexPattern'     => '#\.(jpe?g|png)$#',
+        );
+    
+        $years = array(
+            gmdate( 'Y' ),
+            gmdate( 'Y', strtotime( '-1 year' ) ),
+            gmdate( 'Y', strtotime( '-2 year' ) ),
+            gmdate( 'Y', strtotime( '-3 year' ) ),
+            gmdate( 'Y', strtotime( '-4 year' ) ),
+            gmdate( 'Y', strtotime( '-5 year' ) ),
+            gmdate( 'Y', strtotime( '-6 year' ) ),
+
+        );
+
+        $images_arr = array();
+        foreach ( $years as $year ) {
+            $images = $this->getFilesListRecursively( $year, $listOpt );
+            $images_arr = array_merge($images_arr,$images);
+        }
+
+        return count($images_arr);
+    }
+
+    //creaet a aajac function to retuen convert and pebnding images
+public function get_images_count(){
+    //check if nonce is valid
+    if(isset($_POST['nonce_verify']) && !wp_verify_nonce(wp_unslash($_POST['nonce_verify']),'web-vitals-security-nonce')){ //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using input as nonce
+        wp_send_json(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified', 'cwvpsb') ) );
+    }
+
+    if(!current_user_can('manage_options')){
+        wp_send_json(array('status'=>500 ,"msg"=>esc_html__('You do not have permission to access this page', 'cwvpsb') ) );
+    }
+    $converted = $this->get_list_convert_files_status('converted');
+    $unconverted = $this->get_list_convert_files_status('unconverted');
+    wp_send_json(array('status'=>200 ,"converted"=>$converted, "unconverted"=>$unconverted) );
+}
+    
+    
     function getFilesListRecursively($currentDir, &$listOpt){
         $dir = $listOpt['root'] . '/' . $currentDir;
         $dir = $this->canonicalize($dir);

@@ -216,7 +216,7 @@ final class CWVPSB_Cache_Disk {
 		$dir = untrailingslashit($dir);
 
 		// check if dir
-		if ( ! is_dir($dir) ) {
+		if ( ! is_dir( $dir ) || ! is_readable( $dir ) ) {
 			return;
 		}
 

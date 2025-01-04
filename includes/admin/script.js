@@ -623,3 +623,28 @@ jQuery(document).ready(function($) {
     /* Newletters js ends here */ 
 
 });
+
+function get_images_count(){
+	if(!jQuery('#cwvpsb_images_converted').length){
+		return;
+	}
+	jQuery.ajax({
+		url: ajaxurl,
+		type:'post',
+		dataType: 'json',
+		data: {'cwvpsb_security_nonce': cwvpsb_localize_data.cwvpsb_security_nonce, action: 'get_images_count'},
+		success: function(response){
+			if(response.status=='200'){
+				jQuery('#cwvpsb_images_converted').text(response.converted);
+				jQuery('#cwvpsb_images_unconverted').text(parseInt(response.converted)+parseInt(response.unconverted));
+			}else{
+				jQuery('#cwvpsb_images_converted').text('NA');
+				jQuery('#cwvpsb_images_unconverted').text('NA');
+			}
+		}
+	})
+}
+
+setTimeout(function(){
+	get_images_count();
+}, 1000);
