@@ -405,4 +405,6 @@ table.cwvpsb_inner_tb th {
 table.cwvpsb_inner_tb select {
   margin-right: 3% !important;
 }
-
+.cwvpsb-converted-count {
+  padding: 10px 0;
+}
