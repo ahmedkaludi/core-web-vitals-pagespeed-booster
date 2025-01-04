@@ -1,3 +1,8 @@
+= 1.0.23 (04 January 2025) =
+* New: Serve static assets with an efficient cache policy #117
+* Improvement: Added conversion stats for manual image optimization #135
+* Fixed: Php error on user's end #163
+
 = 1.0.22 (05 November 2024) =
 * Improvement: Fix Properly Size Image issue. #118
 * Improvement: Image lazy load improvement #157

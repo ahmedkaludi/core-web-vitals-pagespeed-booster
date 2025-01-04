@@ -432,8 +432,8 @@ public function lazyload_type_callback(){
         ?>
     </select>
         <p class="description">
-            <?php echo '<b>'.esc_html__('Load in viewport').':</b>'.esc_html__(" Images which are outside of viewport and will not be loaded before user scrolls to them", 'cwvpsb');?><br>
-            <?php echo '<b>'.esc_html__('Load after delay').':</b>'.esc_html__(" All Images will be loaded after pages has been loaded with a delay.", 'cwvpsb');?>
+            <?php echo '<b>'.esc_html__('Load in viewport', 'cwvpsb').':</b>'.esc_html__(" Images which are outside of viewport and will not be loaded before user scrolls to them", 'cwvpsb');?><br>
+            <?php echo '<b>'.esc_html__('Load after delay', 'cwvpsb').':</b>'.esc_html__(" All Images will be loaded after pages has been loaded with a delay.", 'cwvpsb');?>
         </p>
     </fieldset>
     <?php }

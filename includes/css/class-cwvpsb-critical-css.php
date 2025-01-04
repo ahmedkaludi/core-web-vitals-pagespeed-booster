@@ -684,7 +684,9 @@ class CWVPSB_Critical_Css
 			$user_dirname = $this->cachepath();
 			if (  ! $wp_filesystem->is_dir( $user_dirname ) ) {
 				$wp_filesystem->mkdir( $user_dirname );
-				$wp_filesystem->chmod( $user_dirname, 755 );
+				if($wp_filesystem->is_dir( $user_dirname )){
+					$wp_filesystem->chmod( $user_dirname, 755 );
+				}
 			}
 
 			if (is_dir($user_dirname)) {
