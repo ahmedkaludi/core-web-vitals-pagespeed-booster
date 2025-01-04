@@ -202,7 +202,11 @@ function cwvpsb_update_on_plugin_update( $upgrader_object, $options ) {
 	if ( 'update' === $options['action'] && 'plugin' === $options['type'] ) {
 		$plugin = $options['plugins'][0];
 		if ( plugin_basename( __FILE__ ) === $plugin ) {
-			cwvpsb_update_htaccess();
+			//check if cache support is enabled
+			$settings = cwvpsb_get_settings();
+			if ( isset( $settings['cache_support'] ) && 1 == $settings['cache_support'] ) {
+				cwvpsb_update_htaccess();
+			}
 		}
 	}
 }
