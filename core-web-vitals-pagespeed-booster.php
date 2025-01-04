@@ -207,13 +207,10 @@ function cwvpsb_update_on_plugin_update( $upgrader_object, $options ) {
 	}
 }
 
-add_action( 'pre_update_option_cwvpsb_get_settings', 'cwvpsb_htaccess_on_setting_update' , 10 , 3 );
+add_action( 'update_option_cwvpsb_get_settings', 'cwvpsb_htaccess_on_setting_update' , 10 , 3 );
 function cwvpsb_htaccess_on_setting_update( $old_value, $value, $option ) {
-	//error_log('option: '.$option);
 	if ( 'cwvpsb_get_settings' == $option ) {
-		//error_log(print_r($value,true));
 		if ( isset( $value['cache_support'] ) && 1 == $value['cache_support'] ) {
-			error_log('update htaccess');
 			cwvpsb_update_htaccess();
 		}else{
 			cwvpsb_remove_htaccess_rules();
