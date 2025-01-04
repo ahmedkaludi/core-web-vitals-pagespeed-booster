@@ -82,12 +82,10 @@ function cwvpsb_on_activate( $network_wide ) {
         foreach ( $blog_ids as $blog_id ) {
             switch_to_blog( $blog_id );
             cwvpsb_on_install();
-			cwvpsb_update_htaccess();
             restore_current_blog();
         }
     } else {
         cwvpsb_on_install();
-		cwvpsb_update_htaccess();
     }
 }
 
