@@ -1,8 +1,8 @@
 === Core Web Vitals & PageSpeed Booster ===
 Contributors: magazine3
 Requires at least: 3.0
-Tested up to: 6.7
-Stable tag: 1.0.23
+Tested up to: 6.8
+Stable tag: 1.0.24
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: core web vitals, optimization, pagespeed, performance, cache
@@ -39,6 +39,11 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 * WebP Convert library used https://github.com/rosell-dk/webp-convert - License URI: https://github.com/rosell-dk/webp-convert?tab=MIT-1-ov-file (WebP Convert is freely distributable under the terms of an MIT-style license.)
 
 == Changelog ==
+
+= 1.0.24 (14 May 2025) =
+* Fixed : PHP Deprecated: strpos()  Passing null is deprecated #166
+* Improvement: Permission issue when creating directory #169
+* Test : Need to test with WordPress 6.8 #168
 
 = 1.0.23 (04 January 2025) =
 * New: Serve static assets with an efficient cache policy #117
@@ -127,7 +132,5 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 * Fixed: Woocommerce payment page is not working. #77 
 * Improvement : Remove plugin dependency from file_get_contents function #78
 
-= 1.0.10 (02 February 2023) =
-* Improvement: Optimized code and fixed frontend js issue 
 
 Full changelog available at [changelog.txt](https://plugins.svn.wordpress.org/core-web-vitals-pagespeed-booster/trunk/changelog.txt)
