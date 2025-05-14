@@ -1,3 +1,8 @@
+= 1.0.24 (14 May 2025) =
+* Fixed : PHP Deprecated: strpos()  Passing null is deprecated #166
+* Improvement: Permission issue when creating directory #169
+* Test : Need to test with WordPress 6.8 #168
+
 = 1.0.23 (04 January 2025) =
 * New: Serve static assets with an efficient cache policy #117
 * Improvement: Added conversion stats for manual image optimization #135
