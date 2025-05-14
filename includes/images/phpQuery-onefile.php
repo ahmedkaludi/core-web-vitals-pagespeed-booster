@@ -632,7 +632,7 @@ class DOMDocumentWrapper {
 		} else {
 			$markup2 = phpQuery::$defaultDoctype.'<html><head><meta http-equiv="Content-Type" content="text/html;charset='
 				.$charset.'"></head>';
-			$noBody = strpos($markup, '<body') === false;
+			$noBody = !is_string($markup) || strpos($markup, '<body') === false;
 			if ($noBody)
 				$markup2 .= '<body>';
 			$markup2 .= $markup;
