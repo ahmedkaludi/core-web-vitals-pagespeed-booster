@@ -699,7 +699,6 @@ class CWVPSB_Critical_Css
 						$failed_error = '';
 						$this->change_caching_status($value['url'], $status);
 						$result = $this->cwvpsb_save_critical_css_in_dir_php($value['url']);
-						error_log(print_r($result, true));
 
 						if ($result['status']) {
 							$status = 'cached';
@@ -951,7 +950,6 @@ class CWVPSB_Critical_Css
 		$table_name_escaped = esc_sql( $table_prefix . 'cwvpb_critical_urls');
 
 		$url_id = isset( $_POST['url_id'] ) ? intval( sanitize_text_field( wp_unslash( $_POST['url_id'] ) ) ) : null;
-		error_log($url_id);
 
 		if ($url_id) {
 
@@ -963,7 +961,6 @@ class CWVPSB_Critical_Css
 				$url_id
 			));
 
-			error_log($result);
 
 			if ($result) {
 				wp_send_json(array('status' => true));
