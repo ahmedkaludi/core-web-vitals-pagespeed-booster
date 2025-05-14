@@ -520,7 +520,7 @@ function cwvpsb_write_file_contents( $filename, $data, $append = false ) {
 	// Ensure the directory is writable.
 	$dir = dirname( $filename );
 	if ( ! $wp_filesystem->exists( $dir ) ) {
-		$wp_filesystem->mkdir( $dir );
+		$wp_filesystem->mkdir( $dir , FS_CHMOD_DIR );
 	}
 
 	$file_size = $wp_filesystem->size( $filename );
