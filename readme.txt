@@ -2,7 +2,7 @@
 Contributors: magazine3
 Requires at least: 3.0
 Tested up to: 6.8
-Stable tag: 1.0.24
+Stable tag: 1.0.25
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: core web vitals, optimization, pagespeed, performance, cache
@@ -39,6 +39,9 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 * WebP Convert library used https://github.com/rosell-dk/webp-convert - License URI: https://github.com/rosell-dk/webp-convert?tab=MIT-1-ov-file (WebP Convert is freely distributable under the terms of an MIT-style license.)
 
 == Changelog ==
+
+= 1.0.25 (16 July 2025) =
+* Test : Tested upto WordPress 6.8.2 
 
 = 1.0.24 (14 May 2025) =
 * Fixed : PHP Deprecated: strpos()  Passing null is deprecated #166
@@ -127,10 +130,6 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 * Fixed: Warning Undefined array key "advance_support" #80
 * Improvement : Add a label to the Exclude URL box #81
 * Improvement : Exclude Google analytics from js delay #62
-
-= 1.0.11 (17 February 2023) =
-* Fixed: Woocommerce payment page is not working. #77 
-* Improvement : Remove plugin dependency from file_get_contents function #78
 
 
 Full changelog available at [changelog.txt](https://plugins.svn.wordpress.org/core-web-vitals-pagespeed-booster/trunk/changelog.txt)
