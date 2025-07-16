@@ -1,3 +1,6 @@
+= 1.0.25 (16 July 2025) =
+* Test : Tested upto WordPress 6.8.2 
+
 = 1.0.24 (14 May 2025) =
 * Fixed : PHP Deprecated: strpos()  Passing null is deprecated #166
 * Improvement: Permission issue when creating directory #169
