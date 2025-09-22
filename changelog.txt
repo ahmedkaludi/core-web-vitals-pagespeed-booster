@@ -1,3 +1,7 @@
+= 1.0.26 (22 September 2025) =
+* Fixed : Add Missing Alt Tags toggle not updating after save #174
+* Improvement : Sanitization missing for register_setting(). #173
+
 = 1.0.25 (16 July 2025) =
 * Test : Tested upto WordPress 6.8.2 
 
