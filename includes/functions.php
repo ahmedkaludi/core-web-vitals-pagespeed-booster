@@ -211,7 +211,7 @@ function cwvpsb_defaults() {
 		'cache_last_autoclear'    => 0,
 		'image_optimization_alt'  => 0,
 		'lazyload_exclude'        => '',
-		'images_add_alttag'      => 1 ,
+		'images_add_alttags'     => 1 ,
 		'lazyload_type'  		=> 'lazy'
 	);
 	if ( is_multisite() && is_plugin_active_for_network( CWVPSB_BASE ) ) {

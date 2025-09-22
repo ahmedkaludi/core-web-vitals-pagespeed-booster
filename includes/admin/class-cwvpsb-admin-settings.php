@@ -163,7 +163,7 @@ public function cwvpsb_admin_interface_render(){
 
 public function cwvpsb_settings_init(){
 
-    register_setting( 'cwvpsb_setting_dashboard_group', 'cwvpsb_get_settings' );
+    register_setting( 'cwvpsb_setting_dashboard_group', 'cwvpsb_get_settings', array( $this, 'sanitize_settings' ) );
  
     add_settings_section('cwvpsb_images_section', '', '__return_false', 'cwvpsb_images_section');
     
@@ -441,7 +441,7 @@ public function images_add_alttags_callback(){
     $settings = cwvpsb_defaults(); ?>
     <fieldset><label class="switch">
         <?php
-        if(empty($settings['images_add_alttags']) || $settings['images_add_alttags'] == 1){
+        if(isset($settings['images_add_alttags']) && $settings['images_add_alttags'] == 1){
             echo '<input type="checkbox" name="cwvpsb_get_settings[images_add_alttags]" class="regular-text" value="1" checked> ';
         }else{
             echo '<input type="checkbox" name="cwvpsb_get_settings[images_add_alttags]" class="regular-text" value="1" >';
@@ -950,6 +950,74 @@ public function get_images_count(){
 
     function all_admin_bar_settings( $wp_admin_bar ){
         require_once( CWVPSB_PLUGIN_DIR.'includes/admin/admin-bar-settings.php');
+    }
+
+    /**
+     * Sanitize settings input
+     *
+     * @param array $input The input array to sanitize
+     * @return array Sanitized input array
+     */
+    public function sanitize_settings( $input ) {
+        if ( ! is_array( $input ) ) {
+            return array();
+        }
+
+        $sanitized = array();
+        
+        // Get current settings to preserve unchecked checkboxes
+        $current_settings = cwvpsb_defaults();
+        
+        foreach ( $input as $key => $value ) {
+            // Sanitize based on the type of value
+            if ( is_array( $value ) ) {
+                // Handle array values (like cache_flush_on, critical_css_on_cp_type, etc.)
+                $sanitized[ sanitize_key( $key ) ] = array_map( 'sanitize_text_field', $value );
+            } else {
+                // Handle string values
+                switch ( $key ) {
+                    case 'webp_support':
+                    case 'lazyload_type':
+                    case 'delay_js':
+                    case 'delay_js_mobile':
+                    case 'cache_support_method':
+                    case 'cache_autoclear':
+                        $sanitized[ sanitize_key( $key ) ] = sanitize_text_field( $value );
+                        break;
+                    case 'lazyload_exclude':
+                    case 'exclude_delay_js':
+                    case 'whitelist_css':
+                    case 'advance_support':
+                        $sanitized[ sanitize_key( $key ) ] = sanitize_textarea_field( $value );
+                        break;
+                    default:
+                        // For checkboxes and other fields, use sanitize_text_field
+                        $sanitized[ sanitize_key( $key ) ] = sanitize_text_field( $value );
+                        break;
+                }
+            }
+        }
+        
+        // Handle unchecked checkboxes - if they're not in the input, set them to 0
+        $checkbox_fields = array(
+            'images_add_alttags',
+            'lazyload_support',
+            'minification_support',
+            'unused_css_support',
+            'google_fonts_support',
+            'critical_css_support',
+            'cache_support',
+            'image_optimization_alt',
+            'delete_on_uninstall'
+        );
+        
+        foreach ( $checkbox_fields as $field ) {
+            if ( ! isset( $sanitized[ $field ] ) ) {
+                $sanitized[ $field ] = 0;
+            }
+        }
+        
+        return $sanitized;
     }
 
     public function generate_time($total_count){
