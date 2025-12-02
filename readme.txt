@@ -39,6 +39,9 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 * WebP Convert library used https://github.com/rosell-dk/webp-convert - License URI: https://github.com/rosell-dk/webp-convert?tab=MIT-1-ov-file (WebP Convert is freely distributable under the terms of an MIT-style license.)
 
 == Changelog ==
+= 1.0.27 (02 December 2025) =
+* Test : Tested upto WordPress 6.9
+
 = 1.0.26 (22 September 2025) =
 * Fixed : Add Missing Alt Tags toggle not updating after save #174
 * Improvement : Sanitization missing for register_setting(). #173
@@ -121,10 +124,6 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 * Improvement: Added newsletter form  #4
 * Improvement: WordPress 6.3 compatibility check #100 
 * Improvement: Improved and optimized the code according to WP standards #101
-
-= 1.0.13 (03 June 2023) =
-* Improvement: Improved CSS load 
-* Fixed: Redirection Issue
 
 
 Full changelog available at [changelog.txt](https://plugins.svn.wordpress.org/core-web-vitals-pagespeed-booster/trunk/changelog.txt)
