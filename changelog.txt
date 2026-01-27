@@ -1,5 +1,8 @@
-= 1.0.27 (02 December 2025) =
+= 1.0.28 (27 January 2026) =
 * Test : Tested upto WordPress 6.9
+
+= 1.0.27 (02 December 2025) =
+* Improvement : Code improvements
 
 = 1.0.26 (22 September 2025) =
 * Fixed : Add Missing Alt Tags toggle not updating after save #174
