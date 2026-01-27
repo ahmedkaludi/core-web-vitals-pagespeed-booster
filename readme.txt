@@ -1,8 +1,8 @@
 === Core Web Vitals & PageSpeed Booster ===
 Contributors: magazine3
 Requires at least: 3.0
-Tested up to: 6.8
-Stable tag: 1.0.26
+Tested up to: 6.9
+Stable tag: 1.0.28
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: core web vitals, optimization, pagespeed, performance, cache
@@ -39,8 +39,11 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 * WebP Convert library used https://github.com/rosell-dk/webp-convert - License URI: https://github.com/rosell-dk/webp-convert?tab=MIT-1-ov-file (WebP Convert is freely distributable under the terms of an MIT-style license.)
 
 == Changelog ==
-= 1.0.27 (02 December 2025) =
+= 1.0.28 (27 January 2026) =
 * Test : Tested upto WordPress 6.9
+
+= 1.0.27 (02 December 2025) =
+* Improvement : Code improvements
 
 = 1.0.26 (22 September 2025) =
 * Fixed : Add Missing Alt Tags toggle not updating after save #174
