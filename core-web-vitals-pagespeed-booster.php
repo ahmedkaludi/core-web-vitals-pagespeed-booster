@@ -30,7 +30,6 @@ define('CWVPSB_CACHE_AGGRESIVE_DIR',  'wp-content/cache/cwvpsb/static/');
  * Core images 
  **/
 define('CWVPSB_IMAGE_DIR',plugin_dir_url(__FILE__).'images/');
-$host = wp_parse_url(get_site_url())['host'];
 /**
  * Font cache path
  **/
@@ -66,8 +65,8 @@ require_once CWVPSB_PLUGIN_DIR."includes/functions.php";
 require_once CWVPSB_PLUGIN_DIR."includes/admin/helper-function.php";
 require_once CWVPSB_PLUGIN_DIR."includes/admin/class-cwvpb-newsletter.php";
 
-add_action('plugins_loaded', 'cwv_pse_initiate');
-function cwv_pse_initiate(){
+add_action('plugins_loaded', 'cwvpsb_pse_initiate');
+function cwvpsb_pse_initiate(){
 	require_once CWVPSB_PLUGIN_DIR."/includes/helper-section.php";
 	add_filter('wp_handle_upload', array('Core_Web_Vital_Helper_Section', 'do_upload_with_webp'), 10, 2);
 }
