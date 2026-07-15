@@ -677,8 +677,11 @@ public function delete_on_uninstall_callback(){
     <?php echo esc_html__("This will delete all Core Web Vital generated files and settings when you uninstall the plugin", 'cwvpsb');?>
     <?php }        
     function get_list_convert_files(){
-        if(isset($_POST['nonce_verify']) && !wp_verify_nonce(wp_unslash($_POST['nonce_verify']),'web-vitals-security-nonce')){ //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using input as nonce
-            wp_send_json(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified', 'cwvpsb' ) ) );
+        if ( ! isset( $_POST['nonce_verify'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce_verify'] ) ), 'web-vitals-security-nonce' ) ) {
+            wp_send_json( array( 'status' => 500, 'msg' => esc_html__( 'Request Security not verified', 'cwvpsb' ) ) );
+        }
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json( array( 'status' => 500, 'msg' => esc_html__( 'You do not have permission to access this page', 'cwvpsb' ) ) );
         }
         $listOpt = array();
         $upload = wp_upload_dir();
@@ -753,13 +756,12 @@ public function delete_on_uninstall_callback(){
 
     //creaet a aajac function to retuen convert and pebnding images
 public function get_images_count(){
-    //check if nonce is valid
-    if(isset($_POST['nonce_verify']) && !wp_verify_nonce(wp_unslash($_POST['nonce_verify']),'web-vitals-security-nonce')){ //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using input as nonce
-        wp_send_json(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified', 'cwvpsb') ) );
+    if ( ! isset( $_POST['nonce_verify'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce_verify'] ) ), 'web-vitals-security-nonce' ) ) {
+        wp_send_json( array( 'status' => 500, 'msg' => esc_html__( 'Request Security not verified', 'cwvpsb' ) ) );
     }
 
-    if(!current_user_can('manage_options')){
-        wp_send_json(array('status'=>500 ,"msg"=>esc_html__('You do not have permission to access this page', 'cwvpsb') ) );
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json( array( 'status' => 500, 'msg' => esc_html__( 'You do not have permission to access this page', 'cwvpsb' ) ) );
     }
     $converted = $this->get_list_convert_files_status('converted');
     $unconverted = $this->get_list_convert_files_status('unconverted');
@@ -837,17 +839,42 @@ public function get_images_count(){
     }
 
     function webp_convert_file(){
-        if(isset($_POST['nonce_verify']) && !wp_verify_nonce( wp_unslash( $_POST['nonce_verify'],'web-vitals-security-nonce' ) ) ){  //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using input as nonce
-            wp_send_json(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified' , 'cwvpsb') ) );
+        if ( ! isset( $_POST['nonce_verify'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce_verify'] ) ), 'web-vitals-security-nonce' ) ) {
+            wp_send_json( array( 'status' => 500, 'msg' => esc_html__( 'Request Security not verified', 'cwvpsb' ) ) );
         }
-        $filename = isset($_POST['filename'])?sanitize_text_field(wp_unslash($_POST['filename'])):'';
 
-        $upload = wp_upload_dir();
-        $destinationPath = $upload['basedir']."/cwv-webp-images";
-        if(!is_dir($destinationPath)) { wp_mkdir_p($destinationPath); }
-        $destination = $destinationPath.'/'. $filename.".webp";
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json( array( 'status' => 500, 'msg' => esc_html__( 'You do not have permission to access this page', 'cwvpsb' ) ) );
+        }
 
-        $source = $upload['basedir']."/".$filename;
+        $filename = isset( $_POST['filename'] ) ? sanitize_text_field( wp_unslash( $_POST['filename'] ) ) : '';
+        $filename = ltrim( str_replace( '\\', '/', $filename ), '/' );
+
+        // Reject traversal sequences and only allow jpeg/png relative paths under uploads.
+        if ( '' === $filename || false !== strpos( $filename, '..' ) || ! preg_match( '#\.(jpe?g|png)$#i', $filename ) ) {
+            wp_send_json( array( 'status' => 500, 'msg' => esc_html__( 'Invalid filename', 'cwvpsb' ) ) );
+        }
+
+        $upload          = wp_upload_dir();
+        $basedir         = wp_normalize_path( $upload['basedir'] );
+        $destinationPath = $basedir . '/cwv-webp-images';
+        if ( ! is_dir( $destinationPath ) ) {
+            wp_mkdir_p( $destinationPath );
+        }
+
+        $source      = wp_normalize_path( $basedir . '/' . $filename );
+        $destination = wp_normalize_path( $destinationPath . '/' . $filename . '.webp' );
+
+        // Ensure constructed paths remain inside the uploads / webp roots.
+        if ( 0 !== strpos( $source, trailingslashit( $basedir ) ) || 0 !== strpos( $destination, trailingslashit( $destinationPath ) ) ) {
+            wp_send_json( array( 'status' => 500, 'msg' => esc_html__( 'Invalid filename', 'cwvpsb' ) ) );
+        }
+
+        $real_basedir = realpath( $basedir );
+        $real_source  = realpath( $source );
+        if ( false === $real_basedir || false === $real_source || 0 !== strpos( wp_normalize_path( $real_source ), trailingslashit( wp_normalize_path( $real_basedir ) ) ) ) {
+            wp_send_json( array( 'status' => 500, 'msg' => esc_html__( 'Invalid filename', 'cwvpsb' ) ) );
+        }
 
         try {
             require_once CWVPSB_PLUGIN_DIR."/includes/vendor/autoload.php";
