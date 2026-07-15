@@ -1,3 +1,6 @@
+= 1.0.29 (21 May 2026) =
+* Test : Tested upto WordPress 7.0
+
 = 1.0.28 (27 January 2026) =
 * Test : Tested upto WordPress 6.9
 
