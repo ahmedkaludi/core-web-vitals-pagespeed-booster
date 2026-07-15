@@ -45,7 +45,7 @@ jQuery(document).ready(function ($) {
                 url: ajaxurl,
                 dataType: 'json',
                 data: {
-                    action: 'cwv_send_feedback',
+                    action: 'cwvpsb_send_feedback',
                     data: $('#cwv-reloaded-feedback-content form').serialize()
                 },
                 complete: function (MLHttpRequest, textStatus, errorThrown) {

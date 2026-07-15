@@ -39,9 +39,9 @@ add_action(
 	999
 );
 
-$settings = cwvpsb_defaults();
+$cwvpsb_settings = cwvpsb_defaults();
 
-if ( isset( $settings['cache_support'] ) ) {
+if ( isset( $cwvpsb_settings['cache_support'] ) ) {
 	add_action(
 		'plugins_loaded',
 		array(
@@ -87,12 +87,6 @@ function cwvpsb_cache_autoload( $class ) {
 		CWVPSB_DIR,
 		strtolower( $class )
 	);
-}
-
-// Load plugin textdomain
-add_action( 'init', 'cwvpsb_load_textdomain' );
-function cwvpsb_load_textdomain() {
-	load_plugin_textdomain( 'cwvpsb_textdomain', false, dirname( CWVPSB_BASE ) . '/languages' );
 }
 
 add_action( 'wp_ajax_cwvpsb_clear_cached_css', 'cwvpsb_clear_cached_css' );
@@ -395,8 +389,8 @@ function cwvpsb_iframe_delay( $content ) {
 	}
 	$content = preg_replace( '/<iframe[^>]*src="(?:https?:)?\/\/(?:www\.)?youtube\.com\/embed\/([^"?]+)"/', '<div class="cwvpsb_iframe"><div class="iframe_wrap"><div class="iframe_player" data-embed="${1}" id="player_${1}"><div class="play-button"></div></div></div></div>', $content );
 
-	global $iframe_check;
-	$iframe_check = preg_match( '/iframe_player/i', $content, $result );
+	global $cwvpsb_iframe_check;
+	$cwvpsb_iframe_check = preg_match( '/iframe_player/i', $content, $result );
 	return $content;
 }
 
@@ -404,8 +398,8 @@ add_action( 'wp_footer', 'cwvpsb_iframe_delay_enqueue' );
 
 function cwvpsb_iframe_delay_enqueue() {
 
-	global $iframe_check;
-	if ( $iframe_check == 1 ) {
+	global $cwvpsb_iframe_check;
+	if ( $cwvpsb_iframe_check == 1 ) {
 		wp_enqueue_script( 'cwvpsb_iframe', plugin_dir_url( __FILE__ ) . 'cwvpsb_iframe.js', array(), CWVPSB_VERSION, true );
 		wp_enqueue_style( 'cwvpsb_iframe', plugin_dir_url( __FILE__ ) . 'cwvpsb_iframe.css', array(), CWVPSB_VERSION );
 	}

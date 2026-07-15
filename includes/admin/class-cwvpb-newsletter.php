@@ -12,7 +12,7 @@
 if (!defined('ABSPATH'))
         exit;
 
-class CWVPB_newsletter
+class CWVPSB_Newsletter
 {
 
         function __construct()
@@ -102,5 +102,5 @@ class CWVPB_newsletter
         }
 
 }
-$cwvps_newsletter = new CWVPB_newsletter();
+$cwvpsb_newsletter = new CWVPSB_Newsletter();
 ?>

@@ -282,7 +282,7 @@ final class CWVPSB_Cache {
         }
 
 		// check user role
-		if ( ! is_admin_bar_showing() OR ! apply_filters('user_can_clear_cache', current_user_can('manage_options')) ) {
+		if ( ! is_admin_bar_showing() OR ! apply_filters('cwvpsb_user_can_clear_cache', current_user_can('manage_options')) ) {
 			return;
 		}
 
@@ -380,7 +380,7 @@ final class CWVPSB_Cache {
 	public static function clear_notice() {
 
 		// check if admin
-		if ( ! is_admin_bar_showing() OR ! apply_filters('user_can_clear_cache', current_user_can('manage_options')) ) {
+		if ( ! is_admin_bar_showing() OR ! apply_filters('cwvpsb_user_can_clear_cache', current_user_can('manage_options')) ) {
 			return false;
 		}
 
@@ -528,7 +528,7 @@ final class CWVPSB_Cache {
 	private static function _bypass_cache() {
 
 		// bypass cache hook
-		if ( apply_filters('bypass_cache', false) ) {
+		if ( apply_filters('cwvpsb_bypass_cache', false) ) {
 			return true;
 		}
 
@@ -607,7 +607,7 @@ final class CWVPSB_Cache {
 		}
 		$settings = cwvpsb_defaults();
 		if(isset($settings['critical_css_support']) && $settings['critical_css_support']==1){
-           global $wp, $cwvpbCriticalCss;
+           global $wp, $cwvpsb_critical_css;
            $url = home_url( $wp->request );
     	   $url = trailingslashit($url);	
     		if(!file_exists(CWVPSB_CRITICAL_CSS_CACHE_DIR.md5($url).'.css')){

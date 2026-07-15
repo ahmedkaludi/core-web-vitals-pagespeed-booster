@@ -2142,10 +2142,10 @@ function cwvpsb_set_file_transient( $transient, $value, $expiration = 0 ) {
 	$transient = cwvpsb_get_proper_transient_name($transient);
 	$expiration = (int) $expiration;
 
-	$value = apply_filters( "pre_set_transient_{$transient}", $value, $expiration, $transient );
+	$value = apply_filters( "pre_set_transient_{$transient}", $value, $expiration, $transient ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core WordPress transient filter.
 
 	
-	$expiration = apply_filters( "expiration_of_transient_{$transient}", $expiration, $value, $transient );
+	$expiration = apply_filters( "expiration_of_transient_{$transient}", $expiration, $value, $transient ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core WordPress transient filter.
 
 	if ( wp_using_ext_object_cache() ) {
 		$result = wp_cache_set( $transient, $value, 'transient', $expiration );
@@ -2178,7 +2178,7 @@ function cwvpsb_set_file_transient( $transient, $value, $expiration = 0 ) {
 function cwvpsb_style_get_file_transient( $transient ) {
 
 	$transient = cwvpsb_get_proper_transient_name($transient);
-	$pre = apply_filters( "pre_transient_{$transient}", false, $transient );
+	$pre = apply_filters( "pre_transient_{$transient}", false, $transient ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core WordPress transient filter.
 	if ( false !== $pre )
 		return $pre;
 
@@ -2199,5 +2199,5 @@ function cwvpsb_style_get_file_transient( $transient ) {
 	}
 
 	
-	return apply_filters( "transient_{$transient}", json_decode($value, true), $transient );
+	return apply_filters( "transient_{$transient}", json_decode($value, true), $transient ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core WordPress transient filter.
 }

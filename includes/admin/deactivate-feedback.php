@@ -1,6 +1,6 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
-$reasons = array(
+$cwvpsb_reasons = array(
 	1 => '<li><label><input type="radio" name="cwv_disable_reason" value="temporary"/>' . esc_html__('It is only temporary', 'cwvpsb') . '</label></li>',
 	2 => '<li><label><input type="radio" name="cwv_disable_reason" value="stopped"/>' . esc_html__('I stopped using plugin on my site', 'cwvpsb') . '</label></li>',
 	3 => '<li><label><input type="radio" name="cwv_disable_reason" value="missing"/>' . esc_html__('I miss a feature', 'cwvpsb') . '</label></li>
@@ -12,7 +12,7 @@ $reasons = array(
 	6 => '<li><label><input type="radio" name="cwv_disable_reason" value="other"/>' . esc_html__('Other reason', 'cwvpsb') . '</label></li>
 		<li><textarea class="mb-box other" name="cwv_disable_text[]" placeholder="' . esc_html__('Please specify, if possible', 'cwvpsb') . '"></textarea></li>',
 );
-shuffle($reasons);
+shuffle($cwvpsb_reasons);
 ?>
 
 
@@ -23,8 +23,8 @@ shuffle($reasons);
 			</h3>
 			<ul>
 				<?php
-				foreach ($reasons as $reason) {
-					echo $reason; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason is already escaped in the array
+				foreach ($cwvpsb_reasons as $cwvpsb_reason) {
+					echo $cwvpsb_reason; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason is already escaped in the array
 				}
 				?>
 			</ul>

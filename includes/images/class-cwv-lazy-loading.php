@@ -4,12 +4,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 function cwvpsb_lazy_load() {
-  $plugin = new CWV_Lazy_Load();
+  $plugin = new CWVPSB_Lazy_Load();
   $plugin->run();
 }
 cwvpsb_lazy_load();
 
-class CWV_Lazy_Load {
+class CWVPSB_Lazy_Load {
 
   protected $loader;
 
@@ -38,7 +38,7 @@ class CWV_Lazy_Load {
         require_once plugin_dir_path( __FILE__ ) . 'phpQuery-onefile.php';
     }
 
-    $this->loader = new CWV_Lazy_Load_Loader();
+    $this->loader = new CWVPSB_Lazy_Load_Loader();
 
   }
   
@@ -46,7 +46,7 @@ class CWV_Lazy_Load {
 
     if ( !is_admin() || !function_exists('is_checkout') || (function_exists('is_checkout') && !is_checkout()) ) {
 
-        $plugin_public = new CWV_Lazy_Load_Public( $this->get_plugin_name(), $this->get_version() );
+        $plugin_public = new CWVPSB_Lazy_Load_Public( $this->get_plugin_name(), $this->get_version() );
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
         $settings = cwvpsb_defaults();
         if(isset($settings['image_optimization_alt']) && $settings['image_optimization_alt'] == 1 ){
@@ -84,7 +84,7 @@ class CWV_Lazy_Load {
 
 }
 
-class CWV_Lazy_Load_Loader {
+class CWVPSB_Lazy_Load_Loader {
 
   
   protected $actions;
@@ -139,7 +139,7 @@ class CWV_Lazy_Load_Loader {
 
 }
 
-class CWV_Lazy_Load_Public {
+class CWVPSB_Lazy_Load_Public {
 
   
   private $plugin_name;

@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-class Core_Web_Vital_Helper_Section{
+class CWVPSB_Helper_Section{
 	static function convert_to_webp($filename){
 		$source = $filename;
 		$upload = wp_upload_dir();

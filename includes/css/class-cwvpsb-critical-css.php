@@ -1,5 +1,5 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;	
 /**
  * Critical CSS functionality 
  * @since 1.3
@@ -1436,4 +1436,4 @@ class CWVPSB_Critical_Css
 	}
 
 }
-$cwvpbCriticalCss = new CWVPSB_Critical_Css();
+$cwvpsb_critical_css = new CWVPSB_Critical_Css();

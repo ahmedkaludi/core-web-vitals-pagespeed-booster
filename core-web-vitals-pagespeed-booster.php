@@ -68,7 +68,7 @@ require_once CWVPSB_PLUGIN_DIR."includes/admin/class-cwvpb-newsletter.php";
 add_action('plugins_loaded', 'cwvpsb_pse_initiate');
 function cwvpsb_pse_initiate(){
 	require_once CWVPSB_PLUGIN_DIR."/includes/helper-section.php";
-	add_filter('wp_handle_upload', array('Core_Web_Vital_Helper_Section', 'do_upload_with_webp'), 10, 2);
+	add_filter('wp_handle_upload', array('CWVPSB_Helper_Section', 'do_upload_with_webp'), 10, 2);
 }
 
 register_activation_hook( __FILE__, 'cwvpsb_on_activate' );

@@ -974,7 +974,7 @@ public function get_images_count(){
 </IfModule>'.PHP_EOL;
 
         $rule .= '# END Core WebVital' . PHP_EOL;
-        $rule = apply_filters( 'cwvpb_aggressive_cache_htaccess_marker', $rule );
+        $rule = apply_filters( 'cwvpsb_aggressive_cache_htaccess_marker', $rule );
         return $rule;
         
     }

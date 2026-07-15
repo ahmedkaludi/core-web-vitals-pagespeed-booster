@@ -84,7 +84,7 @@ class CWVPSB_Local_Gravatars {
 	public function get_base_path() {
 		if ( ! $this->base_path ) {
 			$this->base_path = apply_filters(
-				'get_local_gravatars_base_path',
+				'cwvpsb_get_local_gravatars_base_path',
 				$this->get_filesystem()->wp_content_dir() . '/gravatars'
 			);
 		}
@@ -94,7 +94,7 @@ class CWVPSB_Local_Gravatars {
 	public function get_base_url() {
 		if ( ! $this->base_url ) {
 			$this->base_url = apply_filters(
-				'get_local_gravatars_base_url',
+				'cwvpsb_get_local_gravatars_base_url',
 				content_url() . '/gravatars'
 			);
 		}
@@ -106,7 +106,7 @@ class CWVPSB_Local_Gravatars {
 			if ( ! wp_next_scheduled( 'delete_gravatars_folder' ) && ! wp_installing() ) {
 				wp_schedule_event(
 					time(),
-					apply_filters( 'get_local_gravatars_cleanup_frequency', self::CLEANUP_FREQUENCY ),
+					apply_filters( 'cwvpsb_get_local_gravatars_cleanup_frequency', self::CLEANUP_FREQUENCY ),
 					'delete_gravatars_folder'
 				);
 			}
@@ -153,10 +153,10 @@ class CWVPSB_Local_Gravatars {
 	}
 
 	public function get_max_process_time() {
-		return apply_filters( 'get_local_gravatars_max_process_time', self::MAX_PROCESS_TIME );
+		return apply_filters( 'cwvpsb_get_local_gravatars_max_process_time', self::MAX_PROCESS_TIME );
 	}
 
 	public function get_fallback_url() {
-		return apply_filters( 'get_local_gravatars_fallback_url', '', $this->remote_url );
+		return apply_filters( 'cwvpsb_get_local_gravatars_fallback_url', '', $this->remote_url );
 	}
 }
