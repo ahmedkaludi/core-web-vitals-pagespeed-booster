@@ -386,7 +386,7 @@ final class CWVPSB_Cache {
 
 		echo sprintf(
 			'<div class="notice notice-success is-dismissible"><p>%s</p></div>',
-			esc_html__('The cache has been cleared.', 'cwvpsb')
+			esc_html__('The cache has been cleared.', 'core-web-vitals-pagespeed-booster')
 		);
 	}
 

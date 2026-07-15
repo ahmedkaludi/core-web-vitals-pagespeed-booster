@@ -190,14 +190,14 @@ final class CWVPSB_Cache_Disk {
 	
 		// Attempt to initialize the WP Filesystem
 		if ( ! WP_Filesystem() ) {
-			wp_die( esc_html__( 'Could not initialize WP Filesystem.', 'cwvpsb' ) );
+			wp_die( esc_html__( 'Could not initialize WP Filesystem.', 'core-web-vitals-pagespeed-booster' ) );
 		}
 	
 		// Ensure the parent directory is writable
 		$dir = dirname( $file );
 		if ( ! $wp_filesystem->is_writable( $dir ) ) {
 			
-			wp_die( esc_html__( 'Cannot write to directory.', 'cwvpsb' ) );
+			wp_die( esc_html__( 'Cannot write to directory.', 'core-web-vitals-pagespeed-booster' ) );
 		}
 	
 		// Write the file
@@ -205,7 +205,7 @@ final class CWVPSB_Cache_Disk {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				error_log( 'Could not write to file: ' . $file ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- gated behind WP_DEBUG
 			}
-			wp_die( esc_html__( 'Cannot write to file.', 'cwvpsb' ) );
+			wp_die( esc_html__( 'Cannot write to file.', 'core-web-vitals-pagespeed-booster' ) );
 		}
 	
 		// Clear the file cache

@@ -14,7 +14,7 @@ add_filter( 'plugin_action_links_' . CWVPSB_BASE, 'cwvpsb_add_settings_link' );
 function cwvpsb_add_settings_link( $links ) {
 	$links[] = '<a href="' .
 		esc_url( admin_url( 'admin.php?page=cwvpsb' ) ) .
-		'">' . esc_html__( 'Settings', 'cwvpsb' ) . '</a>';
+		'">' . esc_html__( 'Settings', 'core-web-vitals-pagespeed-booster' ) . '</a>';
 	return $links;
 }
 
@@ -95,7 +95,7 @@ function cwvpsb_clear_cached_css() {
 		wp_send_json(
 			array(
 				'status' => 400,
-				'msg'    => esc_html__( 'Security verification failed, Refresh the page', 'cwvpsb' ),
+				'msg'    => esc_html__( 'Security verification failed, Refresh the page', 'core-web-vitals-pagespeed-booster' ),
 			)
 		);
 	}
@@ -103,7 +103,7 @@ function cwvpsb_clear_cached_css() {
 		wp_send_json(
 			array(
 				'status' => 400,
-				'msg'    => esc_html__( 'Permission verification failed', 'cwvpsb' ),
+				'msg'    => esc_html__( 'Permission verification failed', 'core-web-vitals-pagespeed-booster' ),
 			)
 		);
 	}
@@ -113,7 +113,7 @@ function cwvpsb_clear_cached_css() {
 		wp_send_json(
 			array(
 				'status' => 400,
-				'msg'    => esc_html__( 'Cache type not found', 'cwvpsb' ),
+				'msg'    => esc_html__( 'Cache type not found', 'core-web-vitals-pagespeed-booster' ),
 			)
 		);
 	}
@@ -129,7 +129,7 @@ function cwvpsb_clear_cached_css() {
 			wp_send_json(
 				array(
 					'status' => 400,
-					'msg'    => esc_html__( 'cache not found', 'cwvpsb' ),
+					'msg'    => esc_html__( 'cache not found', 'core-web-vitals-pagespeed-booster' ),
 				)
 			);
 		}
@@ -143,7 +143,7 @@ function cwvpsb_clear_cached_css() {
 	wp_send_json(
 		array(
 			'status' => 200,
-			'msg'    => esc_html__( 'CSS Cleared', 'cwvpsb' ),
+			'msg'    => esc_html__( 'CSS Cleared', 'core-web-vitals-pagespeed-booster' ),
 		)
 	);
 }
@@ -608,10 +608,10 @@ function cwvpsb_remove_directory($dir) {
     if ($wp_filesystem->is_dir($dir)) {
         // Remove the directory using the WP Filesystem API
         if (!$wp_filesystem->rmdir($dir, true)) { // true for recursive removal
-            return new WP_Error('rmdir_failed', esc_html__('Failed to remove directory.', 'cwvpsb'));
+            return new WP_Error('rmdir_failed', esc_html__('Failed to remove directory.', 'core-web-vitals-pagespeed-booster'));
         }
     } else {
-        return new WP_Error('invalid_directory', esc_html__('Directory does not exist.', 'cwvpsb'));
+        return new WP_Error('invalid_directory', esc_html__('Directory does not exist.', 'core-web-vitals-pagespeed-booster'));
     }
 
     return true;

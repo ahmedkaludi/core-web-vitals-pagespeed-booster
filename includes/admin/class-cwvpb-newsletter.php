@@ -61,7 +61,7 @@ class CWVPSB_Newsletter
 
 
                 } else {
-                        echo esc_html__('Email id required', 'cwvpsb');
+                        echo esc_html__('Email id required', 'core-web-vitals-pagespeed-booster');
                 }
 
                 wp_die();
@@ -90,7 +90,7 @@ class CWVPSB_Newsletter
                                 $object['current_user_email'] = $current_user->user_email;
                                 $object['current_user_name'] = $current_user->display_name;
                                 $object['displayID'] = '#menu-settings';
-                                $object['button1'] = esc_html__('No Thanks', 'cwvpsb');
+                                $object['button1'] = esc_html__('No Thanks', 'core-web-vitals-pagespeed-booster');
                                 $object['button2'] = false;
                                 $object['function_name'] = '';
                                 $object['ajax_url'] = admin_url('admin-ajax.php');

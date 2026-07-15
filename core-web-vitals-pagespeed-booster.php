@@ -6,7 +6,7 @@ Version: 1.0.30
 Author: Magazine3
 Author URI: https://magazine3.company/
 Donate link: https://www.paypal.me/Kaludi/25
-Text Domain: cwvpsb
+Text Domain: core-web-vitals-pagespeed-booster
 Domain Path: /languages
 License: GPL2
 */

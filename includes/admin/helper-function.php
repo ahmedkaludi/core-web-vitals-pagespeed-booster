@@ -66,7 +66,7 @@ function cwvpsb_send_feedback() {
 		wp_send_json(
 			array(
 				'status' => 400,
-				'msg'    => esc_html__( 'Permission verification failed', 'cwvpsb' ),
+				'msg'    => esc_html__( 'Permission verification failed', 'core-web-vitals-pagespeed-booster' ),
 			)
 		);
 	}

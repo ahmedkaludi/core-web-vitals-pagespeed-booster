@@ -46,7 +46,7 @@ global $pagenow, $post;
 			[
 				'parent' => 'wp-cwvpsb',
 				'id'     => 'cwvpsb-settings',
-				'title'  => __( 'Settings', 'cwvpsb' ),
+				'title'  => __( 'Settings', 'core-web-vitals-pagespeed-booster' ),
 				'href'   => admin_url( 'options-general.php?page=cwvpsb'  ),
 			]
 		);
@@ -65,7 +65,7 @@ global $pagenow, $post;
 				[
 					'parent' => 'wp-cwvpsb',
 					'id'     => 'purge-all',
-					'title'  => __( 'Clear all cache', 'cwvpsb' ),
+					'title'  => __( 'Clear all cache', 'core-web-vitals-pagespeed-booster' ),
 					'href'   => wp_nonce_url( admin_url( 'admin-ajax.php?action=' . $cwvpsb_action . '&type=all' . $cwvpsb_referer ), $cwvpsb_action . '_all' ),
 				]
 			);
