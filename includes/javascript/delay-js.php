@@ -239,8 +239,8 @@ function cwvpsb_scripts_styles(){
 					$localize = $wp_scripts->registered[$handle]->extra['data'] . ';';
 				}
 				$file_url = $wp_scripts->registered[$handle]->src;
-				$parse_url = parse_url($file_url);
-		     	$file_path = str_replace(array(get_site_url(),'?'.@$parse_url['query']),array(ABSPATH,''),$file_url);
+				$wp_parse_url = wp_parse_url($file_url);
+		     	$file_path = str_replace(array(get_site_url(),'?'.@$wp_parse_url['query']),array(ABSPATH,''),$file_url);
 
 		     	if(substr( $file_path, 0, 13 ) === "/wp-includes/"){
 		     		$file_path = ABSPATH.$file_path;	
@@ -332,8 +332,8 @@ function cwvpsb_merge_js_scripts(){
 					$localize = $wp_scripts->registered[$handle]->extra['data'] . ';';
 				}
 				$file_url = $wp_scripts->registered[$handle]->src;
-				$parse_url = parse_url($file_url);
-		     	$file_path = str_replace(array(get_site_url(),'?'.@$parse_url['query']),array(ABSPATH,''),$file_url);
+				$wp_parse_url = wp_parse_url($file_url);
+		     	$file_path = str_replace(array(get_site_url(),'?'.@$wp_parse_url['query']),array(ABSPATH,''),$file_url);
 
 		     	if(substr( $file_path, 0, 13 ) === "/wp-includes/"){
 		     		$file_path = ABSPATH.$file_path;	

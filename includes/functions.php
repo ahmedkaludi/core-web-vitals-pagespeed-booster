@@ -141,7 +141,7 @@ function cwvpsb_clear_cached_css() {
 		}
 		while ( $file = readdir( $dir_handle ) ) {
 			if ( strpos( $file, '.css' ) !== false ) {
-				unlink( $user_dirname . '/' . $file );
+				wp_delete_file( $user_dirname . '/' . $file );
 			}
 		}
 		closedir( $dir_handle );

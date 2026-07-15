@@ -83,8 +83,8 @@ final class CWVPSB_Cache_Disk {
 			DIRECTORY_SEPARATOR
 		);
 
-		@unlink($path.self::FILE_HTML);
-		@unlink($path.self::FILE_GZIP);
+		wp_delete_file( $path . self::FILE_HTML );
+		wp_delete_file( $path . self::FILE_GZIP );
 	}
 
 	public static function get_asset($data) {
@@ -202,7 +202,9 @@ final class CWVPSB_Cache_Disk {
 	
 		// Write the file
 		if ( ! $wp_filesystem->put_contents( $file, $data, FS_CHMOD_FILE ) ) {
-			error_log( 'Could not write to file: ' . $file );
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'Could not write to file: ' . $file ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- gated behind WP_DEBUG
+			}
 			wp_die( esc_html__( 'Cannot write to file.', 'cwvpsb' ) );
 		}
 	
@@ -238,7 +240,7 @@ final class CWVPSB_Cache_Disk {
 			if ( is_dir($object) ) {
 				self::_clear_dir($object);
 			} else {
-				unlink($object);
+				wp_delete_file( $object );
 			}
 		}
 
@@ -255,11 +257,11 @@ final class CWVPSB_Cache_Disk {
 			'%s%s%s%s',
 			CWVPSB_CACHE_DIR,
 			DIRECTORY_SEPARATOR,
-			parse_url(
+			wp_parse_url(
 				'http://' .strtolower(sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST']) ) ), //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 				PHP_URL_HOST
 			),
-			parse_url(
+			wp_parse_url(
 				( $path ? $path : sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ), //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 				PHP_URL_PATH
 			)

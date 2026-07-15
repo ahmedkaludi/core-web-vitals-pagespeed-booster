@@ -881,10 +881,14 @@ public function get_images_count(){
             $convertOptions = [];
             \WebPConvert\WebPConvert::convert($source, $destination, $convertOptions);
         } catch (\WebpConvert\Exceptions\WebPConvertException $e) {
-            if(function_exists('error_log')){ error_log($e->getMessage()); }
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG && function_exists( 'error_log' ) ) {
+                error_log( $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- gated behind WP_DEBUG
+            }
         } catch (\Exception $e) {
             $message = 'An exception was thrown!';
-            if(function_exists('error_log')){ error_log($e->getMessage()); }
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG && function_exists( 'error_log' ) ) {
+                error_log( $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- gated behind WP_DEBUG
+            }
         }
         wp_send_json(array('status'=>200 ,'filename'=> $filename,'source'=>$source,'destination'=>$destination,"msg"=>esc_html__('File converted successfully', 'cwvpsb') ));
     }
@@ -948,7 +952,7 @@ public function get_images_count(){
         return  $has_wp_rules;
     }
     protected function get_corewebvital_cache_htaccess(){
-        $host = parse_url(
+        $host = wp_parse_url(
                 get_site_url(),
                 PHP_URL_HOST
             );
@@ -1342,7 +1346,7 @@ function cwvpsb_delete_folder($dir){
             if ( is_dir($object) ) {
                 cwvpsb_delete_folder($object);
             } else {
-                unlink($object);
+                wp_delete_file( $object );
             }
         }
 

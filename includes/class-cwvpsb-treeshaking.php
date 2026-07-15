@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
 require_once CWVPSB_PLUGIN_DIR."/includes/vendor/autoload.php";
 use Sabberworm\CSS\RuleSet\DeclarationBlock;
 use Sabberworm\CSS\CSSList\CSSList;

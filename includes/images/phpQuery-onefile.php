@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
 // phpcs:ignoreFile -- Reason : Third party library
 /**
  * phpQuery is a server-side, chainable, CSS3 selector driven
@@ -4955,7 +4956,7 @@ abstract class phpQuery {
 		foreach(self::$ajaxAllowedHosts as $k => $host)
 			if ($host == '.' && isset($_SERVER['HTTP_HOST']))
 				self::$ajaxAllowedHosts[$k] = $_SERVER['HTTP_HOST'];
-		$host = parse_url($options['url'], PHP_URL_HOST);
+		$host = wp_parse_url($options['url'], PHP_URL_HOST);
 		if (! in_array($host, self::$ajaxAllowedHosts)) {
 			throw new Exception("Request not permitted, host '$host' not present in "
 				."phpQuery::\$ajaxAllowedHosts");
@@ -5175,7 +5176,7 @@ abstract class phpQuery {
 			? $url1
 			: func_get_args();
 		foreach($loop as $url)
-			phpQuery::ajaxAllowHost(parse_url($url, PHP_URL_HOST));
+			phpQuery::ajaxAllowHost(wp_parse_url($url, PHP_URL_HOST));
 	}
 	/**
 	 * Returns JSON representation of $data.

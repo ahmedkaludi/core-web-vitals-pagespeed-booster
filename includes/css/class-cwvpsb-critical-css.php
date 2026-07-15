@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
 /**
  * Critical CSS functionality 
  * @since 1.3
