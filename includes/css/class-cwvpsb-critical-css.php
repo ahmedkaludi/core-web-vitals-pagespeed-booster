@@ -738,6 +738,9 @@ class CWVPSB_Critical_Css
 
 	public function every_one_minutes_event_func()
 	{
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX && ! current_user_can( 'manage_options' ) ) {
+			wp_send_json( array( 'status' => 500, 'msg' => esc_html__( 'You do not have permission to access this page', 'core-web-vitals-pagespeed-booster' ) ) );
+		}
 
 		$this->save_posts_url();
 		$this->save_terms_urls();
