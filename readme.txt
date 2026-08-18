@@ -1,8 +1,8 @@
 === Core Web Vitals & PageSpeed Booster ===
 Contributors: magazine3
-Requires at least: 3.0
+Requires at least: 4.7.1
 Tested up to: 7.0
-Stable tag: 1.0.29
+Stable tag: 1.0.30
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: core web vitals, optimization, pagespeed, performance, cache
@@ -39,6 +39,10 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 * WebP Convert library used https://github.com/rosell-dk/webp-convert - License URI: https://github.com/rosell-dk/webp-convert?tab=MIT-1-ov-file (WebP Convert is freely distributable under the terms of an MIT-style license.)
 
 == Changelog ==
+= 1.0.30 (15 July 2026) =
+* Fixed : Subscriber WebP path-traversal  Security issue disclosed by Artus KG
+* Improvement : Implemented PCP recommendations
+
 = 1.0.29 (21 May 2026) =
 * Test : Tested upto WordPress 7.0
 
@@ -122,14 +126,6 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 * Fixed: Fatal Error on Multisite Activation: is_plugin_active_for_network() Undefined #106
 * Fixed: Youtube embed video Not showing in AMP #105
 * Improvement: Cache is off but still in header it's showing clear cache #104
-
-= 1.0.14 (17 August 2023) =
-* Fixed: Parse error unexpected ')' #87
-* Fixed: Error in core-web-vitals-pagespeed-booster Plugin. #99
-* Fixed: Compatibility with 10Web Booster #96
-* Improvement: Added newsletter form  #4
-* Improvement: WordPress 6.3 compatibility check #100 
-* Improvement: Improved and optimized the code according to WP standards #101
 
 
 Full changelog available at [changelog.txt](https://plugins.svn.wordpress.org/core-web-vitals-pagespeed-booster/trunk/changelog.txt)

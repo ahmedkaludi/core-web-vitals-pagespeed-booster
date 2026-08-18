@@ -6,26 +6,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 global $pagenow, $post;
 
 	if ( ! empty( $_SERVER['REQUEST_URI'] ) ) {
-		$referer = filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URL );
-		$referer = '&_wp_http_referer=' . rawurlencode( remove_query_arg( 'fl_builder', $referer ) );
+		$cwvpsb_referer = filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URL );
+		$cwvpsb_referer = '&_wp_http_referer=' . rawurlencode( remove_query_arg( 'fl_builder', $cwvpsb_referer ) );
 	} else {
-		$referer = '';
+		$cwvpsb_referer = '';
 	}
 
-	$has_cap = false;
+	$cwvpsb_has_cap = false;
 
-	$capabilities = [
+	$cwvpsb_capabilities = [
 		'manage_options',
 	];
 
-	foreach ( $capabilities as $cap ) {
-		if ( current_user_can( $cap ) ) {
-			$has_cap = true;
+	foreach ( $cwvpsb_capabilities as $cwvpsb_cap ) {
+		if ( current_user_can( $cwvpsb_cap ) ) {
+			$cwvpsb_has_cap = true;
 			break;
 		}
 	}
 
-	if ( $has_cap ) {
+	if ( $cwvpsb_has_cap ) {
 		/**
 		 * Parent.
 		 */
@@ -46,18 +46,18 @@ global $pagenow, $post;
 			[
 				'parent' => 'wp-cwvpsb',
 				'id'     => 'cwvpsb-settings',
-				'title'  => __( 'Settings', 'cwvpsb' ),
+				'title'  => __( 'Settings', 'core-web-vitals-pagespeed-booster' ),
 				'href'   => admin_url( 'options-general.php?page=cwvpsb'  ),
 			]
 		);
 	}
 
-	$settings = cwvpsb_defaults();
-	if ( current_user_can( 'manage_options' ) && isset($settings['cache_support']) && $settings['cache_support'] == 1 ) {
+	$cwvpsb_settings = cwvpsb_defaults();
+	if ( current_user_can( 'manage_options' ) && isset($cwvpsb_settings['cache_support']) && $cwvpsb_settings['cache_support'] == 1 ) {
 		/**
 		 * Purge Cache.
 		 */
-		$action = 'cwvpsb_purge_cache';
+		$cwvpsb_action = 'cwvpsb_purge_cache';
 
 		if ( cwvpsb_valid_key() ) {
 			// Purge All.
@@ -65,8 +65,8 @@ global $pagenow, $post;
 				[
 					'parent' => 'wp-cwvpsb',
 					'id'     => 'purge-all',
-					'title'  => __( 'Clear all cache', 'cwvpsb' ),
-					'href'   => wp_nonce_url( admin_url( 'admin-ajax.php?action=' . $action . '&type=all' . $referer ), $action . '_all' ),
+					'title'  => __( 'Clear all cache', 'core-web-vitals-pagespeed-booster' ),
+					'href'   => wp_nonce_url( admin_url( 'admin-ajax.php?action=' . $cwvpsb_action . '&type=all' . $cwvpsb_referer ), $cwvpsb_action . '_all' ),
 				]
 			);
 

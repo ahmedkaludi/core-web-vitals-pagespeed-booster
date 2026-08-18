@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;	
 /**
  * Critical CSS functionality 
  * @since 1.3
@@ -83,7 +84,7 @@ class CWVPSB_Critical_Css
 	{
 		$user_dirname = $this->cachepath();
 		global $wp, $wpdb, $table_prefix;
-		$table_name = $table_prefix . 'cwvpb_critical_urls';
+		$table_name = esc_sql( $table_prefix . 'cwvpb_critical_urls' );
 		$url = home_url($wp->request);
 		$url = trailingslashit($url);
 		if (file_exists($user_dirname . md5($url) . '.css')) {
@@ -419,7 +420,7 @@ class CWVPSB_Critical_Css
 	{
 		$schedules['every_one_hour'] = array(
 			'interval' => 8 * 1,
-			'display' => __('Every 8 Seconds', 'cwvpsb')
+			'display' => __('Every 8 Seconds', 'core-web-vitals-pagespeed-booster')
 		);
 		return $schedules;
 	}
@@ -428,7 +429,7 @@ class CWVPSB_Critical_Css
 	{
 
 		global $wpdb, $table_prefix;
-		$table_name = $table_prefix . 'cwvpb_critical_urls';
+		$table_name = esc_sql( $table_prefix . 'cwvpb_critical_urls' );
 
 		$permalink = get_permalink($post_id);
 		if (!empty($permalink)) {
@@ -506,7 +507,7 @@ class CWVPSB_Critical_Css
 	{
 
 		global $wpdb, $table_prefix;
-		$table_name = $table_prefix . 'cwvpb_critical_urls';
+		$table_name = esc_sql( $table_prefix . 'cwvpb_critical_urls' );
 
 		$settings = cwvpsb_defaults();
 
@@ -552,7 +553,7 @@ class CWVPSB_Critical_Css
 	{
 
 		global $wpdb, $table_prefix;
-		$table_name = $table_prefix . 'cwvpb_critical_urls';
+		$table_name = esc_sql( $table_prefix . 'cwvpb_critical_urls' );
 
 		$settings = cwvpsb_defaults();
 		$urls_to = array();
@@ -611,7 +612,7 @@ class CWVPSB_Critical_Css
 	{
 
 		global $wpdb, $table_prefix;
-		$table_name = $table_prefix . 'cwvpb_critical_urls';
+		$table_name = esc_sql( $table_prefix . 'cwvpb_critical_urls' );
 
 		$settings = cwvpsb_defaults();
 
@@ -722,7 +723,7 @@ class CWVPSB_Critical_Css
 	{
 
 		global $wpdb, $table_prefix;
-		$table_name = $table_prefix . 'cwvpb_critical_urls';
+		$table_name = esc_sql( $table_prefix . 'cwvpb_critical_urls' );
 
 		$result = $wpdb->query($wpdb->prepare( //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 			"UPDATE {$table_name} SET `status` = %s,  `cached_name` = %s,  `updated_at` = %s,  `failed_error` = %s WHERE `url` = %s", //phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared  --Reason: Direct DB call to update table
@@ -921,13 +922,13 @@ class CWVPSB_Critical_Css
 			$response = cwvpsb_write_file_contents($new_file, $critical_css);
 
 			if ( $response ) {
-				return array('status' => true, 'message' => esc_html__('Critical CSS created successfully', 'cwvpsb'));
+				return array('status' => true, 'message' => esc_html__('Critical CSS created successfully', 'core-web-vitals-pagespeed-booster'));
 			} else {
-				return array('status' => false, 'message' => esc_html__('Could not write into css file', 'cwvpsb'));
+				return array('status' => false, 'message' => esc_html__('Could not write into css file', 'core-web-vitals-pagespeed-booster'));
 			}
 
 		} else {
-			return array('status' => false, 'message' => esc_html__('Critical css not generated from server', 'cwvpsb'));
+			return array('status' => false, 'message' => esc_html__('Critical css not generated from server', 'core-web-vitals-pagespeed-booster'));
 		}
 
 
@@ -1428,11 +1429,11 @@ class CWVPSB_Critical_Css
 			$user = wp_get_current_user();
 			if (in_array('administrator', (array) $user->roles)) {
 				echo '<div class="notice notice-warning is-dismissible">
-					  <p>' . esc_html__('Core Web Vitals &amp; PageSpeed Booster ', 'cwvpsb') . '<strong>' . esc_html__('"allow_url_fopen"', 'cwvpsb') . '</strong>' . esc_html__(' option to be enabled in PHP configuration to work.', 'cwvpsb') . ' </p>
+					  <p>' . esc_html__('Core Web Vitals &amp; PageSpeed Booster ', 'core-web-vitals-pagespeed-booster') . '<strong>' . esc_html__('"allow_url_fopen"', 'core-web-vitals-pagespeed-booster') . '</strong>' . esc_html__(' option to be enabled in PHP configuration to work.', 'core-web-vitals-pagespeed-booster') . ' </p>
 					 </div>';
 			}
 		}
 	}
 
 }
-$cwvpbCriticalCss = new CWVPSB_Critical_Css();
+$cwvpsb_critical_css = new CWVPSB_Critical_Css();

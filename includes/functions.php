@@ -14,7 +14,7 @@ add_filter( 'plugin_action_links_' . CWVPSB_BASE, 'cwvpsb_add_settings_link' );
 function cwvpsb_add_settings_link( $links ) {
 	$links[] = '<a href="' .
 		esc_url( admin_url( 'admin.php?page=cwvpsb' ) ) .
-		'">' . esc_html__( 'Settings', 'cwvpsb' ) . '</a>';
+		'">' . esc_html__( 'Settings', 'core-web-vitals-pagespeed-booster' ) . '</a>';
 	return $links;
 }
 
@@ -39,9 +39,9 @@ add_action(
 	999
 );
 
-$settings = cwvpsb_defaults();
+$cwvpsb_settings = cwvpsb_defaults();
 
-if ( isset( $settings['cache_support'] ) ) {
+if ( isset( $cwvpsb_settings['cache_support'] ) ) {
 	add_action(
 		'plugins_loaded',
 		array(
@@ -89,19 +89,13 @@ function cwvpsb_cache_autoload( $class ) {
 	);
 }
 
-// Load plugin textdomain
-add_action( 'init', 'cwvpsb_load_textdomain' );
-function cwvpsb_load_textdomain() {
-	load_plugin_textdomain( 'cwvpsb_textdomain', false, dirname( CWVPSB_BASE ) . '/languages' );
-}
-
 add_action( 'wp_ajax_cwvpsb_clear_cached_css', 'cwvpsb_clear_cached_css' );
 function cwvpsb_clear_cached_css() {
 	if ( isset( $_POST['nonce_verify'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce_verify'] ) ), 'cwv-security-nonce' ) ) {
 		wp_send_json(
 			array(
 				'status' => 400,
-				'msg'    => esc_html__( 'Security verification failed, Refresh the page', 'cwvpsb' ),
+				'msg'    => esc_html__( 'Security verification failed, Refresh the page', 'core-web-vitals-pagespeed-booster' ),
 			)
 		);
 	}
@@ -109,7 +103,7 @@ function cwvpsb_clear_cached_css() {
 		wp_send_json(
 			array(
 				'status' => 400,
-				'msg'    => esc_html__( 'Permission verification failed', 'cwvpsb' ),
+				'msg'    => esc_html__( 'Permission verification failed', 'core-web-vitals-pagespeed-booster' ),
 			)
 		);
 	}
@@ -119,7 +113,7 @@ function cwvpsb_clear_cached_css() {
 		wp_send_json(
 			array(
 				'status' => 400,
-				'msg'    => esc_html__( 'Cache type not found', 'cwvpsb' ),
+				'msg'    => esc_html__( 'Cache type not found', 'core-web-vitals-pagespeed-booster' ),
 			)
 		);
 	}
@@ -135,13 +129,13 @@ function cwvpsb_clear_cached_css() {
 			wp_send_json(
 				array(
 					'status' => 400,
-					'msg'    => esc_html__( 'cache not found', 'cwvpsb' ),
+					'msg'    => esc_html__( 'cache not found', 'core-web-vitals-pagespeed-booster' ),
 				)
 			);
 		}
 		while ( $file = readdir( $dir_handle ) ) {
 			if ( strpos( $file, '.css' ) !== false ) {
-				unlink( $user_dirname . '/' . $file );
+				wp_delete_file( $user_dirname . '/' . $file );
 			}
 		}
 		closedir( $dir_handle );
@@ -149,7 +143,7 @@ function cwvpsb_clear_cached_css() {
 	wp_send_json(
 		array(
 			'status' => 200,
-			'msg'    => esc_html__( 'CSS Cleared', 'cwvpsb' ),
+			'msg'    => esc_html__( 'CSS Cleared', 'core-web-vitals-pagespeed-booster' ),
 		)
 	);
 }
@@ -395,8 +389,8 @@ function cwvpsb_iframe_delay( $content ) {
 	}
 	$content = preg_replace( '/<iframe[^>]*src="(?:https?:)?\/\/(?:www\.)?youtube\.com\/embed\/([^"?]+)"/', '<div class="cwvpsb_iframe"><div class="iframe_wrap"><div class="iframe_player" data-embed="${1}" id="player_${1}"><div class="play-button"></div></div></div></div>', $content );
 
-	global $iframe_check;
-	$iframe_check = preg_match( '/iframe_player/i', $content, $result );
+	global $cwvpsb_iframe_check;
+	$cwvpsb_iframe_check = preg_match( '/iframe_player/i', $content, $result );
 	return $content;
 }
 
@@ -404,8 +398,8 @@ add_action( 'wp_footer', 'cwvpsb_iframe_delay_enqueue' );
 
 function cwvpsb_iframe_delay_enqueue() {
 
-	global $iframe_check;
-	if ( $iframe_check == 1 ) {
+	global $cwvpsb_iframe_check;
+	if ( $cwvpsb_iframe_check == 1 ) {
 		wp_enqueue_script( 'cwvpsb_iframe', plugin_dir_url( __FILE__ ) . 'cwvpsb_iframe.js', array(), CWVPSB_VERSION, true );
 		wp_enqueue_style( 'cwvpsb_iframe', plugin_dir_url( __FILE__ ) . 'cwvpsb_iframe.css', array(), CWVPSB_VERSION );
 	}
@@ -614,10 +608,10 @@ function cwvpsb_remove_directory($dir) {
     if ($wp_filesystem->is_dir($dir)) {
         // Remove the directory using the WP Filesystem API
         if (!$wp_filesystem->rmdir($dir, true)) { // true for recursive removal
-            return new WP_Error('rmdir_failed', esc_html__('Failed to remove directory.', 'cwvpsb'));
+            return new WP_Error('rmdir_failed', esc_html__('Failed to remove directory.', 'core-web-vitals-pagespeed-booster'));
         }
     } else {
-        return new WP_Error('invalid_directory', esc_html__('Directory does not exist.', 'cwvpsb'));
+        return new WP_Error('invalid_directory', esc_html__('Directory does not exist.', 'core-web-vitals-pagespeed-booster'));
     }
 
     return true;

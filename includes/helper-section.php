@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-class Core_Web_Vital_Helper_Section{
+class CWVPSB_Helper_Section{
 	static function convert_to_webp($filename){
 		$source = $filename;
 		$upload = wp_upload_dir();
@@ -15,10 +15,14 @@ class Core_Web_Vital_Helper_Section{
 			$convertOptions = [];
 			\WebPConvert\WebPConvert::convert($source, $destination, $convertOptions);
 		} catch (\WebpConvert\Exceptions\WebPConvertException $e) {
-            if(function_exists('error_log')){ error_log($e->getMessage()); }
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG && function_exists( 'error_log' ) ) {
+                error_log( $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- gated behind WP_DEBUG
+            }
         } catch (\Exception $e) {
         	$message = 'An exception was thrown!';
-            if(function_exists('error_log')){ error_log($e->getMessage()); }
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG && function_exists( 'error_log' ) ) {
+                error_log( $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- gated behind WP_DEBUG
+            }
         }
 	}
 
@@ -40,7 +44,9 @@ class Core_Web_Vital_Helper_Section{
 		        }
 		        self::convert_to_webp($filename);
             } catch (Exception $e) {
-            	if(function_exists('error_log')){ error_log($e->getMessage()); }
+            	if ( defined( 'WP_DEBUG' ) && WP_DEBUG && function_exists( 'error_log' ) ) {
+            		error_log( $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- gated behind WP_DEBUG
+            	}
             }
         }
         return $filearray;

@@ -12,7 +12,7 @@
 if (!defined('ABSPATH'))
         exit;
 
-class CWVPB_newsletter
+class CWVPSB_Newsletter
 {
 
         function __construct()
@@ -61,7 +61,7 @@ class CWVPB_newsletter
 
 
                 } else {
-                        echo esc_html__('Email id required', 'cwvpsb');
+                        echo esc_html__('Email id required', 'core-web-vitals-pagespeed-booster');
                 }
 
                 wp_die();
@@ -90,7 +90,7 @@ class CWVPB_newsletter
                                 $object['current_user_email'] = $current_user->user_email;
                                 $object['current_user_name'] = $current_user->display_name;
                                 $object['displayID'] = '#menu-settings';
-                                $object['button1'] = esc_html__('No Thanks', 'cwvpsb');
+                                $object['button1'] = esc_html__('No Thanks', 'core-web-vitals-pagespeed-booster');
                                 $object['button2'] = false;
                                 $object['function_name'] = '';
                                 $object['ajax_url'] = admin_url('admin-ajax.php');
@@ -102,5 +102,5 @@ class CWVPB_newsletter
         }
 
 }
-$cwvps_newsletter = new CWVPB_newsletter();
+$cwvpsb_newsletter = new CWVPSB_Newsletter();
 ?>

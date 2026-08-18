@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return bool
  */
-function cwv_is_plugins_page() {
+function cwvpsb_is_plugins_page() {
 	if ( function_exists( 'get_current_screen' ) ) {
 		$screen = get_current_screen();
 		if ( is_object( $screen ) ) {
@@ -39,9 +39,9 @@ function cwv_is_plugins_page() {
  *
  * @since 1.4.0
  */
-function cwv_add_deactivation_feedback_modal() {
+function cwvpsb_add_deactivation_feedback_modal() {
 
-	if ( ! is_admin() && ! cwv_is_plugins_page() ) {
+	if ( ! is_admin() && ! cwvpsb_is_plugins_page() ) {
 		return;
 	}
 
@@ -60,13 +60,13 @@ function cwv_add_deactivation_feedback_modal() {
  *
  * @since 1.4.0
  */
-function cwv_send_feedback() {
+function cwvpsb_send_feedback() {
 
 	if ( ! current_user_can( 'manage_options' ) ) {
 		wp_send_json(
 			array(
 				'status' => 400,
-				'msg'    => esc_html__( 'Permission verification failed', 'cwvpsb' ),
+				'msg'    => esc_html__( 'Permission verification failed', 'core-web-vitals-pagespeed-booster' ),
 			)
 		);
 	}
@@ -111,15 +111,15 @@ function cwv_send_feedback() {
 
 	wp_die();
 }
-add_action( 'wp_ajax_cwv_send_feedback', 'cwv_send_feedback' );
+add_action( 'wp_ajax_cwvpsb_send_feedback', 'cwvpsb_send_feedback' );
 
 
 
-add_action( 'admin_enqueue_scripts', 'cwv_enqueue_makebetter_email_js' );
+add_action( 'admin_enqueue_scripts', 'cwvpsb_enqueue_makebetter_email_js' );
 
-function cwv_enqueue_makebetter_email_js() {
+function cwvpsb_enqueue_makebetter_email_js() {
 
-	if ( ! is_admin() && ! cwv_is_plugins_page() ) {
+	if ( ! is_admin() && ! cwvpsb_is_plugins_page() ) {
 		return;
 	}
 	$min = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
@@ -135,10 +135,10 @@ function cwv_enqueue_makebetter_email_js() {
 }
 
 
-add_filter( 'admin_footer', 'cwv_add_deactivation_feedback_modal' );
+add_filter( 'admin_footer', 'cwvpsb_add_deactivation_feedback_modal' );
 
 
-function cwvpbs_get_total_urls() {
+function cwvpsb_get_total_urls() {
 
 	global $wpdb;
 	$total_count = 0;
@@ -185,7 +185,7 @@ function cwvpbs_get_total_urls() {
 	return $total_count;
 }
 
-function cwvpb_get_current_url() {
+function cwvpsb_get_current_url() {
 
 	$link = 'http';
 

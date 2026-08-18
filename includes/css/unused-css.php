@@ -22,8 +22,8 @@ function cwvpsb_unused_css($html){
 	$sanitize = $parser->sanitize();
 	$custom_style_element = $tmpDoc->createElement( 'style' );
 	$tmpDoc->head->appendChild( $custom_style_element );
-	global $whitelist_css;
-	$whitelist = $whitelist_css;
+	global $cwvpsb_whitelist_css;
+	$whitelist = $cwvpsb_whitelist_css;
 	  	if(!empty($whitelist)){
 		    $custom_style_element = $tmpDoc->createElement( 'style' );
 		    $custom_style_element->appendChild($tmpDoc->createTextNode( $whitelist ));
@@ -39,14 +39,14 @@ function cwvpsb_get_whitelist_css($html){
   $white_list_data = $settings['whitelist_css'];
   $white_list_data = apply_filters('cwvpsb_whitelist_css', $white_list_data );
   $white_list = preg_split('/\r\n|\r|\n|\s/', $white_list_data);
-  	global $whitelist_css;
+  	global $cwvpsb_whitelist_css;
   	for($i=0;$i<count($white_list);$i++){
         $whitelist_all = $white_list[$i];
         preg_match_all('/'.$whitelist_all.'(.*?){(.*?)}/s', $html, $matches);
     	if(isset($matches[0]) && !empty($matches[0])){
       		foreach($matches[0] as $match){
 	        	if(!empty($match)){
-	          		$whitelist_css .= $match;
+	          		$cwvpsb_whitelist_css .= $match;
 	        	}
       		}
     	}

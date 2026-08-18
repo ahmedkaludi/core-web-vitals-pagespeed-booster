@@ -2,11 +2,11 @@
 /*
 Plugin Name: Core Web Vitals & PageSpeed Booster
 Description: Do you want to speed up your WordPress site? Fast loading pages improve user experience, increase your pageviews, and help with your WordPress SEO.
-Version: 1.0.29
+Version: 1.0.30
 Author: Magazine3
 Author URI: https://magazine3.company/
 Donate link: https://www.paypal.me/Kaludi/25
-Text Domain: cwvpsb
+Text Domain: core-web-vitals-pagespeed-booster
 Domain Path: /languages
 License: GPL2
 */
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 define('CWVPSB_PLUGIN_DIR', plugin_dir_path( __FILE__ ));
 define('CWVPSB_PLUGIN_DIR_URI', plugin_dir_url(__FILE__));
-define('CWVPSB_VERSION','1.0.29');
+define('CWVPSB_VERSION','1.0.30');
 define('CWVPSB_DIR', dirname(__FILE__));
 define('CWVPSB_BASE', plugin_basename(__FILE__));
 
@@ -30,7 +30,6 @@ define('CWVPSB_CACHE_AGGRESIVE_DIR',  'wp-content/cache/cwvpsb/static/');
  * Core images 
  **/
 define('CWVPSB_IMAGE_DIR',plugin_dir_url(__FILE__).'images/');
-$host = parse_url(get_site_url())['host'];
 /**
  * Font cache path
  **/
@@ -66,10 +65,10 @@ require_once CWVPSB_PLUGIN_DIR."includes/functions.php";
 require_once CWVPSB_PLUGIN_DIR."includes/admin/helper-function.php";
 require_once CWVPSB_PLUGIN_DIR."includes/admin/class-cwvpb-newsletter.php";
 
-add_action('plugins_loaded', 'cwv_pse_initiate');
-function cwv_pse_initiate(){
+add_action('plugins_loaded', 'cwvpsb_pse_initiate');
+function cwvpsb_pse_initiate(){
 	require_once CWVPSB_PLUGIN_DIR."/includes/helper-section.php";
-	add_filter('wp_handle_upload', array('Core_Web_Vital_Helper_Section', 'do_upload_with_webp'), 10, 2);
+	add_filter('wp_handle_upload', array('CWVPSB_Helper_Section', 'do_upload_with_webp'), 10, 2);
 }
 
 register_activation_hook( __FILE__, 'cwvpsb_on_activate' );

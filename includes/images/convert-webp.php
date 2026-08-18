@@ -5,8 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if (function_exists('imagewebp')) {
     add_action('wp','cwvpsb_convert_webp');
-    $settings = cwvpsb_defaults();
-    if(isset($settings['image_optimization_alt']) && $settings['image_optimization_alt'] == 1 ){
+    $cwvpsb_settings = cwvpsb_defaults();
+    if(isset($cwvpsb_settings['image_optimization_alt']) && $cwvpsb_settings['image_optimization_alt'] == 1 ){
         add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_display_webp_regex');
       }else{
         add_filter('cwvpsb_complete_html_after_dom_loaded','cwvpsb_display_webp');
@@ -95,8 +95,8 @@ function cwvpsb_display_webp($content) {
 
     $xpath = new DOMXPath($comp_dom);
     $nodes = $xpath->query('//img[@src]');
-    $settings = cwvpsb_defaults();
-    $force_alt_tags = isset($settings['images_add_alttags']) ? $settings['images_add_alttags'] : 1 ;
+    $cwvpsb_settings = cwvpsb_defaults();
+    $force_alt_tags = isset($cwvpsb_settings['images_add_alttags']) ? $cwvpsb_settings['images_add_alttags'] : 1 ;
     foreach ($nodes as $node) {
         $url = $node->getAttribute('src');
         if(stripos($content, 'gravatars') !== false){
@@ -166,8 +166,8 @@ function cwvpsb_display_webp($content) {
 function cwvpsb_display_webp_regex($content) {
     // Match all <img> tags with a 'src' attribute
     $pattern = '/<img(?:\s+[^>]*?\s*src\s*=\s*["\']([^"\']*)["\'])?(?:\s+[^>]*?)*?>/i';
-    $settings = cwvpsb_defaults();
-    $force_alt_tags = isset($settings['images_add_alttags']) ? $settings['images_add_alttags'] : 1 ;
+    $cwvpsb_settings = cwvpsb_defaults();
+    $force_alt_tags = isset($cwvpsb_settings['images_add_alttags']) ? $cwvpsb_settings['images_add_alttags'] : 1 ;
     // Perform the replacement using a callback function
     $content = preg_replace_callback($pattern, function ($matches) use ($force_alt_tags) {
 

@@ -300,7 +300,7 @@ class FilesystemLoader implements LoaderInterface, ExistsLoaderInterface, Source
                 && ':' === $file[1]
                 && strspn($file, '/\\', 2, 1)
             )
-            || null !== parse_url($file, \PHP_URL_SCHEME)
+            || null !== wp_parse_url($file, \PHP_URL_SCHEME)
         ;
     }
 }

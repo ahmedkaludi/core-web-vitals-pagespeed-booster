@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit;
 require_once CWVPSB_PLUGIN_DIR."/includes/vendor/autoload.php";
 use Sabberworm\CSS\RuleSet\DeclarationBlock;
 use Sabberworm\CSS\CSSList\CSSList;
@@ -753,13 +754,13 @@ class Cwvpsb_Treeshaking {
 				return new WP_Error( "http_{$exception->getStatusCode()}", $exception->getMessage() );
 			} 
 			// translators: %s: URL
-			return new WP_Error( 'http_error', sprintf( esc_html__( 'Failed to fetch: %1$s (%2$s)', 'cwvpsb' ), $url, $exception->getMessage() ) );
+			return new WP_Error( 'http_error', sprintf( esc_html__( 'Failed to fetch: %1$s (%2$s)', 'core-web-vitals-pagespeed-booster' ), $url, $exception->getMessage() ) );
 		}
 
 		$status  = wp_remote_retrieve_response_code( $response );
 
 		if ( $status < 200 || $status >= 300 ) { // translators: %s: URL
-			return new WP_Error( "http_{$status}", sprintf( esc_html__( 'Failed to fetch: %s', 'cwvpsb' ), $url ) );
+			return new WP_Error( "http_{$status}", sprintf( esc_html__( 'Failed to fetch: %s', 'core-web-vitals-pagespeed-booster' ), $url ) );
 		}
 
 		$content_type = (array) wp_remote_retrieve_header( $response, 'content-type' );
@@ -767,7 +768,7 @@ class Cwvpsb_Treeshaking {
 		if ( ! empty( $content_type ) && ! preg_match( '#^text/css#', $content_type[0] ) ) {
 			return new WP_Error(
 				'no_css_content_type',
-				esc_html__( 'Response did not contain the expected text/css content type.', 'cwvpsb' )
+				esc_html__( 'Response did not contain the expected text/css content type.', 'core-web-vitals-pagespeed-booster' )
 			);
 		}
 		return wp_remote_retrieve_body( $response );
@@ -845,7 +846,7 @@ class Cwvpsb_Treeshaking {
 				'wp_enqueue_style',
 				esc_html(
 					sprintf( // Translators: 1: @import, 2: wp_enqueue_style(), 3: $import_stylesheet_url
-						esc_html__( 'It is not a best practice to use %1$s to load font CDN stylesheets. Please use %2$s to enqueue %3$s as its own separate script.', 'cwvpsb' ),
+						esc_html__( 'It is not a best practice to use %1$s to load font CDN stylesheets. Please use %2$s to enqueue %3$s as its own separate script.', 'core-web-vitals-pagespeed-booster' ),
 						'@import',
 						'wp_enqueue_style()',
 						$import_stylesheet_url
@@ -1699,7 +1700,7 @@ class Cwvpsb_Treeshaking {
 				);
 			}
 			$comment_text = sprintf( // Translators: %s is the Admin bar ID.
-				esc_html__( 'Admin bar (%s) was removed to preserve validity due to excessive CSS.', 'cwvpsb' ),
+				esc_html__( 'Admin bar (%s) was removed to preserve validity due to excessive CSS.', 'core-web-vitals-pagespeed-booster' ),
 				'#' . $admin_bar_id
 			);
 			$admin_bar->parentNode->replaceChild(
@@ -1767,7 +1768,7 @@ class Cwvpsb_Treeshaking {
 		}
 
 		$css_usage_percentage = ceil( ( $total_size / $this->style_custom_cdata_spec['max_bytes'] ) * 100 );
-		$menu_item_text       = esc_html__( 'CSS Usage', 'cwvpsb' ) . ': ';
+		$menu_item_text       = esc_html__( 'CSS Usage', 'core-web-vitals-pagespeed-booster' ) . ': ';
 		$menu_item_text      .= $css_usage_percentage . '%';
 		$stylesheets_a_element->appendChild( $this->dom->createTextNode( $menu_item_text ) );
 
@@ -2141,10 +2142,10 @@ function cwvpsb_set_file_transient( $transient, $value, $expiration = 0 ) {
 	$transient = cwvpsb_get_proper_transient_name($transient);
 	$expiration = (int) $expiration;
 
-	$value = apply_filters( "pre_set_transient_{$transient}", $value, $expiration, $transient );
+	$value = apply_filters( "pre_set_transient_{$transient}", $value, $expiration, $transient ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core WordPress transient filter.
 
 	
-	$expiration = apply_filters( "expiration_of_transient_{$transient}", $expiration, $value, $transient );
+	$expiration = apply_filters( "expiration_of_transient_{$transient}", $expiration, $value, $transient ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core WordPress transient filter.
 
 	if ( wp_using_ext_object_cache() ) {
 		$result = wp_cache_set( $transient, $value, 'transient', $expiration );
@@ -2164,7 +2165,7 @@ function cwvpsb_set_file_transient( $transient, $value, $expiration = 0 ) {
 			
 			$response = cwvpsb_write_file_contents(	$new_file, $content , true);
 			if ( ! $response ) { // Translators: %s is the file name
-	          return ( array( 'error' => sprintf( esc_html__( 'Could not write file %s', 'cwvpsb' ), $new_file ) ));
+	          return ( array( 'error' => sprintf( esc_html__( 'Could not write file %s', 'core-web-vitals-pagespeed-booster' ), $new_file ) ));
 	        }
 	        $result = $response;
 		}
@@ -2177,7 +2178,7 @@ function cwvpsb_set_file_transient( $transient, $value, $expiration = 0 ) {
 function cwvpsb_style_get_file_transient( $transient ) {
 
 	$transient = cwvpsb_get_proper_transient_name($transient);
-	$pre = apply_filters( "pre_transient_{$transient}", false, $transient );
+	$pre = apply_filters( "pre_transient_{$transient}", false, $transient ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core WordPress transient filter.
 	if ( false !== $pre )
 		return $pre;
 
@@ -2198,5 +2199,5 @@ function cwvpsb_style_get_file_transient( $transient ) {
 	}
 
 	
-	return apply_filters( "transient_{$transient}", json_decode($value, true), $transient );
+	return apply_filters( "transient_{$transient}", json_decode($value, true), $transient ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core WordPress transient filter.
 }

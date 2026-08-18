@@ -56,7 +56,7 @@ function load_settings() {
 }
 
 public function cwvpsb_add_menu_links() { 
-    add_menu_page( esc_html__('Core Web Vitals', 'cwvpsb'), esc_html__('Core Web Vitals', 'cwvpsb'), 'manage_options', 'cwvpsb', array($this, 'cwvpsb_admin_interface_render'),'dashicons-superhero');
+    add_menu_page( esc_html__('Core Web Vitals', 'core-web-vitals-pagespeed-booster'), esc_html__('Core Web Vitals', 'core-web-vitals-pagespeed-booster'), 'manage_options', 'cwvpsb', array($this, 'cwvpsb_admin_interface_render'),'dashicons-superhero');
 }
 
 public function cwvpsb_admin_interface_render(){
@@ -73,22 +73,22 @@ public function cwvpsb_admin_interface_render(){
     }
     $tab = cwvpsb_get_tab('images', array('images', 'css', 'urls', 'javascript','cache','advance')); ?>
      <div id="cwv-wrap">
-    <h1><?php echo esc_html__('Core Web Vitals & PageSpeed Booster Settings', 'cwvpsb'); ?></h1>
+    <h1><?php echo esc_html__('Core Web Vitals & PageSpeed Booster Settings', 'core-web-vitals-pagespeed-booster'); ?></h1>
      <div id="left-sidebar">
     <h2 class="nav-tab-wrapper cwvpsb-tabs">
     <?php
-        echo '<a href="' . esc_url(cwvpsb_admin_link('images')) . '" class="nav-tab ' . esc_attr( $tab == 'images' ? 'nav-tab-active' : '') . '">' . esc_html__('Images','cwvpsb') . '</a>';
-        echo '<a href="' . esc_url(cwvpsb_admin_link('urls')) . '" class="nav-tab ' . esc_attr( $tab == 'urls' ? 'nav-tab-active' : '') . '">' . esc_html__('Urls','cwvpsb') . '</a>';
+        echo '<a href="' . esc_url(cwvpsb_admin_link('images')) . '" class="nav-tab ' . esc_attr( $tab == 'images' ? 'nav-tab-active' : '') . '">' . esc_html__('Images','core-web-vitals-pagespeed-booster') . '</a>';
+        echo '<a href="' . esc_url(cwvpsb_admin_link('urls')) . '" class="nav-tab ' . esc_attr( $tab == 'urls' ? 'nav-tab-active' : '') . '">' . esc_html__('Urls','core-web-vitals-pagespeed-booster') . '</a>';
                     
-        echo '<a href="' . esc_url(cwvpsb_admin_link('css')) . '" class="nav-tab ' . esc_attr( $tab == 'css' ? 'nav-tab-active' : '') . '">' . esc_html__('CSS','cwvpsb') . '</a>';
+        echo '<a href="' . esc_url(cwvpsb_admin_link('css')) . '" class="nav-tab ' . esc_attr( $tab == 'css' ? 'nav-tab-active' : '') . '">' . esc_html__('CSS','core-web-vitals-pagespeed-booster') . '</a>';
 
-        echo '<a href="' . esc_url(cwvpsb_admin_link('javascript')) . '" class="nav-tab ' . esc_attr( $tab == 'javascript' ? 'nav-tab-active' : '') . '">' . esc_html__('Javascript','cwvpsb') . '</a>';
+        echo '<a href="' . esc_url(cwvpsb_admin_link('javascript')) . '" class="nav-tab ' . esc_attr( $tab == 'javascript' ? 'nav-tab-active' : '') . '">' . esc_html__('Javascript','core-web-vitals-pagespeed-booster') . '</a>';
 
-        echo '<a href="' . esc_url(cwvpsb_admin_link('cache')) . '" class="nav-tab ' . esc_attr( $tab == 'cache' ? 'nav-tab-active' : '') . '">' . esc_html__('Cache','cwvpsb') . '</a>';
+        echo '<a href="' . esc_url(cwvpsb_admin_link('cache')) . '" class="nav-tab ' . esc_attr( $tab == 'cache' ? 'nav-tab-active' : '') . '">' . esc_html__('Cache','core-web-vitals-pagespeed-booster') . '</a>';
 
-        echo '<a href="' . esc_url(cwvpsb_admin_link('advance')) . '" class="nav-tab ' . esc_attr( $tab == 'advance' ? 'nav-tab-active' : '') . '">' . esc_html__('Advance','cwvpsb') . '</a>';
+        echo '<a href="' . esc_url(cwvpsb_admin_link('advance')) . '" class="nav-tab ' . esc_attr( $tab == 'advance' ? 'nav-tab-active' : '') . '">' . esc_html__('Advance','core-web-vitals-pagespeed-booster') . '</a>';
 
-        echo '<a href="' . esc_url(cwvpsb_admin_link('support')) . '" class="nav-tab ' . esc_attr( $tab == 'support' ? 'nav-tab-active' : '') . '">' . esc_html__('Support','cwvpsb') . '</a>';                                  
+        echo '<a href="' . esc_url(cwvpsb_admin_link('support')) . '" class="nav-tab ' . esc_attr( $tab == 'support' ? 'nav-tab-active' : '') . '">' . esc_html__('Support','core-web-vitals-pagespeed-booster') . '</a>';                                  
     ?>
     </h2>
     <form action="options.php" method="post" enctype="multipart/form-data" class="cwvpsb-settings-form">      
@@ -126,36 +126,36 @@ public function cwvpsb_admin_interface_render(){
         </div>
         <div class="button-wrapper">                            
         <?php
-            submit_button( esc_html__('Save', 'cwvpsb') );
+            submit_button( esc_html__('Save', 'core-web-vitals-pagespeed-booster') );
         ?>
         </div>
     </form>
     </div>
     <div id="right-sidebar">
      <div class="boxsidebar boxsidebar-1">
-         <h2 class="vision"><?php esc_html__('Vision & Mission', 'cwvpsb');?> </h2>
-         <p><?php esc_html__('We breath and live CWV technology and no body can beat us in this game.', 'cwvpsb');?></p>
+         <h2 class="vision"><?php esc_html__('Vision & Mission', 'core-web-vitals-pagespeed-booster');?> </h2>
+         <p><?php esc_html__('We breath and live CWV technology and no body can beat us in this game.', 'core-web-vitals-pagespeed-booster');?></p>
          <section class="bio">
           <div class="bio-wrap">
             <img width="50" height="50" src="<?php echo esc_url(CWVPSB_IMAGE_DIR . '/ahmed-kaludi.jpg'); ?>" alt="Ahmed Kaludi">
-            <p><?php esc_html__('Vision & Mission', 'cwvpsb');?>Ahmed Kaludi <br><b>Lead Developer</b></p>
+            <p><?php esc_html__('Vision & Mission', 'core-web-vitals-pagespeed-booster');?>Ahmed Kaludi <br><b>Lead Developer</b></p>
           </div>
           <div class="bio-wrap">
              <img width="50" height="50" src="<?php echo esc_url(CWVPSB_IMAGE_DIR . '/Mohammed-kaludi.jpeg'); ?>" alt="Mohammed Kaludi">
-                <p><?php esc_html__('Vision & Mission', 'cwvpsb');?>Mohammed Kaludi <br><b>Developer</b></p>
+                <p><?php esc_html__('Vision & Mission', 'core-web-vitals-pagespeed-booster');?>Mohammed Kaludi <br><b>Developer</b></p>
           </div>
         </section>
         <section class="bio">
           <div class="bio-wrap">
              <img width="50" height="50" src="<?php echo esc_url(CWVPSB_IMAGE_DIR . '/sanjeev-kumar.jpg'); ?>" alt="Sanjeev Kumar">
-              <p><?php esc_html__('Vision & Mission', 'cwvpsb');?>Sanjeev Kumar<br><b>Developer</b></p>
+              <p><?php esc_html__('Vision & Mission', 'core-web-vitals-pagespeed-booster');?>Sanjeev Kumar<br><b>Developer</b></p>
           </div>
           <div class="bio-wrap">
              <img width="50" height="50" src="<?php echo esc_url(CWVPSB_IMAGE_DIR . '/akshay-wali.jpg'); ?>" alt="Akshay Wali">
-             <p><?php esc_html__('Vision & Mission', 'cwvpsb');?>Akshay Wali <br><b>Developer</b></p>
+             <p><?php esc_html__('Vision & Mission', 'core-web-vitals-pagespeed-booster');?>Akshay Wali <br><b>Developer</b></p>
           </div>
         </section>
-    <p class="boxdesc"><?php esc_html__('Vision & Mission', 'cwvpsb');?>Delivering a good user experience means a lot to us, so we try our best to reply each and every question.</p>
+    <p class="boxdesc"><?php esc_html__('Vision & Mission', 'core-web-vitals-pagespeed-booster');?>Delivering a good user experience means a lot to us, so we try our best to reply each and every question.</p>
     </div>
     </div>
     </div>  
@@ -178,7 +178,7 @@ public function cwvpsb_settings_init(){
     $settings = cwvpsb_defaults();         
     add_settings_field(
             'webp_support_manually',
-            esc_html__('Manual' ,'cwvpsb'),  
+            esc_html__('Manual' ,'core-web-vitals-pagespeed-booster'),  
             array($this, 'image_convert_webp_bulk'),            
             'cwvpsb_images_section',                     
             'cwvpsb_images_section',
@@ -187,7 +187,7 @@ public function cwvpsb_settings_init(){
     if ($settings['webp_support'] == 'manual') {
         add_settings_field(
             'webp_support_manually',
-            esc_html__('Manual' ,'cwvpsb'),  
+            esc_html__('Manual' ,'core-web-vitals-pagespeed-booster'),  
             array($this, 'image_convert_webp_bulk'),            
             'cwvpsb_images_section',                     
             'cwvpsb_images_section',
@@ -353,17 +353,17 @@ public function support_section_callback(){
 
     
     echo '<tr>
-            <td> </td><td width="100%"><p class="support_heading">'.esc_html__('We are dedicated to provide Technical support &amp; Help to our users. Use the below form for sending your questions. ', 'cwvpsb').'</p></td></tr>
-          <tr><th scope="row">'.esc_html__('Email', 'cwvpsb').'<span class="cwvpsb-star-mark"> *</span></th><td> 
+            <td> </td><td width="100%"><p class="support_heading">'.esc_html__('We are dedicated to provide Technical support &amp; Help to our users. Use the below form for sending your questions. ', 'core-web-vitals-pagespeed-booster').'</p></td></tr>
+          <tr><th scope="row">'.esc_html__('Email', 'core-web-vitals-pagespeed-booster').'<span class="cwvpsb-star-mark"> *</span></th><td> 
                 <input type="text" id="cwvpsb_query_email" name="cwvpsb_query_email" size="47" placeholder="Enter your Email"></td>
          </tr>
-    <tr><th scope="row">'.esc_html__('Query', 'cwvpsb').'<span class="cwvpsb-star-mark"> *</span></th><td> 
+    <tr><th scope="row">'.esc_html__('Query', 'core-web-vitals-pagespeed-booster').'<span class="cwvpsb-star-mark"> *</span></th><td> 
     <textarea rows="5" cols="50" id="cwvpsb_query_message" name="cwvpsb_query_message" placeholder="Write your query"></textarea>
     </td></tr>
-    <tr><th scope="row"><button class="button button-primary cwvpsb-send-query">'.esc_html__('Send Support Request', 'cwvpsb').'</button><br>
+    <tr><th scope="row"><button class="button button-primary cwvpsb-send-query">'.esc_html__('Send Support Request', 'core-web-vitals-pagespeed-booster').'</button><br>
     <div class="clear"> </div>
-    <span class="cwvpsb-query-success cwvpsb-result cwvpsb-hide">'.esc_html__('Message sent successfully, Please wait we will get back to you shortly', 'cwvpsb').'</span>
-    <span class="cwvpsb-query-error cwvpsb-result cwvpsb-hide">'.esc_html__('Message not sent. please check your network connection', 'cwvpsb').'</span></th></tr>';
+    <span class="cwvpsb-query-success cwvpsb-result cwvpsb-hide">'.esc_html__('Message sent successfully, Please wait we will get back to you shortly', 'core-web-vitals-pagespeed-booster').'</span>
+    <span class="cwvpsb-query-error cwvpsb-result cwvpsb-hide">'.esc_html__('Message not sent. please check your network connection', 'core-web-vitals-pagespeed-booster').'</span></th></tr>';
 }
 
 public function image_optimization_callback(){
@@ -372,7 +372,7 @@ public function image_optimization_callback(){
     <div class="label-align">
     <select class="webp_support" name="cwvpsb_get_settings[webp_support]" >
      <?php
-        $delay = array('auto' => esc_html__('Automatic (Recommended)', 'cwvpsb'),'manual' => esc_html__('Manual', 'cwvpsb'));
+        $delay = array('auto' => esc_html__('Automatic (Recommended)', 'core-web-vitals-pagespeed-booster'),'manual' => esc_html__('Manual', 'core-web-vitals-pagespeed-booster'));
         foreach ($delay as $key => $value ) {
         ?>
             <option value="<?php echo esc_attr($key);?>" <?php selected( $settings['webp_support'], $key);?>><?php echo esc_html($value);?></option>
@@ -380,7 +380,7 @@ public function image_optimization_callback(){
     </select>
     <?php
         if($settings['webp_support'] == 'manual'){
-            echo "<div class='cwvpsb-converted-count'><b>".esc_html__('Total Images: ', 'cwvpsb')."</b><span id='cwvpsb_images_unconverted'>Calculating...</span> &nbsp; &nbsp;<b>".esc_html__('Converted Images: ', 'cwvpsb')."</b> <span id='cwvpsb_images_converted'>Calculating...</span> </div>";  
+            echo "<div class='cwvpsb-converted-count'><b>".esc_html__('Total Images: ', 'core-web-vitals-pagespeed-booster')."</b><span id='cwvpsb_images_unconverted'>Calculating...</span> &nbsp; &nbsp;<b>".esc_html__('Converted Images: ', 'core-web-vitals-pagespeed-booster')."</b> <span id='cwvpsb_images_converted'>Calculating...</span> </div>";  
         }
     ?>
     </div>
@@ -393,14 +393,14 @@ public function image_optimization_callback(){
         } ?>
        
         <span class="slider round"></span></label>
-        <?php echo '<b>'.esc_html__('Alternate Method','cwvpsb').'</b>'.esc_html__(" (Enable this option only if html/css/images are breaking)", 'cwvpsb');?>
+        <?php echo '<b>'.esc_html__('Alternate Method','core-web-vitals-pagespeed-booster').'</b>'.esc_html__(" (Enable this option only if html/css/images are breaking)", 'core-web-vitals-pagespeed-booster');?>
     </fieldset>
          
     <?php }
 
 function image_convert_webp_bulk(){
     echo "<div><div id='bulkconverUpload-wrap'><div class='bulkconverUpload'>".esc_html__('This tool will automatically convert your images in webp format and it will take some mintues please do not close this window or click the back button until all images converted
-','cwvpsb')."</div></div></div>";
+','core-web-vitals-pagespeed-booster')."</div></div></div>";
 }
 
 public function lazyload_callback(){
@@ -413,7 +413,7 @@ public function lazyload_callback(){
             echo '<input type="checkbox" name="cwvpsb_get_settings[lazyload_support]" class="regular-text" value="1" >';
         } ?>
         <span class="slider round"></span></label>
-        <p class="description"><?php echo esc_html__("Lazy Load delays loading of images and iframes in long web pages. which are outside of viewport and will not be loaded before user scrolls to them", 'cwvpsb');?></p>
+        <p class="description"><?php echo esc_html__("Lazy Load delays loading of images and iframes in long web pages. which are outside of viewport and will not be loaded before user scrolls to them", 'core-web-vitals-pagespeed-booster');?></p>
     </fieldset>
     <?php }
 
@@ -423,7 +423,7 @@ public function lazyload_type_callback(){
     ?>
     <fieldset> <select class="webp_support" name="cwvpsb_get_settings[lazyload_type]" >
      <?php
-        $delay = array('lazy' => esc_html__('Load in viewport (Recommended)', 'cwvpsb'),'delay' => esc_html__('Load after delay', 'cwvpsb'));
+        $delay = array('lazy' => esc_html__('Load in viewport (Recommended)', 'core-web-vitals-pagespeed-booster'),'delay' => esc_html__('Load after delay', 'core-web-vitals-pagespeed-booster'));
         foreach ($delay as $key => $value ) {
         ?>
             <option value="<?php echo esc_attr($key);?>" <?php selected( $lazy_type, $key);?>><?php echo esc_html($value);?></option>
@@ -432,8 +432,8 @@ public function lazyload_type_callback(){
         ?>
     </select>
         <p class="description">
-            <?php echo '<b>'.esc_html__('Load in viewport', 'cwvpsb').':</b>'.esc_html__(" Images which are outside of viewport and will not be loaded before user scrolls to them", 'cwvpsb');?><br>
-            <?php echo '<b>'.esc_html__('Load after delay', 'cwvpsb').':</b>'.esc_html__(" All Images will be loaded after pages has been loaded with a delay.", 'cwvpsb');?>
+            <?php echo '<b>'.esc_html__('Load in viewport', 'core-web-vitals-pagespeed-booster').':</b>'.esc_html__(" Images which are outside of viewport and will not be loaded before user scrolls to them", 'core-web-vitals-pagespeed-booster');?><br>
+            <?php echo '<b>'.esc_html__('Load after delay', 'core-web-vitals-pagespeed-booster').':</b>'.esc_html__(" All Images will be loaded after pages has been loaded with a delay.", 'core-web-vitals-pagespeed-booster');?>
         </p>
     </fieldset>
     <?php }
@@ -447,14 +447,14 @@ public function images_add_alttags_callback(){
             echo '<input type="checkbox" name="cwvpsb_get_settings[images_add_alttags]" class="regular-text" value="1" >';
         } ?>
         <span class="slider round"></span></label>
-        <p class="description"><?php echo esc_html__("This will add missing alt tags in images ", 'cwvpsb');?></p>
+        <p class="description"><?php echo esc_html__("This will add missing alt tags in images ", 'core-web-vitals-pagespeed-booster');?></p>
     </fieldset>
     <?php }
 
 public function lazyload_exclude_callback(){
     $settings = cwvpsb_defaults(); ?> 
     <textarea rows='5' cols='70' name="cwvpsb_get_settings[lazyload_exclude]" id='cwvpsb_lazyload_exclude'><?php echo isset($settings['lazyload_exclude'])? esc_html($settings['lazyload_exclude']) : ''; ?></textarea>
-    <p class="description"><?php echo esc_html__("Enter (,)comma separated urls of images that you  want to exclude from lazyload", 'cwvpsb');?></p>
+    <p class="description"><?php echo esc_html__("Enter (,)comma separated urls of images that you  want to exclude from lazyload", 'core-web-vitals-pagespeed-booster');?></p>
     <?php }
 
 public function minification_callback(){
@@ -467,7 +467,7 @@ public function minification_callback(){
             echo '<input type="checkbox" name="cwvpsb_get_settings[minification_support]" class="regular-text" value="1" >';
         }?>
         <span class="slider round"></span></label>
-        <p class="description"><?php echo esc_html__("You will see the source of your HTML, CSS and JavaScript are now compressed and the size will be smaller which will be helpful to improve your page load speed", 'cwvpsb');?></p>
+        <p class="description"><?php echo esc_html__("You will see the source of your HTML, CSS and JavaScript are now compressed and the size will be smaller which will be helpful to improve your page load speed", 'core-web-vitals-pagespeed-booster');?></p>
     </fieldset>
     <?php }
  
@@ -483,11 +483,11 @@ public function unused_css_callback(){
             echo '<input type="checkbox" name="cwvpsb_get_settings[unused_css_support]" class="regular-text" value="1" >';
         } ?>
         <span class="slider round"></span></label>
-        <p class="description"><?php echo esc_html__("Makes your site even faster and lighter by automatically removing unused CSS from your website", 'cwvpsb');?></p>
+        <p class="description"><?php echo esc_html__("Makes your site even faster and lighter by automatically removing unused CSS from your website", 'core-web-vitals-pagespeed-booster');?></p>
         <?php if(isset($settings['unused_css_support']) && $settings['unused_css_support']==1){?>
         <br/><textarea rows='5' cols='70' name="cwvpsb_get_settings[whitelist_css]" id='cwvpsb_add_whitelist_css'><?php if(isset($settings['whitelist_css'])){ echo esc_html($settings['whitelist_css']); }  ?></textarea>
-            <p class="description"><?php echo esc_html__("Add the CSS selectors line by line which you don't want to remove", 'cwvpsb');?></p><br/>
-            <div style='display:inline-block;'><span class='button button-secondry' id='clear-css-cache' data-cleaningtype='css' data-nonce='<?php echo esc_attr($webp_nonce);?>' ><?php echo esc_html__("Clear Cached CSS", 'cwvpsb');?></span><span class='clear-cache-msg'></span></div>
+            <p class="description"><?php echo esc_html__("Add the CSS selectors line by line which you don't want to remove", 'core-web-vitals-pagespeed-booster');?></p><br/>
+            <div style='display:inline-block;'><span class='button button-secondry' id='clear-css-cache' data-cleaningtype='css' data-nonce='<?php echo esc_attr($webp_nonce);?>' ><?php echo esc_html__("Clear Cached CSS", 'core-web-vitals-pagespeed-booster');?></span><span class='clear-cache-msg'></span></div>
         <?php } ?>
     </fieldset>
     <?php } 
@@ -502,7 +502,7 @@ public function google_fonts_callback(){
             echo '<input type="checkbox" name="cwvpsb_get_settings[google_fonts_support]" class="regular-text" value="1" >';
         }?>
         <span class="slider round"></span></label>
-        <p class="description"><?php echo esc_html__("Locally hosting Google fonts for Pagespeed Insights or GT Metrix improvements", 'cwvpsb');?></p>
+        <p class="description"><?php echo esc_html__("Locally hosting Google fonts for Pagespeed Insights or GT Metrix improvements", 'core-web-vitals-pagespeed-booster');?></p>
     </fieldset>
     <?php }
 public function critical_css_callback(){
@@ -515,16 +515,16 @@ public function critical_css_callback(){
             echo '<input type="checkbox" name="cwvpsb_get_settings[critical_css_support]" class="regular-text" value="1" >';
         }?>
         <span class="slider round"></span></label>
-        <p class="description"><?php echo esc_html__("Grab critical css and inline on webpage to better experience first impression", 'cwvpsb');?></p>
+        <p class="description"><?php echo esc_html__("Grab critical css and inline on webpage to better experience first impression", 'core-web-vitals-pagespeed-booster');?></p>
     </fieldset>
     <?php }
  public function js_optimization_callback(){
 
     $settings = cwvpsb_defaults(); ?>  
     <div class="label-align delay_js">
-    <table class="cwvpsb_inner_tb"><tr><th> <label for="cwvpsb_get_settings[delay_js]"><?php  echo esc_html__('Desktop', 'cwvpsb')?></label></th><td>
+    <table class="cwvpsb_inner_tb"><tr><th> <label for="cwvpsb_get_settings[delay_js]"><?php  echo esc_html__('Desktop', 'core-web-vitals-pagespeed-booster')?></label></th><td>
    <select name="cwvpsb_get_settings[delay_js]">
-        <option value=""><?php echo esc_html__('Select Method', 'cwvpsb');?></option>
+        <option value=""><?php echo esc_html__('Select Method', 'core-web-vitals-pagespeed-booster');?></option>
      <?php
         $delay = array('php' => 'PHP (Recommended)','js' => 'JS');
         foreach ($delay as $key => $value ) {
@@ -534,9 +534,9 @@ public function critical_css_callback(){
         }
         ?>
     </tr><tr>
-    </select></td><th> <label for="cwvpsb_get_settings[delay_js_mobile]"><?php  echo esc_html__('Mobile', 'cwvpsb')?></label></th><td>
+    </select></td><th> <label for="cwvpsb_get_settings[delay_js_mobile]"><?php  echo esc_html__('Mobile', 'core-web-vitals-pagespeed-booster')?></label></th><td>
    <select name="cwvpsb_get_settings[delay_js_mobile]">
-        <option value=""><?php echo esc_html__('Select Method', 'cwvpsb');?></option>
+        <option value=""><?php echo esc_html__('Select Method', 'core-web-vitals-pagespeed-booster');?></option>
      <?php
         $delay = array('php' => 'PHP (Recommended)','js' => 'JS');
         foreach ($delay as $key => $value ) {
@@ -548,7 +548,7 @@ public function critical_css_callback(){
     </select></td></tr></table>
     <br/>
     <br/>
-    <b><?php echo esc_html__('Exclude JS from Delay method', 'cwvpsb');?></b>
+    <b><?php echo esc_html__('Exclude JS from Delay method', 'core-web-vitals-pagespeed-booster');?></b>
     <br/>
     <textarea cols="70" rows="5" class="" placeholder="Enter JS URL One per line (Ex: popup.js)" name="cwvpsb_get_settings[exclude_delay_js]"><?php echo isset($settings['exclude_delay_js'])? esc_html($settings['exclude_delay_js']):''; ?></textarea>
     </div>  
@@ -567,15 +567,15 @@ public function cache_callback(){
         }?>
         <span class="slider round"></span></label>
    <?php if(isset($settings['cache_support'])){?>      
-    <button class="cache-btn" name="cache-btn"><i class="cache-trash"></i>&emsp;<?php echo esc_html__("Clear Site Cache", 'cwvpsb');?></button>
+    <button class="cache-btn" name="cache-btn"><i class="cache-trash"></i>&emsp;<?php echo esc_html__("Clear Site Cache", 'core-web-vitals-pagespeed-booster');?></button>
     <?php }  ?>
-    <p class="description"><?php echo esc_html__("Caching pages will reduce the response time of your site and your web pages load much faster, directly from cache", 'cwvpsb');?></p>
+    <p class="description"><?php echo esc_html__("Caching pages will reduce the response time of your site and your web pages load much faster, directly from cache", 'core-web-vitals-pagespeed-booster');?></p>
     </fieldset>
     <?php }
 public function cache_strategy_callback(){
     $settings = cwvpsb_defaults(); ?>
     <fieldset><?php
-        $options = array("Highly Optimized"=>esc_html__("Highly Optimized (Recommended)", 'cwvpsb'), "Aggressively Optimized"=>esc_html__("Aggressively Optimized", 'cwvpsb'));
+        $options = array("Highly Optimized"=>esc_html__("Highly Optimized (Recommended)", 'core-web-vitals-pagespeed-booster'), "Aggressively Optimized"=>esc_html__("Aggressively Optimized", 'core-web-vitals-pagespeed-booster'));
         ?><select name="cwvpsb_get_settings[cache_support_method]">
                 <?php foreach($options as $key=>$opt){
                     $sel = '';
@@ -584,14 +584,14 @@ public function cache_strategy_callback(){
                     <option value="<?php echo esc_attr($key); ?>" <?php echo esc_attr($sel); ?>><?php echo esc_html($opt); ?></option>
                 <?php } ?>
             </select>
-    <p class="description"><?php echo esc_html__("Highly Optimized will serve by PHP", 'cwvpsb')."<br/>".esc_html__(" Aggressively Optimized will serve cache via htaccess", 'cwvpsb');?></p>
+    <p class="description"><?php echo esc_html__("Highly Optimized will serve by PHP", 'core-web-vitals-pagespeed-booster')."<br/>".esc_html__(" Aggressively Optimized will serve cache via htaccess", 'core-web-vitals-pagespeed-booster');?></p>
     </fieldset>
     <?php }
 
 public function cache_flush_callback(){
     $settings = cwvpsb_defaults(); ?>
     <fieldset><?php
-        $options = array("_core_updated_successfully"=>esc_html__("Wordpress Core Update", 'cwvpsb'), "switch_theme"=>esc_html__("Switching Theme", 'cwvpsb'), "wp_trash_post"=>esc_html__("Post/Page Deletion", 'cwvpsb'));
+        $options = array("_core_updated_successfully"=>esc_html__("Wordpress Core Update", 'core-web-vitals-pagespeed-booster'), "switch_theme"=>esc_html__("Switching Theme", 'core-web-vitals-pagespeed-booster'), "wp_trash_post"=>esc_html__("Post/Page Deletion", 'core-web-vitals-pagespeed-booster'));
         ?>
                 <?php foreach($options as $key=>$opt){
                     $sel = '';
@@ -599,13 +599,13 @@ public function cache_flush_callback(){
                  ?>
                    <input type="checkbox" name="cwvpsb_get_settings[cache_flush_on][]" value="<?php echo esc_attr($key); ?>" <?php echo esc_attr($sel); ?>><?php echo esc_attr($opt); ?></option>
                 <?php } ?>
-    <p class="description"><?php echo esc_html__("Note: By default , on post deletion only homepage and category page will be cleared ", 'cwvpsb')?></p>
+    <p class="description"><?php echo esc_html__("Note: By default , on post deletion only homepage and category page will be cleared ", 'core-web-vitals-pagespeed-booster')?></p>
     </fieldset>
     <?php }
     public function cache_autoclear_callback(){
     $settings = cwvpsb_defaults(); ?>
     <fieldset><?php
-    $autoclear_options = array("never"=>esc_html__("Never", 'cwvpsb'), "hourly"=>esc_html__("Hourly", 'cwvpsb'), "6hourly"=>esc_html__("Every 6 Hours", 'cwvpsb'), "12hourly"=>esc_html__("Every 12 Hours", 'cwvpsb'),"daily"=>esc_html__("Daily", 'cwvpsb'),"weekly"=>esc_html__("Weekly", 'cwvpsb'),"monthly"=>esc_html__("Monthly", 'cwvpsb'));
+    $autoclear_options = array("never"=>esc_html__("Never", 'core-web-vitals-pagespeed-booster'), "hourly"=>esc_html__("Hourly", 'core-web-vitals-pagespeed-booster'), "6hourly"=>esc_html__("Every 6 Hours", 'core-web-vitals-pagespeed-booster'), "12hourly"=>esc_html__("Every 12 Hours", 'core-web-vitals-pagespeed-booster'),"daily"=>esc_html__("Daily", 'core-web-vitals-pagespeed-booster'),"weekly"=>esc_html__("Weekly", 'core-web-vitals-pagespeed-booster'),"monthly"=>esc_html__("Monthly", 'core-web-vitals-pagespeed-booster'));
         ?>
                <select name="cwvpsb_get_settings[cache_autoclear]">
                 <?php foreach($autoclear_options as $key=>$opt){
@@ -669,16 +669,19 @@ public function generate_critical_css_callback(){
 public function advance_url_callback(){
     $settings = cwvpsb_defaults(); ?> 
     <textarea rows='5' cols='70' name="cwvpsb_get_settings[advance_support]" id='cwvpsb_add_advance_support'><?php echo isset($settings['advance_support'])? esc_html($settings['advance_support']) : ''; ?></textarea>
-    <p class="description"><?php echo esc_html__("The Core Web Vital will only work on this URL, So that you can compare the speed on this URL with others", 'cwvpsb');?></p>
+    <p class="description"><?php echo esc_html__("The Core Web Vital will only work on this URL, So that you can compare the speed on this URL with others", 'core-web-vitals-pagespeed-booster');?></p>
     <?php }
 public function delete_on_uninstall_callback(){
     $settings = cwvpsb_defaults(); ?> 
     <input class="" type="checkbox" name="cwvpsb_get_settings[delete_on_uninstall]" value="1" <?php echo (isset($settings["delete_on_uninstall"]) && $settings["delete_on_uninstall"] == 1 ? "checked": "");?> />
-    <?php echo esc_html__("This will delete all Core Web Vital generated files and settings when you uninstall the plugin", 'cwvpsb');?>
+    <?php echo esc_html__("This will delete all Core Web Vital generated files and settings when you uninstall the plugin", 'core-web-vitals-pagespeed-booster');?>
     <?php }        
     function get_list_convert_files(){
-        if(isset($_POST['nonce_verify']) && !wp_verify_nonce(wp_unslash($_POST['nonce_verify']),'web-vitals-security-nonce')){ //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using input as nonce
-            wp_send_json(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified', 'cwvpsb' ) ) );
+        if ( ! isset( $_POST['nonce_verify'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce_verify'] ) ), 'web-vitals-security-nonce' ) ) {
+            wp_send_json( array( 'status' => 500, 'msg' => esc_html__( 'Request Security not verified', 'core-web-vitals-pagespeed-booster' ) ) );
+        }
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json( array( 'status' => 500, 'msg' => esc_html__( 'You do not have permission to access this page', 'core-web-vitals-pagespeed-booster' ) ) );
         }
         $listOpt = array();
         $upload = wp_upload_dir();
@@ -714,7 +717,7 @@ public function delete_on_uninstall_callback(){
         $response['files'] = array_filter($files);
 
         $response['status'] = 200;
-        $response['message'] = ($response['files'])? esc_html__('Files are available to convert', 'cwvpsb'): esc_html__('All files are converted', 'cwvpsb');
+        $response['message'] = ($response['files'])? esc_html__('Files are available to convert', 'core-web-vitals-pagespeed-booster'): esc_html__('All files are converted', 'core-web-vitals-pagespeed-booster');
         $response['count'] = count($response['files']);
         wp_send_json($response);
     }
@@ -753,13 +756,12 @@ public function delete_on_uninstall_callback(){
 
     //creaet a aajac function to retuen convert and pebnding images
 public function get_images_count(){
-    //check if nonce is valid
-    if(isset($_POST['nonce_verify']) && !wp_verify_nonce(wp_unslash($_POST['nonce_verify']),'web-vitals-security-nonce')){ //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using input as nonce
-        wp_send_json(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified', 'cwvpsb') ) );
+    if ( ! isset( $_POST['nonce_verify'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce_verify'] ) ), 'web-vitals-security-nonce' ) ) {
+        wp_send_json( array( 'status' => 500, 'msg' => esc_html__( 'Request Security not verified', 'core-web-vitals-pagespeed-booster' ) ) );
     }
 
-    if(!current_user_can('manage_options')){
-        wp_send_json(array('status'=>500 ,"msg"=>esc_html__('You do not have permission to access this page', 'cwvpsb') ) );
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json( array( 'status' => 500, 'msg' => esc_html__( 'You do not have permission to access this page', 'core-web-vitals-pagespeed-booster' ) ) );
     }
     $converted = $this->get_list_convert_files_status('converted');
     $unconverted = $this->get_list_convert_files_status('unconverted');
@@ -837,29 +839,58 @@ public function get_images_count(){
     }
 
     function webp_convert_file(){
-        if(isset($_POST['nonce_verify']) && !wp_verify_nonce( wp_unslash( $_POST['nonce_verify'],'web-vitals-security-nonce' ) ) ){  //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using input as nonce
-            wp_send_json(array('status'=>500 ,"msg"=>esc_html__('Request Security not verified' , 'cwvpsb') ) );
+        if ( ! isset( $_POST['nonce_verify'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce_verify'] ) ), 'web-vitals-security-nonce' ) ) {
+            wp_send_json( array( 'status' => 500, 'msg' => esc_html__( 'Request Security not verified', 'core-web-vitals-pagespeed-booster' ) ) );
         }
-        $filename = isset($_POST['filename'])?sanitize_text_field(wp_unslash($_POST['filename'])):'';
 
-        $upload = wp_upload_dir();
-        $destinationPath = $upload['basedir']."/cwv-webp-images";
-        if(!is_dir($destinationPath)) { wp_mkdir_p($destinationPath); }
-        $destination = $destinationPath.'/'. $filename.".webp";
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json( array( 'status' => 500, 'msg' => esc_html__( 'You do not have permission to access this page', 'core-web-vitals-pagespeed-booster' ) ) );
+        }
 
-        $source = $upload['basedir']."/".$filename;
+        $filename = isset( $_POST['filename'] ) ? sanitize_text_field( wp_unslash( $_POST['filename'] ) ) : '';
+        $filename = ltrim( str_replace( '\\', '/', $filename ), '/' );
+
+        // Reject traversal sequences and only allow jpeg/png relative paths under uploads.
+        if ( '' === $filename || false !== strpos( $filename, '..' ) || ! preg_match( '#\.(jpe?g|png)$#i', $filename ) ) {
+            wp_send_json( array( 'status' => 500, 'msg' => esc_html__( 'Invalid filename', 'core-web-vitals-pagespeed-booster' ) ) );
+        }
+
+        $upload          = wp_upload_dir();
+        $basedir         = wp_normalize_path( $upload['basedir'] );
+        $destinationPath = $basedir . '/cwv-webp-images';
+        if ( ! is_dir( $destinationPath ) ) {
+            wp_mkdir_p( $destinationPath );
+        }
+
+        $source      = wp_normalize_path( $basedir . '/' . $filename );
+        $destination = wp_normalize_path( $destinationPath . '/' . $filename . '.webp' );
+
+        // Ensure constructed paths remain inside the uploads / webp roots.
+        if ( 0 !== strpos( $source, trailingslashit( $basedir ) ) || 0 !== strpos( $destination, trailingslashit( $destinationPath ) ) ) {
+            wp_send_json( array( 'status' => 500, 'msg' => esc_html__( 'Invalid filename', 'core-web-vitals-pagespeed-booster' ) ) );
+        }
+
+        $real_basedir = realpath( $basedir );
+        $real_source  = realpath( $source );
+        if ( false === $real_basedir || false === $real_source || 0 !== strpos( wp_normalize_path( $real_source ), trailingslashit( wp_normalize_path( $real_basedir ) ) ) ) {
+            wp_send_json( array( 'status' => 500, 'msg' => esc_html__( 'Invalid filename', 'core-web-vitals-pagespeed-booster' ) ) );
+        }
 
         try {
             require_once CWVPSB_PLUGIN_DIR."/includes/vendor/autoload.php";
             $convertOptions = [];
             \WebPConvert\WebPConvert::convert($source, $destination, $convertOptions);
         } catch (\WebpConvert\Exceptions\WebPConvertException $e) {
-            if(function_exists('error_log')){ error_log($e->getMessage()); }
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG && function_exists( 'error_log' ) ) {
+                error_log( $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- gated behind WP_DEBUG
+            }
         } catch (\Exception $e) {
             $message = 'An exception was thrown!';
-            if(function_exists('error_log')){ error_log($e->getMessage()); }
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG && function_exists( 'error_log' ) ) {
+                error_log( $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- gated behind WP_DEBUG
+            }
         }
-        wp_send_json(array('status'=>200 ,'filename'=> $filename,'source'=>$source,'destination'=>$destination,"msg"=>esc_html__('File converted successfully', 'cwvpsb') ));
+        wp_send_json(array('status'=>200 ,'filename'=> $filename,'source'=>$source,'destination'=>$destination,"msg"=>esc_html__('File converted successfully', 'core-web-vitals-pagespeed-booster') ));
     }
 
     public function cwvpsb_reWriteCacheHtaccess(){
@@ -921,7 +952,7 @@ public function get_images_count(){
         return  $has_wp_rules;
     }
     protected function get_corewebvital_cache_htaccess(){
-        $host = parse_url(
+        $host = wp_parse_url(
                 get_site_url(),
                 PHP_URL_HOST
             );
@@ -943,7 +974,7 @@ public function get_images_count(){
 </IfModule>'.PHP_EOL;
 
         $rule .= '# END Core WebVital' . PHP_EOL;
-        $rule = apply_filters( 'cwvpb_aggressive_cache_htaccess_marker', $rule );
+        $rule = apply_filters( 'cwvpsb_aggressive_cache_htaccess_marker', $rule );
         return $rule;
         
     }
@@ -1066,25 +1097,25 @@ public function get_images_count(){
             <!-- process section -->
             <div class="cwvpsb-css-optimization-wrapper">
             
-            <strong style="font-size:18px;"><?php echo esc_html__('CSS Optimisation Status', 'cwvpsb') ?></strong>
-                <p><?php echo esc_html__('Optimisation is running in background.', 'cwvpsb') ?></p>
+            <strong style="font-size:18px;"><?php echo esc_html__('CSS Optimisation Status', 'core-web-vitals-pagespeed-booster') ?></strong>
+                <p><?php echo esc_html__('Optimisation is running in background.', 'core-web-vitals-pagespeed-booster') ?></p>
                 <br>
                 <div class="cwvpsb_progress_bar">
-                    <div class="cwvpsb_progress_bar_body" style="width: <?php echo esc_attr($percentage); ?>%;"><?php echo esc_attr($percentage).esc_html__('%', 'cwvpsb');?></div>
+                    <div class="cwvpsb_progress_bar_body" style="width: <?php echo esc_attr($percentage); ?>%;"><?php echo esc_attr($percentage).esc_html__('%', 'core-web-vitals-pagespeed-booster');?></div>
                 </div>
                 <br>
                 <div class="cwvpsb_cached_status_bar">
-                <div style="margin-top:20px;"><strong><?php echo esc_html__('Total :', 'cwvpsb') ?></strong> <span id="cwvpsb_css_total_count"><?php echo esc_attr($total_count).  esc_html__('URLs:', 'cwvpsb').' </span>';                                         
+                <div style="margin-top:20px;"><strong><?php echo esc_html__('Total :', 'core-web-vitals-pagespeed-booster') ?></strong> <span id="cwvpsb_css_total_count"><?php echo esc_attr($total_count).  esc_html__('URLs:', 'core-web-vitals-pagespeed-booster').' </span>';                                         
                  ?></div>
-                 <div><strong><?php echo esc_html__('In Progress :', 'cwvpsb') ?></strong> <span id="cwvpsb_css_queue_count"><?php echo esc_attr($queue_count).  esc_html__('URLs:', 'cwvpsb').' </span>';                                         
+                 <div><strong><?php echo esc_html__('In Progress :', 'core-web-vitals-pagespeed-booster') ?></strong> <span id="cwvpsb_css_queue_count"><?php echo esc_attr($queue_count).  esc_html__('URLs:', 'core-web-vitals-pagespeed-booster').' </span>';                                         
                  ?></div>
-                <div><strong><?php echo esc_html__('Critical CSS Optimized  :', 'cwvpsb') ?></strong> <span id="cwvpsb_css_cached_count"><?php echo esc_attr($cached_count). esc_html__('URLs:', 'cwvpsb').' </span>';                 
+                <div><strong><?php echo esc_html__('Critical CSS Optimized  :', 'core-web-vitals-pagespeed-booster') ?></strong> <span id="cwvpsb_css_cached_count"><?php echo esc_attr($cached_count). esc_html__('URLs:', 'core-web-vitals-pagespeed-booster').' </span>';                 
                 ?></div>
                 <?php
                     if($this->generate_time($queue_count)){
                         ?>
                         <div>
-                        <strong><?php echo esc_html__('Remaining Time :', 'cwvpsb') ?></strong>
+                        <strong><?php echo esc_html__('Remaining Time :', 'core-web-vitals-pagespeed-booster') ?></strong>
                         <span id="cwvpsb_css_generate_time"><?php
                             esc_html( $this->generate_time($queue_count));
                         ?> </span>
@@ -1095,8 +1126,8 @@ public function get_images_count(){
                     if($failed_count > 0){
                         ?>   
                             <div>
-                                <strong><?php echo esc_html__('Failed      :', 'cwvpsb') ?></strong> <span id="cwvpsb_css_failed_count"><?php echo esc_attr($failed_count);?>,</span>
-                                <a href="#" class="cwvpbs-resend-urls button button-secondary"><?php echo esc_html__('Resend', 'cwvpsb');?></a>
+                                <strong><?php echo esc_html__('Failed      :', 'core-web-vitals-pagespeed-booster') ?></strong> <span id="cwvpsb_css_failed_count"><?php echo esc_attr($failed_count);?>,</span>
+                                <a href="#" class="cwvpbs-resend-urls button button-secondary"><?php echo esc_html__('Resend', 'core-web-vitals-pagespeed-booster');?></a>
                             </div>                                                        
                         <?php     
                     }
@@ -1106,28 +1137,28 @@ public function get_images_count(){
             <!-- DataTable section -->
             <div class="cwvpsb-table-url-wrapper">                         
              <div id="cwvpb-global-tabs" style="margin-top: 10px;">
-                <a data-id="cwvpb-general-container"><?php echo esc_html__('All', 'cwvpsb');?> (<?php echo esc_attr($total_count); ?>)</a> |
-                <a data-id="cwvpb-queue-container"><?php echo esc_html__('In Queue', 'cwvpsb');?> (<?php echo esc_attr($queue_count); ?>)</a> |
-                <a data-id="cwvpb-knowledge-container"><?php echo esc_html__('Completed', 'cwvpsb');?> (<?php echo esc_attr($cached_count); ?>)</a> |
-                <a data-id="cwvpb-default-container" ><?php echo esc_html__('Failed', 'cwvpsb');?> (<?php echo esc_attr($failed_count); ?>)</a>
+                <a data-id="cwvpb-general-container"><?php echo esc_html__('All', 'core-web-vitals-pagespeed-booster');?> (<?php echo esc_attr($total_count); ?>)</a> |
+                <a data-id="cwvpb-queue-container"><?php echo esc_html__('In Queue', 'core-web-vitals-pagespeed-booster');?> (<?php echo esc_attr($queue_count); ?>)</a> |
+                <a data-id="cwvpb-knowledge-container"><?php echo esc_html__('Completed', 'core-web-vitals-pagespeed-booster');?> (<?php echo esc_attr($cached_count); ?>)</a> |
+                <a data-id="cwvpb-default-container" ><?php echo esc_html__('Failed', 'core-web-vitals-pagespeed-booster');?> (<?php echo esc_attr($failed_count); ?>)</a>
              </div>
                                                                         
                 <div class="cwvpb-global-container" id="cwvpb-general-container">
                 <table class="table cwvpsb-table-class" id="table_page_cc_style_all" style="width:100%">
                 <thead>
                     <tr>
-                        <th><?php  esc_html_e('URL', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Status', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Size', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Created date', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('URL', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Status', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Size', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Created date', 'core-web-vitals-pagespeed-booster');?></th>
                     </tr>
                 </thead>
                 <tfoot>
                     <tr>
-                        <th><?php  esc_html_e('URL', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Status', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Size', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Created date', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('URL', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Status', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Size', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Created date', 'core-web-vitals-pagespeed-booster');?></th>
                     </tr>
                 </tfoot>
                 </table>
@@ -1137,18 +1168,18 @@ public function get_images_count(){
                 <table class="table cwvpsb-table-class" id="table_page_cc_style_queue" style="width:100%">
                 <thead>
                     <tr>
-                        <th><?php  esc_html_e('URL', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Status', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Size', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Created date', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('URL', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Status', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Size', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Created date', 'core-web-vitals-pagespeed-booster');?></th>
                     </tr>
                 </thead>
                 <tfoot>
                     <tr>
-                        <th><?php  esc_html_e('URL', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Status', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Size', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Created date', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('URL', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Status', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Size', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Created date', 'core-web-vitals-pagespeed-booster');?></th>
                     </tr>
                 </tfoot>
                 </table>
@@ -1158,18 +1189,18 @@ public function get_images_count(){
                 <table class="table cwvpsb-table-class" id="table_page_cc_style_completed" style="width:100%">
             <thead>
                     <tr>
-                        <th><?php  esc_html_e('URL', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Status', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Size', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Created date', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('URL', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Status', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Size', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Created date', 'core-web-vitals-pagespeed-booster');?></th>
                     </tr>
                 </thead>
                 <tfoot>
                     <tr>
-                        <th><?php  esc_html_e('URL', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Status', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Size', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Created date', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('URL', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Status', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Size', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Created date', 'core-web-vitals-pagespeed-booster');?></th>
                     </tr>
                 </tfoot>
                 </table>
@@ -1179,19 +1210,19 @@ public function get_images_count(){
                 <table class="table cwvpsb-table-class" id="table_page_cc_style_failed" style="width:100%">
                 <thead>
                     <tr>
-                        <th><?php  esc_html_e('URL', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Status', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Failed Date', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Error', 'cwvpsb');?></th>
+                        <th><?php  esc_html_e('URL', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Status', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Failed Date', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Error', 'core-web-vitals-pagespeed-booster');?></th>
                         
                     </tr>
                 </thead>
                 <tfoot>
                     <tr>
-                        <th><?php  esc_html_e('URL', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Status', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Failed Date', 'cwvpsb');?></th>
-                        <th><?php  esc_html_e('Error', 'cwvpsb');?></th>                       
+                        <th><?php  esc_html_e('URL', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Status', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Failed Date', 'core-web-vitals-pagespeed-booster');?></th>
+                        <th><?php  esc_html_e('Error', 'core-web-vitals-pagespeed-booster');?></th>                       
                     </tr>
                 </tfoot>
                 </table>
@@ -1200,10 +1231,10 @@ public function get_images_count(){
             </div>
 
              <div class="cwvpbs-advance-urls-container">
-                <span class="cwvpbs-advance-toggle"> <?php  esc_html_e('Advance Settings', 'cwvpsb');?> <span class="dashicons dashicons-admin-generic"></span></span>
+                <span class="cwvpbs-advance-toggle"> <?php  esc_html_e('Advance Settings', 'core-web-vitals-pagespeed-booster');?> <span class="dashicons dashicons-admin-generic"></span></span>
                 <div class="cwvpbs-advance-btn-div cwvpb-display-none">
-                <a class="button button-primary cwvpsb-recheck-url-cache"><?php esc_html_e('Recheck', 'cwvpsb'); ?></a>                                
-                    <a class="button button-primary cwvpsb-reset-url-cache"><?php esc_html_e('Reset Cache', 'cwvpsb'); ?></a>                                
+                <a class="button button-primary cwvpsb-recheck-url-cache"><?php esc_html_e('Recheck', 'core-web-vitals-pagespeed-booster'); ?></a>                                
+                    <a class="button button-primary cwvpsb-reset-url-cache"><?php esc_html_e('Reset Cache', 'core-web-vitals-pagespeed-booster'); ?></a>                                
                 </div>
              </div>       
             
@@ -1315,7 +1346,7 @@ function cwvpsb_delete_folder($dir){
             if ( is_dir($object) ) {
                 cwvpsb_delete_folder($object);
             } else {
-                unlink($object);
+                wp_delete_file( $object );
             }
         }
 
@@ -1357,7 +1388,7 @@ function cwvpsb_showdetails_data(){
     $draw = isset($_POST['draw'])?intval($_POST['draw']):0;						
     
     global $wpdb, $table_prefix;
-    $table_name_escaped = esc_html($table_prefix . 'cwvpb_critical_urls');
+    $table_name_escaped = esc_sql( $wpdb->prefix . 'cwvpb_critical_urls' );
     $search = isset( $_POST['search']['value'] ) ?  sanitize_text_field( wp_unslash( $_POST['search']['value'] ) ): '';                                                        
     if($search){
         if($type=="all")
@@ -1423,9 +1454,9 @@ function cwvpsb_showdetails_data(){
             if($value['status'] == 'cached'){
                 $user_dirname = cwvpsb_cachepath();
                 if (file_exists($user_dirname.md5($value['url']).'.css')) {
-                    $size = round(filesize($user_dirname.md5($value['url']).'.css')/1024,2).esc_html__('KB','cwvpsb');
+                    $size = round(filesize($user_dirname.md5($value['url']).'.css')/1024,2).esc_html__('KB','core-web-vitals-pagespeed-booster');
                 }else{
-                    $size = '<abbr title="'.esc_attr__('File is not in cached directory. Please recheck in advance option','cwvpsb').'">'.esc_html__('Deleted','cwvpsb').'</abbr>';
+                    $size = '<abbr title="'.esc_attr__('File is not in cached directory. Please recheck in advance option','core-web-vitals-pagespeed-booster').'">'.esc_html__('Deleted','core-web-vitals-pagespeed-booster').'</abbr>';
                 }
             }
                 
