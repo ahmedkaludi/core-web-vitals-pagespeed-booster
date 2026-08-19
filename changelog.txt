@@ -1,3 +1,6 @@
+= 1.0.31 (19 August 2026) =
+* Test : Tested upto WordPress 7.1
+
 = 1.0.30 (15 July 2026) =
 * Fixed : Subscriber WebP path-traversal  Security issue disclosed by Artus KG
 * Improvement : Implemented PCP recommendations
