@@ -8,7 +8,11 @@ function cwvpsb_unused_css($html){
 	require_once CWVPSB_PLUGIN_DIR."/includes/class-cwvpsb-treeshaking.php";
 	$tmpDoc = new DOMDocument();
 	libxml_use_internal_errors(true);
-	$tmpDoc->loadHTML($html);
+	$loaded = cwvpsb_dom_load_html( $tmpDoc, $html );
+	libxml_clear_errors();
+	if ( ! $loaded ) {
+		return $html;
+	}
 	$error_codes = [];
 	$args        = [
 		'validation_error_callback' => static function( $error ) use ( &$error_codes ) {
@@ -29,8 +33,7 @@ function cwvpsb_unused_css($html){
 		    $custom_style_element->appendChild($tmpDoc->createTextNode( $whitelist ));
 		    $tmpDoc->head->appendChild( $custom_style_element );
 	  	}	
-	$html = $tmpDoc->saveHTML($tmpDoc->documentElement);
-	return $html;
+	return cwvpsb_dom_save_html( $tmpDoc, $tmpDoc->documentElement );
 }
 add_action('cwvpsb_css_whitelist_data', 'cwvpsb_get_whitelist_css', 10, 1);
 function cwvpsb_get_whitelist_css($html){

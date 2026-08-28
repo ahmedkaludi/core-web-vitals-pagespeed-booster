@@ -84,14 +84,16 @@ function cwvpsb_convert_webp(){
 }
 
 function cwvpsb_display_webp($content) {
-    $comp_dom = new DOMDocument();
-    libxml_use_internal_errors(true);
-    $decodedHtml = html_entity_decode($content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-    if(!$decodedHtml){
+    if ( ! $content ) {
         return $content;
     }
-    $comp_dom->loadHTML( $decodedHtml );
+    $comp_dom = new DOMDocument();
+    libxml_use_internal_errors(true);
+    $loaded = cwvpsb_dom_load_html( $comp_dom, $content );
     libxml_clear_errors();
+    if ( ! $loaded ) {
+        return $content;
+    }
 
     $xpath = new DOMXPath($comp_dom);
     $nodes = $xpath->query('//img[@src]');
@@ -156,8 +158,7 @@ function cwvpsb_display_webp($content) {
         }
     }
 
-    $content = $comp_dom->saveHTML();
-    return $content;
+    return cwvpsb_dom_save_html( $comp_dom );
 }
 
 // function to display webp images where 

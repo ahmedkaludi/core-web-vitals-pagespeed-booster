@@ -2,7 +2,7 @@
 Contributors: magazine3
 Requires at least: 4.7.1
 Tested up to: 7.1
-Stable tag: 1.0.31
+Stable tag: 1.0.32
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: core web vitals, optimization, pagespeed, performance, cache
@@ -39,6 +39,9 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 * WebP Convert library used https://github.com/rosell-dk/webp-convert - License URI: https://github.com/rosell-dk/webp-convert?tab=MIT-1-ov-file (WebP Convert is freely distributable under the terms of an MIT-style license.)
 
 == Changelog ==
+= 1.0.32 (28 August 2026) =
+* Fixed : Reflected XSS via the search query (?s=) caused by html_entity_decode() on full-page HTML and DOMDocument title/textarea entity leakage
+
 = 1.0.31 (19 August 2026) =
 * Test : Tested upto WordPress 7.1
 
