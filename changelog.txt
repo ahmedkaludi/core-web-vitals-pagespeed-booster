@@ -1,5 +1,5 @@
-= 1.0.32 (28 August 2026) =
-* Fixed : Reflected XSS via the search query (?s=) caused by html_entity_decode() on full-page HTML disclosed by Wordfence (Nguyen Nhat Long)
+= 1.0.32 (11 September 2026) =
+* Fixed : Reflected XSS via the search query (?s=) caused by html_entity_decode() disclosed by Nguyen Nhat Long
 
 = 1.0.31 (19 August 2026) =
 * Test : Tested upto WordPress 7.1
