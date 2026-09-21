@@ -251,6 +251,100 @@ function cwvpsb_google_fonts_swap( $html ) {
 	return $html;
 }
 
+/**
+ * Replace decoded "<" / ">" in title/textarea with placeholders before saveHTML().
+ *
+ * libxml decodes entities in RCDATA elements on load, and saveHTML() often does
+ * not re-escape them. Putting htmlspecialchars() into the text node would then
+ * be double-encoded when saveHTML() encodes "&". Placeholders avoid that.
+ *
+ * @param DOMDocument $document Document after loadHTML().
+ * @return array<string, string> Placeholder => escaped text map.
+ */
+function cwvpsb_extract_rcdata_placeholders( $document ) {
+	$placeholders = array();
+	if ( ! $document instanceof DOMDocument ) {
+		return $placeholders;
+	}
+
+	$index = 0;
+	foreach ( array( 'title', 'textarea' ) as $tag ) {
+		$nodes = $document->getElementsByTagName( $tag );
+		for ( $i = 0, $count = $nodes->length; $i < $count; $i++ ) {
+			$node = $nodes->item( $i );
+			if ( ! $node ) {
+				continue;
+			}
+
+			$text = $node->textContent;
+			if ( '' === $text || ( false === strpos( $text, '<' ) && false === strpos( $text, '>' ) ) ) {
+				continue;
+			}
+
+			$key                  = 'cwvpsb-rcdata-' . $index;
+			$placeholders[ $key ] = str_replace( array( '<', '>' ), array( '&lt;', '&gt;' ), $text );
+
+			while ( $node->firstChild ) {
+				$node->removeChild( $node->firstChild );
+			}
+			$node->appendChild( $document->createTextNode( $key ) );
+			++$index;
+		}
+	}
+
+	return $placeholders;
+}
+
+/**
+ * Load HTML into DOMDocument without decoding WordPress-escaped user input.
+ *
+ * Never run html_entity_decode() on the full document: that reverses esc_html()
+ * / esc_attr() and enables reflected XSS via ?s=.
+ *
+ * @param DOMDocument $document Target document.
+ * @param string      $html     Full HTML document.
+ * @return bool
+ */
+function cwvpsb_dom_load_html( $document, $html ) {
+	if ( ! $document instanceof DOMDocument || ! is_string( $html ) || '' === $html ) {
+		return false;
+	}
+
+	if ( function_exists( 'mb_encode_numericentity' ) ) {
+		$html = mb_encode_numericentity( $html, array( 0x80, 0x10FFFF, 0, 0x1FFFFF ), 'UTF-8' );
+	}
+
+	return (bool) $document->loadHTML( '<?xml encoding="UTF-8">' . $html );
+}
+
+/**
+ * Serialize a DOMDocument without html_entity_decode() on the full output.
+ *
+ * @param DOMDocument  $document Document to serialize.
+ * @param DOMNode|null $node     Optional node to serialize instead of the document.
+ * @return string
+ */
+function cwvpsb_dom_save_html( $document, $node = null ) {
+	if ( ! $document instanceof DOMDocument ) {
+		return '';
+	}
+
+	$placeholders = cwvpsb_extract_rcdata_placeholders( $document );
+
+	$html = ( null === $node ) ? $document->saveHTML() : $document->saveHTML( $node );
+	if ( ! is_string( $html ) ) {
+		return '';
+	}
+
+	$html = (string) preg_replace( '/^<\?xml[^>]*\?>\s*/i', '', $html );
+
+	if ( ! empty( $placeholders ) ) {
+		$html = str_replace( array_keys( $placeholders ), array_values( $placeholders ), $html );
+	}
+
+	return $html;
+}
+
 add_filter( 'cwvpsb_complete_html_after_dom_loaded', 'cwvpsb_web_vitals_changes' );
 function cwvpsb_web_vitals_changes( $html ) {
 	if ( ! $html ) {
@@ -278,8 +372,11 @@ function cwvpsb_web_vitals_changes( $html ) {
 
 	$tmpDoc = new DOMDocument();
 	libxml_use_internal_errors( true );
-	$tmpDoc->loadHTML( mb_convert_encoding( $html, 'HTML-ENTITIES', 'UTF-8' ) );
-	libxml_use_internal_errors( false );
+	$loaded = cwvpsb_dom_load_html( $tmpDoc, $html );
+	libxml_clear_errors();
+	if ( ! $loaded ) {
+		return $html;
+	}
 	$xpath  = new DOMXPath( $tmpDoc );
 	$domImg = $xpath->query( '//img[@src]' );
 
@@ -334,9 +431,7 @@ function cwvpsb_web_vitals_changes( $html ) {
 			}
 		}
 	}
-	$html = $tmpDoc->saveHTML();
-	$html = html_entity_decode( $html, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
-	return $html;
+	return cwvpsb_dom_save_html( $tmpDoc );
 }
 
 add_action( 'current_screen', 'cwvpsb_remove_wp_footer_notice' );
