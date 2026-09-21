@@ -39,7 +39,7 @@ Bug reports for Core Web Vitals & PageSpeed Booster are [welcomed on GitHub](htt
 * WebP Convert library used https://github.com/rosell-dk/webp-convert - License URI: https://github.com/rosell-dk/webp-convert?tab=MIT-1-ov-file (WebP Convert is freely distributable under the terms of an MIT-style license.)
 
 == Changelog ==
-= 1.0.32 (11 September 2026) =
+= 1.0.32 (21 September 2026) =
 * Fixed : Reflected XSS via the search query (?s=) caused by html_entity_decode() disclosed by Nguyen Nhat Long
 
 = 1.0.31 (19 August 2026) =
